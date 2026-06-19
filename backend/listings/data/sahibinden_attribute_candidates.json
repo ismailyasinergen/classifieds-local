@@ -1,0 +1,1202 @@
+{
+  "source_count": 2,
+  "sources": [
+    {
+      "file": "backend\\reference_html\\sahibinden\\emlak_konut_daire.html",
+      "category_key": "emlak_konut_daire",
+      "display_name": "Emlak Konut Daire",
+      "title": "ELA İNŞAAT'TAN PAZARA YAKIN ÇATISI KALKIK LÜKS DUBLEKS 220M2 4+2",
+      "canonical_url": "https://www.sahibinden.com/ilan/emlak-konut-satilik-ela-insaat-tan-pazara-yakin-catisi-kalkik-luks-dubleks-220m2-4-plus2-1313538591/detay",
+      "attribute_count": 23,
+      "attributes": [
+        {
+          "key": "aidat_tl",
+          "label": "Aidat (TL)",
+          "input_type": "number",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "0"
+          ]
+        },
+        {
+          "key": "asansor",
+          "label": "Asansör",
+          "input_type": "boolean",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Yok"
+          ]
+        },
+        {
+          "key": "balkon",
+          "label": "Balkon",
+          "input_type": "boolean",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Var"
+          ]
+        },
+        {
+          "key": "banyo_sayisi",
+          "label": "Banyo Sayısı",
+          "input_type": "number",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "2"
+          ]
+        },
+        {
+          "key": "bina_yasi",
+          "label": "Bina Yaşı",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "16-20 arası"
+          ]
+        },
+        {
+          "key": "bulundugu_kat",
+          "label": "Bulunduğu Kat",
+          "input_type": "number",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "4"
+          ]
+        },
+        {
+          "key": "emlak_tipi",
+          "label": "Emlak Tipi",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Satılık Daire"
+          ]
+        },
+        {
+          "key": "enerji_kimlik_belgesi",
+          "label": "Enerji Kimlik Belgesi",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "A"
+          ]
+        },
+        {
+          "key": "esyali",
+          "label": "Eşyalı",
+          "input_type": "boolean",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Hayır"
+          ]
+        },
+        {
+          "key": "isitma",
+          "label": "Isıtma",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Kombi (Doğalgaz)"
+          ]
+        },
+        {
+          "key": "kat_sayisi",
+          "label": "Kat Sayısı",
+          "input_type": "number",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "5"
+          ]
+        },
+        {
+          "key": "kimden",
+          "label": "Kimden",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Emlak Ofisinden"
+          ]
+        },
+        {
+          "key": "krediye_uygun",
+          "label": "Krediye Uygun",
+          "input_type": "boolean",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Evet"
+          ]
+        },
+        {
+          "key": "kullanim_durumu",
+          "label": "Kullanım Durumu",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Mülk Sahibi"
+          ]
+        },
+        {
+          "key": "mutfak",
+          "label": "Mutfak",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Kapalı"
+          ]
+        },
+        {
+          "key": "m2_brut",
+          "label": "m² (Brüt)",
+          "input_type": "number",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "230"
+          ]
+        },
+        {
+          "key": "m2_net",
+          "label": "m² (Net)",
+          "input_type": "number",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "220"
+          ]
+        },
+        {
+          "key": "oda_sayisi",
+          "label": "Oda Sayısı",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "4+2"
+          ]
+        },
+        {
+          "key": "otopark",
+          "label": "Otopark",
+          "input_type": "boolean",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Yok"
+          ]
+        },
+        {
+          "key": "site_adi",
+          "label": "Site Adı",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Belirtilmemiş"
+          ]
+        },
+        {
+          "key": "site_icerisinde",
+          "label": "Site İçerisinde",
+          "input_type": "boolean",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Hayır"
+          ]
+        },
+        {
+          "key": "takas",
+          "label": "Takas",
+          "input_type": "boolean",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Hayır"
+          ]
+        },
+        {
+          "key": "tapu_durumu",
+          "label": "Tapu Durumu",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Kat İrtifaklı"
+          ]
+        }
+      ]
+    },
+    {
+      "file": "backend\\reference_html\\sahibinden\\vasita_otomobil_bmw.html",
+      "category_key": "vasita_otomobil_bmw",
+      "display_name": "Vasita Otomobil Bmw",
+      "title": "2016 ÇIKIŞ HATASIZ BOYASIZ HAYALET+SUNROOF+VAKUM+E.BGJ!",
+      "canonical_url": "https://www.sahibinden.com/ilan/vasita-otomobil-bmw-2016-cikis-hatasiz-boyasiz-hayalet-plussunroof-plusvakum-pluse.bgj-1323511780/detay",
+      "attribute_count": 43,
+      "attributes": [
+        {
+          "key": "arac_durumu",
+          "label": "Araç Durumu",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "İkinci El"
+          ]
+        },
+        {
+          "key": "azami_surat",
+          "label": "Azami Sürat",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "226 km/saat"
+          ]
+        },
+        {
+          "key": "agir_hasar_kayitli",
+          "label": "Ağır Hasar Kayıtlı",
+          "input_type": "boolean",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Hayır"
+          ]
+        },
+        {
+          "key": "bagaj_kapasitesi",
+          "label": "Bagaj Kapasitesi",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "520 lt"
+          ]
+        },
+        {
+          "key": "dis_donanim",
+          "label": "Dış Donanım",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Yan Aynalar - Otomatik Kararan"
+          ]
+        },
+        {
+          "key": "garanti",
+          "label": "Garanti",
+          "input_type": "boolean",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Evet"
+          ]
+        },
+        {
+          "key": "genislik",
+          "label": "Genişlik",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "1860 mm"
+          ]
+        },
+        {
+          "key": "hizlanma_0_100_km_saat",
+          "label": "Hızlanma 0-100 km/saat",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "8,7 sn"
+          ]
+        },
+        {
+          "key": "ic_donanim",
+          "label": "İç Donanım",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Hidrolik Direksiyon - Hıza Duyarlı"
+          ]
+        },
+        {
+          "key": "kasa_tipi",
+          "label": "Kasa Tipi",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Sedan"
+          ]
+        },
+        {
+          "key": "kasa_tipi_kapi_sayisi",
+          "label": "Kasa Tipi / Kapı Sayısı",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Sedan / 4 Kapı"
+          ]
+        },
+        {
+          "key": "kimden",
+          "label": "Kimden",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Galeriden"
+          ]
+        },
+        {
+          "key": "km",
+          "label": "KM",
+          "input_type": "number",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "146.000"
+          ]
+        },
+        {
+          "key": "koltuk_sayisi",
+          "label": "Koltuk Sayısı",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "5 Koltuk"
+          ]
+        },
+        {
+          "key": "konfor",
+          "label": "Konfor",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Elektrikli Camlar"
+          ]
+        },
+        {
+          "key": "lastik_olculeri",
+          "label": "Lastik Ölçüleri",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "225/55 R17"
+          ]
+        },
+        {
+          "key": "maksimum_guc",
+          "label": "Maksimum Güç",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "170 hp (125 kw) / 6.000 rpm"
+          ]
+        },
+        {
+          "key": "maksimum_tork",
+          "label": "Maksimum Tork",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "250 Nm / 4.700 rpm"
+          ]
+        },
+        {
+          "key": "marka",
+          "label": "Marka",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "BMW"
+          ]
+        },
+        {
+          "key": "model",
+          "label": "Model",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "520i Premium"
+          ]
+        },
+        {
+          "key": "model_uretim_yili_ilk_son",
+          "label": "Model Üretim Yılı (İlk / Son)",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "2013 / 2017"
+          ]
+        },
+        {
+          "key": "motor_gucu",
+          "label": "Motor Gücü",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "170 hp"
+          ]
+        },
+        {
+          "key": "motor_hacmi",
+          "label": "Motor Hacmi",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "1592 cc"
+          ]
+        },
+        {
+          "key": "motor_tipi",
+          "label": "Motor Tipi",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Benzinli / 4 silindir"
+          ]
+        },
+        {
+          "key": "multimedya",
+          "label": "Multimedya",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Navigasyon"
+          ]
+        },
+        {
+          "key": "net_agirlik",
+          "label": "Net Ağırlık",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "1690 kg"
+          ]
+        },
+        {
+          "key": "ortalama_100_km_de",
+          "label": "Ortalama (100 km'de)",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "6,7 lt"
+          ]
+        },
+        {
+          "key": "plaka_uyruk",
+          "label": "Plaka / Uyruk",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Türkiye (TR) Plakalı"
+          ]
+        },
+        {
+          "key": "renk",
+          "label": "Renk",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Beyaz"
+          ]
+        },
+        {
+          "key": "segmenti",
+          "label": "Segmenti",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "E Segment"
+          ]
+        },
+        {
+          "key": "seri",
+          "label": "Seri",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "5 Serisi"
+          ]
+        },
+        {
+          "key": "takas",
+          "label": "Takas",
+          "input_type": "boolean",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Hayır"
+          ]
+        },
+        {
+          "key": "uzunluk",
+          "label": "Uzunluk",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "4907 mm"
+          ]
+        },
+        {
+          "key": "vites",
+          "label": "Vites",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Otomatik"
+          ]
+        },
+        {
+          "key": "yakit_depo_hacmi",
+          "label": "Yakıt Depo Hacmi",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "70 lt"
+          ]
+        },
+        {
+          "key": "yakit_tipi",
+          "label": "Yakıt Tipi",
+          "input_type": "choice",
+          "required": false,
+          "count": 2,
+          "sample_values": [
+            "Benzinli",
+            "Benzinli / EURO 6"
+          ]
+        },
+        {
+          "key": "yakit_tuketimi_sehir_ici_sehir_disi",
+          "label": "Yakıt Tüketimi (Şehir içi / Şehir dışı)",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "8,7 lt / 5,5 lt"
+          ]
+        },
+        {
+          "key": "yukseklik",
+          "label": "Yükseklik",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "1464 mm"
+          ]
+        },
+        {
+          "key": "yil",
+          "label": "Yıl",
+          "input_type": "number",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "2015"
+          ]
+        },
+        {
+          "key": "cekis",
+          "label": "Çekiş",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Arkadan İtiş"
+          ]
+        },
+        {
+          "key": "sanziman_cekis",
+          "label": "Şanzıman / Çekiş",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "Otomatik / 8 Vites / Arkadan İtiş"
+          ]
+        },
+        {
+          "key": "sehir_disi_100_km_de",
+          "label": "Şehir dışı (100 km'de)",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "5,5 lt"
+          ]
+        },
+        {
+          "key": "sehir_ici_100_km_de",
+          "label": "Şehir içi (100 km'de)",
+          "input_type": "text",
+          "required": false,
+          "count": 1,
+          "sample_values": [
+            "8,7 lt"
+          ]
+        }
+      ]
+    }
+  ],
+  "all_attribute_labels": [
+    {
+      "key": "agir_hasar_kayitli",
+      "label": "Ağır Hasar Kayıtlı",
+      "source_count": 1,
+      "sample_values": [
+        "Hayır"
+      ]
+    },
+    {
+      "key": "aidat_tl",
+      "label": "Aidat (TL)",
+      "source_count": 1,
+      "sample_values": [
+        "0"
+      ]
+    },
+    {
+      "key": "arac_durumu",
+      "label": "Araç Durumu",
+      "source_count": 1,
+      "sample_values": [
+        "İkinci El"
+      ]
+    },
+    {
+      "key": "asansor",
+      "label": "Asansör",
+      "source_count": 1,
+      "sample_values": [
+        "Yok"
+      ]
+    },
+    {
+      "key": "azami_surat",
+      "label": "Azami Sürat",
+      "source_count": 1,
+      "sample_values": [
+        "226 km/saat"
+      ]
+    },
+    {
+      "key": "bagaj_kapasitesi",
+      "label": "Bagaj Kapasitesi",
+      "source_count": 1,
+      "sample_values": [
+        "520 lt"
+      ]
+    },
+    {
+      "key": "balkon",
+      "label": "Balkon",
+      "source_count": 1,
+      "sample_values": [
+        "Var"
+      ]
+    },
+    {
+      "key": "banyo_sayisi",
+      "label": "Banyo Sayısı",
+      "source_count": 1,
+      "sample_values": [
+        "2"
+      ]
+    },
+    {
+      "key": "bina_yasi",
+      "label": "Bina Yaşı",
+      "source_count": 1,
+      "sample_values": [
+        "16-20 arası"
+      ]
+    },
+    {
+      "key": "bulundugu_kat",
+      "label": "Bulunduğu Kat",
+      "source_count": 1,
+      "sample_values": [
+        "4"
+      ]
+    },
+    {
+      "key": "cekis",
+      "label": "Çekiş",
+      "source_count": 1,
+      "sample_values": [
+        "Arkadan İtiş"
+      ]
+    },
+    {
+      "key": "dis_donanim",
+      "label": "Dış Donanım",
+      "source_count": 1,
+      "sample_values": [
+        "Yan Aynalar - Otomatik Kararan"
+      ]
+    },
+    {
+      "key": "emlak_tipi",
+      "label": "Emlak Tipi",
+      "source_count": 1,
+      "sample_values": [
+        "Satılık Daire"
+      ]
+    },
+    {
+      "key": "enerji_kimlik_belgesi",
+      "label": "Enerji Kimlik Belgesi",
+      "source_count": 1,
+      "sample_values": [
+        "A"
+      ]
+    },
+    {
+      "key": "esyali",
+      "label": "Eşyalı",
+      "source_count": 1,
+      "sample_values": [
+        "Hayır"
+      ]
+    },
+    {
+      "key": "garanti",
+      "label": "Garanti",
+      "source_count": 1,
+      "sample_values": [
+        "Evet"
+      ]
+    },
+    {
+      "key": "genislik",
+      "label": "Genişlik",
+      "source_count": 1,
+      "sample_values": [
+        "1860 mm"
+      ]
+    },
+    {
+      "key": "hizlanma_0_100_km_saat",
+      "label": "Hızlanma 0-100 km/saat",
+      "source_count": 1,
+      "sample_values": [
+        "8,7 sn"
+      ]
+    },
+    {
+      "key": "ic_donanim",
+      "label": "İç Donanım",
+      "source_count": 1,
+      "sample_values": [
+        "Hidrolik Direksiyon - Hıza Duyarlı"
+      ]
+    },
+    {
+      "key": "isitma",
+      "label": "Isıtma",
+      "source_count": 1,
+      "sample_values": [
+        "Kombi (Doğalgaz)"
+      ]
+    },
+    {
+      "key": "kasa_tipi",
+      "label": "Kasa Tipi",
+      "source_count": 1,
+      "sample_values": [
+        "Sedan"
+      ]
+    },
+    {
+      "key": "kasa_tipi_kapi_sayisi",
+      "label": "Kasa Tipi / Kapı Sayısı",
+      "source_count": 1,
+      "sample_values": [
+        "Sedan / 4 Kapı"
+      ]
+    },
+    {
+      "key": "kat_sayisi",
+      "label": "Kat Sayısı",
+      "source_count": 1,
+      "sample_values": [
+        "5"
+      ]
+    },
+    {
+      "key": "kimden",
+      "label": "Kimden",
+      "source_count": 2,
+      "sample_values": [
+        "Emlak Ofisinden",
+        "Galeriden"
+      ]
+    },
+    {
+      "key": "km",
+      "label": "KM",
+      "source_count": 1,
+      "sample_values": [
+        "146.000"
+      ]
+    },
+    {
+      "key": "koltuk_sayisi",
+      "label": "Koltuk Sayısı",
+      "source_count": 1,
+      "sample_values": [
+        "5 Koltuk"
+      ]
+    },
+    {
+      "key": "konfor",
+      "label": "Konfor",
+      "source_count": 1,
+      "sample_values": [
+        "Elektrikli Camlar"
+      ]
+    },
+    {
+      "key": "krediye_uygun",
+      "label": "Krediye Uygun",
+      "source_count": 1,
+      "sample_values": [
+        "Evet"
+      ]
+    },
+    {
+      "key": "kullanim_durumu",
+      "label": "Kullanım Durumu",
+      "source_count": 1,
+      "sample_values": [
+        "Mülk Sahibi"
+      ]
+    },
+    {
+      "key": "lastik_olculeri",
+      "label": "Lastik Ölçüleri",
+      "source_count": 1,
+      "sample_values": [
+        "225/55 R17"
+      ]
+    },
+    {
+      "key": "m2_brut",
+      "label": "m² (Brüt)",
+      "source_count": 1,
+      "sample_values": [
+        "230"
+      ]
+    },
+    {
+      "key": "m2_net",
+      "label": "m² (Net)",
+      "source_count": 1,
+      "sample_values": [
+        "220"
+      ]
+    },
+    {
+      "key": "maksimum_guc",
+      "label": "Maksimum Güç",
+      "source_count": 1,
+      "sample_values": [
+        "170 hp (125 kw) / 6.000 rpm"
+      ]
+    },
+    {
+      "key": "maksimum_tork",
+      "label": "Maksimum Tork",
+      "source_count": 1,
+      "sample_values": [
+        "250 Nm / 4.700 rpm"
+      ]
+    },
+    {
+      "key": "marka",
+      "label": "Marka",
+      "source_count": 1,
+      "sample_values": [
+        "BMW"
+      ]
+    },
+    {
+      "key": "model",
+      "label": "Model",
+      "source_count": 1,
+      "sample_values": [
+        "520i Premium"
+      ]
+    },
+    {
+      "key": "model_uretim_yili_ilk_son",
+      "label": "Model Üretim Yılı (İlk / Son)",
+      "source_count": 1,
+      "sample_values": [
+        "2013 / 2017"
+      ]
+    },
+    {
+      "key": "motor_gucu",
+      "label": "Motor Gücü",
+      "source_count": 1,
+      "sample_values": [
+        "170 hp"
+      ]
+    },
+    {
+      "key": "motor_hacmi",
+      "label": "Motor Hacmi",
+      "source_count": 1,
+      "sample_values": [
+        "1592 cc"
+      ]
+    },
+    {
+      "key": "motor_tipi",
+      "label": "Motor Tipi",
+      "source_count": 1,
+      "sample_values": [
+        "Benzinli / 4 silindir"
+      ]
+    },
+    {
+      "key": "multimedya",
+      "label": "Multimedya",
+      "source_count": 1,
+      "sample_values": [
+        "Navigasyon"
+      ]
+    },
+    {
+      "key": "mutfak",
+      "label": "Mutfak",
+      "source_count": 1,
+      "sample_values": [
+        "Kapalı"
+      ]
+    },
+    {
+      "key": "net_agirlik",
+      "label": "Net Ağırlık",
+      "source_count": 1,
+      "sample_values": [
+        "1690 kg"
+      ]
+    },
+    {
+      "key": "oda_sayisi",
+      "label": "Oda Sayısı",
+      "source_count": 1,
+      "sample_values": [
+        "4+2"
+      ]
+    },
+    {
+      "key": "ortalama_100_km_de",
+      "label": "Ortalama (100 km'de)",
+      "source_count": 1,
+      "sample_values": [
+        "6,7 lt"
+      ]
+    },
+    {
+      "key": "otopark",
+      "label": "Otopark",
+      "source_count": 1,
+      "sample_values": [
+        "Yok"
+      ]
+    },
+    {
+      "key": "plaka_uyruk",
+      "label": "Plaka / Uyruk",
+      "source_count": 1,
+      "sample_values": [
+        "Türkiye (TR) Plakalı"
+      ]
+    },
+    {
+      "key": "renk",
+      "label": "Renk",
+      "source_count": 1,
+      "sample_values": [
+        "Beyaz"
+      ]
+    },
+    {
+      "key": "sanziman_cekis",
+      "label": "Şanzıman / Çekiş",
+      "source_count": 1,
+      "sample_values": [
+        "Otomatik / 8 Vites / Arkadan İtiş"
+      ]
+    },
+    {
+      "key": "segmenti",
+      "label": "Segmenti",
+      "source_count": 1,
+      "sample_values": [
+        "E Segment"
+      ]
+    },
+    {
+      "key": "sehir_disi_100_km_de",
+      "label": "Şehir dışı (100 km'de)",
+      "source_count": 1,
+      "sample_values": [
+        "5,5 lt"
+      ]
+    },
+    {
+      "key": "sehir_ici_100_km_de",
+      "label": "Şehir içi (100 km'de)",
+      "source_count": 1,
+      "sample_values": [
+        "8,7 lt"
+      ]
+    },
+    {
+      "key": "seri",
+      "label": "Seri",
+      "source_count": 1,
+      "sample_values": [
+        "5 Serisi"
+      ]
+    },
+    {
+      "key": "site_adi",
+      "label": "Site Adı",
+      "source_count": 1,
+      "sample_values": [
+        "Belirtilmemiş"
+      ]
+    },
+    {
+      "key": "site_icerisinde",
+      "label": "Site İçerisinde",
+      "source_count": 1,
+      "sample_values": [
+        "Hayır"
+      ]
+    },
+    {
+      "key": "takas",
+      "label": "Takas",
+      "source_count": 2,
+      "sample_values": [
+        "Hayır"
+      ]
+    },
+    {
+      "key": "tapu_durumu",
+      "label": "Tapu Durumu",
+      "source_count": 1,
+      "sample_values": [
+        "Kat İrtifaklı"
+      ]
+    },
+    {
+      "key": "uzunluk",
+      "label": "Uzunluk",
+      "source_count": 1,
+      "sample_values": [
+        "4907 mm"
+      ]
+    },
+    {
+      "key": "vites",
+      "label": "Vites",
+      "source_count": 1,
+      "sample_values": [
+        "Otomatik"
+      ]
+    },
+    {
+      "key": "yakit_depo_hacmi",
+      "label": "Yakıt Depo Hacmi",
+      "source_count": 1,
+      "sample_values": [
+        "70 lt"
+      ]
+    },
+    {
+      "key": "yakit_tipi",
+      "label": "Yakıt Tipi",
+      "source_count": 1,
+      "sample_values": [
+        "Benzinli",
+        "Benzinli / EURO 6"
+      ]
+    },
+    {
+      "key": "yakit_tuketimi_sehir_ici_sehir_disi",
+      "label": "Yakıt Tüketimi (Şehir içi / Şehir dışı)",
+      "source_count": 1,
+      "sample_values": [
+        "8,7 lt / 5,5 lt"
+      ]
+    },
+    {
+      "key": "yil",
+      "label": "Yıl",
+      "source_count": 1,
+      "sample_values": [
+        "2015"
+      ]
+    },
+    {
+      "key": "yukseklik",
+      "label": "Yükseklik",
+      "source_count": 1,
+      "sample_values": [
+        "1464 mm"
+      ]
+    }
+  ]
+}

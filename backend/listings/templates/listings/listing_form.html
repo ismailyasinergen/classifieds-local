@@ -1,6 +1,71 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <style>
+        .listing-form-shell {
+            display: grid;
+            gap: 16px;
+            max-width: 980px;
+        }
+
+        .listing-form-panel {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .listing-form-panel h2 {
+            margin-top: 0;
+        }
+
+        .listing-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 12px 16px;
+        }
+
+        .listing-form-row {
+            display: grid;
+            gap: 5px;
+        }
+
+        .listing-form-row label {
+            font-weight: 700;
+        }
+
+        .listing-form-row input,
+        .listing-form-row select,
+        .listing-form-row textarea {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .listing-form-row textarea {
+            min-height: 120px;
+        }
+
+        .listing-form-help {
+            background:#fff3cd;
+            border:1px solid #ffeeba;
+            padding:10px;
+            border-radius:6px;
+        }
+
+        .attribute-empty-note {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .listing-form-errors {
+            color: #8a1f11;
+            background: #fdecea;
+            border: 1px solid #f5c2c7;
+            padding: 10px;
+            border-radius: 6px;
+        }
+    </style>
+
     <div class="page-title-row">
         <h1>{{ page_title }}</h1>
 
@@ -9,23 +74,112 @@
         </a>
     </div>
 
-    <p style="background:#fff3cd; border:1px solid #ffeeba; padding:10px; border-radius:6px;">
+    <p class="listing-form-help">
         New or edited listings will be saved as <strong>Pending approval</strong>.
         Admin must approve them before they appear publicly.
     </p>
 
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" class="listing-form-shell">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        {% if form.non_field_errors %}
+            <div class="listing-form-errors">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <section class="listing-form-panel">
+            <h2>Basic Information</h2>
+
+            <div class="listing-form-grid">
+                {% for field in form.visible_fields %}
+                    {% if field.name in form.base_field_names %}
+                        <p class="listing-form-row">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}
+                                <span class="muted">{{ field.help_text }}</span>
+                            {% endif %}
+                            {{ field.errors }}
+                        </p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="listing-form-panel">
+            <h2>Category Details</h2>
+            <p class="attribute-empty-note" id="attribute-empty-note">
+                Select a category to show the matching detail fields.
+            </p>
+
+            <div class="listing-form-grid" id="schema-attribute-fields">
+                {% for field in form.visible_fields %}
+                    {% if field.name in form.attribute_field_names %}
+                        <p class="listing-form-row schema-attribute-row">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {{ field.errors }}
+                        </p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="listing-form-panel">
+            <h2>Images</h2>
+
+            <p>
+                <label for="id_images"><strong>Add images</strong></label><br>
+                <input type="file" name="images" id="id_images" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" multiple><br>
+                <span class="muted">Allowed: JPG, PNG, WEBP, GIF. Videos are not supported yet.</span>
+            </p>
+        </section>
 
         <p>
-            <label for="id_images"><strong>Add images</strong></label><br>
-            <input type="file" name="images" id="id_images" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" multiple><br><span class="muted">Allowed: JPG, PNG, WEBP, GIF. Videos are not supported yet.</span>
+            <button class="button-primary" type="submit">Save Listing</button>
+            <a class="button-link" href="{% url 'accounts:my_listings' %}">Cancel</a>
         </p>
-
-        <button class="button-primary" type="submit">Save Listing</button>
-        <a class="button-link" href="{% url 'accounts:my_listings' %}">Cancel</a>
     </form>
+
+    {{ form.category_schema_by_id|json_script:"category-schema-map" }}
+
+    <script>
+        (function () {
+            const categorySelect = document.getElementById("id_category");
+            const schemaMapElement = document.getElementById("category-schema-map");
+            const emptyNote = document.getElementById("attribute-empty-note");
+
+                return;
+            }
+
+            const categorySchemaMap = JSON.parse(schemaMapElement.textContent);
+
+            function updateAttributeRows() {
+                const schemaKey = categorySchemaMap[categorySelect.value] || "";
+                let visibleCount = 0;
+
+                document.querySelectorAll(".schema-attribute-row").forEach(function (row) {
+                    const field = row.querySelector("input, select, textarea");
+                    const schemaKeys = field ? (field.dataset.schemaKeys || "") : "";
+                    const shouldShow = schemaKey && schemaKeys.split(",").includes(schemaKey);
+
+                    row.style.display = shouldShow ? "grid" : "none";
+
+                    if (shouldShow) {
+                        visibleCount += 1;
+                    }
+                });
+
+                if (emptyNote) {
+                    emptyNote.style.display = visibleCount ? "none" : "block";
+                }
+            }
+
+            categorySelect.addEventListener("change", updateAttributeRows);
+            updateAttributeRows();
+        })();
+    </script>
 
     {% if object and object.images.exists %}
         <hr>

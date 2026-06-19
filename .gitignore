@@ -32,3 +32,4 @@ appeal_deadline_and_layout_test_output.txt
 appeal_extra_evidence_test_output.txt
 test_extra_evidence.pdf
 backend/test_extra_evidence_browser_upload.pdf
+backend/reference_html/

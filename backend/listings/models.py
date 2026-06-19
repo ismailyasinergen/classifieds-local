@@ -99,19 +99,9 @@ class Listing(models.Model):
 
     @property
     def display_attributes(self):
-        rows = []
-        data = self.attributes or {}
+        from .attribute_schema import get_display_attributes
 
-        for key, label in self.ATTRIBUTE_LABELS.items():
-            value = data.get(key)
-
-            if value in (None, "", [], {}):
-                continue
-
-            value = self.ATTRIBUTE_VALUE_LABELS.get(key, {}).get(value, value)
-            rows.append((label, value))
-
-        return rows
+        return get_display_attributes(self)
 
 
 class ListingImage(models.Model):

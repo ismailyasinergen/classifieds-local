@@ -1,75 +1,30 @@
 from django import forms
 
+from .attribute_schema import (
+    get_all_attribute_definitions,
+    get_attribute_definitions_for_category,
+    get_attribute_field_name,
+    get_attribute_key_from_field_name,
+    get_category_schema_by_id,
+    get_known_attribute_keys,
+    parse_boolean,
+)
 from .models import Listing
 
 
-OPTIONAL_ATTRIBUTE_FIELDS = [
-    "brand",
-    "model_name",
-    "model_year",
-    "mileage",
-    "fuel_type",
-    "transmission",
-    "color",
-    "condition",
-    "warranty",
-    "accepts_exchange",
+BASE_LISTING_FIELDS = [
+    "title",
+    "description",
+    "price",
+    "category",
+    "location",
 ]
 
 
 class ListingForm(forms.ModelForm):
-    brand = forms.CharField(label="Brand", required=False, max_length=80)
-    model_name = forms.CharField(label="Model / Series", required=False, max_length=120)
-    model_year = forms.IntegerField(label="Year", required=False, min_value=1900, max_value=2100)
-    mileage = forms.IntegerField(label="Mileage / KM", required=False, min_value=0)
-    fuel_type = forms.ChoiceField(
-        label="Fuel Type",
-        required=False,
-        choices=[
-            ("", "---------"),
-            ("gasoline", "Gasoline"),
-            ("diesel", "Diesel"),
-            ("hybrid", "Hybrid"),
-            ("electric", "Electric"),
-            ("lpg", "LPG"),
-            ("other", "Other"),
-        ],
-    )
-    transmission = forms.ChoiceField(
-        label="Transmission",
-        required=False,
-        choices=[
-            ("", "---------"),
-            ("manual", "Manual"),
-            ("automatic", "Automatic"),
-            ("semi_automatic", "Semi-automatic"),
-            ("other", "Other"),
-        ],
-    )
-    color = forms.CharField(label="Color", required=False, max_length=80)
-    condition = forms.ChoiceField(
-        label="Condition",
-        required=False,
-        choices=[
-            ("", "---------"),
-            ("new", "New"),
-            ("used", "Used"),
-            ("damaged", "Damaged"),
-            ("other", "Other"),
-        ],
-    )
-    warranty = forms.BooleanField(label="Warranty", required=False)
-    accepts_exchange = forms.BooleanField(label="Accepts Exchange", required=False)
-
     class Meta:
         model = Listing
-        fields = [
-            "title",
-            "description",
-            "price",
-            "category",
-            "location",
-        ]
+        fields = BASE_LISTING_FIELDS
         widgets = {
             "description": forms.Textarea(attrs={"rows": 5}),
         }
@@ -77,33 +32,94 @@ class ListingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        saved_attributes = getattr(self.instance, "attributes", None) or {}
-        for field_name in OPTIONAL_ATTRIBUTE_FIELDS:
-            if field_name in saved_attributes:
-                self.fields[field_name].initial = saved_attributes[field_name]
+        self.base_field_names = list(BASE_LISTING_FIELDS)
+        self.attribute_field_names = []
+        self.category_schema_by_id = get_category_schema_by_id()
 
-        self.order_fields([
-            "title",
-            "description",
-            "price",
-            "category",
-            "location",
-            *OPTIONAL_ATTRIBUTE_FIELDS,
-        ])
+        saved_attributes = getattr(self.instance, "attributes", None) or {}
+
+        for attribute in get_all_attribute_definitions():
+            field_name = get_attribute_field_name(attribute["key"])
+            field = self._build_attribute_field(attribute)
+
+            if attribute["key"] in saved_attributes:
+                value = saved_attributes[attribute["key"]]
+
+                if attribute.get("input_type") == "boolean":
+                    parsed = parse_boolean(value)
+                    if parsed is True:
+                        field.initial = "true"
+                    elif parsed is False:
+                        field.initial = "false"
+                else:
+                    field.initial = value
+
+            self.fields[field_name] = field
+            self.attribute_field_names.append(field_name)
+
+        self.order_fields([*BASE_LISTING_FIELDS, *self.attribute_field_names])
+
+    def _build_attribute_field(self, attribute):
+        attrs = {
+            "data-schema-keys": ",".join(attribute.get("schema_keys", [])),
+            "data-local-category-slugs": ",".join(attribute.get("local_category_slugs", [])),
+        }
+
+        label = attribute.get("label", attribute["key"].replace("_", " ").title())
+
+        if attribute.get("input_type") == "boolean":
+            field = forms.ChoiceField(
+                label=label,
+                required=False,
+                choices=[
+                    ("", "---------"),
+                    ("true", "Yes"),
+                    ("false", "No"),
+                ],
+            )
+        else:
+            field = forms.CharField(
+                label=label,
+                required=False,
+                max_length=180,
+            )
+
+            if attribute.get("input_type") == "number":
+                attrs["inputmode"] = "decimal"
+
+        field.widget.attrs.update(attrs)
+        return field
+
+    def _selected_category(self, instance):
+        category = getattr(instance, "category", None)
+
+        if category:
+            return category
+
+        category_id = self.cleaned_data.get("category") or self.data.get("category")
+
+        return category_id if hasattr(category_id, "slug") else None
 
     def save(self, commit=True):
         instance = super().save(commit=False)
         attributes = dict(getattr(instance, "attributes", None) or {})
 
-        for field_name in OPTIONAL_ATTRIBUTE_FIELDS:
-            attributes.pop(field_name, None)
+        for key in get_known_attribute_keys():
+            attributes.pop(key, None)
+
+        selected_attribute_definitions = get_attribute_definitions_for_category(instance.category)
+
+        for attribute in selected_attribute_definitions:
+            key = attribute["key"]
+            field_name = get_attribute_field_name(key)
             value = self.cleaned_data.get(field_name)
 
-            if isinstance(value, bool):
-                if value:
-                    attributes[field_name] = value
+            if attribute.get("input_type") == "boolean":
+                parsed = parse_boolean(value)
+                if parsed is not None:
+                    attributes[key] = parsed
             elif value not in (None, ""):
-                attributes[field_name] = value
+                attributes[key] = value
 
         instance.attributes = attributes
 
