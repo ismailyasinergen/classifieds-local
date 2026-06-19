@@ -1,24 +1,26 @@
-        <div class="promotion-badges" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+<article class="listing-card">
+    {% if listing.owner.profile.is_verified_seller or listing.top_listing_until or listing.is_featured %}
+        <div class="promotion-badges">
             {% if listing.owner.profile.is_verified_seller %}
-                <span style="background:#e7f7ec; color:#135c2b; border:1px solid #9bd0aa; padding:4px 8px; border-radius:999px; font-size:12px;">
+                <span style="background:#e7f7ec; color:#135c2b; border:1px solid #9bd0aa; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700;">
                     VERIFIED SELLER
                 </span>
             {% endif %}
             {% if listing.top_listing_until %}
-                <span style="background:#222; color:#fff; padding:4px 8px; border-radius:999px; font-size:12px;">
+                <span style="background:#222; color:#fff; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700;">
                     TOP LISTING
                 </span>
             {% endif %}
 
             {% if listing.is_featured %}
-                <span style="background:#ffe08a; color:#222; padding:4px 8px; border-radius:999px; font-size:12px;">
+                <span style="background:#ffe08a; color:#222; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700;">
                     FEATURED
                 </span>
             {% endif %}
         </div>
+    {% endif %}
 
-<article class="listing-card">
-    <a href="{{ listing.get_absolute_url }}">
+    <a class="listing-media-link" href="{{ listing.get_absolute_url }}">
         {% with first_image=listing.images.first %}
             {% if first_image %}
                 <img class="listing-image" src="{{ first_image.image.url }}" alt="{{ listing.title }}" onerror="this.outerHTML='<div class=&quot;listing-placeholder&quot;>No image</div>'">
@@ -36,20 +38,20 @@
         </h2>
 
         <div class="price">{{ listing.price }} TL</div>
-        <div class="muted">{{ listing.location }}</div>
 
-        <div class="muted">
+        <div class="listing-card-meta">
+            <span>{{ listing.location }}</span>
             <a href="{{ listing.category.get_absolute_url }}">
                 {{ listing.category.name }}
             </a>
         </div>
 
-        <div class="muted">
+        <div class="listing-card-date">
             {{ listing.created_at|date:"M d, Y H:i" }}
         </div>
 
         {% if request.user.is_authenticated and request.user != listing.owner and listing.status == "approved" %}
-            <form method="post" action="{% url 'listings:listing_favorite_toggle' listing.pk %}" style="margin-top:10px;">
+            <form class="listing-card-action" method="post" action="{% url 'listings:listing_favorite_toggle' listing.pk %}">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
 

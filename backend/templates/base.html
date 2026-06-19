@@ -204,13 +204,54 @@
             transform: translateY(-1px);
         }
 
+        .listing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 16px;
+            align-items: start;
+        }
+
+        .listing-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fff;
+            overflow: hidden;
+            min-width: 0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+
+        .listing-card:hover {
+            transform: translateY(-2px);
+            border-color: #d0d0d0;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .listing-card .promotion-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding: 10px 10px 0;
+        }
+
+        .listing-card .promotion-badges span {
+            line-height: 1.2;
+            letter-spacing: 0.02em;
+        }
+
+        .listing-media-link {
+            display: block;
+            color: inherit;
+            text-decoration: none;
+        }
+
         .listing-image,
         .listing-placeholder {
             width: 100%;
-            height: 150px;
+            height: 156px;
             object-fit: cover;
             display: block;
-            background: #e9ecef;
+            background: #eef1f4;
         }
 
         .listing-placeholder {
@@ -222,25 +263,61 @@
         }
 
         .listing-card-body {
-            padding: 11px;
+            padding: 12px;
         }
 
         .listing-card h2 {
             font-size: 15px;
-            line-height: 1.3;
+            line-height: 1.32;
             margin: 0 0 8px;
-            min-height: 39px;
+            min-height: 40px;
         }
 
         .listing-card h2 a {
             color: #222;
+            text-decoration: none;
+        }
+
+        .listing-card h2 a:hover {
+            color: #1264a3;
+            text-decoration: underline;
         }
 
         .price {
-            font-weight: bold;
-            font-size: 17px;
-            margin: 8px 0;
+            font-weight: 800;
+            font-size: 18px;
+            margin: 8px 0 7px;
             color: #111;
+            letter-spacing: -0.01em;
+        }
+
+        .listing-card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .listing-card-meta a {
+            color: #1264a3;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .listing-card-date {
+            margin-top: 4px;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .listing-card-action {
+            margin-top: 10px;
+        }
+
+        .listing-card-action button {
+            width: 100%;
         }
 
         .muted {
