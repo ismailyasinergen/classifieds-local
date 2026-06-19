@@ -93,5 +93,5 @@ def my_seller_reports(request):
 
 
 # Backward-compatible names used by older URL configs.
-user_report_admin_list = seller_report_admin_list
+user_report_queue = seller_report_admin_list
 my_user_reports = my_seller_reports

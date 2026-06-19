@@ -37,6 +37,8 @@ from .views import (
 app_name = "accounts"
 
 
+from . import seller_report_views
+
 urlpatterns = [
     path(
         "appeals/",
@@ -78,8 +80,8 @@ path("dashboard/", dashboard_view, name="dashboard"),
     path("verification/<int:pk>/reject/", verification_reject_view, name="verification_reject"),
 
     path("users/<int:pk>/report/", user_report_create, name="user_report"),
-    path("seller-reports/my/", my_user_reports, name="my_user_reports"),
-    path("seller-reports/admin/", user_report_queue, name="user_report_queue"),
+    path("seller-reports/my/", seller_report_views.my_seller_reports, name="my_user_reports"),
+    path("seller-reports/admin/", seller_report_views.seller_report_admin_list, name="user_report_queue"),
     path("seller-reports/admin/<int:pk>/review/", user_report_review, name="user_report_review"),
     path("seller-reports/admin/<int:pk>/dismiss/", user_report_dismiss, name="user_report_dismiss"),
     path("seller-reports/admin/<int:pk>/warn/", user_report_warn_seller, name="user_report_warn"),
@@ -98,7 +100,6 @@ from . import trust_safety_views
 from . import trust_safety_dashboard_views
 from . import notice_views
 from . import private_media_views
-from . import seller_report_views
 
 urlpatterns += [
     path("trust-safety/audit/", trust_safety_dashboard_views.trust_safety_audit, name="trust_safety_audit"),
