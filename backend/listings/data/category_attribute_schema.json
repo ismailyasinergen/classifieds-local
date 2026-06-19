@@ -619,9 +619,942 @@
       "local_category_slugs": [
         "cars"
       ]
+    },
+    {
+      "key": "vasita_motosiklet",
+      "name": "Motorcycles",
+      "source_title": "",
+      "source_url": "",
+      "local_category_slugs": [
+        "motorcycles"
+      ],
+      "attributes": [
+        {
+          "key": "marka",
+          "label": "Marka",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Honda",
+            "Yamaha"
+          ]
+        },
+        {
+          "key": "seri",
+          "label": "Seri",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "CBR",
+            "MT"
+          ]
+        },
+        {
+          "key": "model",
+          "label": "Model",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "CBR 650R"
+          ]
+        },
+        {
+          "key": "yil",
+          "label": "Yıl",
+          "input_type": "number",
+          "required": false,
+          "sample_values": [
+            "2020"
+          ]
+        },
+        {
+          "key": "km",
+          "label": "KM",
+          "input_type": "number",
+          "required": false,
+          "sample_values": [
+            "25000"
+          ]
+        },
+        {
+          "key": "motor_hacmi",
+          "label": "Motor Hacmi",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "650 cc"
+          ]
+        },
+        {
+          "key": "motor_gucu",
+          "label": "Motor Gücü",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "95 hp"
+          ]
+        },
+        {
+          "key": "yakit_tipi",
+          "label": "Yakıt Tipi",
+          "input_type": "choice",
+          "required": false,
+          "sample_values": [
+            "Benzinli"
+          ]
+        },
+        {
+          "key": "vites",
+          "label": "Vites",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Manuel"
+          ]
+        },
+        {
+          "key": "renk",
+          "label": "Renk",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Siyah"
+          ]
+        },
+        {
+          "key": "durum",
+          "label": "Durum",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "İkinci El"
+          ]
+        },
+        {
+          "key": "garanti",
+          "label": "Garanti",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "takas",
+          "label": "Takas",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "kimden",
+          "label": "Kimden",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Sahibinden"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "vasita_ticari",
+      "name": "Commercial Vehicles",
+      "source_title": "",
+      "source_url": "",
+      "local_category_slugs": [
+        "commercial-vehicles"
+      ],
+      "attributes": [
+        {
+          "key": "arac_tipi",
+          "label": "Araç Tipi",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Panelvan",
+            "Kamyonet"
+          ]
+        },
+        {
+          "key": "marka",
+          "label": "Marka",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Ford",
+            "Mercedes-Benz"
+          ]
+        },
+        {
+          "key": "model",
+          "label": "Model",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Transit"
+          ]
+        },
+        {
+          "key": "yil",
+          "label": "Yıl",
+          "input_type": "number",
+          "required": false,
+          "sample_values": [
+            "2019"
+          ]
+        },
+        {
+          "key": "km",
+          "label": "KM",
+          "input_type": "number",
+          "required": false,
+          "sample_values": [
+            "120000"
+          ]
+        },
+        {
+          "key": "yakit_tipi",
+          "label": "Yakıt Tipi",
+          "input_type": "choice",
+          "required": false,
+          "sample_values": [
+            "Dizel"
+          ]
+        },
+        {
+          "key": "vites",
+          "label": "Vites",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Manuel",
+            "Otomatik"
+          ]
+        },
+        {
+          "key": "motor_hacmi",
+          "label": "Motor Hacmi",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "1995 cc"
+          ]
+        },
+        {
+          "key": "kasa_tipi",
+          "label": "Kasa Tipi",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Panelvan"
+          ]
+        },
+        {
+          "key": "renk",
+          "label": "Renk",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Beyaz"
+          ]
+        },
+        {
+          "key": "durum",
+          "label": "Durum",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "İkinci El"
+          ]
+        },
+        {
+          "key": "garanti",
+          "label": "Garanti",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "takas",
+          "label": "Takas",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "kimden",
+          "label": "Kimden",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Galeriden"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "emlak_arsa",
+      "name": "Land",
+      "source_title": "",
+      "source_url": "",
+      "local_category_slugs": [
+        "land"
+      ],
+      "attributes": [
+        {
+          "key": "emlak_tipi",
+          "label": "Emlak Tipi",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Satılık Arsa"
+          ]
+        },
+        {
+          "key": "m2",
+          "label": "m²",
+          "input_type": "number",
+          "required": false,
+          "sample_values": [
+            "500"
+          ]
+        },
+        {
+          "key": "imar_durumu",
+          "label": "İmar Durumu",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Konut"
+          ]
+        },
+        {
+          "key": "ada_no",
+          "label": "Ada No",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "123"
+          ]
+        },
+        {
+          "key": "parsel_no",
+          "label": "Parsel No",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "45"
+          ]
+        },
+        {
+          "key": "tapu_durumu",
+          "label": "Tapu Durumu",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Müstakil Parsel"
+          ]
+        },
+        {
+          "key": "krediye_uygun",
+          "label": "Krediye Uygun",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "takas",
+          "label": "Takas",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "kimden",
+          "label": "Kimden",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Sahibinden"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "elektronik_telefon",
+      "name": "Phones",
+      "source_title": "",
+      "source_url": "",
+      "local_category_slugs": [
+        "phones"
+      ],
+      "attributes": [
+        {
+          "key": "marka",
+          "label": "Marka",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Apple",
+            "Samsung"
+          ]
+        },
+        {
+          "key": "model",
+          "label": "Model",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "iPhone 14 Pro"
+          ]
+        },
+        {
+          "key": "kapasite",
+          "label": "Kapasite",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "128 GB"
+          ]
+        },
+        {
+          "key": "ram",
+          "label": "RAM",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "6 GB"
+          ]
+        },
+        {
+          "key": "ekran_boyutu",
+          "label": "Ekran Boyutu",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "6.1 inç"
+          ]
+        },
+        {
+          "key": "kamera",
+          "label": "Kamera",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "48 MP"
+          ]
+        },
+        {
+          "key": "renk",
+          "label": "Renk",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Siyah"
+          ]
+        },
+        {
+          "key": "durum",
+          "label": "Durum",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "İkinci El"
+          ]
+        },
+        {
+          "key": "garanti",
+          "label": "Garanti",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "takas",
+          "label": "Takas",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "kimden",
+          "label": "Kimden",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Sahibinden"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "elektronik_bilgisayar",
+      "name": "Computers",
+      "source_title": "",
+      "source_url": "",
+      "local_category_slugs": [
+        "computers"
+      ],
+      "attributes": [
+        {
+          "key": "marka",
+          "label": "Marka",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Apple",
+            "Lenovo"
+          ]
+        },
+        {
+          "key": "model",
+          "label": "Model",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "MacBook Pro"
+          ]
+        },
+        {
+          "key": "islemci",
+          "label": "İşlemci",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Intel i7",
+            "Apple M2"
+          ]
+        },
+        {
+          "key": "ram",
+          "label": "RAM",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "16 GB"
+          ]
+        },
+        {
+          "key": "ssd",
+          "label": "SSD",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "512 GB"
+          ]
+        },
+        {
+          "key": "hdd",
+          "label": "HDD",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "1 TB"
+          ]
+        },
+        {
+          "key": "ekran_karti",
+          "label": "Ekran Kartı",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "NVIDIA RTX 3060"
+          ]
+        },
+        {
+          "key": "ekran_boyutu",
+          "label": "Ekran Boyutu",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "15.6 inç"
+          ]
+        },
+        {
+          "key": "isletim_sistemi",
+          "label": "İşletim Sistemi",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Windows 11"
+          ]
+        },
+        {
+          "key": "durum",
+          "label": "Durum",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "İkinci El"
+          ]
+        },
+        {
+          "key": "garanti",
+          "label": "Garanti",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "takas",
+          "label": "Takas",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "kimden",
+          "label": "Kimden",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Sahibinden"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "elektronik_kamera",
+      "name": "Cameras",
+      "source_title": "",
+      "source_url": "",
+      "local_category_slugs": [
+        "cameras"
+      ],
+      "attributes": [
+        {
+          "key": "marka",
+          "label": "Marka",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Canon",
+            "Sony"
+          ]
+        },
+        {
+          "key": "model",
+          "label": "Model",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "EOS R6"
+          ]
+        },
+        {
+          "key": "cozunurluk",
+          "label": "Çözünürlük",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "20 MP"
+          ]
+        },
+        {
+          "key": "lens",
+          "label": "Lens",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "24-70mm"
+          ]
+        },
+        {
+          "key": "sensor",
+          "label": "Sensör",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Full Frame"
+          ]
+        },
+        {
+          "key": "video",
+          "label": "Video",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "4K"
+          ]
+        },
+        {
+          "key": "durum",
+          "label": "Durum",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "İkinci El"
+          ]
+        },
+        {
+          "key": "garanti",
+          "label": "Garanti",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "takas",
+          "label": "Takas",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "kimden",
+          "label": "Kimden",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Sahibinden"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ev_bahce_mobilya",
+      "name": "Furniture",
+      "source_title": "",
+      "source_url": "",
+      "local_category_slugs": [
+        "furniture"
+      ],
+      "attributes": [
+        {
+          "key": "urun_tipi",
+          "label": "Ürün Tipi",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Koltuk Takımı"
+          ]
+        },
+        {
+          "key": "marka",
+          "label": "Marka",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Bellona"
+          ]
+        },
+        {
+          "key": "malzeme",
+          "label": "Malzeme",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Ahşap",
+            "Kumaş"
+          ]
+        },
+        {
+          "key": "renk",
+          "label": "Renk",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Gri"
+          ]
+        },
+        {
+          "key": "olcu",
+          "label": "Ölçü",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "220x90 cm"
+          ]
+        },
+        {
+          "key": "durum",
+          "label": "Durum",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "İkinci El"
+          ]
+        },
+        {
+          "key": "garanti",
+          "label": "Garanti",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "takas",
+          "label": "Takas",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "kimden",
+          "label": "Kimden",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Sahibinden"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ev_bahce_beyaz_esya",
+      "name": "Appliances",
+      "source_title": "",
+      "source_url": "",
+      "local_category_slugs": [
+        "appliances"
+      ],
+      "attributes": [
+        {
+          "key": "urun_tipi",
+          "label": "Ürün Tipi",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Buzdolabı"
+          ]
+        },
+        {
+          "key": "marka",
+          "label": "Marka",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Arçelik",
+            "Bosch"
+          ]
+        },
+        {
+          "key": "model",
+          "label": "Model",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "No Frost"
+          ]
+        },
+        {
+          "key": "enerji_sinifi",
+          "label": "Enerji Sınıfı",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "A++"
+          ]
+        },
+        {
+          "key": "kapasite",
+          "label": "Kapasite",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "500 lt"
+          ]
+        },
+        {
+          "key": "renk",
+          "label": "Renk",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Beyaz"
+          ]
+        },
+        {
+          "key": "durum",
+          "label": "Durum",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "İkinci El"
+          ]
+        },
+        {
+          "key": "garanti",
+          "label": "Garanti",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "takas",
+          "label": "Takas",
+          "input_type": "boolean",
+          "required": false,
+          "sample_values": [
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "kimden",
+          "label": "Kimden",
+          "input_type": "text",
+          "required": false,
+          "sample_values": [
+            "Sahibinden"
+          ]
+        }
+      ]
     }
   ],
   "global_attributes": [
+    {
+      "key": "ada_no",
+      "label": "Ada No",
+      "source_count": 1,
+      "sample_values": [
+        "123"
+      ]
+    },
     {
       "key": "agir_hasar_kayitli",
       "label": "Ağır Hasar Kayıtlı",
@@ -644,6 +1577,15 @@
       "source_count": 1,
       "sample_values": [
         "İkinci El"
+      ]
+    },
+    {
+      "key": "arac_tipi",
+      "label": "Araç Tipi",
+      "source_count": 1,
+      "sample_values": [
+        "Panelvan",
+        "Kamyonet"
       ]
     },
     {
@@ -711,6 +1653,14 @@
       ]
     },
     {
+      "key": "cozunurluk",
+      "label": "Çözünürlük",
+      "source_count": 1,
+      "sample_values": [
+        "20 MP"
+      ]
+    },
+    {
       "key": "dis_donanim",
       "label": "Dış Donanım",
       "source_count": 1,
@@ -719,11 +1669,37 @@
       ]
     },
     {
-      "key": "emlak_tipi",
-      "label": "Emlak Tipi",
+      "key": "durum",
+      "label": "Durum",
+      "source_count": 7,
+      "sample_values": [
+        "İkinci El"
+      ]
+    },
+    {
+      "key": "ekran_boyutu",
+      "label": "Ekran Boyutu",
+      "source_count": 2,
+      "sample_values": [
+        "6.1 inç",
+        "15.6 inç"
+      ]
+    },
+    {
+      "key": "ekran_karti",
+      "label": "Ekran Kartı",
       "source_count": 1,
       "sample_values": [
-        "Satılık Daire"
+        "NVIDIA RTX 3060"
+      ]
+    },
+    {
+      "key": "emlak_tipi",
+      "label": "Emlak Tipi",
+      "source_count": 2,
+      "sample_values": [
+        "Satılık Daire",
+        "Satılık Arsa"
       ]
     },
     {
@@ -732,6 +1708,14 @@
       "source_count": 1,
       "sample_values": [
         "A"
+      ]
+    },
+    {
+      "key": "enerji_sinifi",
+      "label": "Enerji Sınıfı",
+      "source_count": 1,
+      "sample_values": [
+        "A++"
       ]
     },
     {
@@ -745,9 +1729,10 @@
     {
       "key": "garanti",
       "label": "Garanti",
-      "source_count": 1,
+      "source_count": 8,
       "sample_values": [
-        "Evet"
+        "Evet",
+        "Hayır"
       ]
     },
     {
@@ -756,6 +1741,14 @@
       "source_count": 1,
       "sample_values": [
         "1860 mm"
+      ]
+    },
+    {
+      "key": "hdd",
+      "label": "HDD",
+      "source_count": 1,
+      "sample_values": [
+        "1 TB"
       ]
     },
     {
@@ -775,6 +1768,14 @@
       ]
     },
     {
+      "key": "imar_durumu",
+      "label": "İmar Durumu",
+      "source_count": 1,
+      "sample_values": [
+        "Konut"
+      ]
+    },
+    {
       "key": "isitma",
       "label": "Isıtma",
       "source_count": 1,
@@ -783,11 +1784,46 @@
       ]
     },
     {
-      "key": "kasa_tipi",
-      "label": "Kasa Tipi",
+      "key": "islemci",
+      "label": "İşlemci",
       "source_count": 1,
       "sample_values": [
-        "Sedan"
+        "Intel i7",
+        "Apple M2"
+      ]
+    },
+    {
+      "key": "isletim_sistemi",
+      "label": "İşletim Sistemi",
+      "source_count": 1,
+      "sample_values": [
+        "Windows 11"
+      ]
+    },
+    {
+      "key": "kamera",
+      "label": "Kamera",
+      "source_count": 1,
+      "sample_values": [
+        "48 MP"
+      ]
+    },
+    {
+      "key": "kapasite",
+      "label": "Kapasite",
+      "source_count": 2,
+      "sample_values": [
+        "128 GB",
+        "500 lt"
+      ]
+    },
+    {
+      "key": "kasa_tipi",
+      "label": "Kasa Tipi",
+      "source_count": 2,
+      "sample_values": [
+        "Sedan",
+        "Panelvan"
       ]
     },
     {
@@ -809,18 +1845,21 @@
     {
       "key": "kimden",
       "label": "Kimden",
-      "source_count": 2,
+      "source_count": 10,
       "sample_values": [
         "Emlak Ofisinden",
-        "Galeriden"
+        "Galeriden",
+        "Sahibinden"
       ]
     },
     {
       "key": "km",
       "label": "KM",
-      "source_count": 1,
+      "source_count": 3,
       "sample_values": [
-        "146.000"
+        "146.000",
+        "25000",
+        "120000"
       ]
     },
     {
@@ -842,9 +1881,10 @@
     {
       "key": "krediye_uygun",
       "label": "Krediye Uygun",
-      "source_count": 1,
+      "source_count": 2,
       "sample_values": [
-        "Evet"
+        "Evet",
+        "Hayır"
       ]
     },
     {
@@ -861,6 +1901,22 @@
       "source_count": 1,
       "sample_values": [
         "225/55 R17"
+      ]
+    },
+    {
+      "key": "lens",
+      "label": "Lens",
+      "source_count": 1,
+      "sample_values": [
+        "24-70mm"
+      ]
+    },
+    {
+      "key": "m2",
+      "label": "m²",
+      "source_count": 1,
+      "sample_values": [
+        "500"
       ]
     },
     {
@@ -896,19 +1952,46 @@
       ]
     },
     {
-      "key": "marka",
-      "label": "Marka",
+      "key": "malzeme",
+      "label": "Malzeme",
       "source_count": 1,
       "sample_values": [
-        "BMW"
+        "Ahşap",
+        "Kumaş"
+      ]
+    },
+    {
+      "key": "marka",
+      "label": "Marka",
+      "source_count": 8,
+      "sample_values": [
+        "BMW",
+        "Honda",
+        "Yamaha",
+        "Ford",
+        "Mercedes-Benz",
+        "Apple",
+        "Samsung",
+        "Lenovo",
+        "Canon",
+        "Sony",
+        "Bellona",
+        "Arçelik",
+        "Bosch"
       ]
     },
     {
       "key": "model",
       "label": "Model",
-      "source_count": 1,
+      "source_count": 7,
       "sample_values": [
-        "520i Premium"
+        "520i Premium",
+        "CBR 650R",
+        "Transit",
+        "iPhone 14 Pro",
+        "MacBook Pro",
+        "EOS R6",
+        "No Frost"
       ]
     },
     {
@@ -922,17 +2005,20 @@
     {
       "key": "motor_gucu",
       "label": "Motor Gücü",
-      "source_count": 1,
+      "source_count": 2,
       "sample_values": [
-        "170 hp"
+        "170 hp",
+        "95 hp"
       ]
     },
     {
       "key": "motor_hacmi",
       "label": "Motor Hacmi",
-      "source_count": 1,
+      "source_count": 3,
       "sample_values": [
-        "1592 cc"
+        "1592 cc",
+        "650 cc",
+        "1995 cc"
       ]
     },
     {
@@ -976,6 +2062,14 @@
       ]
     },
     {
+      "key": "olcu",
+      "label": "Ölçü",
+      "source_count": 1,
+      "sample_values": [
+        "220x90 cm"
+      ]
+    },
+    {
       "key": "ortalama_100_km_de",
       "label": "Ortalama (100 km'de)",
       "source_count": 1,
@@ -992,6 +2086,14 @@
       ]
     },
     {
+      "key": "parsel_no",
+      "label": "Parsel No",
+      "source_count": 1,
+      "sample_values": [
+        "45"
+      ]
+    },
+    {
       "key": "plaka_uyruk",
       "label": "Plaka / Uyruk",
       "source_count": 1,
@@ -1000,11 +2102,22 @@
       ]
     },
     {
+      "key": "ram",
+      "label": "RAM",
+      "source_count": 2,
+      "sample_values": [
+        "6 GB",
+        "16 GB"
+      ]
+    },
+    {
       "key": "renk",
       "label": "Renk",
-      "source_count": 1,
+      "source_count": 6,
       "sample_values": [
-        "Beyaz"
+        "Beyaz",
+        "Siyah",
+        "Gri"
       ]
     },
     {
@@ -1040,11 +2153,21 @@
       ]
     },
     {
-      "key": "seri",
-      "label": "Seri",
+      "key": "sensor",
+      "label": "Sensör",
       "source_count": 1,
       "sample_values": [
-        "5 Serisi"
+        "Full Frame"
+      ]
+    },
+    {
+      "key": "seri",
+      "label": "Seri",
+      "source_count": 2,
+      "sample_values": [
+        "5 Serisi",
+        "CBR",
+        "MT"
       ]
     },
     {
@@ -1064,19 +2187,38 @@
       ]
     },
     {
+      "key": "ssd",
+      "label": "SSD",
+      "source_count": 1,
+      "sample_values": [
+        "512 GB"
+      ]
+    },
+    {
       "key": "takas",
       "label": "Takas",
-      "source_count": 2,
+      "source_count": 10,
       "sample_values": [
-        "Hayır"
+        "Hayır",
+        "Evet"
       ]
     },
     {
       "key": "tapu_durumu",
       "label": "Tapu Durumu",
-      "source_count": 1,
+      "source_count": 2,
       "sample_values": [
-        "Kat İrtifaklı"
+        "Kat İrtifaklı",
+        "Müstakil Parsel"
+      ]
+    },
+    {
+      "key": "urun_tipi",
+      "label": "Ürün Tipi",
+      "source_count": 2,
+      "sample_values": [
+        "Koltuk Takımı",
+        "Buzdolabı"
       ]
     },
     {
@@ -1088,11 +2230,20 @@
       ]
     },
     {
-      "key": "vites",
-      "label": "Vites",
+      "key": "video",
+      "label": "Video",
       "source_count": 1,
       "sample_values": [
-        "Otomatik"
+        "4K"
+      ]
+    },
+    {
+      "key": "vites",
+      "label": "Vites",
+      "source_count": 3,
+      "sample_values": [
+        "Otomatik",
+        "Manuel"
       ]
     },
     {
@@ -1106,10 +2257,11 @@
     {
       "key": "yakit_tipi",
       "label": "Yakıt Tipi",
-      "source_count": 1,
+      "source_count": 3,
       "sample_values": [
         "Benzinli",
-        "Benzinli / EURO 6"
+        "Benzinli / EURO 6",
+        "Dizel"
       ]
     },
     {
@@ -1123,9 +2275,11 @@
     {
       "key": "yil",
       "label": "Yıl",
-      "source_count": 1,
+      "source_count": 3,
       "sample_values": [
-        "2015"
+        "2015",
+        "2020",
+        "2019"
       ]
     },
     {
