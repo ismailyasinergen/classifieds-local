@@ -234,3 +234,8 @@ LOGGING = {
     },
 }
 
+# LOCAL_DEMO_EMAIL_OR_USERNAME_LOGIN_V1
+AUTHENTICATION_BACKENDS = [
+    "accounts.auth_backends.EmailOrUsernameBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
