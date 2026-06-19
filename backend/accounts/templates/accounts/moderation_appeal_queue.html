@@ -26,8 +26,95 @@
         <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;"><strong>{{ rejected_count }}</strong><br><span class="muted">Rejected</span></article>
     </section>
 
-    <form method="get" style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:16px;">
-        <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr auto auto; gap:10px; align-items:end;">
+    <style>
+        .appeal-filter-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 14px;
+            background: #fff;
+            margin-bottom: 14px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .appeal-filter-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            align-items: end;
+        }
+
+        .appeal-filter-grid label {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 0;
+            font-weight: 600;
+        }
+
+        .appeal-filter-grid input,
+        .appeal-filter-grid select {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .appeal-filter-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-top: 2px;
+        }
+
+        .appeal-filter-actions button,
+        .appeal-filter-actions .button-link {
+            min-width: 92px;
+            text-align: center;
+        }
+
+        .appeal-quick-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .appeal-filter-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .appeal-filter-grid label:first-child {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .appeal-filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .appeal-filter-grid label:first-child,
+            .appeal-filter-actions {
+                grid-column: auto;
+            }
+
+            .appeal-filter-actions {
+                justify-content: stretch;
+            }
+
+            .appeal-filter-actions button,
+            .appeal-filter-actions .button-link,
+            .appeal-quick-filters .button-link {
+                flex: 1 1 auto;
+            }
+        }
+    </style>
+
+    <form method="get" class="appeal-filter-card">
+        <div class="appeal-filter-grid">
             <label>
                 Search
                 <input type="text" name="q" value="{{ selected_q }}" placeholder="user, email, listing, note, evidence filename">
@@ -71,12 +158,14 @@
                 <input type="date" name="date_to" value="{{ selected_date_to }}">
             </label>
 
-            <button type="submit">Filter</button>
-            <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}">Reset</a>
+            <div class="appeal-filter-actions">
+                <button type="submit">Filter</button>
+                <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}">Reset</a>
+            </div>
         </div>
     </form>
 
-    <section style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+    <section class="appeal-quick-filters">
         <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}?extra_evidence=overdue">Deadline passed</a>
         <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}?extra_evidence=due_soon">Due within 15 days</a>
         <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}?extra_evidence=waiting">Waiting before deadline</a>
