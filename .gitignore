@@ -33,3 +33,5 @@ appeal_extra_evidence_test_output.txt
 test_extra_evidence.pdf
 backend/test_extra_evidence_browser_upload.pdf
 backend/reference_html/
+backend/listings/data/sahibinden_category_urls.json
+backend/listings/data/sahibinden_categories.json

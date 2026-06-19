@@ -311,43 +311,84 @@ def fetch_url(url, delay_seconds=1.5):
     with urllib.request.urlopen(req, timeout=30) as response:
         return response.read()
 
-def fetch_category_sitemaps(output_path):
-    robots = fetch_url("https://www.sahibinden.com/robots.txt", delay_seconds=0)
-    text = robots.decode("utf-8", errors="ignore")
+def fetch_category_sitemaps(output_path: str):
+    # Optional remote discovery helper. Some environments receive 403 from sahibinden.
+    # In that case, write a structured result instead of raising a traceback.
+    import json as _json
+    import re as _re
+    from pathlib import Path as _Path
+
+    result = {
+        "status": "not_started",
+        "reason": "",
+        "sitemap_count": 0,
+        "url_count": 0,
+        "sitemaps": [],
+        "urls": [],
+        "sitemap_errors": [],
+    }
+
+    def write_result():
+        output = _Path(output_path)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(_json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        return result
+
+    try:
+        robots = fetch_url("https://www.sahibinden.com/robots.txt", delay_seconds=0)
+        if isinstance(robots, bytes):
+            robots = robots.decode("utf-8", errors="replace")
+    except Exception as exc:
+        result["status"] = "blocked_or_unavailable"
+        result["reason"] = f"{type(exc).__name__}: {exc}"
+        return write_result()
+
     sitemap_urls = []
-    for line in text.splitlines():
-        line = line.strip()
+    for raw_line in robots.splitlines():
+        line = raw_line.strip()
         if not line.lower().startswith("sitemap:"):
             continue
-        url = line.split(":", 1)[1].strip()
-        lower = url.lower()
-        if "categories" in lower or "category" in lower:
-            sitemap_urls.append(url)
+        sitemap_url = line.split(":", 1)[1].strip()
+        lowered = sitemap_url.lower()
+        if "categor" in lowered or "kategori" in lowered:
+            sitemap_urls.append(sitemap_url)
+
+    result["sitemaps"] = sorted(set(sitemap_urls))
+    result["sitemap_count"] = len(result["sitemaps"])
+
     category_urls = []
-    for url in sorted(set(sitemap_urls)):
+    for sitemap_url in result["sitemaps"]:
         try:
-            content = fetch_url(url)
-            root = ET.fromstring(content)
-            ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-            locs = [node.text for node in root.findall(".//sm:loc", ns) if node.text]
-            if not locs:
-                locs = [node.text for node in root.findall(".//loc") if node.text]
-            for loc in locs:
-                parsed = urlparse(loc)
-                if parsed.netloc.endswith("sahibinden.com"):
-                    category_urls.append(loc)
+            sitemap_body = fetch_url(sitemap_url, delay_seconds=1)
+            if isinstance(sitemap_body, bytes):
+                sitemap_body = sitemap_body.decode("utf-8", errors="replace")
         except Exception as exc:
-            category_urls.append({"error": str(exc), "sitemap": url})
-    result = {
-        "source": "robots.txt Sitemap entries containing category/categories",
-        "sitemap_count": len(sitemap_urls),
-        "sitemaps": sitemap_urls,
-        "url_count": len([item for item in category_urls if isinstance(item, str)]),
-        "urls": category_urls,
-    }
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    Path(output_path).write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    return result
+            result["sitemap_errors"].append({
+                "url": sitemap_url,
+                "error": f"{type(exc).__name__}: {exc}",
+            })
+            continue
+
+        for match in _re.findall(r"<loc>(.*?)</loc>", sitemap_body, flags=_re.IGNORECASE | _re.DOTALL):
+            loc = match.strip()
+            if not loc:
+                continue
+            if "/ilan/" in loc or "/listing/" in loc:
+                continue
+            if "sahibinden.com" in loc:
+                category_urls.append(loc)
+
+    result["urls"] = sorted(set(category_urls))
+    result["url_count"] = len(result["urls"])
+
+    if result["urls"]:
+        result["status"] = "ok"
+    elif result["sitemaps"]:
+        result["status"] = "no_category_urls_found"
+    else:
+        result["status"] = "no_category_sitemaps_found"
+
+    return write_result()
 
 def main():
     parser = argparse.ArgumentParser(description="Build a local category attribute schema from saved HTML and optionally allowed category sitemaps.")
@@ -361,9 +402,11 @@ def main():
     if args.fetch_category_sitemaps:
         result = fetch_category_sitemaps(args.category_sitemap_output)
         print("Fetched category sitemap data:", args.category_sitemap_output)
-        print("sitemap_count", result["sitemap_count"])
-        print("url_count", result["url_count"])
-
+        print("status", result.get("status"))
+        print("reason", result.get("reason"))
+        print("sitemap_count", result.get("sitemap_count"))
+        print("url_count", result.get("url_count"))
+        return
     files = iter_local_files(args.input)
     sources = [source for source in (summarize_source(path) for path in files) if source["attribute_count"] > 0]
     candidates = {
