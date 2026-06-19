@@ -1,0 +1,14 @@
+<li class="category-node">
+    <a href="{{ category.get_absolute_url }}">
+        <span>{{ category.name }}</span>
+        <span class="category-count">{{ category.approved_listing_count }}</span>
+    </a>
+
+    {% if category.children.all %}
+        <ul>
+            {% for child in category.children.all %}
+                {% include "categories/_category_node.html" with category=child %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+</li>

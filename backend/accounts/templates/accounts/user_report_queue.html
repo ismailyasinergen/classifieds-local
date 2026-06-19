@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Seller Reports</h1>
+            <p class="muted">Review reports about seller/account behavior.</p>
+        </div>
+
+        <a class="button-link" href="{% url 'listings:report_queue' %}">
+            Listing Reports
+        </a>
+    </div>
+
+    <section style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+        <article style="border:1px solid #f0c36d; background:#fff8e5; border-radius:8px; padding:12px;">
+            <h3 style="margin-top:0;">When to suspend seller</h3>
+            <p class="muted">Use temporary seller suspension only for serious or repeated risk.</p>
+            <ul>
+                <li>Repeated scam or fraud reports</li>
+                <li>Asked buyer to pay outside the platform</li>
+                <li>Harassment or abusive behavior</li>
+                <li>Impersonation or fake identity</li>
+                <li>Suspicious business/verification identity</li>
+                <li>Multiple misleading or suspicious listings</li>
+            </ul>
+        </article>
+
+        <article style="border:1px solid #b7d4f0; background:#eef7ff; border-radius:8px; padding:12px;">
+            <h3 style="margin-top:0;">Action guide</h3>
+            <ul>
+                <li><strong>Dismiss:</strong> weak, false, duplicate, or revenge report.</li>
+                <li><strong>Mark reviewed:</strong> valid but no direct punishment needed.</li>
+                <li><strong>Warn seller:</strong> first/low-risk violation.</li>
+                <li><strong>Remove verification:</strong> identity or trust issue.</li>
+                <li><strong>Archive listings:</strong> seller has multiple risky listings.</li>
+                <li><strong>Block messaging:</strong> harassment or off-platform pressure.</li>
+            </ul>
+        </article>
+    </section>
+
+    <div class="tag-row">
+        <a class="tag" href="{% url 'accounts:user_report_queue' %}">All ({{ counts.all }})</a>
+        <a class="tag" href="{% url 'accounts:user_report_queue' %}?status=pending">Pending ({{ counts.pending }})</a>
+        <a class="tag" href="{% url 'accounts:user_report_queue' %}?status=reviewed">Reviewed ({{ counts.reviewed }})</a>
+        <a class="tag" href="{% url 'accounts:user_report_queue' %}?status=dismissed">Dismissed ({{ counts.dismissed }})</a>
+    </div>
+
+    <form method="get" style="display:flex; gap:8px; flex-wrap:wrap; align-items:end; margin:16px 0;">
+        <label>
+            Search
+            <input type="text" name="q" value="{{ q }}" placeholder="Seller, reporter, details...">
+        </label>
+
+        <label>
+            Status
+            <select name="status">
+                <option value="">All statuses</option>
+                <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>Pending</option>
+                <option value="reviewed" {% if status_filter == "reviewed" %}selected{% endif %}>Reviewed</option>
+                <option value="dismissed" {% if status_filter == "dismissed" %}selected{% endif %}>Dismissed</option>
+            </select>
+        </label>
+
+        <label>
+            Reason
+            <select name="reason">
+                <option value="">All reasons</option>
+                {% for value, label in reason_choices %}
+                    <option value="{{ value }}" {% if reason_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <button class="button-primary" type="submit">Filter</button>
+        <a class="button-link" href="{% url 'accounts:user_report_queue' %}">Reset</a>
+    </form>
+
+    {% for report in reports %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; margin-bottom:12px; background:#fff;">
+            <h2 style="margin-top:0;">Seller: {{ report.reported_user.username }}</h2>
+
+            <p>
+                Reasons:
+                <strong>{{ report.get_reasons_display }}</strong>
+                · Status:
+                <strong>{{ report.get_status_display }}</strong>
+                · Action:
+                <strong>{{ report.get_action_taken_display }}</strong>
+            </p>
+
+            <p class="muted">
+                Reported by {{ report.reporter.username }}
+                · {{ report.created_at|date:"M d, Y H:i" }}
+            </p>
+
+            {% if report.source_listing %}
+                <p>
+                    Source listing:
+                    <a href="{{ report.source_listing.get_absolute_url }}">{{ report.source_listing.title }}</a>
+                </p>
+            {% endif %}
+
+            {% if report.details %}
+                <div>{{ report.details|linebreaks }}</div>
+            {% endif %}
+
+            {% if report.admin_note %}
+                <p class="muted">Internal admin note: {{ report.admin_note }}</p>
+            {% endif %}
+
+            {% if report.reporter_note %}
+                <p class="muted">Reporter note: {{ report.reporter_note }}</p>
+            {% endif %}
+
+            {% if report.status == "pending" %}
+                <div style="display:grid; gap:8px; margin-top:12px;">
+                    <form method="post" action="{% url 'accounts:user_report_review' report.pk %}">
+                        {% csrf_token %}
+                        <input type="text" name="admin_note" placeholder="Internal admin note">
+                        <input type="text" name="reporter_note" placeholder="Message shown to reporter">
+                        <button class="button-primary" type="submit">Mark reviewed</button>
+                    </form>
+
+                    <form method="post" action="{% url 'accounts:user_report_dismiss' report.pk %}">
+                        {% csrf_token %}
+                        <input type="text" name="admin_note" placeholder="Internal reason">
+                        <input type="text" name="reporter_note" placeholder="Message shown to reporter">
+                        <button type="submit">Dismiss as invalid</button>
+                    </form>
+
+                    <form method="post" action="{% url 'accounts:user_report_warn' report.pk %}">
+                        {% csrf_token %}
+                        <input type="text" name="admin_note" placeholder="Warning note">
+                        <input type="text" name="reporter_note" placeholder="Message shown to reporter">
+                        <button type="submit">Warn seller</button>
+                    </form>
+
+                    <form method="post" action="{% url 'accounts:user_report_suspend' report.pk %}">
+                        {% csrf_token %}
+                        <input type="number" name="duration_days" value="7" min="1" max="365" style="width:90px;">
+                        <input type="text" name="admin_note" placeholder="Suspension reason">
+                        <input type="text" name="reporter_note" placeholder="Message shown to reporter">
+                        <button type="submit" onclick="return confirm('Suspend this seller?');">Suspend seller</button>
+                    </form>
+
+                    <form method="post" action="{% url 'accounts:user_report_remove_verification' report.pk %}">
+                        {% csrf_token %}
+                        <input type="text" name="admin_note" placeholder="Verification removal reason">
+                        <input type="text" name="reporter_note" placeholder="Message shown to reporter">
+                        <button type="submit" onclick="return confirm('Remove seller verification?');">Remove verification</button>
+                    </form>
+
+                    <form method="post" action="{% url 'accounts:user_report_archive_listings' report.pk %}">
+                        {% csrf_token %}
+                        <input type="text" name="admin_note" placeholder="Archive reason">
+                        <input type="text" name="reporter_note" placeholder="Message shown to reporter">
+                        <button type="submit" onclick="return confirm('Archive all active listings by this seller?');">Archive seller listings</button>
+                    </form>
+
+                    <form method="post" action="{% url 'accounts:user_report_block_messaging' report.pk %}">
+                        {% csrf_token %}
+                        <input type="number" name="duration_days" value="7" min="1" max="365" style="width:90px;">
+                        <input type="text" name="admin_note" placeholder="Messaging block reason">
+                        <input type="text" name="reporter_note" placeholder="Message shown to reporter">
+                        <button type="submit" onclick="return confirm('Block seller messaging flag?');">Block messaging</button>
+                    </form>
+                </div>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p>No seller reports found.</p>
+    {% endfor %}
+{% endblock %}

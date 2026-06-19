@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Promote Listing</h1>
+            <p class="muted">{{ listing.title }}</p>
+        </div>
+
+        <a class="button-link" href="{% url 'accounts:my_listings' %}">
+            Back to My Listings
+        </a>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+        {% for package in packages %}
+            <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
+                <h2 style="margin-top:0;">{{ package.name }}</h2>
+
+                <p>
+                    Type:
+                    <strong>{{ package.get_package_type_display }}</strong>
+                </p>
+
+                <p>
+                    Duration:
+                    <strong>{{ package.duration_days }} days</strong>
+                </p>
+
+                <p>
+                    Price:
+                    <strong>{{ package.price }} TL</strong>
+                </p>
+
+                <p class="muted">
+                    Priority: {{ package.priority }}
+                </p>
+
+                <form method="post" action="{% url 'promotions:listing_package_request' listing.pk package.pk %}">
+                    {% csrf_token %}
+                    <button class="button-primary" type="submit">
+                        Request package
+                    </button>
+                </form>
+            </article>
+        {% empty %}
+            <p>No active promotion packages.</p>
+        {% endfor %}
+    </div>
+
+    <h2 style="margin-top:24px;">Promotion history</h2>
+
+    {% for promotion in promotions %}
+        <article style="border:1px solid #ddd; border-radius:6px; padding:12px; margin-bottom:10px;">
+            <strong>{{ promotion.package.name }}</strong>
+            · {{ promotion.get_status_display }}
+            · {{ promotion.price_snapshot }} TL
+
+            {% if promotion.ends_at %}
+                <br>
+                <span class="muted">Ends: {{ promotion.ends_at|date:"M d, Y H:i" }}</span>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p>No promotion requests yet for this listing.</p>
+    {% endfor %}
+{% endblock %}

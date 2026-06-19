@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row no-print">
+        <div>
+            <h1>Promotion Receipt</h1>
+            <p class="muted">Printable payment receipt.</p>
+        </div>
+
+        <button class="button-primary" onclick="window.print()">Print receipt</button>
+    </div>
+
+    <article style="max-width:800px; border:1px solid #ddd; border-radius:8px; padding:24px; background:#fff;">
+        <div style="display:flex; justify-content:space-between; gap:20px; border-bottom:1px solid #ddd; padding-bottom:16px; margin-bottom:16px;">
+            <div>
+                <h1 style="margin:0;">Receipt</h1>
+                <p class="muted">classifiedslocal promotion payment</p>
+            </div>
+
+            <div style="text-align:right;">
+                <p><strong>Receipt No:</strong> {{ promotion.payment_reference }}</p>
+                <p><strong>Date:</strong> {{ promotion.paid_at|date:"M d, Y H:i" }}</p>
+            </div>
+        </div>
+
+        <h2>Seller</h2>
+        <p>
+            <strong>{{ promotion.user.username }}</strong><br>
+            {{ promotion.user.email }}
+        </p>
+
+        <h2>Promotion details</h2>
+
+        <table style="width:100%; border-collapse:collapse;">
+            <tr>
+                <td style="border:1px solid #ddd; padding:8px;">Listing</td>
+                <td style="border:1px solid #ddd; padding:8px;">{{ promotion.listing.title }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #ddd; padding:8px;">Package</td>
+                <td style="border:1px solid #ddd; padding:8px;">{{ promotion.package.name }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #ddd; padding:8px;">Type</td>
+                <td style="border:1px solid #ddd; padding:8px;">{{ promotion.package.get_package_type_display }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #ddd; padding:8px;">Duration</td>
+                <td style="border:1px solid #ddd; padding:8px;">{{ promotion.package.duration_days }} days</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #ddd; padding:8px;">Payment status</td>
+                <td style="border:1px solid #ddd; padding:8px;">{{ promotion.get_payment_status_display }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #ddd; padding:8px;">Promotion status</td>
+                <td style="border:1px solid #ddd; padding:8px;">{{ promotion.get_status_display }}</td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #ddd; padding:8px;"><strong>Total</strong></td>
+                <td style="border:1px solid #ddd; padding:8px;"><strong>{{ promotion.price_snapshot }} TL</strong></td>
+            </tr>
+        </table>
+
+        {% if promotion.starts_at %}
+            <p style="margin-top:16px;">
+                <strong>Starts:</strong> {{ promotion.starts_at|date:"M d, Y H:i" }}
+            </p>
+        {% endif %}
+
+        {% if promotion.ends_at %}
+            <p>
+                <strong>Ends:</strong> {{ promotion.ends_at|date:"M d, Y H:i" }}
+            </p>
+        {% endif %}
+
+        <p class="muted" style="margin-top:24px;">
+            This is a local demo receipt. No real payment gateway is connected.
+        </p>
+    </article>
+
+    <style>
+        @media print {
+            .site-header,
+            .messages,
+            .no-print,
+            aside {
+                display: none !important;
+            }
+
+            body {
+                background: #fff !important;
+            }
+
+            main {
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+        }
+    </style>
+{% endblock %}

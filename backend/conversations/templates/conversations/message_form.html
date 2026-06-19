@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <h1>Contact Seller</h1>
+        <a class="button-link" href="{{ listing.get_absolute_url }}">Back to listing</a>
+    </div>
+
+    <p>
+        You are messaging seller <strong>{{ listing.owner.username }}</strong>
+        about <strong>{{ listing.title }}</strong>.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button class="button-primary" type="submit">Send message</button>
+    </form>
+{% endblock %}

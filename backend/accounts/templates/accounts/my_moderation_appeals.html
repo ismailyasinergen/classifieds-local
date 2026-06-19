@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>My Appeals</h1>
+
+    {% if appeals %}
+        <div class="card-list">
+            {% for appeal in appeals %}
+                <div class="card" style="margin-bottom: 16px;">
+                    <h2>
+                        Appeal #{{ appeal.pk }}
+                    </h2>
+
+                    <p>
+                        <strong>Status:</strong> {{ appeal.get_status_display|default:appeal.status }}
+                    </p>
+
+                    {% if appeal.created_at %}
+                        <p>
+                            <strong>Submitted:</strong> {{ appeal.created_at }}
+                        </p>
+                    {% endif %}
+
+                    <p>
+                        <a href="{% url 'accounts:moderation_appeal_detail' appeal.pk %}">
+                            View appeal
+                        </a>
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if page_obj.has_other_pages %}
+            <nav class="pagination" style="margin-top: 24px;">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                <span>
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% else %}
+        <p>You have not submitted any appeals yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

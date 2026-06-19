@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Trust & Safety Events</h1>
+            <p class="muted">Permanent audit events recorded by Trust & Safety actions.</p>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}">Trust & Safety</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Action Log</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_event_log_export' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}">Export CSV</a>
+        </div>
+    </div>
+
+    <form method="get" style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:16px;">
+        <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto auto; gap:10px; align-items:end;">
+            <label>
+                Search
+                <input type="text" name="q" value="{{ selected_q }}" placeholder="user, email, title, listing, note">
+            </label>
+
+            <label>
+                Event type
+                <select name="event_type">
+                    <option value="" {% if not selected_event_type %}selected{% endif %}>All event types</option>
+                    {% for value, label in event_type_choices %}
+                        <option value="{{ value }}" {% if selected_event_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                From date
+                <input type="date" name="date_from" value="{{ selected_date_from }}">
+            </label>
+
+            <label>
+                To date
+                <input type="date" name="date_to" value="{{ selected_date_to }}">
+            </label>
+
+            <button type="submit">Filter</button>
+            <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}">Reset</a>
+        </div>
+    </form>
+
+    <section style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+        <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}?date_from={{ quick_today }}&date_to={{ quick_today }}">Today</a>
+        <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}?date_from={{ quick_last_7_days }}&date_to={{ quick_today }}">Last 7 days</a>
+        <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}?date_from={{ quick_last_30_days }}&date_to={{ quick_today }}">Last 30 days</a>
+        <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}?event_type=appeal_approved">Appeal approved</a>
+        <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}?event_type=seller_suspended">Seller suspended</a>
+    </section>
+
+    <p class="muted">
+        Showing page {{ page_obj.number }} of {{ paginator.num_pages }}
+        · {{ paginator.count }} event(s) match the current filter
+    </p>
+
+    {% for event in events %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:12px;">
+            <h2 style="margin-top:0;">{{ event.title }}</h2>
+
+            <p class="muted">
+                {{ event.get_event_type_display }}
+                · {{ event.created_at|date:"M d, Y H:i" }}
+            </p>
+
+            {% if event.actor %}
+                <p><strong>Actor:</strong> {{ event.actor.username }} / {{ event.actor.email }}</p>
+            {% endif %}
+
+            {% if event.target_user %}
+                <p><strong>Target user:</strong> {{ event.target_user.username }} / {{ event.target_user.email }}</p>
+            {% endif %}
+
+            {% if event.listing %}
+                <p><strong>Listing:</strong> <a href="{{ event.listing.get_absolute_url }}">{{ event.listing.title }}</a></p>
+            {% endif %}
+
+            {% if event.appeal %}
+                <p><strong>Appeal:</strong> <a href="{% url 'accounts:moderation_appeal_admin_detail' event.appeal.pk %}">Appeal #{{ event.appeal.pk }}</a></p>
+            {% endif %}
+
+            {% if event.public_note %}
+                <p><strong>Public note:</strong> {{ event.public_note }}</p>
+            {% endif %}
+
+            {% if event.internal_note %}
+                <p><strong>Internal note:</strong> {{ event.internal_note }}</p>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p>No Trust & Safety events match this filter.</p>
+    {% endfor %}
+
+    {% if page_obj.has_other_pages %}
+        <nav style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:16px;">
+            {% if page_obj.has_previous %}
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page=1">First</a>
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            <span class="muted">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ paginator.num_pages }}">Last</a>
+            {% endif %}
+        </nav>
+    {% endif %}
+{% endblock %}

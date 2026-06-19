@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <h1>Saved Listings</h1>
+
+        <a class="button-link" href="{% url 'listings:listing_list' %}">
+            Browse listings
+        </a>
+    </div>
+
+    <div class="listing-grid">
+        {% for listing in listings %}
+            {% include "listings/_listing_card.html" with listing=listing %}
+        {% empty %}
+            <p>You have not saved any listings yet.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

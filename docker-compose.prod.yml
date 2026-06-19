@@ -1,0 +1,36 @@
+# Production override for classifieds_local
+#
+# Usage:
+# docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production up -d --build
+#
+# Local development still uses:
+# docker compose up -d --build
+
+services:
+  db:
+    restart: unless-stopped
+
+  web:
+    # HEALTH_CHECK_PROD_V1
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz/', timeout=5).read()\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    volumes:
+      - prod_static:/app/staticfiles
+      - prod_media:/app/media
+
+  nginx:
+    restart: unless-stopped
+    volumes:
+      - prod_static:/app/staticfiles:ro
+      - prod_media:/app/media:ro
+
+volumes:
+  prod_static:
+  prod_media:

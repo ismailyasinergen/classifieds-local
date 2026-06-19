@@ -1,0 +1,463 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Submit Appeal</h1>
+            <p class="muted">Ask admin to review a moderation action. Submitting an appeal does not automatically lift any restriction.</p>
+        </div>
+        <a class="button-link" href="{% url 'accounts:moderation_notices' %}">Back to Notices</a>
+    </div>
+
+    <section style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:16px;">
+        <h2 style="margin-top:0;">Notice being appealed</h2>
+        <p><strong>{{ notice.title }}</strong></p>
+        <p>{{ notice.body|linebreaksbr }}</p>
+
+        {% if notice.listing %}
+            <p>
+                Related listing:
+                <a href="{{ notice.listing.get_absolute_url }}">{{ notice.listing.title }}</a>
+            </p>
+        {% endif %}
+    </section>
+
+    <form method="post" enctype="multipart/form-data" style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;" id="appeal-form">
+        {% csrf_token %}
+
+        <label>
+            Appeal message
+            <textarea name="message" rows="8" required placeholder="Explain why you believe this moderation action should be reviewed."></textarea>
+        </label>
+
+        <section style="border:1px solid #f0c36d; background:#fff8e5; border-radius:8px; padding:12px; margin:14px 0;">
+            <h3 style="margin-top:0;">Upload rules</h3>
+            <ul>
+                <li>Maximum {{ max_upload_files }} files per appeal.</li>
+                <li>Each file must be {{ max_upload_mb }} MB or smaller.</li>
+                <li>Photos: .jpg, .jpeg, .png, .webp</li>
+                <li>PDF files: .pdf</li>
+                <li>Videos: .mp4 only</li>
+                <li>Duplicate files are not allowed.</li>
+            </ul>
+            <p class="muted">
+                Selected files are shown in 12 visible slots. Previews open automatically after selection. You can hide a preview or remove a file before submitting.
+            </p>
+        </section>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:12px 0;">
+            <label class="button-link" style="cursor:pointer;">
+                Add evidence files
+                <input
+                    type="file"
+                    id="appeal-files-picker"
+                    multiple
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,.mp4,image/jpeg,image/png,image/webp,application/pdf,video/mp4"
+                    style="display:none;"
+                >
+            </label>
+
+            <span id="selected-file-count" class="muted">0 / {{ max_upload_files }} evidence files selected.</span>
+        </div>
+
+        <input
+            type="file"
+            name="attachments"
+            id="appeal-files"
+            multiple
+            style="display:none;"
+        >
+
+        <div id="appeal-validation-summary" style="display:none; border:1px solid #ef4444; background:#fef2f2; color:#7f1d1d; border-radius:8px; padding:12px; margin-top:14px;"></div>
+
+        <div id="appeal-file-slots" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px; margin:14px 0;"></div>
+
+        <button type="submit" id="appeal-submit">Submit appeal for admin review</button>
+    </form>
+
+    <script>
+        const pickerInput = document.getElementById("appeal-files-picker");
+        const uploadInput = document.getElementById("appeal-files");
+        const slots = document.getElementById("appeal-file-slots");
+        const form = document.getElementById("appeal-form");
+        const submitButton = document.getElementById("appeal-submit");
+        const summary = document.getElementById("appeal-validation-summary");
+        const selectedFileCount = document.getElementById("selected-file-count");
+
+        const maxBytes = 40 * 1024 * 1024;
+        const maxFiles = 12;
+
+        const allowedImageExts = [".jpg", ".jpeg", ".png", ".webp"];
+        const allowedPdfExts = [".pdf"];
+        const allowedVideoExts = [".mp4"];
+
+        let selectedFiles = [];
+        let currentObjectUrls = [];
+
+        function revokeAllObjectUrls() {
+            currentObjectUrls.forEach(function (url) {
+                URL.revokeObjectURL(url);
+            });
+            currentObjectUrls = [];
+        }
+
+        function getExt(name) {
+            const dot = name.lastIndexOf(".");
+            return dot >= 0 ? name.slice(dot).toLowerCase() : "";
+        }
+
+        function fileKey(file) {
+            return file.name.toLowerCase() + "|" + file.size;
+        }
+
+        function duplicateIndexes(files) {
+            const seen = {};
+            const duplicates = new Set();
+
+            files.forEach(function (file, index) {
+                const key = fileKey(file);
+
+                if (seen[key] !== undefined) {
+                    duplicates.add(seen[key]);
+                    duplicates.add(index);
+                } else {
+                    seen[key] = index;
+                }
+            });
+
+            return duplicates;
+        }
+
+        function fileKind(file) {
+            const ext = getExt(file.name);
+            const type = (file.type || "").toLowerCase();
+
+            if (allowedImageExts.includes(ext) && ["image/jpeg", "image/png", "image/webp"].includes(type)) {
+                return "image";
+            }
+
+            if (allowedPdfExts.includes(ext) && type === "application/pdf") {
+                return "file";
+            }
+
+            if (allowedVideoExts.includes(ext) && type === "video/mp4") {
+                return "video";
+            }
+
+            return "invalid";
+        }
+
+        function previewButtonText(kind) {
+            if (kind === "image") return "Preview image";
+            if (kind === "video") return "Preview video";
+            if (kind === "file") return "Preview file";
+            return "Preview unavailable";
+        }
+
+        function validateFiles(files) {
+            const errors = [];
+            const duplicateSet = duplicateIndexes(files);
+
+            if (files.length > maxFiles) {
+                errors.push("You selected " + files.length + " files. Maximum is " + maxFiles + " files per appeal.");
+            }
+
+            files.forEach(function (file, index) {
+                const kind = fileKind(file);
+
+                if (file.size > maxBytes) {
+                    errors.push(file.name + ": too large. Maximum 40 MB per file.");
+                }
+
+                if (kind === "invalid") {
+                    errors.push(file.name + ": invalid type. Allowed: .jpg, .jpeg, .png, .webp, .pdf, .mp4 only. Videos must be .mp4.");
+                }
+
+                if (duplicateSet.has(index)) {
+                    errors.push(file.name + ": duplicate file. Remove one copy before submitting.");
+                }
+            });
+
+            return errors;
+        }
+
+        function showValidation(errors) {
+            if (!errors.length) {
+                summary.style.display = "none";
+                summary.innerHTML = "";
+                submitButton.disabled = false;
+                return;
+            }
+
+            summary.style.display = "block";
+            summary.innerHTML = "<strong>Fix these upload issues before submitting:</strong><ul>" +
+                errors.map(function (error) {
+                    return "<li>" + error.replaceAll("<", "&lt;").replaceAll(">", "&gt;") + "</li>";
+                }).join("") +
+                "</ul>";
+
+            submitButton.disabled = true;
+        }
+
+        function syncUploadInput() {
+            const dataTransfer = new DataTransfer();
+
+            selectedFiles.forEach(function (file) {
+                dataTransfer.items.add(file);
+            });
+
+            uploadInput.files = dataTransfer.files;
+        }
+
+        function stopAndClearPreview(preview) {
+            preview.querySelectorAll("video").forEach(function (video) {
+                video.pause();
+                video.removeAttribute("src");
+                video.load();
+            });
+
+            preview.querySelectorAll("iframe, img").forEach(function (node) {
+                node.removeAttribute("src");
+            });
+
+            preview.innerHTML = "";
+            preview.style.display = "none";
+        }
+
+        function buildPreview(file, kind, preview) {
+            const url = URL.createObjectURL(file);
+            currentObjectUrls.push(url);
+
+            preview.innerHTML = "";
+
+            if (kind === "image") {
+                const img = document.createElement("img");
+                img.src = url;
+                img.style.width = "100%";
+                img.style.height = "auto";
+                img.style.maxHeight = "360px";
+                img.style.objectFit = "contain";
+                img.style.borderRadius = "6px";
+                preview.appendChild(img);
+            }
+
+            if (kind === "video") {
+                const video = document.createElement("video");
+                video.src = url;
+                video.controls = true;
+                video.style.width = "100%";
+                video.style.height = "auto";
+                video.style.maxHeight = "360px";
+                video.style.objectFit = "contain";
+                video.style.borderRadius = "6px";
+                preview.appendChild(video);
+            }
+
+            if (kind === "file") {
+                const iframe = document.createElement("iframe");
+                iframe.src = url;
+                iframe.style.width = "100%";
+                iframe.style.height = "360px";
+                iframe.style.border = "1px solid #eee";
+                iframe.style.borderRadius = "6px";
+                preview.appendChild(iframe);
+            }
+
+            preview.style.display = "block";
+        }
+
+        function removeSelectedFile(index) {
+            selectedFiles.splice(index, 1);
+            syncUploadInput();
+            renderSlots();
+        }
+
+        function renderEmptySlot(index) {
+            const card = document.createElement("article");
+            card.style.border = "1px dashed #bbb";
+            card.style.borderRadius = "8px";
+            card.style.padding = "12px";
+            card.style.background = "#fafafa";
+            card.style.minHeight = "170px";
+
+            const title = document.createElement("p");
+            title.style.fontWeight = "bold";
+            title.style.margin = "0 0 8px";
+            title.textContent = "Slot " + (index + 1) + " / " + maxFiles;
+
+            const body = document.createElement("p");
+            body.className = "muted";
+            body.textContent = "Empty evidence slot";
+
+            card.appendChild(title);
+            card.appendChild(body);
+            slots.appendChild(card);
+        }
+
+        function renderFileSlot(file, index, duplicateSet) {
+            const kind = fileKind(file);
+            const isDuplicate = duplicateSet.has(index);
+
+            const card = document.createElement("article");
+            card.style.border = "1px solid #ddd";
+            card.style.borderRadius = "8px";
+            card.style.padding = "12px";
+            card.style.background = "#fff";
+            card.style.minHeight = "170px";
+
+            if (kind === "invalid" || file.size > maxBytes || isDuplicate) {
+                card.style.borderColor = "#ef4444";
+                card.style.background = "#fff7f7";
+            }
+
+            const slotTitle = document.createElement("p");
+            slotTitle.style.fontWeight = "bold";
+            slotTitle.style.margin = "0 0 8px";
+            slotTitle.textContent = "Slot " + (index + 1) + " / " + maxFiles;
+
+            const fileName = document.createElement("p");
+            fileName.style.fontWeight = "bold";
+            fileName.style.wordBreak = "break-word";
+            fileName.style.margin = "0 0 4px";
+            fileName.textContent = file.name;
+
+            const meta = document.createElement("p");
+            meta.className = "muted";
+            meta.style.margin = "0 0 10px";
+            meta.textContent = (file.type || "unknown type") + " · " + (file.size / 1024 / 1024).toFixed(2) + " MB";
+
+            const actions = document.createElement("div");
+            actions.style.display = "flex";
+            actions.style.gap = "8px";
+            actions.style.flexWrap = "wrap";
+
+            const previewButton = document.createElement("button");
+            previewButton.type = "button";
+            const originalText = previewButtonText(kind);
+            previewButton.textContent = "Hide preview";
+            previewButton.disabled = kind === "invalid" || file.size > maxBytes;
+
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.textContent = "Remove file";
+            removeButton.addEventListener("click", function () {
+                removeSelectedFile(index);
+            });
+
+            const preview = document.createElement("div");
+            preview.style.display = "none";
+            preview.style.marginTop = "12px";
+
+            previewButton.addEventListener("click", function () {
+                if (preview.style.display === "none") {
+                    buildPreview(file, kind, preview);
+                    previewButton.textContent = "Hide preview";
+                } else {
+                    stopAndClearPreview(preview);
+                    previewButton.textContent = originalText;
+                }
+            });
+
+            actions.appendChild(previewButton);
+            actions.appendChild(removeButton);
+
+            card.appendChild(slotTitle);
+            card.appendChild(fileName);
+            card.appendChild(meta);
+            card.appendChild(actions);
+
+            const fileErrors = [];
+
+            if (file.size > maxBytes) {
+                fileErrors.push("Too large. Maximum 40 MB per file.");
+            }
+
+            if (kind === "invalid") {
+                fileErrors.push("Invalid type. Allowed: .jpg, .jpeg, .png, .webp, .pdf, .mp4 only. Videos must be .mp4.");
+            }
+
+            if (isDuplicate) {
+                fileErrors.push("Duplicate file. Remove one copy before submitting.");
+            }
+
+            if (fileErrors.length) {
+                const errorsBox = document.createElement("ul");
+                errorsBox.style.color = "#b91c1c";
+                errorsBox.style.fontWeight = "bold";
+                fileErrors.forEach(function (error) {
+                    const li = document.createElement("li");
+                    li.textContent = error;
+                    errorsBox.appendChild(li);
+                });
+                card.appendChild(errorsBox);
+            }
+
+            card.appendChild(preview);
+            slots.appendChild(card);
+
+            if (kind !== "invalid" && file.size <= maxBytes) {
+                buildPreview(file, kind, preview);
+                previewButton.textContent = "Hide preview";
+            } else {
+                previewButton.textContent = originalText;
+            }
+        }
+
+        function renderSlots() {
+            const errors = validateFiles(selectedFiles);
+            const duplicateSet = duplicateIndexes(selectedFiles);
+
+            revokeAllObjectUrls();
+            slots.innerHTML = "";
+            showValidation(errors);
+            syncUploadInput();
+
+            selectedFileCount.textContent = selectedFiles.length + " / " + maxFiles + " evidence files selected.";
+
+            for (let i = 0; i < maxFiles; i++) {
+                if (selectedFiles[i]) {
+                    renderFileSlot(selectedFiles[i], i, duplicateSet);
+                } else {
+                    renderEmptySlot(i);
+                }
+            }
+        }
+
+        pickerInput.addEventListener("change", function () {
+            const newFiles = Array.from(pickerInput.files);
+
+            newFiles.forEach(function (file) {
+                if (selectedFiles.length < maxFiles) {
+                    selectedFiles.push(file);
+                }
+            });
+
+            pickerInput.value = "";
+            renderSlots();
+        });
+
+        form.addEventListener("submit", function (event) {
+            const message = form.querySelector("textarea[name='message']").value.trim();
+            const errors = validateFiles(selectedFiles);
+
+            syncUploadInput();
+
+            if (!message) {
+                event.preventDefault();
+                alert("Please write an appeal message before submitting.");
+                return;
+            }
+
+            if (errors.length) {
+                event.preventDefault();
+                showValidation(errors);
+                alert("Please fix all upload issues before submitting.");
+                return;
+            }
+        });
+
+        window.addEventListener("beforeunload", revokeAllObjectUrls);
+
+        renderSlots();
+    </script>
+{% endblock %}

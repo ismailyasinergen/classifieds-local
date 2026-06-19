@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>My Listings</h1>
+            <p class="muted">
+                Manage active, pending, rejected, and archived listings.
+            </p>
+        </div>
+
+        <a class="button-link button-primary" href="{% url 'listings:listing_create' %}">
+            + Create new listing
+        </a>
+    </div>
+
+    <div class="tag-row">
+        <a class="tag" href="{% url 'accounts:my_listings' %}">
+            All ({{ counts.all }})
+        </a>
+
+        <a class="tag" href="{% url 'accounts:my_listings' %}?status=approved">
+            Approved ({{ counts.approved }})
+        </a>
+
+        <a class="tag" href="{% url 'accounts:my_listings' %}?status=pending">
+            Pending ({{ counts.pending }})
+        </a>
+
+        <a class="tag" href="{% url 'accounts:my_listings' %}?status=rejected">
+            Rejected ({{ counts.rejected }})
+        </a>
+
+        <a class="tag" href="{% url 'accounts:my_listings' %}?status=archived">
+            Archived ({{ counts.archived }})
+        </a>
+    </div>
+
+    {% if status_filter == "archived" %}
+        <p style="background:#f8f9fa; border:1px solid #ddd; padding:10px; border-radius:6px;">
+            Archived listings are hidden from public pages but kept in your account.
+            You can renew them and send them back for approval.
+        </p>
+    {% endif %}
+
+    <div class="listing-grid">
+        {% for listing in listings %}
+            {% include "listings/_listing_card.html" with listing=listing show_status=True show_owner_controls=True %}
+        {% empty %}
+            <p>No listings found in this section.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

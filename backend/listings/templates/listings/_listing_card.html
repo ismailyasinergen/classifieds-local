@@ -1,0 +1,186 @@
+        <div class="promotion-badges" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+            {% if listing.owner.profile.is_verified_seller %}
+                <span style="background:#e7f7ec; color:#135c2b; border:1px solid #9bd0aa; padding:4px 8px; border-radius:999px; font-size:12px;">
+                    VERIFIED SELLER
+                </span>
+            {% endif %}
+            {% if listing.top_listing_until %}
+                <span style="background:#222; color:#fff; padding:4px 8px; border-radius:999px; font-size:12px;">
+                    TOP LISTING
+                </span>
+            {% endif %}
+
+            {% if listing.is_featured %}
+                <span style="background:#ffe08a; color:#222; padding:4px 8px; border-radius:999px; font-size:12px;">
+                    FEATURED
+                </span>
+            {% endif %}
+        </div>
+
+<article class="listing-card">
+    <a href="{{ listing.get_absolute_url }}">
+        {% with first_image=listing.images.first %}
+            {% if first_image %}
+                <img class="listing-image" src="{{ first_image.image.url }}" alt="{{ listing.title }}" onerror="this.outerHTML='<div class=&quot;listing-placeholder&quot;>No image</div>'">
+            {% else %}
+                <div class="listing-placeholder">No image</div>
+            {% endif %}
+        {% endwith %}
+    </a>
+
+    <div class="listing-card-body">
+        <h2>
+            <a href="{{ listing.get_absolute_url }}">
+                {{ listing.title }}
+            </a>
+        </h2>
+
+        <div class="price">{{ listing.price }} TL</div>
+        <div class="muted">{{ listing.location }}</div>
+
+        <div class="muted">
+            <a href="{{ listing.category.get_absolute_url }}">
+                {{ listing.category.name }}
+            </a>
+        </div>
+
+        <div class="muted">
+            {{ listing.created_at|date:"M d, Y H:i" }}
+        </div>
+
+        {% if request.user.is_authenticated and request.user != listing.owner and listing.status == "approved" %}
+            <form method="post" action="{% url 'listings:listing_favorite_toggle' listing.pk %}" style="margin-top:10px;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+
+                {% if listing.id in favorite_listing_ids %}
+                    <button type="submit">Remove saved</button>
+                {% else %}
+                    <button type="submit">Save listing</button>
+                {% endif %}
+            </form>
+        {% endif %}
+
+        {% if show_status %}
+            <p>
+                Status:
+                <strong>{{ listing.get_status_display }}</strong>
+            </p>
+
+            {% if listing.expires_at %}
+                <p class="muted">
+                    Expires: {{ listing.expires_at|date:"M d, Y H:i" }}
+                </p>
+            {% endif %}
+
+            {% if listing.status == "pending" %}
+                <p style="background:#fff3cd; border:1px solid #ffeeba; padding:8px; border-radius:6px;">
+                    Waiting for admin approval.
+                </p>
+            {% elif listing.status == "approved" %}
+                <p style="background:#d4edda; border:1px solid #c3e6cb; padding:8px; border-radius:6px;">
+                    Publicly visible.
+                </p>
+            {% elif listing.status == "rejected" %}
+                <p style="background:#f8d7da; border:1px solid #f5c6cb; padding:8px; border-radius:6px;">
+                    Rejected by admin.
+                </p>
+            {% endif %}
+        {% endif %}
+
+        {% if show_owner_controls %}
+            <p>
+                <a href="{% url 'listings:listing_update' listing.pk %}">Edit</a>
+                |
+                <a href="{% url 'listings:listing_delete' listing.pk %}">Delete</a>
+            </p>
+
+            {% if listing.status != "archived" %}
+                <form method="post" action="{% url 'listings:listing_archive' listing.pk %}">
+                    {% csrf_token %}
+                    <button type="submit">Archive</button>
+                </form>
+            {% else %}
+                <form method="post" action="{% url 'listings:listing_renew' listing.pk %}">
+                    {% csrf_token %}
+                    <button class="button-primary" type="submit">Renew listing</button>
+                </form>
+            {% endif %}
+        {% endif %}
+
+        {% if show_moderation_controls %}
+            <div class="muted">Seller: {{ listing.owner.username }}</div>
+
+            <div style="margin-top:10px; display:flex; gap:8px;">
+                <form method="post" action="{% url 'listings:listing_approve' listing.pk %}">
+                    {% csrf_token %}
+                    <button class="button-primary" type="submit">Approve</button>
+                </form>
+
+                <form method="post" action="{% url 'listings:listing_reject' listing.pk %}">
+                    {% csrf_token %}
+                    <button type="submit">Reject</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+        {% if request.user.is_staff %}
+            <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
+                {% if listing.is_featured %}
+                    <p><strong>Featured</strong></p>
+                    {% if listing.featured_until %}
+                        <p class="muted">Featured until: {{ listing.featured_until|date:"M d, Y H:i" }}</p>
+                    {% endif %}
+                    <form method="post" action="{% url 'listings:listing_feature_toggle' listing.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit">Remove Featured</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'listings:listing_feature_toggle' listing.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button class="button-primary" type="submit">Make Featured</button>
+                    </form>
+                {% endif %}
+
+                <form method="post" action="{% url 'listings:listing_feature_priority_update' listing.pk %}" style="margin-top:8px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <label>
+                        Featured priority
+                        <input type="number" name="featured_priority" value="{{ listing.featured_priority }}" min="0" style="width:90px;">
+                    </label>
+                    <button type="submit">Save priority</button>
+                </form>
+
+                <form method="post" action="{% url 'listings:listing_feature_days_update' listing.pk %}" style="margin-top:8px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <label>
+                        Featured days
+                        <input type="number" name="featured_days" value="30" min="1" style="width:90px;">
+                    </label>
+                    <button type="submit">Set days</button>
+                </form>
+            </div>
+        {% endif %}
+
+
+        {% if request.user == listing.owner %}
+            <div style="margin-top:10px;">
+                <a class="button-link button-primary" href="{% url 'promotions:listing_packages' listing.pk %}">
+                    Promote listing
+                </a>
+            </div>
+        {% endif %}
+
+        {% if listing.top_listing_until %}
+            <p class="muted">
+                <strong>Top Listing</strong>
+                until {{ listing.top_listing_until|date:"M d, Y H:i" }}
+            </p>
+        {% endif %}
+
+</article>

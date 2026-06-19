@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Message Thread</h1>
+            <p class="muted">
+                About:
+                <a href="{{ selected_message.listing.get_absolute_url }}">
+                    {{ selected_message.listing.title }}
+                </a>
+            </p>
+        </div>
+
+        <div>
+            <a class="button-link" href="{% url 'conversations:inbox' %}">Inbox</a>
+            <a class="button-link" href="{% url 'conversations:sent' %}">Sent</a>
+        </div>
+    </div>
+
+    <p>
+        Conversation with <strong>{{ other_user.username }}</strong>
+    </p>
+
+    {% for message in thread_messages %}
+        <article style="
+            border:1px solid #ddd;
+            border-radius:6px;
+            padding:12px;
+            margin-bottom:12px;
+            {% if message.sender == request.user %}
+                background:#f3f8ff;
+                margin-left:40px;
+            {% else %}
+                background:#fff;
+                margin-right:40px;
+            {% endif %}
+        ">
+            <p class="muted">
+                <strong>
+                    {% if message.sender == request.user %}
+                        You
+                    {% else %}
+                        {{ message.sender.username }}
+                    {% endif %}
+                </strong>
+                · {{ message.created_at|date:"M d, Y H:i" }}
+            </p>
+
+            <div>
+                {{ message.body|linebreaks }}
+            </div>
+        </article>
+    {% empty %}
+        <p>No messages in this thread.</p>
+    {% endfor %}
+
+    <hr>
+
+    <h2>Reply</h2>
+
+    <form method="post" action="{% url 'conversations:reply' selected_message.pk %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button class="button-primary" type="submit">Send reply</button>
+    </form>
+{% endblock %}

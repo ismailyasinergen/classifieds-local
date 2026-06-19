@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <h1>{{ page_title }}</h1>
+
+        <a class="button-link" href="{% url 'accounts:my_listings' %}">
+            Back to My Listings
+        </a>
+    </div>
+
+    <p style="background:#fff3cd; border:1px solid #ffeeba; padding:10px; border-radius:6px;">
+        New or edited listings will be saved as <strong>Pending approval</strong>.
+        Admin must approve them before they appear publicly.
+    </p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <p>
+            <label for="id_images"><strong>Add images</strong></label><br>
+            <input type="file" name="images" id="id_images" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" multiple><br><span class="muted">Allowed: JPG, PNG, WEBP, GIF. Videos are not supported yet.</span>
+        </p>
+
+        <button class="button-primary" type="submit">Save Listing</button>
+        <a class="button-link" href="{% url 'accounts:my_listings' %}">Cancel</a>
+    </form>
+
+    {% if object and object.images.exists %}
+        <hr>
+
+        <h2>Current images</h2>
+
+        <div class="listing-grid">
+            {% for image in object.images.all %}
+                <div class="listing-card">
+                    <img class="listing-image" src="{{ image.image.url }}" alt="{{ object.title }}">
+
+                    <div class="listing-card-body">
+                        <form method="post" action="{% url 'listings:listing_image_delete' image.pk %}">
+                            {% csrf_token %}
+                            <button type="submit">Delete image</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Report Listing</h1>
+            <p class="muted">{{ listing.title }}</p>
+        </div>
+
+        <a class="button-link" href="{{ listing.get_absolute_url }}">
+            Back to listing
+        </a>
+    </div>
+
+    <article style="border:1px solid #ddd; border-radius:8px; padding:16px; background:#fff; max-width:720px;">
+        <form method="post">
+            {% csrf_token %}
+
+            <fieldset style="border:1px solid #ddd; border-radius:8px; padding:12px; margin-bottom:14px;">
+                <legend>Listing reasons</legend>
+
+                {% for value, label in reason_choices %}
+                    <label style="display:block; margin:8px 0;">
+                        <input type="checkbox" name="reasons" value="{{ value }}">
+                        {{ label }}
+                    </label>
+                {% endfor %}
+            </fieldset>
+
+            <p>
+                <label>
+                    Details
+                    <textarea name="details" rows="5" placeholder="Explain the problem..."></textarea>
+                </label>
+            </p>
+
+            <button class="button-primary" type="submit">
+                Submit listing report
+            </button>
+        </form>
+    </article>
+{% endblock %}

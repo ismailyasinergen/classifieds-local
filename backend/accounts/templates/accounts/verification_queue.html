@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load private_media_extras %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Seller Verification</h1>
+            <p class="muted">Approve or reject seller verification requests.</p>
+        </div>
+
+        <a class="button-link" href="{% url 'admin:index' %}">
+            Django Admin
+        </a>
+    </div>
+
+    <div class="tag-row">
+        <a class="tag" href="{% url 'accounts:verification_queue' %}">
+            All ({{ counts.all }})
+        </a>
+
+        <a class="tag" href="{% url 'accounts:verification_queue' %}?status=pending">
+            Pending ({{ counts.pending }})
+        </a>
+
+        <a class="tag" href="{% url 'accounts:verification_queue' %}?status=approved">
+            Approved ({{ counts.approved }})
+        </a>
+
+        <a class="tag" href="{% url 'accounts:verification_queue' %}?status=rejected">
+            Rejected ({{ counts.rejected }})
+        </a>
+    </div>
+
+    {% for profile in profiles %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; margin-bottom:12px; background:#fff;">
+            <h2 style="margin-top:0;">
+                {{ profile.user.username }}
+                {% if profile.is_verified_seller %}
+                    <span style="background:#e7f7ec; border:1px solid #9bd0aa; padding:3px 8px; border-radius:999px; font-size:12px;">
+                        VERIFIED
+                    </span>
+                {% endif %}
+            </h2>
+
+            <p>Email: {{ profile.user.email }}</p>
+            <p>Business: <strong>{{ profile.business_name }}</strong></p>
+            <p>Status: <strong>{{ profile.get_verification_status_display }}</strong></p>
+
+            {% if profile.verification_document %}
+                <p>
+                    Document:
+                    <a href="{% private_file_url profile 'verification_document' %}" target="_blank">
+                        View document
+                    </a>
+                </p>
+            {% endif %}
+
+            {% if profile.verification_status == "pending" %}
+                <form method="post" action="{% url 'accounts:verification_approve' profile.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button class="button-primary" type="submit">Approve</button>
+                </form>
+
+                <form method="post" action="{% url 'accounts:verification_reject' profile.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="text" name="verification_note" placeholder="Reason, optional">
+                    <button type="submit">Reject</button>
+                </form>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p>No verification requests found.</p>
+    {% endfor %}
+{% endblock %}

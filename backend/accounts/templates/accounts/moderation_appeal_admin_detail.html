@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+{% load appeal_decision_extras %}
+{% load appeal_attachment_extras %}
+
+{% block content %}
+
+<style>
+    /* ADMIN_EVIDENCE_GALLERY_STAGE_LABELS_V1 */
+    .admin-evidence-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 14px;
+        margin-top: 12px;
+    }
+
+    .admin-evidence-card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 10px;
+        background: #fff;
+        min-width: 0;
+    }
+
+    .admin-evidence-preview {
+        width: 100%;
+        min-height: 150px;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        background: #fafafa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin-bottom: 10px;
+    }
+
+    .admin-evidence-preview img,
+    .admin-evidence-preview video {
+        width: 100%;
+        max-height: 210px;
+        object-fit: contain;
+        display: block;
+        background: #f8f8f8;
+    }
+
+    .admin-evidence-stage {
+        display: inline-block;
+        border: 1px solid #d7e2f3;
+        background: #f6f8fb;
+        color: #1264a3;
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .admin-evidence-name {
+        font-weight: 700;
+        word-break: break-word;
+        margin-bottom: 4px;
+    }
+
+    .admin-evidence-meta {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+
+    .admin-evidence-file-icon {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+</style>
+
+    <div class="page-title-row">
+        <div>
+            <h1>Appeal #{{ appeal.pk }}</h1>
+            <p class="muted">
+                Status: {{ appeal.get_status_display }}
+                · Submitted {{ appeal.created_at|date:"M d, Y H:i" }}
+                · Appellant: {{ appeal.appellant.username }}
+            </p>
+        </div>
+
+        <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}">Back to Appeals Queue</a>
+    </div>
+
+    {% appeal_decision_state appeal as decision_state %}
+
+    <section style="border:1px solid #ddd; border-radius:10px; padding:14px; background:#fff; margin-bottom:16px;">
+        <h2 style="margin-top:0;">Final decision readiness</h2>
+
+        <p>
+            <strong>{{ decision_state.label }}</strong>
+            <br>
+            <span class="muted">{{ decision_state.reason }}</span>
+        </p>
+
+        {% if decision_state.state == "waiting_deadline" %}
+            <p>
+                <strong>Deadline countdown:</strong>
+                <span class="js-appeal-decision-countdown" data-deadline="{{ decision_state.due_iso }}">calculating...</span>
+            </p>
+
+            <p class="muted">
+                Final decision is blocked until the seller uploads extra evidence or the deadline passes.
+            </p>
+        {% endif %}
+
+        {% if decision_state.ready %}
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
+                <form method="post" action="{% url 'accounts:moderation_appeal_decide' appeal.pk 'approve' %}" style="border:1px solid #ddd; border-radius:8px; padding:12px;">
+                    {% csrf_token %}
+
+                    <h3 style="margin-top:0;">Approve appeal</h3>
+
+                    <label>
+                        <input type="checkbox" name="evidence_reviewed" value="yes" required>
+                        I reviewed all appeal evidence and deadline status.
+                    </label>
+
+                    <label>
+                        Decision note shown to seller
+                        <textarea name="decision_note" rows="4" required placeholder="Explain why the appeal is approved."></textarea>
+                    </label>
+
+                    <label>
+                        Internal admin note
+                        <textarea name="admin_note" rows="3" placeholder="Internal note, not shown to seller."></textarea>
+                    </label>
+
+                    <button type="submit" onclick="return confirm('Approve this appeal? This final decision cannot be reopened.');">
+                        Approve final decision
+                    </button>
+                </form>
+
+                <form method="post" action="{% url 'accounts:moderation_appeal_decide' appeal.pk 'reject' %}" style="border:1px solid #ddd; border-radius:8px; padding:12px;">
+                    {% csrf_token %}
+
+                    <h3 style="margin-top:0;">Reject appeal</h3>
+
+                    <label>
+                        <input type="checkbox" name="evidence_reviewed" value="yes" required>
+                        I reviewed all appeal evidence and deadline status.
+                    </label>
+
+                    <label>
+                        Decision note shown to seller
+                        <textarea name="decision_note" rows="4" required placeholder="Explain why the appeal is rejected."></textarea>
+                    </label>
+
+                    <label>
+                        Internal admin note
+                        <textarea name="admin_note" rows="3" placeholder="Internal note, not shown to seller."></textarea>
+                    </label>
+
+                    <button type="submit" onclick="return confirm('Reject this appeal? This final decision cannot be reopened.');">
+                        Reject final decision
+                    </button>
+                </form>
+            </div>
+
+            <p class="muted" style="margin-top:12px;">
+                Approval/rejection only records the appeal decision and sends notice. It does not automatically restore listings or lift seller restrictions.
+            </p>
+        {% endif %}
+
+        {% if decision_state.state == "final_locked" %}
+            <p class="muted">
+                This decision is final. No reopen action is available.
+            </p>
+        {% endif %}
+    </section>
+
+    {% if appeal.status == "pending" %}
+        <section style="border:1px solid #ddd; border-radius:10px; padding:14px; background:#fff; margin-bottom:16px;">
+            <h2 style="margin-top:0;">Request extra evidence</h2>
+
+            {% if appeal.extra_evidence_requested_at %}
+                <p>
+                    <strong>Current request:</strong> {{ appeal.extra_evidence_request_note }}
+                    <br>
+                    <strong>Deadline:</strong> {{ appeal.extra_evidence_due_at|date:"M d, Y H:i" }}
+                    <br>
+                    <span class="muted">
+                        {% if appeal.extra_evidence_fulfilled_at %}
+                            Seller uploaded extra evidence on {{ appeal.extra_evidence_fulfilled_at|date:"M d, Y H:i" }}.
+                        {% else %}
+                            Waiting for seller or deadline.
+                        {% endif %}
+                    </span>
+                </p>
+            {% endif %}
+
+            <form method="post" action="{% url 'accounts:moderation_appeal_request_extra_evidence' appeal.pk %}">
+                {% csrf_token %}
+
+                <label>
+                    What extra evidence is needed?
+                    <textarea name="extra_evidence_request_note" rows="3" required placeholder="Example: Please upload clearer photos, invoice, shipment proof, or ownership document."></textarea>
+                </label>
+
+                <label>
+                    Deadline
+                    <input type="datetime-local" name="extra_evidence_due_at" required>
+                </label>
+
+                <p class="muted">
+                    Seller can upload extra evidence only until this deadline. After the deadline, admin may make the final decision.
+                </p>
+
+                <button type="submit" onclick="return confirm('Send extra evidence request with this deadline?');">
+                    Request extra evidence with deadline
+                </button>
+            </form>
+        </section>
+    {% endif %}
+
+    <section style="border:1px solid #ddd; border-radius:10px; padding:14px; background:#fff; margin-bottom:16px;">
+        <h2 style="margin-top:0;">Appeal message</h2>
+        <p>{{ appeal.message|linebreaksbr }}</p>
+    </section>
+
+    
+
+    {% if appeal.decision_note %}
+        <section style="border:1px solid #ddd; border-radius:10px; padding:14px; background:#fff; margin-bottom:16px;">
+            <h2 style="margin-top:0;">Decision note</h2>
+            <p>{{ appeal.decision_note|linebreaksbr }}</p>
+        </section>
+    {% endif %}
+
+    {% if appeal.admin_note %}
+        <section style="border:1px solid #ddd; border-radius:10px; padding:14px; background:#fff; margin-bottom:16px;">
+            <h2 style="margin-top:0;">Internal admin note</h2>
+            <p>{{ appeal.admin_note|linebreaksbr }}</p>
+        </section>
+    {% endif %}
+
+    <script>
+        (function () {
+            function updateDecisionCountdowns() {
+                document.querySelectorAll(".js-appeal-decision-countdown").forEach(function (el) {
+                    var raw = el.getAttribute("data-deadline");
+
+                    if (!raw) {
+                        el.textContent = "no deadline set";
+                        return;
+                    }
+
+                    var deadline = new Date(raw);
+                    var now = new Date();
+                    var diff = deadline - now;
+
+                    if (isNaN(deadline.getTime())) {
+                        el.textContent = "invalid deadline";
+                        return;
+                    }
+
+                    if (diff <= 0) {
+                        el.textContent = "deadline passed — refresh page to continue final decision";
+                        return;
+                    }
+
+                    var totalSeconds = Math.floor(diff / 1000);
+                    var days = Math.floor(totalSeconds / 86400);
+                    var hours = Math.floor((totalSeconds % 86400) / 3600);
+                    var minutes = Math.floor((totalSeconds % 3600) / 60);
+                    var seconds = totalSeconds % 60;
+
+                    el.textContent = days + "d " + hours + "h " + minutes + "m " + seconds + "s remaining";
+                });
+            }
+
+            updateDecisionCountdowns();
+            setInterval(updateDecisionCountdowns, 1000);
+        })();
+    </script>
+<section class="appeal-card">
+    <h2 style="margin-top:0;">Evidence files</h2>
+    <p class="muted">
+        Admin review gallery. Initial appeal evidence and extra evidence are labeled separately.
+        Admin can open/download files for moderation review.
+    </p>
+
+    {% if appeal.attachments.all %}
+        <div class="admin-evidence-gallery">
+            {% for attachment in appeal.attachments.all %}
+                {% with kind=attachment|attachment_kind preview_url=attachment|attachment_preview_url download_url=attachment|attachment_download_url %}
+                    <article class="admin-evidence-card">
+                        <div class="admin-evidence-preview">
+                            {% if kind == "image" %}
+                                <img src="{{ preview_url }}" alt="{{ attachment|attachment_name }}">
+                            {% elif kind == "video" %}
+                                <video controls preload="metadata">
+                                    <source src="{{ preview_url }}" type="{{ attachment.content_type|default:'video/mp4' }}">
+                                    Your browser cannot preview this video.
+                                </video>
+                            {% elif kind == "pdf" %}
+                                <div class="admin-evidence-file-icon">PDF</div>
+                            {% else %}
+                                <div class="admin-evidence-file-icon">FILE</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="admin-evidence-stage">{{ attachment|attachment_stage_label }}</div>
+                        <div class="admin-evidence-name">{{ attachment|attachment_name }}</div>
+
+                        <div class="admin-evidence-meta">
+                            {% with bytes=attachment|attachment_size %}
+                                {% if bytes %}
+                                    {{ bytes|filesizeformat }}
+                                {% endif %}
+                            {% endwith %}
+                            {% if attachment.content_type %}
+                                · {{ attachment.content_type }}
+                            {% endif %}
+                        </div>
+
+                        <a class="button-link" href="{{ download_url }}" target="_blank" rel="noopener">
+                            Open / download
+                        </a>
+
+                        <!-- ADMIN_EVIDENCE_STAGE_CORRECTION_FORM_V1 -->
+                        <form method="post" action="{% url 'accounts:moderation_appeal_attachment_update_stage' attachment.pk %}" style="margin-top:10px;">
+                            {% csrf_token %}
+                            <label class="muted" style="display:block; margin-bottom:6px;">
+                                Correct evidence label
+                            </label>
+                            <select name="evidence_stage">
+                                <option value="initial" {% if attachment.evidence_stage == "initial" %}selected{% endif %}>
+                                    Initial appeal evidence
+                                </option>
+                                <option value="extra" {% if attachment.evidence_stage == "extra" %}selected{% endif %}>
+                                    Extra evidence
+                                </option>
+                            </select>
+                            <button type="submit" style="margin-top:8px;">
+                                Save label
+                            </button>
+                        </form>
+                    </article>
+                {% endwith %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="muted">No evidence files uploaded yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

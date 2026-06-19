@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>My Reports</h1>
+            <p class="muted">Track reports you submitted to admin.</p>
+        </div>
+
+        <a class="button-link" href="{% url 'listings:listing_list' %}">
+            Browse listings
+        </a>
+    </div>
+
+    {% for report in reports %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; margin-bottom:12px; background:#fff;">
+            <h2 style="margin-top:0;">
+                <a href="{{ report.listing.get_absolute_url }}">{{ report.listing.title }}</a>
+            </h2>
+
+            <p>
+                Reasons:
+                <strong>{{ report.get_reasons_display }}</strong>
+                · Report status:
+                <strong>{{ report.get_status_display }}</strong>
+                · Listing status:
+                <strong>{{ report.listing.get_status_display }}</strong>
+            </p>
+
+            <p class="muted">
+                Seller: {{ report.listing.owner.username }}
+                · Submitted: {{ report.created_at|date:"M d, Y H:i" }}
+            </p>
+
+            {% if report.details %}
+                <div>{{ report.details|linebreaks }}</div>
+            {% endif %}
+
+            {% if report.reporter_note %}
+                <p class="muted">Response from admin: {{ report.reporter_note }}</p>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p>You have not submitted any listing reports yet.</p>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load private_media_extras %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Seller Verification</h1>
+            <p class="muted">Request a verified seller badge for your account.</p>
+        </div>
+
+        <a class="button-link" href="{% url 'accounts:dashboard' %}">
+            Dashboard
+        </a>
+    </div>
+
+    {% if error %}
+        <p style="background:#ffe5e5; border:1px solid #e0aaaa; padding:10px; border-radius:6px;">
+            {{ error }}
+        </p>
+    {% endif %}
+
+    <article style="border:1px solid #ddd; border-radius:8px; padding:16px; background:#fff; max-width:720px;">
+        <p>
+            Current status:
+            <strong>{{ profile.get_verification_status_display }}</strong>
+        </p>
+
+        {% if profile.verification_note %}
+            <p>
+                Admin note:
+                <strong>{{ profile.verification_note }}</strong>
+            </p>
+        {% endif %}
+
+        {% if profile.is_verified_seller %}
+            <p style="background:#e7f7ec; border:1px solid #9bd0aa; padding:10px; border-radius:6px;">
+                Your account is verified.
+            </p>
+        {% else %}
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <p>
+                    <label>
+                        Business name
+                        <input type="text" name="business_name" value="{{ profile.business_name }}" required>
+                    </label>
+                </p>
+
+                <p>
+                    <label>
+                        Verification document image
+                        <input type="file" name="verification_document" accept="image/jpeg,image/png,image/webp,image/gif">
+                    </label>
+                </p>
+
+                {% if profile.verification_document %}
+                    <p>
+                        Current document:
+                        <a href="{% private_file_url profile 'verification_document' %}" target="_blank">
+                            View uploaded document
+                        </a>
+                    </p>
+                {% endif %}
+
+                <button class="button-primary" type="submit">
+                    Submit verification request
+                </button>
+            </form>
+        {% endif %}
+    </article>
+{% endblock %}

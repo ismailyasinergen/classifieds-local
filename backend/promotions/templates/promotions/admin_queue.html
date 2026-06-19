@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load private_media_extras %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Promotion Requests</h1>
+            <p class="muted">Mark payments as paid, then approve promotions.</p>
+        </div>
+
+        <a class="button-link" href="{% url 'listings:moderation_queue' %}">
+            Listing moderation
+        </a>
+    </div>
+
+    <div class="tag-row">
+        <a class="tag" href="{% url 'promotions:admin_queue' %}">
+            All ({{ counts.all }})
+        </a>
+
+        <a class="tag" href="{% url 'promotions:admin_queue' %}?payment=unpaid">
+            Unpaid ({{ counts.unpaid }})
+        </a>
+
+        <a class="tag" href="{% url 'promotions:admin_queue' %}?payment=paid">
+            Paid ({{ counts.paid }})
+        </a>
+
+        <a class="tag" href="{% url 'promotions:admin_queue' %}?status=pending">
+            Pending Approval ({{ counts.pending }})
+        </a>
+
+        <a class="tag" href="{% url 'promotions:admin_queue' %}?status=active">
+            Active ({{ counts.active }})
+        </a>
+
+        <a class="tag" href="{% url 'promotions:admin_queue' %}?status=rejected">
+            Rejected ({{ counts.rejected }})
+        </a>
+
+        <a class="tag" href="{% url 'promotions:admin_queue' %}?status=cancelled">
+            Cancelled ({{ counts.cancelled }})
+        </a>
+    </div>
+
+    {% for promotion in promotions %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; margin-bottom:12px; background:#fff;">
+            <h2 style="margin-top:0;">
+                <a href="{{ promotion.listing.get_absolute_url }}">
+                    {{ promotion.listing.title }}
+                </a>
+            </h2>
+
+            <p>
+                Package:
+                <strong>{{ promotion.package.name }}</strong>
+                · {{ promotion.package.get_package_type_display }}
+                · {{ promotion.package.duration_days }} days
+                · {{ promotion.price_snapshot }} TL
+            </p>
+
+            <p>
+                Payment:
+                <strong>{{ promotion.get_payment_status_display }}</strong>
+                · Reference: {{ promotion.payment_reference }}
+            </p>
+
+            {% if promotion.payment_proof %}
+                <p>
+                    Payment proof:
+                    <a href="{% private_file_url promotion 'payment_proof' %}" target="_blank">
+                        View proof
+                    </a>
+                </p>
+            {% else %}
+                <p class="muted">No payment proof uploaded yet.</p>
+            {% endif %}
+
+            <p class="muted">
+                Requested by {{ promotion.user.username }}
+                · Promotion status: {{ promotion.get_status_display }}
+                · {{ promotion.created_at|date:"M d, Y H:i" }}
+            </p>
+
+            {% if promotion.ends_at %}
+                <p class="muted">
+                    Ends: {{ promotion.ends_at|date:"M d, Y H:i" }}
+                </p>
+            {% endif %}
+
+            {% if promotion.payment_status == "paid" %}
+                <p>
+                    <a class="button-link" href="{% url 'promotions:receipt' promotion.pk %}">
+                        View receipt
+                    </a>
+                </p>
+            {% endif %}
+
+            {% if promotion.status == "pending" %}
+                {% if promotion.payment_status == "unpaid" %}
+                    <form method="post" action="{% url 'promotions:mark_paid' promotion.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button class="button-primary" type="submit">Mark paid</button>
+                    </form>
+                {% endif %}
+
+                {% if promotion.payment_status == "paid" %}
+                    <form method="post" action="{% url 'promotions:approve' promotion.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button class="button-primary" type="submit">Approve</button>
+                    </form>
+                {% endif %}
+
+                <form method="post" action="{% url 'promotions:reject' promotion.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Reject</button>
+                </form>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p>No promotion requests found.</p>
+    {% endfor %}
+{% endblock %}

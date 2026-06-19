@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Dashboard</h1>
+            <p class="muted">Manage your listings, messages, and saved ads.</p>
+        </div>
+
+        <a class="button-link button-primary" href="{% url 'listings:listing_create' %}">
+            + Post Listing
+        </a>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:24px;">
+        <a class="button-link" href="{% url 'accounts:my_listings' %}">
+            My Listings
+        </a>
+
+        <a class="button-link" href="{% url 'accounts:my_listings' %}?status=approved">
+            Approved: {{ approved_count }}
+        </a>
+
+        <a class="button-link" href="{% url 'accounts:my_listings' %}?status=pending">
+            Pending: {{ pending_count }}
+        </a>
+
+        <a class="button-link" href="{% url 'accounts:my_listings' %}?status=archived">
+            Archived: {{ archived_count }}
+        </a>
+
+        <a class="button-link" href="{% url 'accounts:saved_listings' %}">
+            Saved Listings: {{ saved_count }}
+        </a>
+
+        <a class="button-link" href="{% url 'promotions:my_promotions' %}">
+            My Promotions
+        </a>
+
+        <a class="button-link" href="{% url 'conversations:inbox' %}">
+            Inbox: {{ unread_count }} unread
+        </a>
+
+        <a class="button-link" href="{% url 'accounts:profile' %}">
+            Edit Profile
+        </a>
+    </div>
+
+    <h2>Recent My Listings</h2>
+
+    <div class="listing-grid">
+        {% for listing in my_listings %}
+            {% include "listings/_listing_card.html" with listing=listing show_status=True show_owner_controls=True %}
+        {% empty %}
+            <p>You have no listings yet.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

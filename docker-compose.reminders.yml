@@ -1,0 +1,30 @@
+services:
+  appeal_reminders:
+    build:
+      context: ./backend
+    container_name: classifieds_appeal_reminders
+    command: >
+      sh -c "
+      echo 'Starting appeal evidence deadline reminder worker...';
+      while true;
+      do
+        python manage.py send_appeal_evidence_deadline_reminders;
+        echo 'Sleeping for reminder interval...';
+        sleep $${APPEAL_REMINDER_INTERVAL_SECONDS:-86400};
+      done
+      "
+    depends_on:
+      - db
+    environment:
+      DJANGO_DEBUG: "${DJANGO_DEBUG:-True}"
+      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY:-dev-secret-key-change-me}"
+      DJANGO_ALLOWED_HOSTS: "${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,web}"
+      DATABASE_NAME: "${DATABASE_NAME:-classifieds}"
+      DATABASE_USER: "${DATABASE_USER:-classifieds}"
+      DATABASE_PASSWORD: "${DATABASE_PASSWORD:-classifieds}"
+      DATABASE_HOST: "${DATABASE_HOST:-db}"
+      DATABASE_PORT: "${DATABASE_PORT:-5432}"
+      APPEAL_REMINDER_INTERVAL_SECONDS: "${APPEAL_REMINDER_INTERVAL_SECONDS:-86400}"
+    volumes:
+      - media_volume:/app/media
+    restart: unless-stopped

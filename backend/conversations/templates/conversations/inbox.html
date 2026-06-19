@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <h1>Inbox</h1>
+        <a class="button-link" href="{% url 'conversations:sent' %}">Sent messages</a>
+    </div>
+
+    {% for thread in threads %}
+        <article style="border:1px solid #ddd; border-radius:6px; padding:12px; margin-bottom:12px;">
+            <h2 style="margin-top:0;">
+                <a href="{% url 'conversations:thread' thread.latest_message.pk %}">
+                    {{ thread.listing.title }}
+                </a>
+            </h2>
+
+            <p class="muted">
+                Conversation with {{ thread.other_user.username }}
+                · Last message {{ thread.latest_message.created_at|date:"M d, Y H:i" }}
+                {% if thread.unread_count %}
+                    · <strong>{{ thread.unread_count }} unread</strong>
+                {% endif %}
+            </p>
+
+            <p>
+                {% if thread.latest_message.sender == request.user %}
+                    <strong>You:</strong>
+                {% else %}
+                    <strong>{{ thread.latest_message.sender.username }}:</strong>
+                {% endif %}
+                {{ thread.latest_message.body|truncatewords:30 }}
+            </p>
+
+            <a class="button-link" href="{% url 'conversations:thread' thread.latest_message.pk %}">
+                Open conversation
+            </a>
+        </article>
+    {% empty %}
+        <p>No conversations yet.</p>
+    {% endfor %}
+{% endblock %}

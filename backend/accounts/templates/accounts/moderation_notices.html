@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load nav_extras %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Notices</h1>
+            <p class="muted">{{ unread_count }} unread notice(s).</p>
+        </div>
+
+        <form method="post" action="{% url 'accounts:moderation_notices_mark_all_read' %}">
+            {% csrf_token %}
+            <button type="submit">Mark all read</button>
+        </form>
+    </div>
+
+    <section style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+        <a class="button-link" href="{% url 'accounts:moderation_notices' %}">All notices</a>
+        <a class="button-link" href="{% url 'accounts:moderation_notices' %}?read=unread">Unread</a>
+        <a class="button-link" href="{% url 'accounts:moderation_notices' %}?read=read">Read</a>
+    </section>
+
+    <p class="muted">
+        Showing page {{ page_obj.number }} of {{ paginator.num_pages }}
+        · {{ paginator.count }} notice(s) match the current filter
+    </p>
+
+    {% for notice in notices %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:12px; {% if not notice.is_read %}border-left:5px solid #222;{% endif %}">
+            <h2 style="margin-top:0;">{{ notice.title }}</h2>
+
+            <p class="muted">
+                {{ notice.get_notice_type_display }}
+                · {{ notice.created_at|date:"M d, Y H:i" }}
+                · {% if notice.is_read %}Read{% else %}Unread{% endif %}
+            </p>
+
+            <p>{{ notice.body|linebreaksbr }}</p>
+
+            {% if notice.listing %}
+                <p>
+                    Listing:
+                    <a href="{{ notice.listing.get_absolute_url }}">{{ notice.listing.title }}</a>
+                </p>
+            {% endif %}
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                {% if not notice.is_read %}
+                    <form method="post" action="{% url 'accounts:moderation_notice_mark_read' notice.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit">Mark read</button>
+                    </form>
+                {% endif %}
+
+                {% if notice.can_show_appeal_link %}
+                    {% if notice.existing_appeal %}
+                        <a class="button-link" href="{% url 'accounts:moderation_appeal_detail' notice.existing_appeal.pk %}">
+                            View submitted appeal
+                        </a>
+                    {% else %}
+                        <a class="button-link" href="{% url 'accounts:moderation_appeal_create' notice.pk %}">
+                            Appeal this action
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </article>
+    {% empty %}
+        <p>No notices match this filter.</p>
+    {% endfor %}
+
+    {% if page_obj.has_other_pages %}
+        <nav style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:16px;">
+            {% if page_obj.has_previous %}
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page=1">First</a>
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            <span class="muted">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ paginator.num_pages }}">Last</a>
+            {% endif %}
+        </nav>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load private_media_extras %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Payment Pending</h1>
+            <p class="muted">Upload payment proof for admin review.</p>
+        </div>
+
+        <a class="button-link" href="{% url 'promotions:my_promotions' %}">
+            My Promotions
+        </a>
+    </div>
+
+    <article style="border:1px solid #ddd; border-radius:8px; padding:16px; background:#fff; max-width:720px;">
+        <h2 style="margin-top:0;">{{ promotion.package.name }}</h2>
+
+        <p>Listing: <strong>{{ promotion.listing.title }}</strong></p>
+        <p>Amount: <strong>{{ promotion.price_snapshot }} TL</strong></p>
+        <p>Payment reference: <strong>{{ promotion.payment_reference }}</strong></p>
+        <p>Payment status: <strong>{{ promotion.get_payment_status_display }}</strong></p>
+
+        <div style="background:#f8f9fa; border:1px solid #ddd; padding:12px; border-radius:6px;">
+            <p><strong>Demo bank transfer details</strong></p>
+            <p>Bank: Local Demo Bank</p>
+            <p>IBAN: TR00 0000 0000 0000 0000 0000 00</p>
+            <p>Reference: {{ promotion.payment_reference }}</p>
+        </div>
+
+        <hr>
+
+        <h2>Upload payment proof</h2>
+
+        {% if promotion.payment_proof %}
+            <p>
+                Current proof:
+                <a href="{% private_file_url promotion 'payment_proof' %}" target="_blank">
+                    View uploaded proof
+                </a>
+            </p>
+        {% endif %}
+
+        {% if promotion.payment_status == "unpaid" and promotion.status == "pending" %}
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <p>
+                    <input type="file" name="payment_proof" accept="image/jpeg,image/png,image/webp,image/gif" required>
+                </p>
+
+                <button class="button-primary" type="submit">
+                    Upload proof
+                </button>
+            </form>
+
+            <form method="post" action="{% url 'promotions:cancel' promotion.pk %}" style="margin-top:10px;">
+                {% csrf_token %}
+                <button type="submit">Cancel promotion request</button>
+            </form>
+        {% else %}
+            <p class="muted">This payment is already processed or closed.</p>
+        {% endif %}
+    </article>
+{% endblock %}

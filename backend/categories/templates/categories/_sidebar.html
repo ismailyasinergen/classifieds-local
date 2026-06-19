@@ -1,0 +1,9 @@
+<h3>Categories</h3>
+
+<ul>
+    {% for category in root_categories %}
+        {% include "categories/_category_node.html" with category=category %}
+    {% empty %}
+        <li>No categories yet.</li>
+    {% endfor %}
+</ul>

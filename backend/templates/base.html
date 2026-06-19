@@ -1,0 +1,660 @@
+<!doctype html>
+{% load nav_extras %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{ page_title|default:"Classifieds Local" }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #222;
+        }
+
+        a {
+            color: #1264a3;
+            text-decoration: none;
+        }
+
+        a:hover { text-decoration: underline; }
+
+        .top-strip {
+            background: #343a40;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .top-strip-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 7px 16px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .top-strip a { color: #fff; }
+
+        .site-header {
+            background: #fff;
+            border-bottom: 1px solid #d9d9d9;
+        }
+
+        .header-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 14px 16px;
+            display: grid;
+            grid-template-columns: 220px 1fr auto;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .brand {
+            font-size: 24px;
+            font-weight: bold;
+            color: #222;
+        }
+
+        .brand span {
+            color: #f5c400;
+        }
+
+        .header-search {
+            display: flex;
+            gap: 8px;
+        }
+
+        .header-search input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .nav form { margin: 0; }
+
+        button,
+        .button-link {
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 8px 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #222;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .button-primary {
+            background: #ffd200;
+            border-color: #e0b900;
+            color: #222;
+            font-weight: bold;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 270px minmax(0, 1fr);
+            gap: 18px;
+            max-width: 1240px;
+            margin: 18px auto;
+            padding: 0 16px;
+        }
+
+        .sidebar,
+        .content {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .sidebar {
+            padding: 0;
+            align-self: start;
+            overflow: hidden;
+        }
+
+        .sidebar h3 {
+            margin: 0;
+            padding: 13px 14px;
+            background: #f7f7f7;
+            border-bottom: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .sidebar li ul {
+            background: #fafafa;
+            border-top: 1px solid #eee;
+        }
+
+        .category-node > a {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 9px 14px;
+            border-bottom: 1px solid #eee;
+            color: #222;
+            font-size: 14px;
+        }
+
+        .category-node li a {
+            padding-left: 28px;
+            font-size: 13px;
+        }
+
+        .category-count {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .content {
+            padding: 18px;
+            min-height: 600px;
+        }
+
+        .page-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .page-title-row h1,
+        .page-title-row h2 {
+            margin: 0;
+        }
+
+        .listing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(205px, 1fr));
+            gap: 15px;
+        }
+
+        .listing-card {
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 5px;
+            overflow: hidden;
+            transition: box-shadow .15s, transform .15s;
+        }
+
+        .listing-card:hover {
+            box-shadow: 0 3px 12px rgba(0,0,0,.12);
+            transform: translateY(-1px);
+        }
+
+        .listing-image,
+        .listing-placeholder {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+            background: #e9ecef;
+        }
+
+        .listing-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .listing-card-body {
+            padding: 11px;
+        }
+
+        .listing-card h2 {
+            font-size: 15px;
+            line-height: 1.3;
+            margin: 0 0 8px;
+            min-height: 39px;
+        }
+
+        .listing-card h2 a {
+            color: #222;
+        }
+
+        .price {
+            font-weight: bold;
+            font-size: 17px;
+            margin: 8px 0;
+            color: #111;
+        }
+
+        .muted {
+            color: #777;
+            font-size: 13px;
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0 20px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #f6f8fb;
+            border: 1px solid #d7e2f3;
+            padding: 6px 9px;
+            border-radius: 20px;
+            color: #1264a3;
+            font-size: 13px;
+        }
+
+        input,
+        select,
+        textarea {
+            max-width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 140px;
+        }
+
+        .pagination {
+            margin-top: 24px;
+        }
+
+        .detail-image {
+            width: 100%;
+            max-height: 420px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        @media (max-width: 900px) {
+            .header-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+            }
+        }
+    
+        /* CLEAN_HEADER_NAV_V1 */
+        .clean-header {
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            padding: 0;
+        }
+
+        .clean-header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 12px 16px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .brand-link {
+            font-weight: 700;
+            color: #222;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .header-nav a,
+        .header-nav summary {
+            color: #222;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 8px 10px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .header-nav a:hover,
+        .header-nav summary:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-menu {
+            position: relative;
+        }
+
+        .nav-menu summary {
+            list-style: none;
+        }
+
+        .nav-menu summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .nav-menu summary::after {
+            content: " ▾";
+            color: #777;
+        }
+
+        .nav-menu[open] summary {
+            background: #f5f5f5;
+        }
+
+        .nav-menu-content {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 6px);
+            min-width: 230px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            padding: 8px;
+            z-index: 50;
+            display: grid;
+            gap: 6px;
+        }
+
+        .nav-menu-content a {
+            border: 0;
+            border-radius: 6px;
+            padding: 8px 10px;
+            background: transparent;
+        }
+
+        .nav-menu-content a:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-menu-heading {
+            color: #777;
+            font-size: 12px;
+            padding: 6px 10px 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .nav-badge {
+            display: inline-block;
+            min-width: 18px;
+            padding: 1px 6px;
+            margin-left: 4px;
+            border-radius: 999px;
+            background: #222;
+            color: #fff;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 720px) {
+            .clean-header-inner {
+                align-items: flex-start;
+            }
+
+            .header-nav {
+                width: 100%;
+            }
+
+            .header-nav a,
+            .header-nav summary {
+                flex: 1 1 auto;
+            }
+
+            .nav-menu {
+                position: static;
+            }
+
+            .nav-menu-content {
+                position: static;
+                box-shadow: none;
+                margin-top: 6px;
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- SELLER_RESTRICTION_ENFORCEMENT_UI_SINGLE -->
+{% if current_user_is_seller_suspended %}
+    <div style="background:#7f1d1d; color:#fff; padding:14px 18px; text-align:center; font-weight:bold;">
+        Your seller account is temporarily suspended.
+        {% if current_user_seller_profile.seller_suspended_until %}
+            Restriction ends: {{ current_user_seller_profile.seller_suspended_until|date:"M d, Y H:i" }}.
+        {% endif %}
+        {% if current_user_seller_profile.seller_suspension_reason %}
+            Reason: {{ current_user_seller_profile.seller_suspension_reason }}
+        {% endif %}
+    </div>
+
+    <style>
+        .seller-action-disabled {
+            opacity: 0.45 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+            filter: grayscale(1);
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const hrefTokens = [
+                "/listings/create",
+                "/listings/new",
+                "/listings/add",
+                "/edit",
+                "/delete",
+                "/archive",
+                "/renew",
+                "/promote",
+                "/promotions/"
+            ];
+
+            const exactActionLabels = [
+                "post listing",
+                "+ post listing",
+                "promote listing",
+                "archive",
+                "renew",
+                "delete",
+                "edit"
+            ];
+
+            document.querySelectorAll("a, button, input[type='submit']").forEach(function (el) {
+                const label = ((el.innerText || el.value || "") + "").trim().toLowerCase();
+                const href = ((el.getAttribute("href") || "") + "").toLowerCase();
+
+                const hrefLooksBlocked = hrefTokens.some(function (token) {
+                    return href.includes(token);
+                });
+
+                const labelLooksBlocked = exactActionLabels.includes(label);
+
+                if (hrefLooksBlocked || labelLooksBlocked) {
+                    el.classList.add("seller-action-disabled");
+                    el.setAttribute("title", "Seller action disabled because this account is temporarily suspended.");
+
+                    if (el.tagName.toLowerCase() === "a") {
+                        el.removeAttribute("href");
+                    } else {
+                        el.disabled = true;
+                    }
+                }
+            });
+        });
+    </script>
+{% endif %}
+
+
+
+
+
+    <div class="top-strip">
+        <div class="top-strip-inner">
+            <div>Local-only classifieds marketplace</div>
+            <div>
+                {% if request.user.is_authenticated %}
+                    Logged in as {{ request.user.username }}
+                {% else %}
+                    Browse listings or create an account
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- CLEAN_HEADER_NAV_V1 -->
+    {% safe_url 'listings:listing_list' as nav_home_url %}
+    {% safe_url 'listings:listing_create' as nav_post_url %}
+    {% safe_url 'accounts:dashboard' as nav_dashboard_url %}
+    {% safe_url 'accounts:profile' as nav_profile_url %}
+    {% safe_url 'listings:my_listings' as nav_my_listings_url %}
+    {% safe_url 'listings:saved_listings' as nav_saved_url %}
+    {% safe_url 'conversations:inbox' as nav_inbox_url %}
+    {% safe_url 'accounts:moderation_notices' as nav_notices_url %}
+    {% safe_url 'accounts:my_moderation_appeals' as nav_my_appeals_url %}
+    {% safe_url 'accounts:logout' as nav_logout_url %}
+    {% safe_url 'accounts:login' as nav_login_url %}
+    {% safe_url 'accounts:register' as nav_register_url %}
+    {% safe_url 'accounts:trust_safety_dashboard' as nav_ts_url %}
+    {% safe_url 'accounts:trust_safety_action_log' as nav_action_log_url %}
+    {% safe_url 'accounts:trust_safety_event_log' as nav_event_log_url %}
+    {% safe_url 'accounts:moderation_appeal_queue' as nav_appeals_url %}
+    {% safe_url 'accounts:trust_safety_audit' as nav_audit_url %}
+    {% safe_url 'listings:report_admin_list' as nav_listing_reports_url %}
+    {% safe_url 'accounts:user_report_admin_list' as nav_seller_reports_url %}
+
+    <header class="site-header clean-header">
+        <div class="clean-header-inner">
+            <a class="brand-link" href="{{ nav_home_url }}">
+                Classifieds Local
+            </a>
+
+            <nav class="header-nav" aria-label="Main navigation">
+                <a href="{{ nav_home_url }}">Browse</a>
+
+                {% if user.is_authenticated %}
+                    <a href="{{ nav_post_url }}">Post Listing</a>
+
+                    <details class="nav-menu">
+                        <summary>
+                            My Account
+                            {% if unread_moderation_notice_count|nonzero %}
+                                <span class="nav-badge">{{ unread_moderation_notice_count }}</span>
+                            {% endif %}
+                        </summary>
+
+                        <div class="nav-menu-content">
+                            <div class="nav-menu-heading">Account</div>
+                            <a href="{{ nav_dashboard_url }}">Dashboard</a>
+                            <a href="{{ nav_profile_url }}">Profile</a>
+                            <a href="{{ nav_my_listings_url }}">My Listings</a>
+                            <a href="{{ nav_saved_url }}">Saved Listings</a>
+                            <a href="{{ nav_inbox_url }}">Messages</a>
+
+                            <div class="nav-menu-heading">Moderation</div>
+                            <a href="{{ nav_notices_url }}">
+                                Notices
+                                {% if unread_moderation_notice_count|nonzero %}
+                                    <span class="nav-badge">{{ unread_moderation_notice_count }}</span>
+                                {% endif %}
+                            </a>
+                            <a href="{{ nav_my_appeals_url }}">My Appeals</a>
+                        </div>
+                    </details>
+
+                    {% if user.is_staff %}
+                        <details class="nav-menu">
+                            <summary>
+                                Admin
+                                {% if staff_pending_moderation_appeal_count|nonzero %}
+                                    <span class="nav-badge">{{ staff_pending_moderation_appeal_count }}</span>
+                                {% endif %}
+                            </summary>
+
+                            <div class="nav-menu-content">
+                                <div class="nav-menu-heading">Trust & Safety</div>
+                                <a href="{{ nav_ts_url }}">Dashboard</a>
+                                <a href="{{ nav_appeals_url }}">
+                                    Appeals
+                                    {% if staff_pending_moderation_appeal_count|nonzero %}
+                                        <span class="nav-badge">{{ staff_pending_moderation_appeal_count }}</span>
+                                    {% endif %}
+                                </a>
+                                <a href="{{ nav_action_log_url }}">Action Log</a>
+                                <a href="{{ nav_event_log_url }}">Event Log</a>
+                                <a href="{{ nav_audit_url }}">Audit Tracking</a>
+
+                                <div class="nav-menu-heading">Reports</div>
+                                <a href="{{ nav_listing_reports_url }}">Listing Reports</a>
+                                <a href="{{ nav_seller_reports_url }}">Seller Reports</a>
+                            </div>
+                        </details>
+                    {% endif %}
+
+                    <a href="{{ nav_logout_url }}">Logout</a>
+                {% else %}
+                    <a href="{{ nav_login_url }}">Login</a>
+                    <a href="{{ nav_register_url }}">Register</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="layout">
+        <aside class="sidebar">
+            {% include "categories/_sidebar.html" %}
+        </aside>
+
+        <section class="content">
+            {% if messages %}
+                <div style="margin-bottom:16px;">
+                    {% for message in messages %}
+                        <div style="padding:10px; border-radius:6px; margin-bottom:8px; border:1px solid #ddd; background:#f8f9fa;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Trust & Safety Audit</h1>
+            <p class="muted">Checks seller suspension/listing tracking consistency.</p>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}">Trust & Safety</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Action Log</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}">Event Log</a>
+        </div>
+    </div>
+
+    <section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:16px;">
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;">
+            <strong>{{ active_suspended_public_listings|length }}</strong><br>
+            <span class="muted">Public listings owned by suspended sellers</span>
+        </article>
+
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;">
+            <strong>{{ lifted_seller_hidden_listings|length }}</strong><br>
+            <span class="muted">Seller-hidden listings whose seller is no longer suspended</span>
+        </article>
+
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;">
+            <strong>{{ unknown_previous_status_listings|length }}</strong><br>
+            <span class="muted">Seller-hidden listings with unknown previous status</span>
+        </article>
+    </section>
+
+    <section style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+        <form method="post" action="{% url 'accounts:trust_safety_fix_active_suspended_sellers' %}">
+            {% csrf_token %}
+            <button type="submit" onclick="return confirm('Fix public listings owned by suspended sellers?');">
+                Fix active suspended sellers
+            </button>
+        </form>
+
+        <form method="post" action="{% url 'accounts:trust_safety_restore_lifted_seller_hidden_listings' %}">
+            {% csrf_token %}
+            <button type="submit" onclick="return confirm('Restore seller-hidden listings for sellers no longer suspended?');">
+                Restore lifted seller-hidden listings
+            </button>
+        </form>
+    </section>
+
+    <h2>Public listings owned by suspended sellers</h2>
+    {% for listing in active_suspended_public_listings %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff; margin-bottom:10px;">
+            <strong>{{ listing.title }}</strong><br>
+            <span class="muted">Owner: {{ listing.owner.username }} / {{ listing.owner.email }} · Status: {{ listing.status }}</span>
+        </article>
+    {% empty %}
+        <p class="muted">No issue found.</p>
+    {% endfor %}
+
+    <h2>Seller-hidden listings whose seller is no longer suspended</h2>
+    {% for listing in lifted_seller_hidden_listings %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff; margin-bottom:10px;">
+            <strong>{{ listing.title }}</strong><br>
+            <span class="muted">Owner: {{ listing.owner.username }} / {{ listing.owner.email }} · Before: {{ listing.status_before_seller_suspension }}</span>
+        </article>
+    {% empty %}
+        <p class="muted">No issue found.</p>
+    {% endfor %}
+
+    <h2>Unknown previous status</h2>
+    {% for listing in unknown_previous_status_listings %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff; margin-bottom:10px;">
+            <strong>{{ listing.title }}</strong><br>
+            <span class="muted">Owner: {{ listing.owner.username }} / {{ listing.owner.email }} · Before: {{ listing.status_before_seller_suspension|default:"unknown" }}</span>
+        </article>
+    {% empty %}
+        <p class="muted">No issue found.</p>
+    {% endfor %}
+{% endblock %}

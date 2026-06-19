@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Classifieds Local</h1>
+            <p class="muted">Browse local listings by category, location, and price.</p>
+        </div>
+
+        <div>
+            <a class="button-link" href="{% url 'listings:listing_list' %}">Browse all</a>
+
+            {% if request.user.is_authenticated %}
+                <a class="button-link button-primary" href="{% url 'listings:listing_create' %}">
+                    + Post Listing
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <form method="get" action="{% url 'listings:listing_list' %}" style="background:#f8f9fa; border:1px solid #ddd; padding:12px; border-radius:6px; margin-bottom:18px;">
+        <div style="display:grid; grid-template-columns: 1fr 180px auto; gap:10px;">
+            <input type="text" name="q" placeholder="Search cars, phones, apartments...">
+            <input type="text" name="location" placeholder="Location">
+            <button class="button-primary" type="submit">Search</button>
+        </div>
+    </form>
+
+    <div class="tag-row">
+        <a class="tag" href="{% url 'categories:category_detail' 'cars' %}">Cars</a>
+        <a class="tag" href="{% url 'categories:category_detail' 'phones' %}">Phones</a>
+        <a class="tag" href="{% url 'categories:category_detail' 'homes-for-sale' %}">Homes for Sale</a>
+        <a class="tag" href="{% url 'categories:category_detail' 'computers' %}">Computers</a>
+    </div>
+
+    {% if featured_listings %}
+        <h2>Featured Listings</h2>
+
+        <div class="listing-grid">
+            {% for listing in featured_listings %}
+                {% include "listings/_listing_card.html" with listing=listing %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <h2 style="margin-top:28px;">Latest Listings</h2>
+
+    <div class="listing-grid">
+        {% for listing in latest_listings %}
+            {% include "listings/_listing_card.html" with listing=listing %}
+        {% empty %}
+            <p>No approved listings yet.</p>
+        {% endfor %}
+    </div>
+
+    {% for section in category_sections %}
+        <div style="margin-top:32px;">
+            <div class="page-title-row">
+                <h2>{{ section.category.name }}</h2>
+                <a href="{{ section.category.get_absolute_url }}">View all</a>
+            </div>
+
+            <div class="listing-grid">
+                {% for listing in section.listings %}
+                    {% include "listings/_listing_card.html" with listing=listing %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

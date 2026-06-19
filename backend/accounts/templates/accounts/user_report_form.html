@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Report Seller</h1>
+            <p class="muted">Seller: {{ reported_user.username }}</p>
+        </div>
+
+        {% if source_listing %}
+            <a class="button-link" href="{{ source_listing.get_absolute_url }}">
+                Back to listing
+            </a>
+        {% endif %}
+    </div>
+
+    <article style="border:1px solid #ddd; border-radius:8px; padding:16px; background:#fff; max-width:720px;">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if source_listing %}
+                <input type="hidden" name="source_listing" value="{{ source_listing.pk }}">
+                <p>
+                    Source listing:
+                    <strong>{{ source_listing.title }}</strong>
+                </p>
+            {% endif %}
+
+            <fieldset style="border:1px solid #ddd; border-radius:8px; padding:12px; margin-bottom:14px;">
+                <legend>Seller reasons</legend>
+
+                {% for value, label in reason_choices %}
+                    <label style="display:block; margin:8px 0;">
+                        <input type="checkbox" name="reasons" value="{{ value }}">
+                        {{ label }}
+                    </label>
+                {% endfor %}
+            </fieldset>
+
+            <p>
+                <label>
+                    Details
+                    <textarea name="details" rows="5" placeholder="Explain what happened..."></textarea>
+                </label>
+            </p>
+
+            <button class="button-primary" type="submit">
+                Submit seller report
+            </button>
+        </form>
+    </article>
+{% endblock %}

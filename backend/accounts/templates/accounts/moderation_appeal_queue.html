@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Moderation Appeals</h1>
+            <p class="muted">Admin queue for user appeals, evidence requests, deadlines, and final decisions.</p>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}">Trust & Safety</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Action Log</a>
+            <a class="button-link" href="{% url 'accounts:moderation_appeal_export_csv' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}">Export CSV</a>
+            <a class="button-link" href="{% url 'accounts:moderation_appeal_bulk_evidence_zip' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}">Download filtered evidence ZIP</a>
+        </div>
+    </div>
+
+    <section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:16px;">
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;"><strong>{{ total_appeals }}</strong><br><span class="muted">All appeals</span></article>
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;"><strong>{{ pending_count }}</strong><br><span class="muted">Pending</span></article>
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;"><strong>{{ due_soon_count }}</strong><br><span class="muted">Due within 15 days</span></article>
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;"><strong>{{ overdue_count }}</strong><br><span class="muted">Deadline passed</span></article>
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;"><strong>{{ waiting_count }}</strong><br><span class="muted">Waiting before deadline</span></article>
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;"><strong>{{ fulfilled_extra_evidence_count }}</strong><br><span class="muted">Evidence uploaded</span></article>
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;"><strong>{{ approved_count }}</strong><br><span class="muted">Approved</span></article>
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;"><strong>{{ rejected_count }}</strong><br><span class="muted">Rejected</span></article>
+    </section>
+
+    <form method="get" style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:16px;">
+        <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr auto auto; gap:10px; align-items:end;">
+            <label>
+                Search
+                <input type="text" name="q" value="{{ selected_q }}" placeholder="user, email, listing, note, evidence filename">
+            </label>
+
+            <label>
+                Status
+                <select name="status">
+                    <option value="" {% if not selected_status %}selected{% endif %}>All statuses</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                Evidence
+                <select name="evidence">
+                    {% for value, label in evidence_choices %}
+                        <option value="{{ value }}" {% if selected_evidence == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                Deadline state
+                <select name="extra_evidence">
+                    {% for value, label in extra_evidence_choices %}
+                        <option value="{{ value }}" {% if selected_extra_evidence == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                From date
+                <input type="date" name="date_from" value="{{ selected_date_from }}">
+            </label>
+
+            <label>
+                To date
+                <input type="date" name="date_to" value="{{ selected_date_to }}">
+            </label>
+
+            <button type="submit">Filter</button>
+            <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}">Reset</a>
+        </div>
+    </form>
+
+    <section style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+        <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}?extra_evidence=overdue">Deadline passed</a>
+        <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}?extra_evidence=due_soon">Due within 15 days</a>
+        <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}?extra_evidence=waiting">Waiting before deadline</a>
+        <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}?extra_evidence=fulfilled">Evidence uploaded</a>
+        <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}?extra_evidence=final_decision">Final decisions</a>
+        <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}">Clear filters</a>
+    </section>
+
+    <p class="muted">
+        Showing page {{ page_obj.number }} of {{ paginator.num_pages }}
+        · {{ paginator.count }} appeal(s) match the current filter
+    </p>
+
+    {% for appeal in appeals %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:12px;">
+            <h2 style="margin-top:0;">
+                <a href="{% url 'accounts:moderation_appeal_admin_detail' appeal.pk %}">Appeal #{{ appeal.pk }}</a>
+            </h2>
+
+            <p class="muted">
+                {{ appeal.get_appeal_type_display }}
+                · {{ appeal.get_status_display }}
+                · {{ appeal.extra_evidence_label }}
+                · appellant {{ appeal.appellant.username }} / {{ appeal.appellant.email }}
+                · submitted {{ appeal.created_at|date:"M d, Y H:i" }}
+            </p>
+
+            {% if appeal.extra_evidence_requested_at %}
+                <p>
+                    <strong>Extra evidence request:</strong>
+                    {{ appeal.extra_evidence_request_note }}
+                    <br>
+                    <strong>Deadline:</strong>
+                    {{ appeal.extra_evidence_due_at|date:"M d, Y H:i" }}
+                    {% if appeal.extra_evidence_fulfilled_at %}
+                        <br><span class="muted">Uploaded {{ appeal.extra_evidence_fulfilled_at|date:"M d, Y H:i" }}</span>
+                    {% elif appeal.extra_evidence_due_iso %}
+                        <br>
+                        <span class="muted">
+                            Countdown:
+                            <span class="js-countdown" data-deadline="{{ appeal.extra_evidence_due_iso }}">calculating...</span>
+                        </span>
+                    {% endif %}
+                </p>
+            {% endif %}
+
+            <p><strong>Evidence:</strong> {{ appeal.evidence_file_count }} file(s), {{ appeal.evidence_total_mb }} MB total</p>
+
+            {% if appeal.listing %}
+                <p>Listing: <a href="{{ appeal.listing.get_absolute_url }}">{{ appeal.listing.title }}</a></p>
+            {% endif %}
+
+            <p>{{ appeal.message|truncatewords:45 }}</p>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <a class="button-link" href="{% url 'accounts:moderation_appeal_admin_detail' appeal.pk %}">View appeal</a>
+                <a class="button-link" href="{% url 'accounts:moderation_appeal_evidence_zip' appeal.pk %}">Download evidence ZIP</a>
+            </div>
+        </article>
+    {% empty %}
+        <p>No appeals match this filter.</p>
+    {% endfor %}
+
+    {% if page_obj.has_other_pages %}
+        <nav style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:16px;">
+            {% if page_obj.has_previous %}
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page=1">First</a>
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            <span class="muted">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ paginator.num_pages }}">Last</a>
+            {% endif %}
+        </nav>
+    {% endif %}
+
+    <script>
+        (function () {
+            function updateCountdowns() {
+                document.querySelectorAll(".js-countdown").forEach(function (el) {
+                    var raw = el.getAttribute("data-deadline");
+                    if (!raw) {
+                        el.textContent = "no deadline set";
+                        return;
+                    }
+
+                    var deadline = new Date(raw);
+                    var now = new Date();
+                    var diff = deadline - now;
+
+                    if (isNaN(deadline.getTime())) {
+                        el.textContent = "invalid deadline";
+                        return;
+                    }
+
+                    if (diff <= 0) {
+                        el.textContent = "deadline passed — final decision can start";
+                        return;
+                    }
+
+                    var totalSeconds = Math.floor(diff / 1000);
+                    var days = Math.floor(totalSeconds / 86400);
+                    var hours = Math.floor((totalSeconds % 86400) / 3600);
+                    var minutes = Math.floor((totalSeconds % 3600) / 60);
+                    var seconds = totalSeconds % 60;
+
+                    el.textContent = days + "d " + hours + "h " + minutes + "m " + seconds + "s remaining";
+                });
+            }
+
+            updateCountdowns();
+            setInterval(updateCountdowns, 1000);
+        })();
+    </script>
+{% endblock %}

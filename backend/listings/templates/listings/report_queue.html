@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Listing Reports</h1>
+            <p class="muted">Review user-submitted listing reports.</p>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a class="button-link" href="{% url 'listings:report_export_csv' %}?status={{ status_filter }}&reason={{ reason_filter }}&q={{ q }}">
+                Export CSV
+            </a>
+
+            <a class="button-link" href="{% url 'accounts:user_report_queue' %}">
+                Seller Reports
+            </a>
+        </div>
+    </div>
+
+    <section style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+        <article style="border:1px solid #f0c36d; background:#fff8e5; border-radius:8px; padding:12px;">
+            <h3 style="margin-top:0;">When to temporarily suspend listing</h3>
+            <p class="muted">Use this when buyers may be harmed while admin investigates.</p>
+            <ul>
+                <li>Scam or fraud signs</li>
+                <li>Illegal/restricted/prohibited item</li>
+                <li>Counterfeit item</li>
+                <li>Strong misleading title, price, or photos</li>
+                <li>Multiple reports on the same listing</li>
+                <li>Contact/payment instructions that bypass platform safety</li>
+            </ul>
+        </article>
+
+        <article style="border:1px solid #b7d4f0; background:#eef7ff; border-radius:8px; padding:12px;">
+            <h3 style="margin-top:0;">Action guide</h3>
+            <ul>
+                <li><strong>Dismiss:</strong> weak, false, duplicate, or revenge report.</li>
+                <li><strong>Mark reviewed:</strong> report is useful but listing stays active.</li>
+                <li><strong>Suspend listing:</strong> hide temporarily while investigating.</li>
+                <li><strong>Archive listing:</strong> confirmed bad listing or should be removed.</li>
+            </ul>
+        </article>
+    </section>
+
+    <div class="tag-row">
+        <a class="tag" href="{% url 'listings:report_queue' %}">All ({{ counts.all }})</a>
+        <a class="tag" href="{% url 'listings:report_queue' %}?status=pending">Pending ({{ counts.pending }})</a>
+        <a class="tag" href="{% url 'listings:report_queue' %}?status=reviewed">Reviewed ({{ counts.reviewed }})</a>
+        <a class="tag" href="{% url 'listings:report_queue' %}?status=dismissed">Dismissed ({{ counts.dismissed }})</a>
+    </div>
+
+    <form method="get" style="display:flex; gap:8px; flex-wrap:wrap; align-items:end; margin:16px 0;">
+        <label>
+            Search
+            <input type="text" name="q" value="{{ q }}" placeholder="Listing, reporter, owner...">
+        </label>
+
+        <label>
+            Status
+            <select name="status">
+                <option value="">All statuses</option>
+                <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>Pending</option>
+                <option value="reviewed" {% if status_filter == "reviewed" %}selected{% endif %}>Reviewed</option>
+                <option value="dismissed" {% if status_filter == "dismissed" %}selected{% endif %}>Dismissed</option>
+            </select>
+        </label>
+
+        <label>
+            Reason
+            <select name="reason">
+                <option value="">All reasons</option>
+                {% for value, label in reason_choices %}
+                    <option value="{{ value }}" {% if reason_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <button class="button-primary" type="submit">Filter</button>
+        <a class="button-link" href="{% url 'listings:report_queue' %}">Reset</a>
+    </form>
+
+    {% for report in reports %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; margin-bottom:12px; background:#fff;">
+            <h2 style="margin-top:0;">
+                <a href="{{ report.listing.get_absolute_url }}">{{ report.listing.title }}</a>
+            </h2>
+
+            <p>
+                Reasons:
+                <strong>{{ report.get_reasons_display }}</strong>
+                · Report status:
+                <strong>{{ report.get_status_display }}</strong>
+                · Listing status:
+                <strong>{{ report.listing.get_status_display }}</strong>
+                · Action:
+                <strong>{{ report.action_taken|default:"No action" }}</strong>
+            </p>
+
+            <p class="muted">
+                Reported by {{ report.reporter.username }}
+                · Listing owner {{ report.listing.owner.username }}
+                · {{ report.created_at|date:"M d, Y H:i" }}
+            </p>
+
+            {% if report.details %}
+                <div>{{ report.details|linebreaks }}</div>
+            {% endif %}
+
+            {% if report.admin_note %}
+                <p class="muted">Internal admin note: {{ report.admin_note }}</p>
+            {% endif %}
+
+            {% if report.reporter_note %}
+                <p class="muted">Reporter note: {{ report.reporter_note }}</p>
+            {% endif %}
+
+            {% if report.status == "pending" %}
+                <div style="display:grid; gap:8px; margin-top:12px;">
+                    <form method="post" action="{% url 'listings:report_review' report.pk %}">
+                        {% csrf_token %}
+                        <input type="text" name="admin_note" placeholder="Internal admin note">
+                        <input type="text" name="reporter_note" placeholder="Message shown to reporter">
+                        <button class="button-primary" type="submit">Mark reviewed</button>
+                    </form>
+
+                    <form method="post" action="{% url 'listings:report_dismiss' report.pk %}">
+                        {% csrf_token %}
+                        <input type="text" name="admin_note" placeholder="Internal reason">
+                        <input type="text" name="reporter_note" placeholder="Message shown to reporter">
+                        <button type="submit">Dismiss as invalid</button>
+                    </form>
+
+                    <form method="post" action="{% url 'listings:report_suspend_listing' report.pk %}">
+                        {% csrf_token %}
+                        <input type="text" name="admin_note" placeholder="Suspension reason">
+                        <input type="text" name="reporter_note" placeholder="Message shown to reporter">
+                        <button type="submit" onclick="return confirm('Temporarily suspend this listing?');">
+                            Suspend listing
+                        </button>
+                    </form>
+
+                    <form method="post" action="{% url 'listings:report_archive_listing' report.pk %}">
+                        {% csrf_token %}
+                        <input type="text" name="admin_note" placeholder="Archive reason">
+                        <input type="text" name="reporter_note" placeholder="Message shown to reporter">
+                        <button type="submit" onclick="return confirm('Archive this listing?');">
+                            Archive listing
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p>No reports found.</p>
+    {% endfor %}
+{% endblock %}

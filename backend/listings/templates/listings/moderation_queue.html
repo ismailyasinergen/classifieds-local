@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Moderation Queue</h1>
+            <p class="muted">Review listings by status or featured placement.</p>
+        </div>
+
+        <a class="button-link" href="{% url 'admin:index' %}">
+            Django Admin
+        </a>
+    </div>
+
+    <div class="tag-row">
+        <a class="tag" href="{% url 'listings:moderation_queue' %}">
+            All ({{ counts.all }})
+        </a>
+
+        <a class="tag" href="{% url 'listings:moderation_queue' %}?status=pending">
+            Pending ({{ counts.pending }})
+        </a>
+
+        <a class="tag" href="{% url 'listings:moderation_queue' %}?status=approved">
+            Approved ({{ counts.approved }})
+        </a>
+
+        <a class="tag" href="{% url 'listings:moderation_queue' %}?status=rejected">
+            Rejected ({{ counts.rejected }})
+        </a>
+
+        <a class="tag" href="{% url 'listings:moderation_queue' %}?status=archived">
+            Archived ({{ counts.archived }})
+        </a>
+
+        <a class="tag" href="{% url 'listings:moderation_queue' %}?featured=1">
+            Featured ({{ counts.featured }})
+        </a>
+    </div>
+
+    {% if featured_filter == "1" %}
+        <p style="background:#f8f9fa; border:1px solid #ddd; padding:10px; border-radius:6px;">
+            Showing featured listings only. Featured listings still need to be approved and not expired to appear publicly.
+        </p>
+    {% endif %}
+
+    <div class="listing-grid">
+        {% for listing in listings %}
+            {% include "listings/_listing_card.html" with listing=listing show_status=True show_moderation_controls=True %}
+        {% empty %}
+            <p>No listings found for this filter.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

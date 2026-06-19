@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Seller Reports</h1>
+            <p class="muted">Admin queue for buyer reports about sellers.</p>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}">Trust & Safety</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Action Log</a>
+        </div>
+    </div>
+
+    <form method="get" style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:16px;">
+        <div style="display:grid; grid-template-columns:2fr 1fr 1fr auto auto; gap:10px; align-items:end;">
+            <label>
+                Search
+                <input type="text" name="q" value="{{ selected_q }}" placeholder="seller, reporter, email, listing, details">
+            </label>
+
+            <label>
+                Status
+                <select name="status">
+                    <option value="" {% if not selected_status %}selected{% endif %}>All statuses</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                Action
+                <select name="action">
+                    <option value="" {% if not selected_action %}selected{% endif %}>All actions</option>
+                    {% for value, label in action_choices %}
+                        <option value="{{ value }}" {% if selected_action == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <button type="submit">Filter</button>
+            <a class="button-link" href="{% url 'accounts:user_report_admin_list' %}">Reset</a>
+        </div>
+    </form>
+
+    <p class="muted">
+        Showing page {{ page_obj.number }} of {{ paginator.num_pages }}
+        · {{ paginator.count }} seller report(s) match the current filter
+    </p>
+
+    {% for report in reports %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:12px;">
+            <h2 style="margin-top:0;">
+                <a href="{% url 'accounts:trust_safety_seller_report_detail' report.pk %}">
+                    Seller report #{{ report.pk }}
+                </a>
+            </h2>
+
+            <p class="muted">
+                {{ report.get_status_display }}
+                {% if report.action_taken %} · {{ report.action_taken|title }}{% endif %}
+                · submitted {{ report.created_at|date:"M d, Y H:i" }}
+            </p>
+
+            {% if report.reported_user %}
+                <p><strong>Reported seller:</strong> {{ report.reported_user.username }} / {{ report.reported_user.email }}</p>
+            {% endif %}
+
+            {% if report.reporter %}
+                <p><strong>Reporter:</strong> {{ report.reporter.username }} / {{ report.reporter.email }}</p>
+            {% endif %}
+
+            {% if report.source_listing %}
+                <p><strong>Source listing:</strong> <a href="{{ report.source_listing.get_absolute_url }}">{{ report.source_listing.title }}</a></p>
+            {% endif %}
+
+            {% if report.reasons %}
+                <p><strong>Reasons:</strong> {{ report.reasons|join:", " }}</p>
+            {% endif %}
+
+            {% if report.details %}
+                <p>{{ report.details|truncatewords:45 }}</p>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p>No seller reports match this filter.</p>
+    {% endfor %}
+
+    {% if page_obj.has_other_pages %}
+        <nav style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:16px;">
+            {% if page_obj.has_previous %}
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page=1">First</a>
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            <span class="muted">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ paginator.num_pages }}">Last</a>
+            {% endif %}
+        </nav>
+    {% endif %}
+{% endblock %}

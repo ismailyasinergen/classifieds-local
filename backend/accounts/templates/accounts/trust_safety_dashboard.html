@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Trust & Safety</h1>
+            <p class="muted">Central admin dashboard for reports, restrictions, appeals, and audit tools.</p>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a class="button-link" href="{% url 'listings:report_queue' %}?status=pending">Listing Reports</a>
+            <a class="button-link" href="{% url 'accounts:user_report_queue' %}?status=pending">Seller Reports</a>
+            <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}">Appeals</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Action Log</a>
+        <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}">Event Log</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_audit' %}">Audit Tracking</a>
+        </div>
+    </div>
+
+    <section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:12px; margin-bottom:16px;">
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
+            <h2 style="margin:0;">{{ pending_listing_reports }}</h2>
+            <p class="muted">Pending listing reports</p>
+        </article>
+
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
+            <h2 style="margin:0;">{{ pending_seller_reports }}</h2>
+            <p class="muted">Pending seller reports</p>
+        </article>
+
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
+            <h2 style="margin:0;">{{ pending_appeals }}</h2>
+            <p class="muted">Pending appeals</p>
+        </article>
+    </section>
+
+    <section style="border:1px solid #f0c36d; background:#fff8e5; border-radius:8px; padding:14px; margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center;">
+            <div>
+                <h2 style="margin-top:0;">Pending Appeals</h2>
+                <p class="muted">Appeals require manual admin review. Approval does not automatically lift seller restrictions or restore listings.</p>
+            </div>
+            <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}">Open appeals queue</a>
+        </div>
+
+        {% for appeal in latest_pending_appeals %}
+            <article style="border-top:1px solid #e3c16f; padding:12px 0;">
+                <h3 style="margin:0 0 6px;">
+                    <a href="{% url 'accounts:moderation_appeal_admin_detail' appeal.pk %}">
+                        Appeal #{{ appeal.pk }}
+                    </a>
+                </h3>
+
+                <p class="muted">
+                    {{ appeal.get_appeal_type_display }}
+                    · appellant {{ appeal.appellant.username }} / {{ appeal.appellant.email }}
+                    · {{ appeal.created_at|date:"M d, Y H:i" }}
+                    · {{ appeal.attachments.count }} evidence file(s)
+                </p>
+
+                {% if appeal.listing %}
+                    <p>
+                        Related listing:
+                        <a href="{{ appeal.listing.get_absolute_url }}">{{ appeal.listing.title }}</a>
+                    </p>
+                {% endif %}
+
+                <p>{{ appeal.message|truncatewords:35 }}</p>
+            </article>
+        {% empty %}
+            <p>No pending appeals.</p>
+        {% endfor %}
+    </section>
+
+    <section style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
+            <h2 style="margin-top:0;">Suspended listings</h2>
+
+            {% for listing in suspended_listings %}
+                <div style="border-top:1px solid #eee; padding:10px 0;">
+                    <strong>{{ listing.title }}</strong>
+                    <p class="muted">
+                        Owner: {{ listing.owner.username }}
+                        · Seller-hidden:
+                        {% if listing.suspended_due_to_seller %}Yes{% else %}No{% endif %}
+                    </p>
+
+                    {% if listing.suspended_due_to_seller %}
+                        <p class="muted">Restore by lifting the seller suspension, not by manual listing restore.</p>
+                    {% else %}
+                        <form method="post" action="{% url 'accounts:trust_safety_restore_listing' listing.pk %}">
+                            {% csrf_token %}
+                            <button type="submit">Restore listing</button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p>No suspended listings.</p>
+            {% endfor %}
+        </article>
+
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
+            <h2 style="margin-top:0;">Suspended sellers</h2>
+
+            {% for seller in suspended_sellers %}
+                <div style="border-top:1px solid #eee; padding:10px 0;">
+                    <strong>{{ seller.username }}</strong>
+                    <p class="muted">
+                        {{ seller.email }}
+                        {% if seller.profile.seller_suspended_until %}
+                            · until {{ seller.profile.seller_suspended_until|date:"M d, Y H:i" }}
+                        {% endif %}
+                    </p>
+
+                    <form method="post" action="{% url 'accounts:trust_safety_lift_seller_suspension' seller.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" onclick="return confirm('Lift this seller suspension and restore only seller-hidden listings?');">
+                            Lift suspension + restore seller-hidden listings
+                        </button>
+                    </form>
+                </div>
+            {% empty %}
+                <p>No suspended sellers.</p>
+            {% endfor %}
+        </article>
+    </section>
+
+    <section style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
+            <h2 style="margin-top:0;">Latest listing reports</h2>
+
+            {% for report in latest_listing_reports %}
+                <div style="border-top:1px solid #eee; padding:10px 0;">
+                    <strong>
+                        {% if report.listing %}
+                            {{ report.listing.title }}
+                        {% else %}
+                            Deleted/missing listing
+                        {% endif %}
+                    </strong>
+                    <p class="muted">
+                        {{ report.get_status_display }}
+                        · reporter {{ report.reporter.username }}
+                        · {{ report.created_at|date:"M d, Y H:i" }}
+                    </p>
+                    <a href="{% url 'accounts:trust_safety_listing_report_detail' report.pk %}">View report detail</a>
+                </div>
+            {% empty %}
+                <p>No listing reports.</p>
+            {% endfor %}
+        </article>
+
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
+            <h2 style="margin-top:0;">Latest seller reports</h2>
+
+            {% for report in latest_seller_reports %}
+                <div style="border-top:1px solid #eee; padding:10px 0;">
+                    <strong>{{ report.reported_user.username }}</strong>
+                    <p class="muted">
+                        {{ report.get_status_display }}
+                        · reporter {{ report.reporter.username }}
+                        · {{ report.created_at|date:"M d, Y H:i" }}
+                    </p>
+                    <a href="{% url 'accounts:trust_safety_seller_report_detail' report.pk %}">View report detail</a>
+                </div>
+            {% empty %}
+                <p>No seller reports.</p>
+            {% endfor %}
+        </article>
+    </section>
+{% endblock %}

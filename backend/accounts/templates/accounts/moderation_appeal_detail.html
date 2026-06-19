@@ -1,0 +1,689 @@
+{% extends "base.html" %}
+{% load appeal_attachment_extras %}
+
+{% block content %}
+    <style>
+        .appeal-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 16px;
+            background: #fff;
+            margin-bottom: 16px;
+        }
+
+        .appeal-upload-box {
+            border: 2px dashed #cfcfcf;
+            border-radius: 12px;
+            padding: 22px;
+            background: #fafafa;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .appeal-upload-box.is-dragover {
+            border-color: #777;
+            background: #f3f3f3;
+        }
+
+        .appeal-upload-box strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 1.05rem;
+        }
+
+        .appeal-upload-rules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin: 14px 0;
+        }
+
+        .appeal-upload-rule {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+        }
+
+        .appeal-file-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .appeal-file-item {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 12px;
+            background: #fff;
+        }
+
+        .appeal-file-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .appeal-file-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .appeal-file-preview {
+            margin-top: 10px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        .appeal-file-preview img,
+        .appeal-file-preview video {
+            max-width: 100%;
+            max-height: 260px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .appeal-upload-error {
+            border: 1px solid #f0b5b5;
+            background: #fff5f5;
+            color: #8a1f1f;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .appeal-upload-summary {
+            margin-top: 12px;
+            font-weight: 600;
+        }
+
+        /* EXTRA_EVIDENCE_UPLOAD_LAYOUT_FIX_V1 */
+        #extra-evidence-form {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #extra-evidence-form .appeal-upload-rules {
+            margin-bottom: 18px;
+            align-items: stretch;
+        }
+
+        #extra-evidence-dropzone.appeal-upload-box {
+            display: flex;
+            width: 100%;
+            min-height: 130px;
+            box-sizing: border-box;
+            margin: 0 0 14px 0;
+            padding: 28px 20px;
+            clear: both;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            line-height: 1.4;
+        }
+
+        #extra-evidence-dropzone.appeal-upload-box strong {
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-size: 1.08rem;
+        }
+
+        #extra-evidence-dropzone.appeal-upload-box .muted {
+            display: block;
+            width: 100%;
+            max-width: 620px;
+            text-align: center;
+        }
+
+        #extra-evidence-submit:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        #extra-evidence-summary {
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* EXTRA_EVIDENCE_EXISTING_LIMIT_COUNTER_V1 */
+        .appeal-existing-total {
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fafafa;
+            margin: 0 0 14px 0;
+            color: #555;
+        }
+    
+        /* EXTRA_EVIDENCE_EXISTING_GALLERY_V1 */
+        .existing-evidence-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 14px;
+            margin-top: 12px;
+        }
+
+        .existing-evidence-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            background: #fff;
+            min-width: 0;
+        }
+
+        .existing-evidence-preview {
+            width: 100%;
+            min-height: 150px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .existing-evidence-preview img,
+        .existing-evidence-preview video {
+            width: 100%;
+            max-height: 210px;
+            object-fit: contain;
+            display: block;
+            background: #f8f8f8;
+        }
+
+        .existing-evidence-file-icon {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .existing-evidence-name {
+            font-weight: 700;
+            word-break: break-word;
+            margin-bottom: 4px;
+        }
+
+        .existing-evidence-meta {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        /* EVIDENCE_STAGE_BADGES_V1 */
+        .existing-evidence-stage {
+            display: inline-block;
+            border: 1px solid #d7e2f3;
+            background: #f6f8fb;
+            color: #1264a3;
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .existing-evidence-locked {
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 8px;
+            background: #fafafa;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+    </style>
+
+    <div class="page-title-row">
+        <div>
+            <h1>Appeal #{{ appeal.pk }}</h1>
+            <p class="muted">
+                Status: {{ appeal.get_status_display }}
+                · Submitted {{ appeal.created_at|date:"M d, Y H:i" }}
+            </p>
+        </div>
+
+        <a class="button-link" href="{% url 'accounts:my_moderation_appeals' %}">Back to My Appeals</a>
+    </div>
+
+    {% if appeal.status == "pending" and appeal.extra_evidence_requested_at %}
+        <section class="appeal-card">
+            <h2 style="margin-top:0;">Extra evidence requested</h2>
+
+            <p>{{ appeal.extra_evidence_request_note }}</p>
+
+            <p>
+                <strong>Deadline:</strong> {{ appeal.extra_evidence_due_at|date:"M d, Y H:i" }}
+                <br>
+                <span class="muted">
+                    Countdown:
+                    <span class="js-countdown" data-deadline="{{ appeal.extra_evidence_due_at|date:'c' }}">calculating...</span>
+                </span>
+            </p>
+
+            {% if appeal.extra_evidence_fulfilled_at %}
+                <p class="muted">
+                    Extra evidence was uploaded on {{ appeal.extra_evidence_fulfilled_at|date:"M d, Y H:i" }}.
+                    You may still upload more files before the deadline, within the 15-file and 200 MB limits.
+                </p>
+            {% endif %}
+
+            <form id="extra-evidence-form" method="post" enctype="multipart/form-data" action="{% url 'accounts:moderation_appeal_add_extra_evidence' appeal.pk %}">
+                {% csrf_token %}
+
+                <div class="appeal-upload-rules">
+                    <div class="appeal-upload-rule">
+                        <strong>Allowed files</strong>
+                        <span class="muted">JPG, JPEG, PNG, WEBP, PDF, MP4</span>
+                    </div>
+
+                    <div class="appeal-upload-rule">
+                        <strong>Maximum files</strong>
+                        <span class="muted">15 total evidence files per appeal</span>
+                    </div>
+
+                    <div class="appeal-upload-rule">
+                        <strong>Maximum total size</strong>
+                        <span class="muted">200 MB total appeal evidence</span>
+                    </div>
+
+                    <div class="appeal-upload-rule">
+                        <strong>Deadline rule</strong>
+                        <span class="muted">Upload must be completed before the countdown ends</span>
+                    </div>
+                </div>
+
+                <div class="appeal-existing-total">
+                    Current uploaded evidence:
+                    <strong>{{ appeal.attachments.count }} / 15 files</strong>
+                    ·
+                    <strong>{{ appeal.attachments.all|attachments_total_size|filesizeformat }} / 200 MB used</strong>
+                </div>
+
+                <label id="extra-evidence-dropzone" class="appeal-upload-box">
+                    <strong>Drop files here or click to choose</strong>
+                    <span class="muted">You can preview, hide, or remove selected files before submitting. After submit, uploaded evidence is locked and cannot be deleted.</span>
+                    <input
+                        id="extra-evidence-input"
+                        type="file"
+                        name="attachments"
+                        multiple
+                        accept=".jpg,.jpeg,.png,.webp,.pdf,.mp4,image/jpeg,image/png,image/webp,application/pdf,video/mp4"
+                        data-existing-count="{{ appeal.attachments.count }}"
+                        data-existing-size="{{ appeal.attachments.all|attachments_total_size }}"
+                        required
+                        style="display:none;"
+                    >
+                </label>
+
+                <div id="extra-evidence-error" class="appeal-upload-error"></div>
+                <div id="extra-evidence-summary" class="appeal-upload-summary muted">No files selected.</div>
+                <div id="extra-evidence-file-list" class="appeal-file-list"></div>
+
+                <button id="extra-evidence-submit" type="submit" disabled style="margin-top:14px;">
+                    Upload extra evidence
+                </button>
+            </form>
+        </section>
+    {% endif %}
+
+    {% if appeal.status != "pending" %}
+        <section class="appeal-card">
+            <h2 style="margin-top:0;">Final decision</h2>
+            <p class="muted">
+                This appeal has a final decision. It cannot be reopened and no more evidence can be added.
+            </p>
+
+            {% if appeal.decision_note %}
+                <p><strong>Decision note:</strong> {{ appeal.decision_note }}</p>
+            {% endif %}
+        </section>
+    {% endif %}
+
+    <section class="appeal-card">
+        <h2 style="margin-top:0;">Appeal message</h2>
+        <p>{{ appeal.message|linebreaksbr }}</p>
+    </section>
+
+    <section class="appeal-card">
+        <h2 style="margin-top:0;">Evidence files</h2>
+        <p class="muted">
+Review all uploaded appeal evidence below. Images and videos are shown together so you can confirm you uploaded the right files. Submitted evidence is locked for trust: sellers cannot delete previously uploaded files.
+        </p>
+
+        {% if appeal.attachments.all %}
+            <div class="existing-evidence-gallery">
+                {% for attachment in appeal.attachments.all %}
+                    {% with kind=attachment|attachment_kind preview_url=attachment|attachment_preview_url %}
+                        <article class="existing-evidence-card">
+                            <div class="existing-evidence-preview">
+                                {% if kind == "image" %}
+                                    <img src="{{ preview_url }}" alt="{{ attachment|attachment_name }}">
+                                {% elif kind == "video" %}
+                                    <video controls preload="metadata">
+                                        <source src="{{ preview_url }}" type="{{ attachment.content_type|default:'video/mp4' }}">
+                                        Your browser cannot preview this video.
+                                    </video>
+                                {% elif kind == "pdf" %}
+                                    <div class="existing-evidence-file-icon">PDF</div>
+                                {% else %}
+                                    <div class="existing-evidence-file-icon">FILE</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="existing-evidence-stage">{{ attachment|attachment_stage_label }}</div>
+
+                            <div class="existing-evidence-name">{{ attachment|attachment_name }}</div>
+
+                            <div class="existing-evidence-meta">
+                                {% with bytes=attachment|attachment_size %}
+                                    {% if bytes %}
+                                        {{ bytes|filesizeformat }}
+                                    {% endif %}
+                                {% endwith %}
+                                {% if attachment.content_type %}
+                                    · {{ attachment.content_type }}
+                                {% endif %}
+                            </div>
+
+                            <div class="existing-evidence-locked">
+                                Submitted evidence is locked. Seller cannot delete this file.
+                            </div>
+                        </article>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="muted">No evidence files uploaded yet.</p>
+        {% endif %}
+    </section>
+
+    <script>
+        (function () {
+            function updateCountdowns() {
+                document.querySelectorAll(".js-countdown").forEach(function (el) {
+                    var raw = el.getAttribute("data-deadline");
+
+                    if (!raw) {
+                        el.textContent = "no deadline set";
+                        return;
+                    }
+
+                    var deadline = new Date(raw);
+                    var now = new Date();
+                    var diff = deadline - now;
+
+                    if (isNaN(deadline.getTime())) {
+                        el.textContent = "invalid deadline";
+                        return;
+                    }
+
+                    if (diff <= 0) {
+                        el.textContent = "deadline passed — admin can make final decision";
+                        var submit = document.getElementById("extra-evidence-submit");
+                        var input = document.getElementById("extra-evidence-input");
+                        if (submit) {
+                            submit.disabled = true;
+                        }
+                        if (input) {
+                            input.disabled = true;
+                        }
+                        return;
+                    }
+
+                    var totalSeconds = Math.floor(diff / 1000);
+                    var days = Math.floor(totalSeconds / 86400);
+                    var hours = Math.floor((totalSeconds % 86400) / 3600);
+                    var minutes = Math.floor((totalSeconds % 3600) / 60);
+                    var seconds = totalSeconds % 60;
+
+                    el.textContent = days + "d " + hours + "h " + minutes + "m " + seconds + "s remaining";
+                });
+            }
+
+            updateCountdowns();
+            setInterval(updateCountdowns, 1000);
+        })();
+
+        (function () {
+            var input = document.getElementById("extra-evidence-input");
+            var dropzone = document.getElementById("extra-evidence-dropzone");
+            var list = document.getElementById("extra-evidence-file-list");
+            var summary = document.getElementById("extra-evidence-summary");
+            var errorBox = document.getElementById("extra-evidence-error");
+            var submit = document.getElementById("extra-evidence-submit");
+
+            if (!input || !dropzone || !list || !summary || !errorBox || !submit) {
+                return;
+            }
+
+            var selectedFiles = [];
+            var existingCount = parseInt(input.getAttribute("data-existing-count") || "0", 10);
+            var existingSize = parseInt(input.getAttribute("data-existing-size") || "0", 10);
+            var maxFiles = 15;
+            var maxTotalSize = 200 * 1024 * 1024;
+
+            var allowedExtensions = [".jpg", ".jpeg", ".png", ".webp", ".pdf", ".mp4"];
+            var allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "image/webp",
+                "application/pdf",
+                "video/mp4"
+            ];
+
+            function bytesToSize(bytes) {
+                if (!bytes) {
+                    return "0 B";
+                }
+
+                var units = ["B", "KB", "MB", "GB"];
+                var size = bytes;
+                var index = 0;
+
+                while (size >= 1024 && index < units.length - 1) {
+                    size = size / 1024;
+                    index++;
+                }
+
+                return size.toFixed(index === 0 ? 0 : 2) + " " + units[index];
+            }
+
+            function getExtension(name) {
+                var dot = name.lastIndexOf(".");
+                if (dot === -1) {
+                    return "";
+                }
+                return name.slice(dot).toLowerCase();
+            }
+
+            function fileKey(file) {
+                return file.name + "::" + file.size + "::" + file.type;
+            }
+
+            function showError(messages) {
+                if (!messages.length) {
+                    errorBox.style.display = "none";
+                    errorBox.textContent = "";
+                    return;
+                }
+
+                errorBox.style.display = "block";
+                errorBox.innerHTML = messages.map(function (message) {
+                    return "<div>" + message + "</div>";
+                }).join("");
+            }
+
+            function syncInputFiles() {
+                var dataTransfer = new DataTransfer();
+
+                selectedFiles.forEach(function (file) {
+                    dataTransfer.items.add(file);
+                });
+
+                input.files = dataTransfer.files;
+            }
+
+            function renderFiles() {
+                list.innerHTML = "";
+
+                var totalSize = selectedFiles.reduce(function (sum, file) {
+                    return sum + file.size;
+                }, 0);
+
+                if (!selectedFiles.length) {
+                    summary.textContent = "No files selected. Combined appeal total: " + existingCount + "/" + maxFiles + " files · " + bytesToSize(existingSize) + " / 200 MB used.";
+                    submit.disabled = true;
+                    syncInputFiles();
+                    return;
+                }
+
+                summary.textContent = selectedFiles.length + " file(s) selected · " + bytesToSize(totalSize) + " selected · Combined appeal total: " + (existingCount + selectedFiles.length) + "/" + maxFiles + " files · " + bytesToSize(existingSize + totalSize) + " / 200 MB used.";
+                submit.disabled = false;
+
+                selectedFiles.forEach(function (file, index) {
+                    var item = document.createElement("div");
+                    item.className = "appeal-file-item";
+
+                    var head = document.createElement("div");
+                    head.className = "appeal-file-head";
+
+                    var title = document.createElement("div");
+                    title.innerHTML = "<strong>" + file.name + "</strong><br><span class='muted'>" + bytesToSize(file.size) + " · " + (file.type || "unknown type") + "</span>";
+
+                    var actions = document.createElement("div");
+                    actions.className = "appeal-file-actions";
+
+                    var toggleButton = document.createElement("button");
+                    toggleButton.type = "button";
+                    toggleButton.textContent = "Hide preview";
+
+                    var removeButton = document.createElement("button");
+                    removeButton.type = "button";
+                    removeButton.textContent = "Remove before submit";
+
+                    actions.appendChild(toggleButton);
+                    actions.appendChild(removeButton);
+
+                    head.appendChild(title);
+                    head.appendChild(actions);
+                    item.appendChild(head);
+
+                    var preview = document.createElement("div");
+                    preview.className = "appeal-file-preview";
+
+                    if (file.type.indexOf("image/") === 0) {
+                        var img = document.createElement("img");
+                        img.src = URL.createObjectURL(file);
+                        img.alt = file.name;
+                        preview.appendChild(img);
+                    } else if (file.type === "video/mp4") {
+                        var video = document.createElement("video");
+                        video.controls = true;
+                        video.src = URL.createObjectURL(file);
+                        preview.appendChild(video);
+                    } else if (file.type === "application/pdf") {
+                        preview.innerHTML = "<span class='muted'>PDF selected. It will be uploaded with your evidence.</span>";
+                    } else {
+                        preview.innerHTML = "<span class='muted'>Preview is not available for this file type.</span>";
+                    }
+
+                    item.appendChild(preview);
+
+                    toggleButton.addEventListener("click", function () {
+                        var isHidden = preview.style.display === "none";
+                        preview.style.display = isHidden ? "block" : "none";
+                        toggleButton.textContent = isHidden ? "Hide preview" : "Show preview";
+                    });
+
+                    removeButton.addEventListener("click", function () {
+                        selectedFiles.splice(index, 1);
+                        renderFiles();
+                    });
+
+                    list.appendChild(item);
+                });
+
+                syncInputFiles();
+            }
+
+            function addFiles(files) {
+                var errors = [];
+                var existingKeys = {};
+                var currentTotal = selectedFiles.reduce(function (sum, file) {
+                    existingKeys[fileKey(file)] = true;
+                    return sum + file.size;
+                }, 0);
+
+                Array.prototype.slice.call(files).forEach(function (file) {
+                    var extension = getExtension(file.name);
+                    var validExtension = allowedExtensions.indexOf(extension) !== -1;
+                    var validType = allowedTypes.indexOf(file.type) !== -1;
+
+                    if (!validExtension || !validType) {
+                        errors.push(file.name + ": invalid type. Allowed: JPG, JPEG, PNG, WEBP, PDF, MP4.");
+                        return;
+                    }
+
+                    if (existingKeys[fileKey(file)]) {
+                        errors.push(file.name + ": duplicate selected file.");
+                        return;
+                    }
+
+                    if (existingCount + selectedFiles.length >= maxFiles) {
+                        errors.push("Maximum 15 total evidence files are allowed.");
+                        return;
+                    }
+
+                    if (existingSize + currentTotal + file.size > maxTotalSize) {
+                        errors.push("Total evidence size cannot exceed 200 MB.");
+                        return;
+                    }
+
+                    selectedFiles.push(file);
+                    existingKeys[fileKey(file)] = true;
+                    currentTotal += file.size;
+                });
+
+                showError(errors);
+                renderFiles();
+            }
+
+            input.addEventListener("change", function () {
+                addFiles(input.files);
+            });
+
+            ["dragenter", "dragover"].forEach(function (eventName) {
+                dropzone.addEventListener(eventName, function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    dropzone.classList.add("is-dragover");
+                });
+            });
+
+            ["dragleave", "drop"].forEach(function (eventName) {
+                dropzone.addEventListener(eventName, function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    dropzone.classList.remove("is-dragover");
+                });
+            });
+
+            dropzone.addEventListener("drop", function (event) {
+                if (event.dataTransfer && event.dataTransfer.files) {
+                    addFiles(event.dataTransfer.files);
+                }
+            });
+
+            renderFiles();
+        })();
+    </script>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <p>
+        <a href="{% url 'listings:listing_list' %}">← Back to listings</a>
+    </p>
+
+    <div class="page-title-row">
+        <div>
+            <h1>{{ listing.title }}</h1>
+            <p class="muted">
+                {{ listing.location }} · {{ listing.created_at|date:"M d, Y H:i" }}
+            </p>
+        </div>
+
+        <div>
+            {% if request.user == listing.owner %}
+                <a class="button-link" href="{% url 'listings:listing_update' listing.pk %}">Edit</a>
+                <a class="button-link" href="{% url 'listings:listing_delete' listing.pk %}">Delete</a>
+            {% endif %}
+
+            {% if request.user.is_authenticated and request.user != listing.owner and listing.status == "approved" %}
+                    <p>
+                        <a class="button-link" href="{% url 'listings:listing_report' listing.pk %}">
+                            Report listing
+                        </a>
+
+                        <a class="button-link" href="{% url 'accounts:user_report' listing.owner.pk %}?listing={{ listing.pk }}">
+                            Report seller
+                        </a>
+                    </p>
+                <form method="post" action="{% url 'listings:listing_favorite_toggle' listing.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+
+                    {% if listing.id in favorite_listing_ids %}
+                        <button type="submit">Remove saved</button>
+                    {% else %}
+                        <button class="button-primary" type="submit">Save listing</button>
+                    {% endif %}
+                </form>
+            {% endif %}
+
+            {% if request.user.is_staff and listing.status == "pending" %}
+                <form method="post" action="{% url 'listings:listing_approve' listing.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button class="button-primary" type="submit">Approve</button>
+                </form>
+
+                <form method="post" action="{% url 'listings:listing_reject' listing.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Reject</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if listing.status != "approved" %}
+        <p style="background:#fff3cd; border:1px solid #ffeeba; padding:10px; border-radius:6px;">
+            Status: <strong>{{ listing.get_status_display }}</strong>.
+            This listing is not publicly visible unless approved.
+        </p>
+    {% endif %}
+
+    <div style="display:grid; grid-template-columns: minmax(0, 1fr) 280px; gap:18px;">
+        <div>
+            {% if listing.images.exists %}
+                <div class="listing-grid">
+                    {% for image in listing.images.all %}
+                        <img class="detail-image" src="{{ image.image.url }}" alt="{{ listing.title }}" onerror="this.outerHTML='<div class=&quot;listing-placeholder&quot; style=&quot;height:280px;&quot;>No image</div>'">
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="listing-placeholder" style="height: 280px;">No images yet</div>
+            {% endif %}
+
+            <h2 class="price">{{ listing.price }} TL</h2>
+
+            <p>
+                <strong>Category:</strong>
+                <a href="{{ listing.category.get_absolute_url }}">
+                    {{ listing.category.name }}
+                </a>
+            </p>
+
+            <hr>
+
+            <h2>Description</h2>
+
+            <div>
+                {{ listing.description|linebreaks }}
+            </div>
+        </div>
+
+        <aside style="border:1px solid #ddd; border-radius:6px; padding:14px; background:#fafafa; align-self:start;">
+            <h2 style="margin-top:0;">Seller</h2>
+
+            <p>
+                <strong>{{ listing.owner.username }}</strong>
+                    {% if listing.owner.profile.is_verified_seller %}
+                        <span style="background:#e7f7ec; color:#135c2b; border:1px solid #9bd0aa; padding:3px 8px; border-radius:999px; font-size:12px;">
+                            Verified Seller
+                        </span>
+                    {% endif %}
+            </p>
+
+            {% if listing.owner.profile.location %}
+                <p>
+                    <strong>Seller location:</strong><br>
+                    {{ listing.owner.profile.location }}
+                </p>
+            {% endif %}
+
+            {% if listing.owner.profile.phone %}
+                <p>
+                    <strong>Phone:</strong><br>
+                    <a href="tel:{{ listing.owner.profile.phone }}">
+                        {{ listing.owner.profile.phone }}
+                    </a>
+                </p>
+            {% else %}
+                <p class="muted">
+                    Seller has not added a phone number.
+                </p>
+            {% endif %}
+
+            {% if request.user == listing.owner %}
+                <p>
+                    <a class="button-link" href="{% url 'accounts:profile' %}">
+                        Edit my contact info
+                    </a>
+                </p>
+            {% elif request.user.is_authenticated and listing.status == "approved" %}
+                <p>
+                    <a class="button-link button-primary" href="{% url 'conversations:listing_contact' listing.pk %}">
+                        Message seller
+                    </a>
+                </p>
+            {% elif not request.user.is_authenticated %}
+                <p>
+                    <a class="button-link button-primary" href="{% url 'accounts:login' %}">
+                        Login to message seller
+                    </a>
+                </p>
+            {% endif %}
+        </aside>
+    </div>
+{% endblock %}

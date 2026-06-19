@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>My Promotions</h1>
+            <p class="muted">Track payment and approval status.</p>
+        </div>
+
+        <a class="button-link" href="{% url 'accounts:my_listings' %}">
+            My Listings
+        </a>
+    </div>
+
+    {% for promotion in promotions %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; margin-bottom:12px; background:#fff;">
+            <h2 style="margin-top:0;">
+                <a href="{{ promotion.listing.get_absolute_url }}">
+                    {{ promotion.listing.title }}
+                </a>
+            </h2>
+
+            <p>
+                Package:
+                <strong>{{ promotion.package.name }}</strong>
+                · {{ promotion.price_snapshot }} TL
+            </p>
+
+            <p>
+                Payment:
+                <strong>{{ promotion.get_payment_status_display }}</strong>
+                · Promotion:
+                <strong>{{ promotion.get_status_display }}</strong>
+            </p>
+
+            {% if promotion.payment_status == "unpaid" and promotion.status == "pending" %}
+                <a class="button-link button-primary" href="{% url 'promotions:payment' promotion.pk %}">
+                    View payment details
+                </a>
+
+                <form method="post" action="{% url 'promotions:cancel' promotion.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Cancel request</button>
+                </form>
+            {% endif %}
+
+            {% if promotion.payment_status == "paid" %}
+                <a class="button-link" href="{% url 'promotions:receipt' promotion.pk %}">
+                    View receipt
+                </a>
+            {% endif %}
+
+            {% if promotion.starts_at %}
+                <p class="muted">Starts: {{ promotion.starts_at|date:"M d, Y H:i" }}</p>
+            {% endif %}
+
+            {% if promotion.ends_at %}
+                <p class="muted">Ends: {{ promotion.ends_at|date:"M d, Y H:i" }}</p>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p>You have not requested any promotion packages yet.</p>
+    {% endfor %}
+{% endblock %}

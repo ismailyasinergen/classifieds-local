@@ -1,0 +1,11 @@
+.venv
+.git
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.env
+backend/media
+backend/staticfiles
+postgres_data

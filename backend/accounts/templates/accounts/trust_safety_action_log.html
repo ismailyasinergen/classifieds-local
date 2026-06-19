@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Trust & Safety Action Log</h1>
+            <p class="muted">Paginated audit timeline for listing actions, seller actions, and appeal decisions.</p>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}">Trust & Safety</a>
+            <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}">Appeals</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_action_log_export' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}">
+                Export CSV
+            </a>
+        </div>
+    </div>
+
+    <section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:16px;">
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;">
+            <strong>{{ total_action_rows }}</strong><br>
+            <span class="muted">Total matching actions</span>
+        </article>
+
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;">
+            <strong>{{ listing_reports|length }}</strong><br>
+            <span class="muted">Listing actions</span>
+        </article>
+
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;">
+            <strong>{{ seller_reports|length }}</strong><br>
+            <span class="muted">Seller actions</span>
+        </article>
+
+        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;">
+            <strong>{{ appeal_actions|length }}</strong><br>
+            <span class="muted">Appeal decisions</span>
+        </article>
+    </section>
+
+    <form method="get" style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:16px;">
+        <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr auto auto; gap:10px; align-items:end;">
+            <label>
+                Search
+                <input type="text" name="q" value="{{ selected_q }}" placeholder="user, email, listing, notes, evidence filename">
+            </label>
+
+            <label>
+                Type
+                <select name="type">
+                    <option value="all" {% if selected_type == "all" %}selected{% endif %}>All types</option>
+                    <option value="listing" {% if selected_type == "listing" %}selected{% endif %}>Listing actions</option>
+                    <option value="seller" {% if selected_type == "seller" %}selected{% endif %}>Seller actions</option>
+                    <option value="appeal" {% if selected_type == "appeal" %}selected{% endif %}>Appeal decisions</option>
+                </select>
+            </label>
+
+            <label>
+                Action
+                <select name="action">
+                    <option value="">All actions</option>
+                    {% for value, label in action_choices %}
+                        <option value="{{ value }}" {% if selected_action == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                Status
+                <select name="status">
+                    <option value="">All statuses</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                From date
+                <input type="date" name="date_from" value="{{ selected_date_from }}">
+            </label>
+
+            <label>
+                To date
+                <input type="date" name="date_to" value="{{ selected_date_to }}">
+            </label>
+
+            <button type="submit">Filter</button>
+            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Reset</a>
+        </div>
+    </form>
+
+    <section style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+        <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}?date_from={{ quick_today }}&date_to={{ quick_today }}">
+            Today
+        </a>
+
+        <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}?date_from={{ quick_last_7_days }}&date_to={{ quick_today }}">
+            Last 7 days
+        </a>
+
+        <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}?date_from={{ quick_last_30_days }}&date_to={{ quick_today }}">
+            Last 30 days
+        </a>
+
+        <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}?type=appeal&date_from={{ quick_today }}&date_to={{ quick_today }}">
+            Appeal decisions today
+        </a>
+
+        <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">
+            Clear date filter
+        </a>
+    </section>
+
+
+    <p class="muted">
+        Showing page {{ page_obj.number }} of {{ paginator.num_pages }}
+        · {{ paginator.count }} action(s) match the current filter
+    </p>
+
+    {% for row in action_rows %}
+        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:12px;">
+            <h2 style="margin-top:0;">
+                {% if row.kind == "appeal" %}
+                    <a href="{% url 'accounts:moderation_appeal_admin_detail' row.object.pk %}">{{ row.title }}</a>
+                {% elif row.kind == "listing" %}
+                    <a href="{% url 'accounts:trust_safety_listing_report_detail' row.object.pk %}">{{ row.title }}</a>
+                {% elif row.kind == "seller" %}
+                    <a href="{% url 'accounts:trust_safety_seller_report_detail' row.object.pk %}">{{ row.title }}</a>
+                {% endif %}
+            </h2>
+
+            <p class="muted">
+                {{ row.kind|title }}
+                · {{ row.status_label }}
+                · {{ row.action_label }}
+                · {{ row.date|date:"M d, Y H:i" }}
+            </p>
+
+            <p>{{ row.actor_line }}</p>
+            <p>{{ row.subject_line }}</p>
+
+            {% if row.public_note %}
+                <p><strong>Public note / decision note:</strong> {{ row.public_note }}</p>
+            {% endif %}
+
+            {% if row.admin_note %}
+                <p><strong>Internal admin note:</strong> {{ row.admin_note }}</p>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p>No actions match this filter.</p>
+    {% endfor %}
+
+    {% if page_obj.has_other_pages %}
+        <nav style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:16px;">
+            {% if page_obj.has_previous %}
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page=1">First</a>
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            <span class="muted">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                <a class="button-link" href="?{% if querystring_without_page %}{{ querystring_without_page }}&{% endif %}page={{ paginator.num_pages }}">Last</a>
+            {% endif %}
+        </nav>
+    {% endif %}
+{% endblock %}

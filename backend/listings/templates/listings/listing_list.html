@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>{{ page_title }}</h1>
+
+            {% if current_category %}
+                <p class="muted">
+                    Showing listings in {{ current_category.name }} and its subcategories.
+                </p>
+            {% endif %}
+        </div>
+
+        {% if request.user.is_authenticated %}
+            <a class="button-link button-primary" href="{% url 'listings:listing_create' %}">
+                + Post Listing
+            </a>
+        {% endif %}
+    </div>
+
+    <form method="get" style="background:#f8f9fa; border:1px solid #ddd; padding:12px; border-radius:6px; margin-bottom:18px;">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:10px;">
+            <div>
+                <label>Search</label><br>
+                <input type="text" name="q" value="{{ search_q }}" placeholder="iphone, car, apartment">
+            </div>
+
+            <div>
+                <label>Location</label><br>
+                <input type="text" name="location" value="{{ search_location }}" placeholder="Istanbul">
+            </div>
+
+            <div>
+                <label>Min price</label><br>
+                <input type="number" step="0.01" name="min_price" value="{{ search_min_price }}">
+            </div>
+
+            <div>
+                <label>Max price</label><br>
+                <input type="number" step="0.01" name="max_price" value="{{ search_max_price }}">
+            </div>
+
+            {% if not current_category %}
+                <div>
+                    <label>Category</label><br>
+                    <select name="category">
+                        <option value="">All categories</option>
+                        {% for category in all_categories %}
+                            <option value="{{ category.slug }}" {% if search_category == category.slug %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+
+            <div>
+                <label>Sort</label><br>
+                <select name="sort">
+                    <option value="newest" {% if search_sort == "newest" %}selected{% endif %}>Newest</option>
+                    <option value="price_low" {% if search_sort == "price_low" %}selected{% endif %}>Price low to high</option>
+                    <option value="price_high" {% if search_sort == "price_high" %}selected{% endif %}>Price high to low</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-top:10px;">
+            <button class="button-primary" type="submit">Search</button>
+            <a class="button-link" href="{% if current_category %}{{ current_category.get_absolute_url }}{% else %}{% url 'listings:listing_list' %}{% endif %}">
+                Reset
+            </a>
+        </div>
+    </form>
+
+    {% if not current_category %}
+        <div class="tag-row">
+            <a class="tag" href="{% url 'categories:category_detail' 'cars' %}">Cars</a>
+            <a class="tag" href="{% url 'categories:category_detail' 'phones' %}">Phones</a>
+            <a class="tag" href="{% url 'categories:category_detail' 'homes-for-sale' %}">Homes for Sale</a>
+            <a class="tag" href="{% url 'categories:category_detail' 'computers' %}">Computers</a>
+        </div>
+    {% endif %}
+
+    <div class="listing-grid">
+        {% for listing in listings %}
+            {% include "listings/_listing_card.html" with listing=listing %}
+        {% empty %}
+            <p>No listings found.</p>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?q={{ search_q }}&location={{ search_location }}&min_price={{ search_min_price }}&max_price={{ search_max_price }}&category={{ search_category }}&sort={{ search_sort }}&page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            <span>
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?q={{ search_q }}&location={{ search_location }}&min_price={{ search_min_price }}&max_price={{ search_max_price }}&category={{ search_category }}&sort={{ search_sort }}&page={{ page_obj.next_page_number }}">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
