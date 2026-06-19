@@ -34,6 +34,7 @@ class Listing(models.Model):
         related_name="listings",
     )
     location = models.CharField(max_length=120)
+    attributes = models.JSONField(default=dict, blank=True)
     is_featured = models.BooleanField(default=False)
     featured_priority = models.PositiveIntegerField(default=0)
     featured_until = models.DateTimeField(null=True, blank=True)
@@ -55,8 +56,62 @@ class Listing(models.Model):
     def __str__(self):
         return self.title
 
+    ATTRIBUTE_LABELS = {
+        "brand": "Brand",
+        "model_name": "Model / Series",
+        "model_year": "Year",
+        "mileage": "Mileage / KM",
+        "fuel_type": "Fuel Type",
+        "transmission": "Transmission",
+        "color": "Color",
+        "condition": "Condition",
+        "warranty": "Warranty",
+        "accepts_exchange": "Accepts Exchange",
+    }
+
+    ATTRIBUTE_VALUE_LABELS = {
+        "fuel_type": {
+            "gasoline": "Gasoline",
+            "diesel": "Diesel",
+            "hybrid": "Hybrid",
+            "electric": "Electric",
+            "lpg": "LPG",
+            "other": "Other",
+        },
+        "transmission": {
+            "manual": "Manual",
+            "automatic": "Automatic",
+            "semi_automatic": "Semi-automatic",
+            "other": "Other",
+        },
+        "condition": {
+            "new": "New",
+            "used": "Used",
+            "damaged": "Damaged",
+            "other": "Other",
+        },
+        "warranty": {True: "Yes", False: "No", "true": "Yes", "false": "No"},
+        "accepts_exchange": {True: "Yes", False: "No", "true": "Yes", "false": "No"},
+    }
+
     def get_absolute_url(self):
         return reverse("listings:listing_detail", kwargs={"pk": self.pk})
+
+    @property
+    def display_attributes(self):
+        rows = []
+        data = self.attributes or {}
+
+        for key, label in self.ATTRIBUTE_LABELS.items():
+            value = data.get(key)
+
+            if value in (None, "", [], {}):
+                continue
+
+            value = self.ATTRIBUTE_VALUE_LABELS.get(key, {}).get(value, value)
+            rows.append((label, value))
+
+        return rows
 
 
 class ListingImage(models.Model):

@@ -387,6 +387,12 @@
                         <th>Price</th>
                         <td>{{ listing.price }} TL</td>
                     </tr>
+                    {% for label, value in listing.display_attributes %}
+                        <tr>
+                            <th>{{ label }}</th>
+                            <td>{{ value }}</td>
+                        </tr>
+                    {% endfor %}
                     <tr>
                         <th>Listing Date</th>
                         <td>{{ listing.created_at|date:"M d, Y H:i" }}</td>
@@ -512,6 +518,12 @@
                 <div class="classified-detail-label">Location</div>
                 {{ listing.location }}
             </div>
+            {% for label, value in listing.display_attributes %}
+                <div class="classified-detail-box">
+                    <div class="classified-detail-label">{{ label }}</div>
+                    {{ value }}
+                </div>
+            {% endfor %}
             <div class="classified-detail-box">
                 <div class="classified-detail-label">Status</div>
                 {{ listing.get_status_display }}
