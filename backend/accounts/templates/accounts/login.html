@@ -1,9 +1,53 @@
 {% extends "base.html" %}
+{% load dev_login_helpers %}
 
 {% block content %}
     <h1>Login</h1>
 
-    <form method="post">
+    
+{% dev_demo_login_enabled as show_demo_login %}
+{% if show_demo_login %}
+<!-- DEV_DEMO_LOGIN_AUTOFILL_V1 -->
+<div style="border:1px solid #d7e2f3; background:#f6f8fb; padding:12px; border-radius:8px; margin:0 0 16px;">
+    <label for="demo-login-select"><strong>Quick demo login</strong></label>
+    <select id="demo-login-select" style="display:block; width:100%; margin-top:8px;">
+        <option value="">Select a demo account...</option>
+        <option value="admin@classifieds.local|Testpass12345">Admin — admin@classifieds.local</option>
+        <option value="demo_seller@classifieds.local|demo12345">Seller — demo_seller@classifieds.local</option>
+        <option value="buyer1@classifieds.local|Testpass12345">Buyer — buyer1@classifieds.local</option>
+        <option value="appeal_deadline_seller@classifieds.local|Testpass12345">Appeal deadline seller</option>
+        <option value="appeal_stage_seller@classifieds.local|Testpass12345">Appeal stage seller</option>
+    </select>
+    <p class="muted" style="margin-bottom:0;">Local development helper only. Selecting an account fills the login form automatically.</p>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const select = document.getElementById("demo-login-select");
+    const usernameInput = document.querySelector('input[name="username"], input[name="email"], input[type="text"]');
+    const passwordInput = document.querySelector('input[name="password"], input[type="password"]');
+
+    if (!select || !usernameInput || !passwordInput) {
+        return;
+    }
+
+    select.addEventListener("change", function () {
+        if (!select.value) {
+            return;
+        }
+
+        const parts = select.value.split("|");
+        usernameInput.value = parts[0] || "";
+        passwordInput.value = parts[1] || "";
+
+        usernameInput.dispatchEvent(new Event("input", { bubbles: true }));
+        passwordInput.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+});
+</script>
+{% endif %}
+
+<form method="post">
         {% csrf_token %}
         {{ form.as_p }}
 
