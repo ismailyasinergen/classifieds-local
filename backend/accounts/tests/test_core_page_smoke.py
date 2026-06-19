@@ -63,3 +63,13 @@ class CorePageSmokeTests(TestCase):
         # Seller-report admin queue currently uses the legacy route name
         # "user_report_queue" in accounts/urls.py.
         self.assert_page_ok("accounts:user_report_queue", self.admin)
+
+    def test_admin_navigation_is_grouped(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse("accounts:dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "ADMIN_NAV_CLEANUP_V1")
+        self.assertContains(response, "Trust & Safety Dashboard")
+        self.assertContains(response, "Logs & Audit")
+        self.assertContains(response, "Listing Reports")
+        self.assertContains(response, "Seller Reports")

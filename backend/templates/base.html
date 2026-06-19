@@ -448,7 +448,31 @@
             }
         }
 
-    </style>
+    
+/* ADMIN_NAV_CLEANUP_V1 */
+.nav-admin-cleanup-v1 > summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.nav-admin-cleanup-v1 > summary::-webkit-details-marker {
+    display: none;
+}
+
+.nav-admin-menu {
+    min-width: 240px;
+}
+
+.nav-admin-menu .nav-menu-heading {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    padding: 0.55rem 0.75rem 0.25rem;
+}
+
+</style>
 </head>
 <body>
 
@@ -558,7 +582,7 @@
     {% safe_url 'accounts:moderation_appeal_queue' as nav_appeals_url %}
     {% safe_url 'accounts:trust_safety_audit' as nav_audit_url %}
     {% safe_url 'listings:report_admin_list' as nav_listing_reports_url %}
-    {% safe_url 'accounts:user_report_admin_list' as nav_seller_reports_url %}
+    {% safe_url 'accounts:user_report_queue' as nav_seller_reports_url %}
 
     <header class="site-header clean-header">
         <div class="clean-header-inner">
@@ -599,34 +623,36 @@
                         </div>
                     </details>
 
-                    {% if user.is_staff %}
-                        <details class="nav-menu">
-                            <summary>
-                                Admin
+                {% if user.is_staff %}
+                    <details class="nav-dropdown nav-admin-cleanup-v1">
+                        <summary class="nav-link nav-dropdown-trigger">
+                            Admin
+                            {% if staff_pending_moderation_appeal_count|nonzero %}
+                                <span class="nav-badge">{{ staff_pending_moderation_appeal_count }}</span>
+                            {% endif %}
+                        </summary>
+
+                        <div class="nav-menu nav-admin-menu" data-nav-marker="ADMIN_NAV_CLEANUP_V1">
+                            <div class="nav-menu-heading">Overview</div>
+                            <a href="{{ nav_ts_url }}">Trust & Safety Dashboard</a>
+
+                            <div class="nav-menu-heading">Queues</div>
+                            <a href="{{ nav_appeals_url }}">
+                                Appeals
                                 {% if staff_pending_moderation_appeal_count|nonzero %}
                                     <span class="nav-badge">{{ staff_pending_moderation_appeal_count }}</span>
                                 {% endif %}
-                            </summary>
+                            </a>
+                            <a href="{{ nav_listing_reports_url }}">Listing Reports</a>
+                            <a href="{{ nav_seller_reports_url }}">Seller Reports</a>
 
-                            <div class="nav-menu-content">
-                                <div class="nav-menu-heading">Trust & Safety</div>
-                                <a href="{{ nav_ts_url }}">Dashboard</a>
-                                <a href="{{ nav_appeals_url }}">
-                                    Appeals
-                                    {% if staff_pending_moderation_appeal_count|nonzero %}
-                                        <span class="nav-badge">{{ staff_pending_moderation_appeal_count }}</span>
-                                    {% endif %}
-                                </a>
-                                <a href="{{ nav_action_log_url }}">Action Log</a>
-                                <a href="{{ nav_event_log_url }}">Event Log</a>
-                                <a href="{{ nav_audit_url }}">Audit Tracking</a>
-
-                                <div class="nav-menu-heading">Reports</div>
-                                <a href="{{ nav_listing_reports_url }}">Listing Reports</a>
-                                <a href="{{ nav_seller_reports_url }}">Seller Reports</a>
-                            </div>
-                        </details>
-                    {% endif %}
+                            <div class="nav-menu-heading">Logs & Audit</div>
+                            <a href="{{ nav_action_log_url }}">Action Log</a>
+                            <a href="{{ nav_event_log_url }}">Event Log</a>
+                            <a href="{{ nav_audit_url }}">Audit</a>
+                        </div>
+                    </details>
+                {% endif %}
 
                     <a href="{{ nav_logout_url }}">Logout</a>
                 {% else %}
