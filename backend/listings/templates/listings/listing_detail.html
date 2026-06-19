@@ -1,148 +1,534 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p>
-        <a href="{% url 'listings:listing_list' %}">← Back to listings</a>
+    <style>
+        .classified-back-link {
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .classified-title-block {
+            border-bottom: 2px solid #f2c400;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+        }
+
+        .classified-title-block h1 {
+            margin: 0 0 5px;
+            font-size: 22px;
+            line-height: 1.25;
+        }
+
+        .classified-subline {
+            color: #777;
+            font-size: 13px;
+        }
+
+        .classified-top-grid {
+            display: grid;
+            grid-template-columns: minmax(300px, 430px) minmax(250px, 1fr) 260px;
+            gap: 14px;
+            align-items: start;
+        }
+
+        .classified-gallery-panel,
+        .classified-info-panel,
+        .classified-contact-panel,
+        .classified-section-panel {
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 4px;
+        }
+
+        .classified-gallery-panel {
+            padding: 10px;
+        }
+
+        .classified-main-image,
+        .classified-main-placeholder {
+            width: 100%;
+            height: 330px;
+            object-fit: contain;
+            display: block;
+            background: #f1f3f5;
+            border: 1px solid #e2e2e2;
+            border-radius: 3px;
+        }
+
+        .classified-main-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+        }
+
+        .classified-thumbs {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .classified-thumb,
+        .classified-thumb-placeholder {
+            height: 58px;
+            object-fit: cover;
+            width: 100%;
+            border: 1px solid #d7d7d7;
+            border-radius: 3px;
+            background: #f3f4f6;
+        }
+
+        .classified-thumb-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 11px;
+        }
+
+        .classified-info-panel {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .classified-price-box {
+            padding: 12px 14px;
+            background: #fff8d8;
+            border-bottom: 1px solid #ead687;
+        }
+
+        .classified-price {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 850;
+            letter-spacing: -0.02em;
+            color: #111;
+        }
+
+        .classified-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .classified-details-table th,
+        .classified-details-table td {
+            padding: 7px 10px;
+            border-bottom: 1px dotted #cfcfcf;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .classified-details-table th {
+            width: 42%;
+            color: #555;
+            font-weight: 700;
+            background: #fafafa;
+        }
+
+        .classified-details-table td {
+            color: #111;
+        }
+
+        .classified-badge-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .classified-badge {
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid #ddd;
+            background: #f7f7f7;
+        }
+
+        .classified-badge.verified {
+            color: #135c2b;
+            background: #e7f7ec;
+            border-color: #9bd0aa;
+        }
+
+        .classified-badge.featured {
+            color: #222;
+            background: #ffe08a;
+            border-color: #e1c25c;
+        }
+
+        .classified-badge.top {
+            color: #fff;
+            background: #222;
+            border-color: #222;
+        }
+
+        .classified-contact-panel {
+            padding: 12px;
+        }
+
+        .classified-contact-panel h2 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        .seller-card-name {
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .seller-card-line {
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .classified-action-stack {
+            display: grid;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .classified-action-stack .button-link,
+        .classified-action-stack button {
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .classified-report-links {
+            display: grid;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .classified-owner-actions,
+        .classified-staff-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .classified-status-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px 12px;
+            border-radius: 4px;
+            margin: 12px 0;
+        }
+
+        .classified-tabs {
+            display: flex;
+            gap: 4px;
+            margin-top: 18px;
+            border-bottom: 2px solid #f2c400;
+            flex-wrap: wrap;
+        }
+
+        .classified-tab {
+            border: 1px solid #ddd;
+            border-bottom: 0;
+            background: #f7f7f7;
+            padding: 8px 12px;
+            border-radius: 4px 4px 0 0;
+            font-weight: 700;
+            font-size: 13px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .classified-tab.active {
+            background: #ffd400;
+            border-color: #e2bd00;
+            color: #111;
+        }
+
+        .classified-section-panel {
+            border-top: 0;
+            border-radius: 0 0 4px 4px;
+            padding: 16px;
+        }
+
+        .classified-section-panel h2 {
+            margin-top: 0;
+        }
+
+        .classified-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .classified-detail-box {
+            border: 1px solid #eee;
+            background: #fffdf3;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .classified-detail-label {
+            color: #777;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        @media (max-width: 1050px) {
+            .classified-top-grid {
+                grid-template-columns: minmax(0, 1fr) 280px;
+            }
+
+            .classified-info-panel {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .classified-top-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .classified-main-image,
+            .classified-main-placeholder {
+                height: 260px;
+            }
+
+            .classified-thumbs {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+
+    <p class="classified-back-link">
+        <a href="{% url 'listings:listing_list' %}">&larr; Back to listings</a>
     </p>
 
-    <div class="page-title-row">
-        <div>
-            <h1>{{ listing.title }}</h1>
-            <p class="muted">
-                {{ listing.location }} · {{ listing.created_at|date:"M d, Y H:i" }}
-            </p>
+    <div class="classified-title-block">
+        <h1>{{ listing.title }}</h1>
+        <div class="classified-subline">
+            {{ listing.location }} &middot; Listing No: {{ listing.id }} &middot; Posted {{ listing.created_at|date:"M d, Y H:i" }}
         </div>
 
-        <div>
-            {% if request.user == listing.owner %}
+        {% if request.user == listing.owner %}
+            <div class="classified-owner-actions">
                 <a class="button-link" href="{% url 'listings:listing_update' listing.pk %}">Edit</a>
                 <a class="button-link" href="{% url 'listings:listing_delete' listing.pk %}">Delete</a>
-            {% endif %}
+            </div>
+        {% endif %}
 
-            {% if request.user.is_authenticated and request.user != listing.owner and listing.status == "approved" %}
-                    <p>
-                        <a class="button-link" href="{% url 'listings:listing_report' listing.pk %}">
-                            Report listing
-                        </a>
-
-                        <a class="button-link" href="{% url 'accounts:user_report' listing.owner.pk %}?listing={{ listing.pk }}">
-                            Report seller
-                        </a>
-                    </p>
-                <form method="post" action="{% url 'listings:listing_favorite_toggle' listing.pk %}" style="display:inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-
-                    {% if listing.id in favorite_listing_ids %}
-                        <button type="submit">Remove saved</button>
-                    {% else %}
-                        <button class="button-primary" type="submit">Save listing</button>
-                    {% endif %}
-                </form>
-            {% endif %}
-
-            {% if request.user.is_staff and listing.status == "pending" %}
-                <form method="post" action="{% url 'listings:listing_approve' listing.pk %}" style="display:inline;">
+        {% if request.user.is_staff and listing.status == "pending" %}
+            <div class="classified-staff-actions">
+                <form method="post" action="{% url 'listings:listing_approve' listing.pk %}">
                     {% csrf_token %}
                     <button class="button-primary" type="submit">Approve</button>
                 </form>
 
-                <form method="post" action="{% url 'listings:listing_reject' listing.pk %}" style="display:inline;">
+                <form method="post" action="{% url 'listings:listing_reject' listing.pk %}">
                     {% csrf_token %}
                     <button type="submit">Reject</button>
                 </form>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
     </div>
 
     {% if listing.status != "approved" %}
-        <p style="background:#fff3cd; border:1px solid #ffeeba; padding:10px; border-radius:6px;">
+        <p class="classified-status-warning">
             Status: <strong>{{ listing.get_status_display }}</strong>.
             This listing is not publicly visible unless approved.
         </p>
     {% endif %}
 
-    <div style="display:grid; grid-template-columns: minmax(0, 1fr) 280px; gap:18px;">
-        <div>
-            {% if listing.images.exists %}
-                <div class="listing-grid">
-                    {% for image in listing.images.all %}
-                        <img class="detail-image" src="{{ image.image.url }}" alt="{{ listing.title }}" onerror="this.outerHTML='<div class=&quot;listing-placeholder&quot; style=&quot;height:280px;&quot;>No image</div>'">
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="listing-placeholder" style="height: 280px;">No images yet</div>
-            {% endif %}
+    <div class="classified-top-grid">
+        <section class="classified-gallery-panel" aria-label="Listing images">
+            {% with first_image=listing.images.first %}
+                {% if first_image %}
+                    <img class="classified-main-image" src="{{ first_image.image.url }}" alt="{{ listing.title }}" onerror="this.outerHTML='<div class=&quot;classified-main-placeholder&quot;>No image</div>'">
+                {% else %}
+                    <div class="classified-main-placeholder">No images yet</div>
+                {% endif %}
+            {% endwith %}
 
-            <h2 class="price">{{ listing.price }} TL</h2>
-
-            <p>
-                <strong>Category:</strong>
-                <a href="{{ listing.category.get_absolute_url }}">
-                    {{ listing.category.name }}
-                </a>
-            </p>
-
-            <hr>
-
-            <h2>Description</h2>
-
-            <div>
-                {{ listing.description|linebreaks }}
+            <div class="classified-thumbs">
+                {% for image in listing.images.all %}
+                    <img class="classified-thumb" src="{{ image.image.url }}" alt="{{ listing.title }}" onerror="this.outerHTML='<div class=&quot;classified-thumb-placeholder&quot;>No image</div>'">
+                {% empty %}
+                    <div class="classified-thumb-placeholder">No image</div>
+                {% endfor %}
             </div>
-        </div>
+        </section>
 
-        <aside style="border:1px solid #ddd; border-radius:6px; padding:14px; background:#fafafa; align-self:start;">
-            <h2 style="margin-top:0;">Seller</h2>
+        <section class="classified-info-panel" aria-label="Listing details">
+            <div class="classified-price-box">
+                <div class="classified-price">{{ listing.price }} TL</div>
+            </div>
 
-            <p>
-                <strong>{{ listing.owner.username }}</strong>
-                    {% if listing.owner.profile.is_verified_seller %}
-                        <span style="background:#e7f7ec; color:#135c2b; border:1px solid #9bd0aa; padding:3px 8px; border-radius:999px; font-size:12px;">
-                            Verified Seller
-                        </span>
+            <table class="classified-details-table">
+                <tbody>
+                    <tr>
+                        <th>Listing No</th>
+                        <td>{{ listing.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Category</th>
+                        <td><a href="{{ listing.category.get_absolute_url }}">{{ listing.category.name }}</a></td>
+                    </tr>
+                    <tr>
+                        <th>Location</th>
+                        <td>{{ listing.location }}</td>
+                    </tr>
+                    <tr>
+                        <th>Price</th>
+                        <td>{{ listing.price }} TL</td>
+                    </tr>
+                    <tr>
+                        <th>Listing Date</th>
+                        <td>{{ listing.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% if listing.expires_at %}
+                        <tr>
+                            <th>Expires</th>
+                            <td>{{ listing.expires_at|date:"M d, Y H:i" }}</td>
+                        </tr>
                     {% endif %}
-            </p>
+                    <tr>
+                        <th>Status</th>
+                        <td>{{ listing.get_status_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Seller</th>
+                        <td>{{ listing.owner.username }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            {% if listing.owner.profile.is_verified_seller or listing.is_featured or listing.top_listing_until %}
+                <div class="classified-badge-row">
+                    {% if listing.owner.profile.is_verified_seller %}
+                        <span class="classified-badge verified">Verified Seller</span>
+                    {% endif %}
+                    {% if listing.is_featured %}
+                        <span class="classified-badge featured">Featured</span>
+                    {% endif %}
+                    {% if listing.top_listing_until %}
+                        <span class="classified-badge top">Top Listing</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </section>
+
+        <aside class="classified-contact-panel">
+            <h2>Seller</h2>
+            <div class="seller-card-name">
+                {{ listing.owner.username }}
+            </div>
+
+            {% if listing.owner.profile.is_verified_seller %}
+                <span class="classified-badge verified">Verified Seller</span>
+            {% endif %}
 
             {% if listing.owner.profile.location %}
-                <p>
-                    <strong>Seller location:</strong><br>
+                <div class="seller-card-line">
+                    <strong>Seller location</strong><br>
                     {{ listing.owner.profile.location }}
-                </p>
+                </div>
             {% endif %}
 
-            {% if listing.owner.profile.phone %}
-                <p>
-                    <strong>Phone:</strong><br>
-                    <a href="tel:{{ listing.owner.profile.phone }}">
-                        {{ listing.owner.profile.phone }}
-                    </a>
-                </p>
-            {% else %}
-                <p class="muted">
-                    Seller has not added a phone number.
-                </p>
-            {% endif %}
+            <div class="seller-card-line">
+                {% if listing.owner.profile.phone %}
+                    <strong>Phone</strong><br>
+                    <a href="tel:{{ listing.owner.profile.phone }}">{{ listing.owner.profile.phone }}</a>
+                {% else %}
+                    <span class="muted">Seller has not added a phone number.</span>
+                {% endif %}
+            </div>
 
-            {% if request.user == listing.owner %}
-                <p>
+            <div class="classified-action-stack">
+                {% if request.user == listing.owner %}
                     <a class="button-link" href="{% url 'accounts:profile' %}">
                         Edit my contact info
                     </a>
-                </p>
-            {% elif request.user.is_authenticated and listing.status == "approved" %}
-                <p>
+                {% elif request.user.is_authenticated and listing.status == "approved" %}
                     <a class="button-link button-primary" href="{% url 'conversations:listing_contact' listing.pk %}">
                         Message seller
                     </a>
-                </p>
-            {% elif not request.user.is_authenticated %}
-                <p>
+                {% elif not request.user.is_authenticated %}
                     <a class="button-link button-primary" href="{% url 'accounts:login' %}">
                         Login to message seller
                     </a>
-                </p>
+                {% endif %}
+
+                {% if request.user.is_authenticated and request.user != listing.owner and listing.status == "approved" %}
+                    <form method="post" action="{% url 'listings:listing_favorite_toggle' listing.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        {% if listing.id in favorite_listing_ids %}
+                            <button type="submit">Remove saved</button>
+                        {% else %}
+                            <button type="submit">Save listing</button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+            </div>
+
+            {% if request.user.is_authenticated and request.user != listing.owner and listing.status == "approved" %}
+                <div class="classified-report-links">
+                    <a class="button-link" href="{% url 'listings:listing_report' listing.pk %}">Report listing</a>
+                    <a class="button-link" href="{% url 'accounts:user_report' listing.owner.pk %}?listing={{ listing.pk }}">Report seller</a>
+                </div>
             {% endif %}
         </aside>
     </div>
+
+    <nav class="classified-tabs" aria-label="Listing detail sections">
+        <a class="classified-tab active" href="#description">Description</a>
+        <a class="classified-tab" href="#details">Listing Details</a>
+        <a class="classified-tab" href="#seller">Seller / Contact</a>
+    </nav>
+
+    <section id="description" class="classified-section-panel">
+        <h2>Description</h2>
+        {{ listing.description|linebreaks }}
+    </section>
+
+    <section id="details" class="classified-section-panel" style="margin-top:12px; border-top:1px solid #ddd; border-radius:4px;">
+        <h2>Listing Details</h2>
+        <div class="classified-detail-grid">
+            <div class="classified-detail-box">
+                <div class="classified-detail-label">Listing No</div>
+                {{ listing.id }}
+            </div>
+            <div class="classified-detail-box">
+                <div class="classified-detail-label">Category</div>
+                {{ listing.category.name }}
+            </div>
+            <div class="classified-detail-box">
+                <div class="classified-detail-label">Location</div>
+                {{ listing.location }}
+            </div>
+            <div class="classified-detail-box">
+                <div class="classified-detail-label">Status</div>
+                {{ listing.get_status_display }}
+            </div>
+        </div>
+    </section>
+
+    <section id="seller" class="classified-section-panel" style="margin-top:12px; border-top:1px solid #ddd; border-radius:4px;">
+        <h2>Seller / Contact</h2>
+        <p><strong>{{ listing.owner.username }}</strong></p>
+        {% if listing.owner.profile.location %}
+            <p>Location: {{ listing.owner.profile.location }}</p>
+        {% endif %}
+        {% if listing.owner.profile.phone %}
+            <p>Phone: <a href="tel:{{ listing.owner.profile.phone }}">{{ listing.owner.profile.phone }}</a></p>
+        {% else %}
+            <p class="muted">Seller has not added a phone number.</p>
+        {% endif %}
+    </section>
 {% endblock %}
