@@ -8,14 +8,14 @@
             <p class="muted">Paginated Trust & Safety queue for seller/user reports.</p>
         </div>
 
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}">Trust & Safety</a>
-            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Action Log</a>
+        <div style="display:grid; grid-template-columns:repeat(2, minmax(130px, 1fr)); gap:8px; width:min(100%, 280px); align-items:stretch;">
+            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}" style="display:block; text-align:center; white-space:nowrap;">Trust & Safety</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}" style="display:block; text-align:center; white-space:nowrap;">Action Log</a>
         </div>
     </div>
 
-    <form method="get" style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:16px;">
-        <div style="display:grid; grid-template-columns:2fr 1fr auto auto; gap:10px; align-items:end;">
+    <form method="get" style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin-bottom:16px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+        <div style="display:grid; grid-template-columns:minmax(220px, 2fr) minmax(160px, 1fr) auto auto; gap:12px; align-items:end;">
             <label>
                 Search
                 <input type="text" name="q" value="{{ selected_q }}" placeholder="seller, reporter, email, listing, notes">
@@ -43,16 +43,18 @@
 
     {% for report in reports %}
         {% safe_url 'accounts:trust_safety_seller_report_detail' report.pk as detail_url %}
-        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:12px;">
-            <h2 style="margin-top:0;">
+        <article style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin-bottom:14px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+            <h2 style="margin:0 0 10px; font-size:20px;">
                 <a href="{{ detail_url }}">Seller report #{{ report.pk }}</a>
             </h2>
 
-            <p class="muted">
-                {{ report.get_status_display }}
-                {% if report.action_taken %} · {{ report.action_taken }}{% endif %}
-                · {{ report.created_at|date:"M d, Y H:i" }}
-            </p>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
+                <span style="display:inline-block; padding:3px 8px; border:1px solid #f0c36d; border-radius:999px; background:#fffaf0; font-size:12px; color:#92400e;">{{ report.get_status_display }}</span>
+                {% if report.action_taken %}
+                    <span style="display:inline-block; padding:3px 8px; border:1px solid #d7dee8; border-radius:999px; background:#fff; font-size:12px; color:#374151;">{{ report.action_taken }}</span>
+                {% endif %}
+                <span style="display:inline-block; padding:3px 8px; border:1px solid #d7dee8; border-radius:999px; background:#fff; font-size:12px; color:#374151;">{{ report.created_at|date:"M d, Y H:i" }}</span>
+            </div>
 
             {% if report.reported_user %}
                 <p><strong>Reported seller:</strong> {{ report.reported_user.username }} / {{ report.reported_user.email }}</p>
@@ -67,10 +69,12 @@
             {% endif %}
 
             {% if report.details %}
-                <p>{{ report.details|truncatewords:40 }}</p>
+                <p style="margin:10px 0 12px; line-height:1.45;">{{ report.details|truncatewords:40 }}</p>
             {% endif %}
 
-            <a class="button-link" href="{{ detail_url }}">Review report</a>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px;">
+                <a class="button-link" href="{{ detail_url }}">Review report</a>
+            </div>
         </article>
     {% empty %}
         <p>No seller reports match this filter.</p>
