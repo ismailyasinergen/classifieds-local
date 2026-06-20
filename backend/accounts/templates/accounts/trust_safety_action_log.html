@@ -38,56 +38,69 @@
         </article>
     </section>
 
-    <form method="get" style="border:1px solid #ddd; border-radius:10px; padding:16px; background:#fff; margin-bottom:16px; box-shadow:0 1px 2px rgba(0,0,0,0.03);">
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:14px; align-items:end;">
-            <label style="display:flex; flex-direction:column; gap:6px; grid-column:span 2; min-width:260px; font-weight:600;">
-                <span>Search</span>
-                <input style="width:100%;" type="text" name="q" value="{{ selected_q }}" placeholder="user, email, listing, notes, evidence filename">
-            </label>
+    <form method="get" style="border:1px solid #d7dee8; border-radius:14px; padding:18px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin-bottom:16px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+        <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start; margin-bottom:16px;">
+            <div>
+                <div style="font-size:15px; font-weight:800; color:#111827;">Filter action log</div>
+                <div style="font-size:12px; color:#6b7280; margin-top:4px;">Search actions, narrow by type/status, or filter by decision date.</div>
+            </div>
 
-            <label style="display:flex; flex-direction:column; gap:6px; font-weight:600;">
-                <span>Type</span>
-                <select style="width:100%;" name="type">
+            <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+                <button type="submit">Filter</button>
+                <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Reset</a>
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:minmax(300px, 2fr) repeat(3, minmax(150px, 1fr)); gap:14px; align-items:end; margin-bottom:14px;">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <label for="action-log-q" style="font-size:12px; font-weight:700; color:#374151;">Search</label>
+                <input id="action-log-q" style="width:100%; min-height:38px;" type="text" name="q" value="{{ selected_q }}" placeholder="User, email, listing, notes, evidence filename">
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <label for="action-log-type" style="font-size:12px; font-weight:700; color:#374151;">Type</label>
+                <select id="action-log-type" style="width:100%; min-height:38px;" name="type">
                     <option value="all" {% if selected_type == "all" %}selected{% endif %}>All types</option>
                     <option value="listing" {% if selected_type == "listing" %}selected{% endif %}>Listing actions</option>
                     <option value="seller" {% if selected_type == "seller" %}selected{% endif %}>Seller actions</option>
                     <option value="appeal" {% if selected_type == "appeal" %}selected{% endif %}>Appeal decisions</option>
                 </select>
-            </label>
+            </div>
 
-            <label style="display:flex; flex-direction:column; gap:6px; font-weight:600;">
-                <span>Action</span>
-                <select style="width:100%;" name="action">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <label for="action-log-action" style="font-size:12px; font-weight:700; color:#374151;">Action</label>
+                <select id="action-log-action" style="width:100%; min-height:38px;" name="action">
                     <option value="">All actions</option>
                     {% for value, label in action_choices %}
                         <option value="{{ value }}" {% if selected_action == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
-            </label>
+            </div>
 
-            <label style="display:flex; flex-direction:column; gap:6px; font-weight:600;">
-                <span>Status</span>
-                <select style="width:100%;" name="status">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <label for="action-log-status" style="font-size:12px; font-weight:700; color:#374151;">Status</label>
+                <select id="action-log-status" style="width:100%; min-height:38px;" name="status">
                     <option value="">All statuses</option>
                     {% for value, label in status_choices %}
                         <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
-            </label>
+            </div>
+        </div>
 
-            <label style="display:flex; flex-direction:column; gap:6px; font-weight:600;">
-                <span>From date</span>
-                <input style="width:100%;" type="date" name="date_from" value="{{ selected_date_from }}">
-            </label>
+        <div style="display:grid; grid-template-columns:repeat(2, minmax(180px, 240px)) minmax(220px, 1fr); gap:14px; align-items:end;">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <label for="action-log-date-from" style="font-size:12px; font-weight:700; color:#374151;">From date</label>
+                <input id="action-log-date-from" style="width:100%; min-height:38px;" type="date" name="date_from" value="{{ selected_date_from }}">
+            </div>
 
-            <label style="display:flex; flex-direction:column; gap:6px; font-weight:600;">
-                <span>To date</span>
-                <input style="width:100%;" type="date" name="date_to" value="{{ selected_date_to }}">
-            </label>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <label for="action-log-date-to" style="font-size:12px; font-weight:700; color:#374151;">To date</label>
+                <input id="action-log-date-to" style="width:100%; min-height:38px;" type="date" name="date_to" value="{{ selected_date_to }}">
+            </div>
 
-            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:flex-end;">
-                <button type="submit">Filter</button>
-                <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Reset</a>
+            <div style="font-size:12px; color:#6b7280; padding-bottom:8px;">
+                Tip: use quick date buttons below for common audit views.
             </div>
         </div>
     </form>
