@@ -35,3 +35,4 @@ backend/test_extra_evidence_browser_upload.pdf
 backend/reference_html/
 backend/listings/data/sahibinden_category_urls.json
 backend/listings/data/sahibinden_categories.json
+backend/listings/data/sahibinden_category_tree.json
