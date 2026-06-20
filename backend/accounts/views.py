@@ -7155,60 +7155,7 @@ def trust_safety_event_log_export(request):
 
     return response
 
-# TRUST_SAFETY_USER_REPORT_EVENT_WIRING_V1
-def _record_user_report_trust_safety_event_safely(**kwargs):
-    try:
-        from .services.trust_safety_events import record_trust_safety_event
-
-        return record_trust_safety_event(**kwargs)
-    except TypeError:
-        try:
-            from .models import TrustSafetyEvent
-
-            allowed_fields = {
-                field.name
-                for field in TrustSafetyEvent._meta.fields
-                if field.name not in {"id", "created_at"}
-            }
-            data = {
-                key: value
-                for key, value in kwargs.items()
-                if key in allowed_fields
-            }
-            data.setdefault("metadata", {})
-            return TrustSafetyEvent.objects.create(**data)
-        except Exception:
-            return None
-    except Exception:
-        return None
-
-
-def _user_report_event_metadata(report):
-    return {
-        "report_id": report.pk,
-        "report_status": report.status,
-        "report_action_taken": report.action_taken,
-        "reported_user_id": report.reported_user_id,
-        "reporter_id": report.reporter_id,
-        "source_listing_id": report.source_listing_id,
-        "reasons": report.reasons or [],
-    }
-
-
-def _record_user_report_action_event(report, request, event_type, title):
-    _record_user_report_trust_safety_event_safely(
-        actor=request.user,
-        target_user=report.reported_user,
-        listing=report.source_listing,
-        user_report=report,
-        event_type=event_type,
-        title=title,
-        public_note=report.reporter_note or "",
-        internal_note=report.admin_note or "",
-        metadata=_user_report_event_metadata(report),
-    )
-
-
+# TRUST_SAFETY_USER_REPORT_EVENT_WIRING_V2
 _TrustSafetyOriginalUserReportReview = user_report_review
 @staff_member_required
 @require_POST
@@ -7216,15 +7163,11 @@ def user_report_review(request, pk):
     response = _TrustSafetyOriginalUserReportReview(request, pk)
 
     try:
-        from .models import TrustSafetyEvent, UserReport
+        from .models import UserReport
+        from .services.report_trust_safety_events import record_user_report_reviewed
 
         report = UserReport.objects.select_related("reported_user", "reporter", "source_listing").get(pk=pk)
-        _record_user_report_action_event(
-            report,
-            request,
-            TrustSafetyEvent.EventType.SELLER_REPORT_REVIEWED,
-            f"Seller report #{report.pk} reviewed",
-        )
+        record_user_report_reviewed(report, actor=request.user)
     except Exception:
         pass
 
@@ -7238,15 +7181,11 @@ def user_report_dismiss(request, pk):
     response = _TrustSafetyOriginalUserReportDismiss(request, pk)
 
     try:
-        from .models import TrustSafetyEvent, UserReport
+        from .models import UserReport
+        from .services.report_trust_safety_events import record_user_report_reviewed
 
         report = UserReport.objects.select_related("reported_user", "reporter", "source_listing").get(pk=pk)
-        _record_user_report_action_event(
-            report,
-            request,
-            TrustSafetyEvent.EventType.SELLER_REPORT_REVIEWED,
-            f"Seller report #{report.pk} dismissed",
-        )
+        record_user_report_reviewed(report, actor=request.user, dismissed=True)
     except Exception:
         pass
 
@@ -7260,15 +7199,11 @@ def user_report_warn_seller(request, pk):
     response = _TrustSafetyOriginalUserReportWarnSeller(request, pk)
 
     try:
-        from .models import TrustSafetyEvent, UserReport
+        from .models import UserReport
+        from .services.report_trust_safety_events import record_user_report_warning
 
         report = UserReport.objects.select_related("reported_user", "reporter", "source_listing").get(pk=pk)
-        _record_user_report_action_event(
-            report,
-            request,
-            TrustSafetyEvent.EventType.SELLER_WARNED,
-            f"Seller #{report.reported_user_id} warned from report #{report.pk}",
-        )
+        record_user_report_warning(report, actor=request.user)
     except Exception:
         pass
 
@@ -7282,15 +7217,11 @@ def user_report_suspend_seller(request, pk):
     response = _TrustSafetyOriginalUserReportSuspendSeller(request, pk)
 
     try:
-        from .models import TrustSafetyEvent, UserReport
+        from .models import UserReport
+        from .services.report_trust_safety_events import record_user_report_suspension
 
         report = UserReport.objects.select_related("reported_user", "reporter", "source_listing").get(pk=pk)
-        _record_user_report_action_event(
-            report,
-            request,
-            TrustSafetyEvent.EventType.SELLER_SUSPENDED,
-            f"Seller #{report.reported_user_id} suspended from report #{report.pk}",
-        )
+        record_user_report_suspension(report, actor=request.user)
     except Exception:
         pass
 
@@ -7304,15 +7235,11 @@ def user_report_remove_verification(request, pk):
     response = _TrustSafetyOriginalUserReportRemoveVerification(request, pk)
 
     try:
-        from .models import TrustSafetyEvent, UserReport
+        from .models import UserReport
+        from .services.report_trust_safety_events import record_user_report_verification_removed
 
         report = UserReport.objects.select_related("reported_user", "reporter", "source_listing").get(pk=pk)
-        _record_user_report_action_event(
-            report,
-            request,
-            TrustSafetyEvent.EventType.SELLER_VERIFICATION_REMOVED,
-            f"Seller #{report.reported_user_id} verification removed from report #{report.pk}",
-        )
+        record_user_report_verification_removed(report, actor=request.user)
     except Exception:
         pass
 
@@ -7326,15 +7253,11 @@ def user_report_archive_seller_listings(request, pk):
     response = _TrustSafetyOriginalUserReportArchiveSellerListings(request, pk)
 
     try:
-        from .models import TrustSafetyEvent, UserReport
+        from .models import UserReport
+        from .services.report_trust_safety_events import record_user_report_listings_archived
 
         report = UserReport.objects.select_related("reported_user", "reporter", "source_listing").get(pk=pk)
-        _record_user_report_action_event(
-            report,
-            request,
-            TrustSafetyEvent.EventType.SELLER_LISTINGS_ARCHIVED,
-            f"Seller #{report.reported_user_id} listings archived from report #{report.pk}",
-        )
+        record_user_report_listings_archived(report, actor=request.user)
     except Exception:
         pass
 
@@ -7348,15 +7271,11 @@ def user_report_block_messaging(request, pk):
     response = _TrustSafetyOriginalUserReportBlockMessaging(request, pk)
 
     try:
-        from .models import TrustSafetyEvent, UserReport
+        from .models import UserReport
+        from .services.report_trust_safety_events import record_user_report_messaging_blocked
 
         report = UserReport.objects.select_related("reported_user", "reporter", "source_listing").get(pk=pk)
-        _record_user_report_action_event(
-            report,
-            request,
-            TrustSafetyEvent.EventType.SELLER_MESSAGING_BLOCKED,
-            f"Seller #{report.reported_user_id} messaging blocked from report #{report.pk}",
-        )
+        record_user_report_messaging_blocked(report, actor=request.user)
     except Exception:
         pass
 

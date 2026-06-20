@@ -1704,45 +1704,7 @@ class ListingListView(_BaseAttributeListingListView):
         context["page_querystring"] = get_page_querystring(self.request)
         return context
 
-# TRUST_SAFETY_REPORT_EVENT_WIRING_V1
-def _record_report_trust_safety_event_safely(**kwargs):
-    try:
-        from accounts.services.trust_safety_events import record_trust_safety_event
-
-        return record_trust_safety_event(**kwargs)
-    except TypeError:
-        try:
-            from accounts.models import TrustSafetyEvent
-
-            allowed_fields = {
-                field.name
-                for field in TrustSafetyEvent._meta.fields
-                if field.name not in {"id", "created_at"}
-            }
-            data = {
-                key: value
-                for key, value in kwargs.items()
-                if key in allowed_fields
-            }
-            data.setdefault("metadata", {})
-            return TrustSafetyEvent.objects.create(**data)
-        except Exception:
-            return None
-    except Exception:
-        return None
-
-
-def _listing_report_event_metadata(report):
-    return {
-        "report_id": report.pk,
-        "report_status": report.status,
-        "report_action_taken": report.action_taken,
-        "report_reason": report.reason,
-        "reported_listing_id": report.listing_id,
-        "reporter_id": report.reporter_id,
-    }
-
-
+# TRUST_SAFETY_REPORT_EVENT_WIRING_V2
 _TrustSafetyOriginalListingReportReview = listing_report_review
 @staff_member_required
 @require_POST
@@ -1750,21 +1712,11 @@ def listing_report_review(request, pk):
     response = _TrustSafetyOriginalListingReportReview(request, pk)
 
     try:
-        from accounts.models import TrustSafetyEvent
+        from accounts.services.report_trust_safety_events import record_listing_report_reviewed
         from .models import ListingReport
 
         report = ListingReport.objects.select_related("listing", "listing__owner", "reporter").get(pk=pk)
-        _record_report_trust_safety_event_safely(
-            actor=request.user,
-            target_user=report.listing.owner,
-            listing=report.listing,
-            listing_report=report,
-            event_type=TrustSafetyEvent.EventType.LISTING_REPORT_REVIEWED,
-            title=f"Listing report #{report.pk} reviewed",
-            public_note=report.reporter_note or "",
-            internal_note=report.admin_note or "",
-            metadata=_listing_report_event_metadata(report),
-        )
+        record_listing_report_reviewed(report, actor=request.user)
     except Exception:
         pass
 
@@ -1778,23 +1730,11 @@ def listing_report_dismiss(request, pk):
     response = _TrustSafetyOriginalListingReportDismiss(request, pk)
 
     try:
-        from accounts.models import TrustSafetyEvent
+        from accounts.services.report_trust_safety_events import record_listing_report_reviewed
         from .models import ListingReport
 
         report = ListingReport.objects.select_related("listing", "listing__owner", "reporter").get(pk=pk)
-        metadata = _listing_report_event_metadata(report)
-        metadata["dismissed"] = True
-        _record_report_trust_safety_event_safely(
-            actor=request.user,
-            target_user=report.listing.owner,
-            listing=report.listing,
-            listing_report=report,
-            event_type=TrustSafetyEvent.EventType.LISTING_REPORT_REVIEWED,
-            title=f"Listing report #{report.pk} dismissed",
-            public_note=report.reporter_note or "",
-            internal_note=report.admin_note or "",
-            metadata=metadata,
-        )
+        record_listing_report_reviewed(report, actor=request.user, dismissed=True)
     except Exception:
         pass
 
@@ -1808,21 +1748,11 @@ def listing_report_suspend_listing(request, pk):
     response = _TrustSafetyOriginalListingReportSuspendListing(request, pk)
 
     try:
-        from accounts.models import TrustSafetyEvent
+        from accounts.services.report_trust_safety_events import record_listing_report_suspended
         from .models import ListingReport
 
         report = ListingReport.objects.select_related("listing", "listing__owner", "reporter").get(pk=pk)
-        _record_report_trust_safety_event_safely(
-            actor=request.user,
-            target_user=report.listing.owner,
-            listing=report.listing,
-            listing_report=report,
-            event_type=TrustSafetyEvent.EventType.LISTING_SUSPENDED,
-            title=f"Listing #{report.listing_id} suspended from report #{report.pk}",
-            public_note=report.reporter_note or "",
-            internal_note=report.admin_note or "",
-            metadata=_listing_report_event_metadata(report),
-        )
+        record_listing_report_suspended(report, actor=request.user)
     except Exception:
         pass
 
@@ -1836,21 +1766,11 @@ def listing_report_archive_listing(request, pk):
     response = _TrustSafetyOriginalListingReportArchiveListing(request, pk)
 
     try:
-        from accounts.models import TrustSafetyEvent
+        from accounts.services.report_trust_safety_events import record_listing_report_archived
         from .models import ListingReport
 
         report = ListingReport.objects.select_related("listing", "listing__owner", "reporter").get(pk=pk)
-        _record_report_trust_safety_event_safely(
-            actor=request.user,
-            target_user=report.listing.owner,
-            listing=report.listing,
-            listing_report=report,
-            event_type=TrustSafetyEvent.EventType.LISTING_ARCHIVED,
-            title=f"Listing #{report.listing_id} archived from report #{report.pk}",
-            public_note=report.reporter_note or "",
-            internal_note=report.admin_note or "",
-            metadata=_listing_report_event_metadata(report),
-        )
+        record_listing_report_archived(report, actor=request.user)
     except Exception:
         pass
 
