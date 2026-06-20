@@ -1,14 +1,20 @@
-from . import appeal_list_views
-from . import appeal_views
-from . import evidence_stage_views
-from . import extra_evidence_views
-from . import notice_views
-from . import trust_safety_dashboard_views
-from . import trust_safety_report_views
-from . import verification_views
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
+from . import (
+    appeal_list_views,
+    appeal_views,
+    evidence_stage_views,
+    extra_evidence_views,
+    notice_views,
+    private_media_views,
+    seller_report_action_views,
+    seller_report_views,
+    trust_safety_dashboard_views,
+    trust_safety_report_views,
+    trust_safety_views,
+    verification_views,
+)
 from .views import (
     MyListingsView,
     RegisterView,
@@ -21,8 +27,6 @@ from .views import (
 app_name = "accounts"
 
 
-from . import seller_report_views
-from . import seller_report_action_views
 
 urlpatterns = [
     path(
@@ -45,7 +49,7 @@ urlpatterns = [
         evidence_stage_views.moderation_appeal_attachment_update_stage,
         name="moderation_appeal_attachment_update_stage",
     ),
-path("dashboard/", dashboard_view, name="dashboard"),
+    path("dashboard/", dashboard_view, name="dashboard"),
     path("register/", RegisterView.as_view(), name="register"),
     path("login/", auth_views.LoginView.as_view(template_name="accounts/login.html"), name="login"),
     path("logout/", logout_view, name="logout"),
@@ -80,8 +84,6 @@ path("dashboard/", dashboard_view, name="dashboard"),
 ]
 
 # TRUST_SAFETY_AUDIT_UI_V1
-from . import trust_safety_views
-from . import private_media_views
 
 urlpatterns += [
     path("trust-safety/audit/", trust_safety_dashboard_views.trust_safety_audit, name="trust_safety_audit"),
