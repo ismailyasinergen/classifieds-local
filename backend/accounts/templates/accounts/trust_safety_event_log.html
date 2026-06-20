@@ -7,15 +7,15 @@
             <p class="muted">Permanent audit events recorded by Trust & Safety actions.</p>
         </div>
 
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}">Trust & Safety</a>
-            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Action Log</a>
-            <a class="button-link" href="{% url 'accounts:trust_safety_event_log_export' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}">Export CSV</a>
+        <div style="display:grid; grid-template-columns:repeat(3, minmax(120px, 1fr)); gap:8px; width:min(100%, 430px); align-items:stretch;">
+            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}" style="display:block; text-align:center; white-space:nowrap;">Trust & Safety</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}" style="display:block; text-align:center; white-space:nowrap;">Action Log</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_event_log_export' %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}" style="display:block; text-align:center; white-space:nowrap;">Export CSV</a>
         </div>
     </div>
 
-    <form method="get" style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:16px;">
-        <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto auto; gap:10px; align-items:end;">
+    <form method="get" style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin-bottom:14px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+        <div style="display:grid; grid-template-columns:minmax(220px, 2fr) minmax(160px, 1fr) minmax(140px, 1fr) minmax(140px, 1fr) auto auto; gap:12px; align-items:end;">
             <label>
                 Search
                 <input type="text" name="q" value="{{ selected_q }}" placeholder="user, email, title, listing, note">
@@ -46,7 +46,7 @@
         </div>
     </form>
 
-    <section style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+    <section style="display:flex; gap:8px; flex-wrap:wrap; margin:0 0 16px; align-items:center;">
         <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}?date_from={{ quick_today }}&date_to={{ quick_today }}">Today</a>
         <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}?date_from={{ quick_last_7_days }}&date_to={{ quick_today }}">Last 7 days</a>
         <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}?date_from={{ quick_last_30_days }}&date_to={{ quick_today }}">Last 30 days</a>
@@ -54,19 +54,19 @@
         <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}?event_type=seller_suspended">Seller suspended</a>
     </section>
 
-    <p class="muted">
+    <p class="muted" style="margin:0 0 12px;">
         Showing page {{ page_obj.number }} of {{ paginator.num_pages }}
         · {{ paginator.count }} event(s) match the current filter
     </p>
 
     {% for event in events %}
-        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:12px;">
-            <h2 style="margin-top:0;">{{ event.title }}</h2>
+        <article style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin-bottom:14px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+            <h2 style="margin:0 0 10px; font-size:20px;">{{ event.title }}</h2>
 
-            <p class="muted">
-                {{ event.get_event_type_display }}
-                · {{ event.created_at|date:"M d, Y H:i" }}
-            </p>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
+                <span style="display:inline-block; padding:3px 8px; border:1px solid #f0c36d; border-radius:999px; background:#fffaf0; font-size:12px; color:#92400e;">{{ event.get_event_type_display }}</span>
+                <span style="display:inline-block; padding:3px 8px; border:1px solid #d7dee8; border-radius:999px; background:#fff; font-size:12px; color:#374151;">{{ event.created_at|date:"M d, Y H:i" }}</span>
+            </div>
 
             {% if event.actor %}
                 <p><strong>Actor:</strong> {{ event.actor.username }} / {{ event.actor.email }}</p>
