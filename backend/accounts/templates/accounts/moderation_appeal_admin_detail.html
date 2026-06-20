@@ -83,13 +83,15 @@
             </p>
         </div>
 
-        <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}">Back to Appeals Queue</a>
+        <div style="display:grid; grid-template-columns:minmax(180px, 1fr); width:min(100%, 230px); align-items:stretch;">
+            <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}" style="display:block; text-align:center; white-space:nowrap;">Back to Appeals Queue</a>
+        </div>
     </div>
 
     {% appeal_decision_state appeal as decision_state %}
 
-    <section style="border:1px solid #ddd; border-radius:10px; padding:14px; background:#fff; margin-bottom:16px;">
-        <h2 style="margin-top:0;">Final decision readiness</h2>
+    <section style="border:1px solid #d7dee8; border-radius:14px; padding:18px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin-bottom:18px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+        <h2 style="margin:0 0 12px;">Final decision readiness</h2>
 
         <p>
             <strong>{{ decision_state.label }}</strong>
@@ -110,10 +112,10 @@
 
         {% if decision_state.ready %}
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
-                <form method="post" action="{% url 'accounts:moderation_appeal_decide' appeal.pk 'approve' %}" style="border:1px solid #ddd; border-radius:8px; padding:12px;">
+                <form method="post" action="{% url 'accounts:moderation_appeal_decide' appeal.pk 'approve' %}" style="border:1px solid #d7dee8; border-radius:14px; padding:14px; background:#fff; box-shadow:0 6px 18px rgba(15,23,42,0.04);">
                     {% csrf_token %}
 
-                    <h3 style="margin-top:0;">Approve appeal</h3>
+                    <h3 style="margin:0 0 10px;">Approve appeal</h3>
 
                     <label>
                         <input type="checkbox" name="evidence_reviewed" value="yes" required>
@@ -130,15 +132,15 @@
                         <textarea name="admin_note" rows="3" placeholder="Internal note, not shown to seller."></textarea>
                     </label>
 
-                    <button type="submit" onclick="return confirm('Approve this appeal? This final decision cannot be reopened.');">
+                    <button type="submit" style="width:100%; white-space:nowrap;" onclick="return confirm('Approve this appeal? This final decision cannot be reopened.');">
                         Approve final decision
                     </button>
                 </form>
 
-                <form method="post" action="{% url 'accounts:moderation_appeal_decide' appeal.pk 'reject' %}" style="border:1px solid #ddd; border-radius:8px; padding:12px;">
+                <form method="post" action="{% url 'accounts:moderation_appeal_decide' appeal.pk 'reject' %}" style="border:1px solid #d7dee8; border-radius:14px; padding:14px; background:#fff; box-shadow:0 6px 18px rgba(15,23,42,0.04);">
                     {% csrf_token %}
 
-                    <h3 style="margin-top:0;">Reject appeal</h3>
+                    <h3 style="margin:0 0 10px;">Reject appeal</h3>
 
                     <label>
                         <input type="checkbox" name="evidence_reviewed" value="yes" required>
@@ -155,7 +157,7 @@
                         <textarea name="admin_note" rows="3" placeholder="Internal note, not shown to seller."></textarea>
                     </label>
 
-                    <button type="submit" onclick="return confirm('Reject this appeal? This final decision cannot be reopened.');">
+                    <button type="submit" style="width:100%; white-space:nowrap;" onclick="return confirm('Reject this appeal? This final decision cannot be reopened.');">
                         Reject final decision
                     </button>
                 </form>
@@ -174,8 +176,8 @@
     </section>
 
     {% if appeal.status == "pending" %}
-        <section style="border:1px solid #ddd; border-radius:10px; padding:14px; background:#fff; margin-bottom:16px;">
-            <h2 style="margin-top:0;">Request extra evidence</h2>
+        <section style="border:1px solid #f0c36d; border-radius:14px; padding:18px; background:linear-gradient(180deg, #fffaf0 0%, #fff7dd 100%); margin-bottom:18px; box-shadow:0 6px 18px rgba(180,83,9,0.08);">
+            <h2 style="margin:0 0 12px;">Request extra evidence</h2>
 
             {% if appeal.extra_evidence_requested_at %}
                 <p>
@@ -193,7 +195,7 @@
                 </p>
             {% endif %}
 
-            <form method="post" action="{% url 'accounts:moderation_appeal_request_extra_evidence' appeal.pk %}">
+            <form method="post" action="{% url 'accounts:moderation_appeal_request_extra_evidence' appeal.pk %}" style="display:grid; gap:12px;">
                 {% csrf_token %}
 
                 <label>
@@ -210,30 +212,30 @@
                     Seller can upload extra evidence only until this deadline. After the deadline, admin may make the final decision.
                 </p>
 
-                <button type="submit" onclick="return confirm('Send extra evidence request with this deadline?');">
+                <button type="submit" style="width:max-content;" onclick="return confirm('Send extra evidence request with this deadline?');">
                     Request extra evidence with deadline
                 </button>
             </form>
         </section>
     {% endif %}
 
-    <section style="border:1px solid #ddd; border-radius:10px; padding:14px; background:#fff; margin-bottom:16px;">
-        <h2 style="margin-top:0;">Appeal message</h2>
+    <section style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin-bottom:18px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+        <h2 style="margin:0 0 12px;">Appeal message</h2>
         <p>{{ appeal.message|linebreaksbr }}</p>
     </section>
 
     
 
     {% if appeal.decision_note %}
-        <section style="border:1px solid #ddd; border-radius:10px; padding:14px; background:#fff; margin-bottom:16px;">
-            <h2 style="margin-top:0;">Decision note</h2>
+        <section style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin-bottom:18px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+            <h2 style="margin:0 0 12px;">Decision note</h2>
             <p>{{ appeal.decision_note|linebreaksbr }}</p>
         </section>
     {% endif %}
 
     {% if appeal.admin_note %}
-        <section style="border:1px solid #ddd; border-radius:10px; padding:14px; background:#fff; margin-bottom:16px;">
-            <h2 style="margin-top:0;">Internal admin note</h2>
+        <section style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin-bottom:18px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+            <h2 style="margin:0 0 12px;">Internal admin note</h2>
             <p>{{ appeal.admin_note|linebreaksbr }}</p>
         </section>
     {% endif %}
@@ -277,8 +279,8 @@
             setInterval(updateDecisionCountdowns, 1000);
         })();
     </script>
-<section class="appeal-card">
-    <h2 style="margin-top:0;">Evidence files</h2>
+<section class="appeal-card" style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+    <h2 style="margin:0 0 12px;">Evidence files</h2>
     <p class="muted">
         Admin review gallery. Initial appeal evidence and extra evidence are labeled separately.
         Admin can open/download files for moderation review.
@@ -318,7 +320,7 @@
                             {% endif %}
                         </div>
 
-                        <a class="button-link" href="{{ download_url }}" target="_blank" rel="noopener">
+                        <a class="button-link" href="{{ download_url }}" target="_blank" rel="noopener" style="display:block; text-align:center; margin-top:8px;">
                             Open / download
                         </a>
 
@@ -336,7 +338,7 @@
                                     Extra evidence
                                 </option>
                             </select>
-                            <button type="submit" style="margin-top:8px;">
+                            <button type="submit" style="margin-top:8px; width:100%;">
                                 Save label
                             </button>
                         </form>
