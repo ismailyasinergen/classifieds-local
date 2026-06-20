@@ -238,7 +238,7 @@ def plan() -> None:
     print(status if status else "clean")
     print()
     print("accounts/views.py size:")
-    print(run_capture(["python", "-c", "from pathlib import Path; print(len(Path(backend/accounts/views.py).read_text(encoding=utf-8).splitlines()))"]).stdout.strip(), "lines")
+    print(len(VIEWS.read_text(encoding="utf-8").splitlines()), "lines")
     print()
     print("Duplicate function names:")
     print(duplicate_function_report())
