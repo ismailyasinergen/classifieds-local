@@ -2,6 +2,7 @@ from . import appeal_list_views
 from . import appeal_views
 from . import evidence_stage_views
 from . import extra_evidence_views
+from . import notice_views
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
@@ -11,9 +12,6 @@ from .views import (
     SavedListingsView,
     dashboard_view,
     logout_view,
-    moderation_notice_mark_read,
-    moderation_notices,
-    moderation_notices_mark_all_read,
     my_user_reports,
     profile_view,
     trust_safety_dashboard,
@@ -70,9 +68,9 @@ path("dashboard/", dashboard_view, name="dashboard"),
     path("trust-safety/listings/<int:pk>/restore/", trust_safety_restore_listing, name="trust_safety_restore_listing"),
     path("trust-safety/sellers/<int:pk>/lift-suspension/", trust_safety_lift_seller_suspension, name="trust_safety_lift_seller_suspension"),
 
-    path("notices/", moderation_notices, name="moderation_notices"),
-    path("notices/<int:pk>/read/", moderation_notice_mark_read, name="moderation_notice_mark_read"),
-    path("notices/read-all/", moderation_notices_mark_all_read, name="moderation_notices_mark_all_read"),
+    path("notices/", notice_views.moderation_notices, name="moderation_notices"),
+    path("notices/<int:pk>/read/", notice_views.moderation_notice_mark_read, name="moderation_notice_mark_read"),
+    path("notices/read-all/", notice_views.moderation_notices_mark_all_read, name="moderation_notices_mark_all_read"),
 
     path("verification/", verification_request_view, name="verification_request"),
     path("verification/queue/", verification_queue_view, name="verification_queue"),
@@ -98,7 +96,6 @@ path("dashboard/", dashboard_view, name="dashboard"),
 from . import views as account_views
 from . import trust_safety_views
 from . import trust_safety_dashboard_views
-from . import notice_views
 from . import private_media_views
 
 urlpatterns += [
