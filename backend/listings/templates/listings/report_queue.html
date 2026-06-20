@@ -7,20 +7,15 @@
             <p class="muted">Review user-submitted listing reports.</p>
         </div>
 
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a class="button-link" href="{% url 'listings:report_export_csv' %}?status={{ status_filter }}&reason={{ reason_filter }}&q={{ q }}">
-                Export CSV
-            </a>
-
-            <a class="button-link" href="{% url 'accounts:user_report_queue' %}">
-                Seller Reports
-            </a>
+        <div style="display:grid; grid-template-columns:repeat(2, minmax(130px, 1fr)); gap:8px; width:min(100%, 280px); align-items:stretch;">
+            <a class="button-link" href="{% url 'listings:report_export_csv' %}?status={{ status_filter }}&reason={{ reason_filter }}&q={{ q }}" style="display:block; text-align:center; white-space:nowrap;">Export CSV</a>
+            <a class="button-link" href="{% url 'accounts:user_report_queue' %}" style="display:block; text-align:center; white-space:nowrap;">Seller Reports</a>
         </div>
     </div>
 
-    <section style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
-        <article style="border:1px solid #f0c36d; background:#fff8e5; border-radius:8px; padding:12px;">
-            <h3 style="margin-top:0;">When to temporarily suspend listing</h3>
+    <section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px; margin-bottom:18px;">
+        <article style="border:1px solid #f0c36d; background:linear-gradient(180deg, #fffaf0 0%, #fff7dd 100%); border-radius:14px; padding:16px; box-shadow:0 6px 18px rgba(180,83,9,0.08);">
+            <h3 style="margin:0 0 8px;">When to temporarily suspend listing</h3>
             <p class="muted">Use this when buyers may be harmed while admin investigates.</p>
             <ul>
                 <li>Scam or fraud signs</li>
@@ -32,8 +27,8 @@
             </ul>
         </article>
 
-        <article style="border:1px solid #b7d4f0; background:#eef7ff; border-radius:8px; padding:12px;">
-            <h3 style="margin-top:0;">Action guide</h3>
+        <article style="border:1px solid #b7d4f0; background:linear-gradient(180deg, #f8fbff 0%, #eef7ff 100%); border-radius:14px; padding:16px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+            <h3 style="margin:0 0 8px;">Action guide</h3>
             <ul>
                 <li><strong>Dismiss:</strong> weak, false, duplicate, or revenge report.</li>
                 <li><strong>Mark reviewed:</strong> report is useful but listing stays active.</li>
@@ -50,7 +45,7 @@
         <a class="tag" href="{% url 'listings:report_queue' %}?status=dismissed">Dismissed ({{ counts.dismissed }})</a>
     </div>
 
-    <form method="get" style="display:flex; gap:8px; flex-wrap:wrap; align-items:end; margin:16px 0;">
+    <form method="get" style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin:16px 0; box-shadow:0 6px 18px rgba(15,23,42,0.05); display:grid; grid-template-columns:minmax(180px, 2fr) minmax(140px, 1fr) minmax(160px, 1fr) auto auto; gap:12px; align-items:end;">
         <label>
             Search
             <input type="text" name="q" value="{{ q }}" placeholder="Listing, reporter, owner...">
@@ -81,30 +76,24 @@
     </form>
 
     {% for report in reports %}
-        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; margin-bottom:12px; background:#fff;">
-            <h2 style="margin-top:0;">
+        <article style="border:1px solid #d7dee8; border-radius:14px; padding:16px; margin-bottom:14px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+            <h2 style="margin:0 0 10px; font-size:20px;">
                 <a href="{{ report.listing.get_absolute_url }}">{{ report.listing.title }}</a>
             </h2>
 
-            <p>
-                Reasons:
-                <strong>{{ report.get_reasons_display }}</strong>
-                · Report status:
-                <strong>{{ report.get_status_display }}</strong>
-                · Listing status:
-                <strong>{{ report.listing.get_status_display }}</strong>
-                · Action:
-                <strong>{{ report.action_taken|default:"No action" }}</strong>
-            </p>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
+                <span style="display:inline-block; padding:3px 8px; border:1px solid #d7dee8; border-radius:999px; background:#fff; font-size:12px; color:#374151;">{{ report.get_reasons_display }}</span>
+                <span style="display:inline-block; padding:3px 8px; border:1px solid #f0c36d; border-radius:999px; background:#fffaf0; font-size:12px; color:#92400e;">Report {{ report.get_status_display }}</span>
+                <span style="display:inline-block; padding:3px 8px; border:1px solid #d7dee8; border-radius:999px; background:#fff; font-size:12px; color:#374151;">Listing {{ report.listing.get_status_display }}</span>
+                <span style="display:inline-block; padding:3px 8px; border:1px solid #d7dee8; border-radius:999px; background:#fff; font-size:12px; color:#374151;">Action {{ report.action_taken|default:"No action" }}</span>
+            </div>
 
-            <p class="muted">
-                Reported by {{ report.reporter.username }}
-                · Listing owner {{ report.listing.owner.username }}
-                · {{ report.created_at|date:"M d, Y H:i" }}
+            <p class="muted" style="margin:0 0 10px; line-height:1.45;">
+                Reported by {{ report.reporter.username }} · Listing owner {{ report.listing.owner.username }} · {{ report.created_at|date:"M d, Y H:i" }}
             </p>
 
             {% if report.details %}
-                <div>{{ report.details|linebreaks }}</div>
+                <div style="margin:10px 0 12px; line-height:1.45;">{{ report.details|linebreaks }}</div>
             {% endif %}
 
             {% if report.admin_note %}
