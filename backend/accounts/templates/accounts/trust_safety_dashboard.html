@@ -7,13 +7,13 @@
             <p class="muted">Central admin dashboard for reports, restrictions, appeals, and audit tools.</p>
         </div>
 
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a class="button-link" href="{% url 'listings:report_queue' %}?status=pending">Listing Reports</a>
-            <a class="button-link" href="{% url 'accounts:user_report_queue' %}?status=pending">Seller Reports</a>
-            <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}">Appeals</a>
-            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Action Log</a>
-            <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}">Event Log</a>
-            <a class="button-link" href="{% url 'accounts:trust_safety_audit' %}">Audit Tracking</a>
+        <div style="display:grid; grid-template-columns:repeat(3, minmax(116px, 1fr)); gap:8px; width:min(100%, 430px); align-items:stretch;">
+            <a class="button-link" href="{% url 'listings:report_queue' %}?status=pending" style="display:block; text-align:center; white-space:nowrap;">Listing Reports</a>
+            <a class="button-link" href="{% url 'accounts:user_report_queue' %}?status=pending" style="display:block; text-align:center; white-space:nowrap;">Seller Reports</a>
+            <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}" style="display:block; text-align:center; white-space:nowrap;">Appeals</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}" style="display:block; text-align:center; white-space:nowrap;">Action Log</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}" style="display:block; text-align:center; white-space:nowrap;">Event Log</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_audit' %}" style="display:block; text-align:center; white-space:nowrap;">Audit Tracking</a>
         </div>
     </div>
 
