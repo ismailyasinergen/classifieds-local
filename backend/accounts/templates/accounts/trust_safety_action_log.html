@@ -38,16 +38,16 @@
         </article>
     </section>
 
-    <form method="get" style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff; margin-bottom:16px;">
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:10px; align-items:end;">
-            <label style="grid-column:span 2; min-width:260px;">
-                Search
-                <input type="text" name="q" value="{{ selected_q }}" placeholder="user, email, listing, notes, evidence filename">
+    <form method="get" style="border:1px solid #ddd; border-radius:10px; padding:16px; background:#fff; margin-bottom:16px; box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:14px; align-items:end;">
+            <label style="display:flex; flex-direction:column; gap:6px; grid-column:span 2; min-width:260px; font-weight:600;">
+                <span>Search</span>
+                <input style="width:100%;" type="text" name="q" value="{{ selected_q }}" placeholder="user, email, listing, notes, evidence filename">
             </label>
 
-            <label>
-                Type
-                <select name="type">
+            <label style="display:flex; flex-direction:column; gap:6px; font-weight:600;">
+                <span>Type</span>
+                <select style="width:100%;" name="type">
                     <option value="all" {% if selected_type == "all" %}selected{% endif %}>All types</option>
                     <option value="listing" {% if selected_type == "listing" %}selected{% endif %}>Listing actions</option>
                     <option value="seller" {% if selected_type == "seller" %}selected{% endif %}>Seller actions</option>
@@ -55,9 +55,9 @@
                 </select>
             </label>
 
-            <label>
-                Action
-                <select name="action">
+            <label style="display:flex; flex-direction:column; gap:6px; font-weight:600;">
+                <span>Action</span>
+                <select style="width:100%;" name="action">
                     <option value="">All actions</option>
                     {% for value, label in action_choices %}
                         <option value="{{ value }}" {% if selected_action == value %}selected{% endif %}>{{ label }}</option>
@@ -65,9 +65,9 @@
                 </select>
             </label>
 
-            <label>
-                Status
-                <select name="status">
+            <label style="display:flex; flex-direction:column; gap:6px; font-weight:600;">
+                <span>Status</span>
+                <select style="width:100%;" name="status">
                     <option value="">All statuses</option>
                     {% for value, label in status_choices %}
                         <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
@@ -75,17 +75,17 @@
                 </select>
             </label>
 
-            <label>
-                From date
-                <input type="date" name="date_from" value="{{ selected_date_from }}">
+            <label style="display:flex; flex-direction:column; gap:6px; font-weight:600;">
+                <span>From date</span>
+                <input style="width:100%;" type="date" name="date_from" value="{{ selected_date_from }}">
             </label>
 
-            <label>
-                To date
-                <input type="date" name="date_to" value="{{ selected_date_to }}">
+            <label style="display:flex; flex-direction:column; gap:6px; font-weight:600;">
+                <span>To date</span>
+                <input style="width:100%;" type="date" name="date_to" value="{{ selected_date_to }}">
             </label>
 
-            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:flex-end;">
                 <button type="submit">Filter</button>
                 <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Reset</a>
             </div>
