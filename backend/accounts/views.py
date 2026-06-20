@@ -1263,59 +1263,6 @@ def trust_safety_restore_listing(request, pk):
     return redirect("accounts:trust_safety_dashboard")
 
 
-@staff_member_required
-def trust_safety_dashboard(request):
-    from django.utils import timezone
-    from listings.models import Listing, ListingReport
-    from .models import UserProfile, UserReport
-
-    now = timezone.now()
-
-    pending_listing_reports = ListingReport.objects.filter(
-        status=ListingReport.Status.PENDING,
-    )
-
-    pending_seller_reports = UserReport.objects.filter(
-        status=UserReport.Status.PENDING,
-    )
-
-    suspended_listings = Listing.objects.select_related("owner").filter(
-        status=Listing.Status.SUSPENDED,
-    ).order_by("-created_at")
-
-    suspended_sellers = UserProfile.objects.select_related("user").filter(
-        seller_suspended_until__gt=now,
-    ).order_by("seller_suspended_until")
-
-    latest_listing_reports = ListingReport.objects.select_related(
-        "listing",
-        "reporter",
-        "listing__owner",
-    ).order_by("-created_at")[:5]
-
-    latest_seller_reports = UserReport.objects.select_related(
-        "reported_user",
-        "reporter",
-        "source_listing",
-    ).order_by("-created_at")[:5]
-
-    return render(
-        request,
-        "accounts/trust_safety_dashboard.html",
-        {
-            "pending_listing_reports_count": pending_listing_reports.count(),
-            "pending_seller_reports_count": pending_seller_reports.count(),
-            "suspended_listings_count": suspended_listings.count(),
-            "suspended_sellers_count": suspended_sellers.count(),
-            "suspended_listings": suspended_listings[:20],
-            "suspended_sellers": suspended_sellers[:20],
-            "latest_listing_reports": latest_listing_reports,
-            "latest_seller_reports": latest_seller_reports,
-            "page_title": "Trust & Safety",
-        },
-    )
-
-
 # TRUST_SAFETY_AUDIT_UI_V1
 @staff_member_required
 def trust_safety_audit(request):
