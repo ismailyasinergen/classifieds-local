@@ -88,6 +88,20 @@ def get_attribute_filter_specs(category_slug):
     return list(ATTRIBUTE_FILTERS_BY_CATEGORY.get(normalize_category_slug(category_slug), []))
 
 
+
+def get_attribute_filter_specs_by_category():
+    result = {}
+    for category_slug, specs in ATTRIBUTE_FILTERS_BY_CATEGORY.items():
+        result[category_slug] = [
+            {
+                **spec,
+                "param": "attr_" + spec["key"],
+            }
+            for spec in specs
+        ]
+    return result
+
+
 def get_attribute_filter_context(request, category_slug):
     fields = []
     for spec in get_attribute_filter_specs(category_slug):
@@ -101,6 +115,7 @@ def get_attribute_filter_context(request, category_slug):
     return {
         "attribute_filter_category_slug": normalize_category_slug(category_slug),
         "attribute_filter_fields": fields,
+        "attribute_filter_specs_by_category": get_attribute_filter_specs_by_category(),
     }
 
 

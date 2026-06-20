@@ -65,6 +65,17 @@ class AttributeBrowseFilterTests(TestCase):
             attributes=attributes,
         )
 
+
+    def test_global_browse_includes_dynamic_category_filter_ui(self):
+        response = self.client.get(reverse("listings:listing_list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "attribute-filter-specs")
+        self.assertContains(response, "attribute-filter-panel")
+        self.assertContains(response, "refreshAttributeFilters")
+        self.assertContains(response, "attr_marka")
+        self.assertContains(response, "attr_oda_sayisi")
+
     def test_global_browse_filters_by_selected_category_attribute(self):
         response = self.client.get(
             reverse("listings:listing_list"),

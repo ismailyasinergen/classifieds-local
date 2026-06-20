@@ -197,20 +197,18 @@
                         <option value="price_high" {% if search_sort == "price_high" %}selected{% endif %}>Price high to low</option>
                     </select>
                 </label>
-                {% if attribute_filter_fields %}
-                    <div class="attribute-filter-panel">
-                        <h3>Category details</h3>
+                <div class="attribute-filter-panel" id="attribute-filter-panel" {% if not attribute_filter_fields %}hidden{% endif %}>
+                    <h3>Category details</h3>
 
-                        <div class="attribute-filter-grid">
-                            {% for field in attribute_filter_fields %}
-                                <label>
-                                    {{ field.label }}
-                                    <input type="text" name="{{ field.param }}" value="{{ field.value }}" placeholder="{{ field.placeholder }}">
-                                </label>
-                            {% endfor %}
-                        </div>
+                    <div class="attribute-filter-grid" id="attribute-filter-grid">
+                        {% for field in attribute_filter_fields %}
+                            <label>
+                                {{ field.label }}
+                                <input type="text" name="{{ field.param }}" value="{{ field.value }}" placeholder="{{ field.placeholder }}">
+                            </label>
+                        {% endfor %}
                     </div>
-                {% endif %}
+                </div>
             </div>
 
             <div class="browse-search-actions">
@@ -220,6 +218,76 @@
                 </a>
             </div>
         </form>
+
+        {{ attribute_filter_specs_by_category|json_script:"attribute-filter-specs" }}
+        <script>
+            (function () {
+                const categorySelect = document.querySelector("select[name=category]");
+                const specsElement = document.getElementById("attribute-filter-specs");
+                const panel = document.getElementById("attribute-filter-panel");
+                const grid = document.getElementById("attribute-filter-grid");
+
+                if (!categorySelect || !specsElement || !panel || !grid) {
+                    return;
+                }
+
+                let specsByCategory = {};
+                try {
+                    specsByCategory = JSON.parse(specsElement.textContent || "{}");
+                } catch (error) {
+                    specsByCategory = {};
+                }
+
+                function collectCurrentValues() {
+                    const values = {};
+                    grid.querySelectorAll("input[name]").forEach(function (input) {
+                        values[input.name] = input.value;
+                    });
+                    const params = new URLSearchParams(window.location.search);
+                    params.forEach(function (value, key) {
+                        if (key.indexOf("attr_") === 0 && values[key] === undefined) {
+                            values[key] = value;
+                        }
+                    });
+                    return values;
+                }
+
+                function makeFilterInput(spec, values) {
+                    const label = document.createElement("label");
+                    label.appendChild(document.createTextNode(spec.label || spec.key));
+
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.name = spec.param || ("attr_" + spec.key);
+                    input.placeholder = spec.placeholder || "";
+                    input.value = values[input.name] || "";
+
+                    label.appendChild(input);
+                    return label;
+                }
+
+                function refreshAttributeFilters() {
+                    const selectedCategory = categorySelect.value || "";
+                    const specs = specsByCategory[selectedCategory] || [];
+                    const values = collectCurrentValues();
+
+                    grid.innerHTML = "";
+
+                    if (!specs.length) {
+                        panel.hidden = true;
+                        return;
+                    }
+
+                    specs.forEach(function (spec) {
+                        grid.appendChild(makeFilterInput(spec, values));
+                    });
+                    panel.hidden = false;
+                }
+
+                categorySelect.addEventListener("change", refreshAttributeFilters);
+            }());
+        </script>
+
     </section>
 
     {% if not current_category %}
