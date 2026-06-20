@@ -152,7 +152,6 @@ def dashboard_view(request):
     )
 
 
-
 def logout_view(request):
     logout(request)
     return redirect("pages:home")
@@ -824,44 +823,6 @@ def user_report_warn_seller(request, pk):
     )
 
     messages.success(request, "Seller warned. Reporter and seller notified.")
-    return redirect("accounts:user_report_queue")
-
-
-@staff_member_required
-@require_POST
-def user_report_suspend_seller(request, pk):
-    from datetime import timedelta
-    from django.utils import timezone
-    from .models import UserProfile, UserReport
-
-    report = get_object_or_404(UserReport.objects.select_related("reporter", "reported_user", "source_listing"), pk=pk)
-
-    days = _duration_days_from_request(request, default=7)
-
-    profile, _ = UserProfile.objects.get_or_create(user=report.reported_user)
-    profile.seller_suspended_until = timezone.now() + timedelta(days=days)
-    profile.seller_suspension_reason = request.POST.get("admin_note", "").strip() or "Seller suspended from report queue."
-    profile.save(update_fields=["seller_suspended_until", "seller_suspension_reason"])
-
-    report.status = UserReport.Status.REVIEWED
-    report.action_taken = UserReport.Action.SUSPENDED_SELLER
-    report.admin_note = request.POST.get("admin_note", "").strip()
-    report.reporter_note = request.POST.get("reporter_note", "").strip() or "We reviewed your report and restricted this seller."
-    report.reviewed_at = timezone.now()
-    report.action_taken_at = timezone.now()
-    report.save(update_fields=["status", "action_taken", "admin_note", "reporter_note", "reviewed_at", "action_taken_at"])
-
-    _create_user_moderation_notice(report.reporter, "Action was taken on your seller report", report.reporter_note, "report_update", report.source_listing, report)
-    _create_user_moderation_notice(
-        report.reported_user,
-        "Your seller account was temporarily restricted",
-        f"Your seller account has been temporarily restricted for {days} day(s) after moderation review. During this time, you may not post or edit listings.",
-        "seller_action",
-        report.source_listing,
-        report,
-    )
-
-    messages.success(request, f"Seller suspended for {days} day(s). Reporter and seller notified.")
     return redirect("accounts:user_report_queue")
 
 
