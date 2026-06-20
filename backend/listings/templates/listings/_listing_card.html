@@ -46,6 +46,19 @@
             </a>
         </div>
 
+
+        {% with highlights=listing.card_highlights %}
+            {% if highlights %}
+                <div class="listing-card-highlights" aria-label="Key listing details">
+                    {% for highlight in highlights %}
+                        <span class="listing-card-highlight">
+                            <strong>{{ highlight.label }}:</strong> {{ highlight.value }}
+                        </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         <div class="listing-card-date">
             {{ listing.created_at|date:"M d, Y H:i" }}
         </div>

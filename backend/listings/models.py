@@ -103,6 +103,12 @@ class Listing(models.Model):
 
         return get_display_attributes(self)
 
+    @property
+    def card_highlights(self):
+        from .attribute_schema import get_card_highlights
+
+        return get_card_highlights(self)
+
 
 class ListingImage(models.Model):
     listing = models.ForeignKey(

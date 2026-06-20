@@ -218,3 +218,55 @@ def get_display_attributes(listing):
         rows.append((prettify_attribute_key(key), value))
 
     return rows
+
+CARD_HIGHLIGHT_KEYS_BY_CATEGORY = {
+    "cars": ["marka", "model", "yil", "km"],
+    "motorcycles": ["marka", "model", "yil", "km"],
+    "commercial-vehicles": ["arac_tipi", "marka", "model", "km"],
+    "homes-for-sale": ["oda_sayisi", "m2_brut", "bina_yasi", "bulundugu_kat"],
+    "homes-for-rent": ["oda_sayisi", "m2_brut", "bina_yasi", "bulundugu_kat"],
+    "land": ["m2", "imar_durumu", "ada_no", "parsel_no"],
+    "phones": ["marka", "model", "kapasite", "durum"],
+    "computers": ["marka", "model", "islemci", "ram"],
+    "cameras": ["marka", "model", "lens", "video"],
+    "furniture": ["urun_tipi", "marka", "malzeme", "durum"],
+    "appliances": ["urun_tipi", "marka", "model", "kapasite"],
+}
+
+
+def get_card_highlights(listing, max_items=4):
+    attributes = listing.attributes or {}
+    category = getattr(listing, "category", None)
+    category_slug = getattr(category, "slug", "")
+    preferred_keys = CARD_HIGHLIGHT_KEYS_BY_CATEGORY.get(category_slug, [])
+
+    schema_by_key = {
+        attribute.get("key"): attribute
+        for attribute in get_attribute_definitions_for_category(category)
+        if attribute.get("key")
+    }
+
+    highlights = []
+    for key in preferred_keys:
+        if key not in attributes or _is_blank(attributes.get(key)):
+            continue
+
+        attribute = schema_by_key.get(key) or {
+            "key": key,
+            "label": prettify_attribute_key(key),
+            "input_type": "text",
+        }
+        value = format_attribute_value(attribute, attributes.get(key))
+        if _is_blank(value):
+            continue
+
+        highlights.append({
+            "key": key,
+            "label": attribute.get("label") or prettify_attribute_key(key),
+            "value": value,
+        })
+
+        if len(highlights) >= max_items:
+            break
+
+    return highlights
