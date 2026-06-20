@@ -7,18 +7,18 @@
             <p class="muted">Report #{{ report.pk }}</p>
         </div>
 
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Action Log</a>
-            <a class="button-link" href="{% url 'accounts:user_report_queue' %}?status=pending">Seller Reports</a>
-            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}">Trust & Safety</a>
+        <div style="display:grid; grid-template-columns:repeat(3, minmax(120px, 1fr)); gap:8px; width:min(100%, 430px); align-items:stretch;">
+            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}" style="display:block; text-align:center; white-space:nowrap;">Action Log</a>
+            <a class="button-link" href="{% url 'accounts:user_report_queue' %}?status=pending" style="display:block; text-align:center; white-space:nowrap;">Seller Reports</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}" style="display:block; text-align:center; white-space:nowrap;">Trust & Safety</a>
         </div>
     </div>
 
     
-    <section style="border:1px solid #f0c36d; background:#fff8e5; border-radius:8px; padding:14px; margin-bottom:16px;">
-        <h2 style="margin-top:0;">Take action</h2>
+    <section style="border:1px solid #f0c36d; background:linear-gradient(180deg, #fffaf0 0%, #fff7dd 100%); border-radius:14px; padding:18px; margin-bottom:18px; box-shadow:0 6px 18px rgba(180,83,9,0.08);">
+        <h2 style="margin:0 0 12px;">Take action</h2>
 
-        <form method="post" style="display:grid; grid-template-columns:1fr 1fr 140px; gap:10px; margin-bottom:12px;">
+        <form method="post" style="display:grid; grid-template-columns:minmax(220px, 1fr) minmax(220px, 1fr) minmax(90px, 120px); gap:12px; margin-bottom:12px;">
             {% csrf_token %}
 
             <label>
@@ -36,24 +36,24 @@
                 <input type="number" name="duration_days" value="7" min="1" max="365">
             </label>
 
-            <div style="grid-column:1 / -1; display:flex; gap:8px; flex-wrap:wrap;">
-                <button formaction="{% url 'accounts:user_report_review' report.pk %}" type="submit">
+            <div style="grid-column:1 / -1; display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:8px; align-items:stretch;">
+                <button formaction="{% url 'accounts:user_report_review' report.pk %}" type="submit" style="width:100%; white-space:nowrap;">
                     Mark reviewed
                 </button>
 
-                <button formaction="{% url 'accounts:user_report_dismiss' report.pk %}" type="submit">
+                <button formaction="{% url 'accounts:user_report_dismiss' report.pk %}" type="submit" style="width:100%; white-space:nowrap;">
                     Dismiss
                 </button>
 
-                <button formaction="{% url 'accounts:user_report_warn' report.pk %}" type="submit">
+                <button formaction="{% url 'accounts:user_report_warn' report.pk %}" type="submit" style="width:100%; white-space:nowrap;">
                     Warn seller
                 </button>
 
-                <button formaction="{% url 'accounts:user_report_suspend' report.pk %}" type="submit" onclick="return confirm('Suspend seller and hide only active listings with seller-suspension tracking?');">
+                <button formaction="{% url 'accounts:user_report_suspend' report.pk %}" type="submit" style="width:100%; white-space:nowrap;" onclick="return confirm('Suspend seller and hide only active listings with seller-suspension tracking?');">
                     Suspend seller
                 </button>
 
-                <button formaction="{% url 'accounts:user_report_remove_verification' report.pk %}" type="submit">
+                <button formaction="{% url 'accounts:user_report_remove_verification' report.pk %}" type="submit" style="width:100%; white-space:nowrap;">
                     Remove verification
                 </button>
 
@@ -61,7 +61,7 @@
                     Archive seller listings
                 </button>
 
-                <button formaction="{% url 'accounts:user_report_block_messaging' report.pk %}" type="submit">
+                <button formaction="{% url 'accounts:user_report_block_messaging' report.pk %}" type="submit" style="width:100%; white-space:nowrap;">
                     Block messaging
                 </button>
             </div>
@@ -72,9 +72,9 @@
         </p>
     </section>
 
-<section style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
-        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
-            <h2 style="margin-top:0;">Report</h2>
+    <section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:18px;">
+        <article style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+            <h2 style="margin:0 0 12px;">Report</h2>
 
             <p><strong>Status:</strong> {{ report.get_status_display }}</p>
             <p><strong>Action taken:</strong> {{ report.action_taken|default:"None yet" }}</p>
@@ -98,8 +98,8 @@
             {% endif %}
         </article>
 
-        <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
-            <h2 style="margin-top:0;">Seller and reporter</h2>
+        <article style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+            <h2 style="margin:0 0 12px;">Seller and reporter</h2>
 
             <p><strong>Reported seller:</strong> {{ report.reported_user.username }} · {{ report.reported_user.email }}</p>
             <p><strong>Reporter:</strong> {{ report.reporter.username }} · {{ report.reporter.email }}</p>
@@ -131,8 +131,8 @@
         </article>
     </section>
 
-    <section style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
-        <h2 style="margin-top:0;">Related notices</h2>
+    <section style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+        <h2 style="margin:0 0 12px;">Related notices</h2>
 
         {% for notice in notices %}
             <div style="border-top:1px solid #eee; padding:10px 0;">
