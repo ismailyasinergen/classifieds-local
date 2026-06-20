@@ -7,73 +7,73 @@
             <p class="muted">Checks seller suspension/listing tracking consistency.</p>
         </div>
 
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}">Trust & Safety</a>
-            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Action Log</a>
-            <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}">Event Log</a>
+        <div style="display:grid; grid-template-columns:repeat(3, minmax(120px, 1fr)); gap:8px; width:min(100%, 430px); align-items:stretch;">
+            <a class="button-link" href="{% url 'accounts:trust_safety_dashboard' %}" style="display:block; text-align:center; white-space:nowrap;">Trust & Safety</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}" style="display:block; text-align:center; white-space:nowrap;">Action Log</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}" style="display:block; text-align:center; white-space:nowrap;">Event Log</a>
         </div>
     </div>
 
-    <section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:16px;">
-        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;">
-            <strong>{{ active_suspended_public_listings|length }}</strong><br>
-            <span class="muted">Public listings owned by suspended sellers</span>
+    <section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:18px;">
+        <article style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+            <div style="font-size:28px; font-weight:800; color:#111827; line-height:1;">{{ active_suspended_public_listings|length }}</div>
+            <div class="muted" style="margin-top:8px;">Public listings owned by suspended sellers</div>
         </article>
 
-        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;">
-            <strong>{{ lifted_seller_hidden_listings|length }}</strong><br>
-            <span class="muted">Seller-hidden listings whose seller is no longer suspended</span>
+        <article style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+            <div style="font-size:28px; font-weight:800; color:#111827; line-height:1;">{{ lifted_seller_hidden_listings|length }}</div>
+            <div class="muted" style="margin-top:8px;">Seller-hidden listings whose seller is no longer suspended</div>
         </article>
 
-        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff;">
-            <strong>{{ unknown_previous_status_listings|length }}</strong><br>
-            <span class="muted">Seller-hidden listings with unknown previous status</span>
+        <article style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); box-shadow:0 6px 18px rgba(15,23,42,0.05);">
+            <div style="font-size:28px; font-weight:800; color:#111827; line-height:1;">{{ unknown_previous_status_listings|length }}</div>
+            <div class="muted" style="margin-top:8px;">Seller-hidden listings with unknown previous status</div>
         </article>
     </section>
 
-    <section style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+    <section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, max-content)); gap:8px; align-items:stretch; margin-bottom:18px;">
         <form method="post" action="{% url 'accounts:trust_safety_fix_active_suspended_sellers' %}">
             {% csrf_token %}
-            <button type="submit" onclick="return confirm('Fix public listings owned by suspended sellers?');">
+            <button type="submit" style="width:100%; white-space:nowrap;" onclick="return confirm('Fix public listings owned by suspended sellers?');">
                 Fix active suspended sellers
             </button>
         </form>
 
         <form method="post" action="{% url 'accounts:trust_safety_restore_lifted_seller_hidden_listings' %}">
             {% csrf_token %}
-            <button type="submit" onclick="return confirm('Restore seller-hidden listings for sellers no longer suspended?');">
+            <button type="submit" style="width:100%; white-space:nowrap;" onclick="return confirm('Restore seller-hidden listings for sellers no longer suspended?');">
                 Restore lifted seller-hidden listings
             </button>
         </form>
     </section>
 
-    <h2>Public listings owned by suspended sellers</h2>
+    <h2 style="margin:18px 0 10px;">Public listings owned by suspended sellers</h2>
     {% for listing in active_suspended_public_listings %}
-        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff; margin-bottom:10px;">
+        <article style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin-bottom:12px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
             <strong>{{ listing.title }}</strong><br>
             <span class="muted">Owner: {{ listing.owner.username }} / {{ listing.owner.email }} · Status: {{ listing.status }}</span>
         </article>
     {% empty %}
-        <p class="muted">No issue found.</p>
+        <p class="muted" style="border:1px solid #d7dee8; border-radius:14px; padding:14px 16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); box-shadow:0 6px 18px rgba(15,23,42,0.04);">No issue found.</p>
     {% endfor %}
 
-    <h2>Seller-hidden listings whose seller is no longer suspended</h2>
+    <h2 style="margin:18px 0 10px;">Seller-hidden listings whose seller is no longer suspended</h2>
     {% for listing in lifted_seller_hidden_listings %}
-        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff; margin-bottom:10px;">
+        <article style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin-bottom:12px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
             <strong>{{ listing.title }}</strong><br>
             <span class="muted">Owner: {{ listing.owner.username }} / {{ listing.owner.email }} · Before: {{ listing.status_before_seller_suspension }}</span>
         </article>
     {% empty %}
-        <p class="muted">No issue found.</p>
+        <p class="muted" style="border:1px solid #d7dee8; border-radius:14px; padding:14px 16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); box-shadow:0 6px 18px rgba(15,23,42,0.04);">No issue found.</p>
     {% endfor %}
 
-    <h2>Unknown previous status</h2>
+    <h2 style="margin:18px 0 10px;">Unknown previous status</h2>
     {% for listing in unknown_previous_status_listings %}
-        <article style="border:1px solid #ddd; border-radius:8px; padding:12px; background:#fff; margin-bottom:10px;">
+        <article style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin-bottom:12px; box-shadow:0 6px 18px rgba(15,23,42,0.05);">
             <strong>{{ listing.title }}</strong><br>
             <span class="muted">Owner: {{ listing.owner.username }} / {{ listing.owner.email }} · Before: {{ listing.status_before_seller_suspension|default:"unknown" }}</span>
         </article>
     {% empty %}
-        <p class="muted">No issue found.</p>
+        <p class="muted" style="border:1px solid #d7dee8; border-radius:14px; padding:14px 16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); box-shadow:0 6px 18px rgba(15,23,42,0.04);">No issue found.</p>
     {% endfor %}
 {% endblock %}
