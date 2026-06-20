@@ -15,14 +15,6 @@ from .views import (
     dashboard_view,
     logout_view,
     profile_view,
-    user_report_archive_seller_listings,
-    user_report_block_messaging,
-    user_report_create,
-    user_report_dismiss,
-    user_report_remove_verification,
-    user_report_review,
-    user_report_suspend_seller,
-    user_report_warn_seller,
     verification_approve_view,
     verification_queue_view,
     verification_reject_view,
@@ -33,6 +25,7 @@ app_name = "accounts"
 
 
 from . import seller_report_views
+from . import seller_report_action_views
 
 urlpatterns = [
     path(
@@ -74,16 +67,16 @@ path("dashboard/", dashboard_view, name="dashboard"),
     path("verification/<int:pk>/approve/", verification_approve_view, name="verification_approve"),
     path("verification/<int:pk>/reject/", verification_reject_view, name="verification_reject"),
 
-    path("users/<int:pk>/report/", user_report_create, name="user_report"),
+    path("users/<int:pk>/report/", seller_report_action_views.user_report_create, name="user_report"),
     path("seller-reports/my/", seller_report_views.my_seller_reports, name="my_user_reports"),
     path("seller-reports/admin/", seller_report_views.seller_report_admin_list, name="user_report_queue"),
-    path("seller-reports/admin/<int:pk>/review/", user_report_review, name="user_report_review"),
-    path("seller-reports/admin/<int:pk>/dismiss/", user_report_dismiss, name="user_report_dismiss"),
-    path("seller-reports/admin/<int:pk>/warn/", user_report_warn_seller, name="user_report_warn"),
-    path("seller-reports/admin/<int:pk>/suspend/", user_report_suspend_seller, name="user_report_suspend"),
-    path("seller-reports/admin/<int:pk>/remove-verification/", user_report_remove_verification, name="user_report_remove_verification"),
-    path("seller-reports/admin/<int:pk>/archive-listings/", user_report_archive_seller_listings, name="user_report_archive_listings"),
-    path("seller-reports/admin/<int:pk>/block-messaging/", user_report_block_messaging, name="user_report_block_messaging"),
+    path("seller-reports/admin/<int:pk>/review/", seller_report_action_views.user_report_review, name="user_report_review"),
+    path("seller-reports/admin/<int:pk>/dismiss/", seller_report_action_views.user_report_dismiss, name="user_report_dismiss"),
+    path("seller-reports/admin/<int:pk>/warn/", seller_report_action_views.user_report_warn_seller, name="user_report_warn"),
+    path("seller-reports/admin/<int:pk>/suspend/", seller_report_action_views.user_report_suspend_seller, name="user_report_suspend"),
+    path("seller-reports/admin/<int:pk>/remove-verification/", seller_report_action_views.user_report_remove_verification, name="user_report_remove_verification"),
+    path("seller-reports/admin/<int:pk>/archive-listings/", seller_report_action_views.user_report_archive_seller_listings, name="user_report_archive_listings"),
+    path("seller-reports/admin/<int:pk>/block-messaging/", seller_report_action_views.user_report_block_messaging, name="user_report_block_messaging"),
 
     path("my-listings/", MyListingsView.as_view(), name="my_listings"),
     path("saved-listings/", SavedListingsView.as_view(), name="saved_listings"),
