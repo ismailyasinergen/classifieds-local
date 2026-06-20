@@ -4,6 +4,7 @@ from . import evidence_stage_views
 from . import extra_evidence_views
 from . import notice_views
 from . import trust_safety_dashboard_views
+from . import trust_safety_report_views
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
@@ -113,16 +114,16 @@ urlpatterns += [
 
 # TRUST_SAFETY_REPORT_DETAIL_UI_V1
 urlpatterns += [
-    path("trust-safety/listing-reports/<int:pk>/", account_views.trust_safety_listing_report_detail, name="trust_safety_listing_report_detail"),
-    path("trust-safety/seller-reports/<int:pk>/", account_views.trust_safety_seller_report_detail, name="trust_safety_seller_report_detail"),
+    path("trust-safety/listing-reports/<int:pk>/", trust_safety_report_views.trust_safety_listing_report_detail, name="trust_safety_listing_report_detail"),
+    path("trust-safety/seller-reports/<int:pk>/", trust_safety_report_views.trust_safety_seller_report_detail, name="trust_safety_seller_report_detail"),
 ]
 
 # TRUST_SAFETY_DETAIL_ACTIONS_V1
 urlpatterns += [
-    path("trust-safety/listing-reports/<int:pk>/review/", account_views.trust_safety_listing_report_review, name="trust_safety_listing_report_review"),
-    path("trust-safety/listing-reports/<int:pk>/dismiss/", account_views.trust_safety_listing_report_dismiss, name="trust_safety_listing_report_dismiss"),
-    path("trust-safety/listing-reports/<int:pk>/suspend/", account_views.trust_safety_listing_report_suspend, name="trust_safety_listing_report_suspend"),
-    path("trust-safety/listing-reports/<int:pk>/archive/", account_views.trust_safety_listing_report_archive, name="trust_safety_listing_report_archive"),
+    path("trust-safety/listing-reports/<int:pk>/review/", trust_safety_report_views.trust_safety_listing_report_review, name="trust_safety_listing_report_review"),
+    path("trust-safety/listing-reports/<int:pk>/dismiss/", trust_safety_report_views.trust_safety_listing_report_dismiss, name="trust_safety_listing_report_dismiss"),
+    path("trust-safety/listing-reports/<int:pk>/suspend/", trust_safety_report_views.trust_safety_listing_report_suspend, name="trust_safety_listing_report_suspend"),
+    path("trust-safety/listing-reports/<int:pk>/archive/", trust_safety_report_views.trust_safety_listing_report_archive, name="trust_safety_listing_report_archive"),
 ]
 
 # MODERATION_APPEALS_V1
