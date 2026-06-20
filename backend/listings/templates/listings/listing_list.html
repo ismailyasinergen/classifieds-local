@@ -67,6 +67,24 @@
             margin: -4px 0 18px;
         }
 
+        .attribute-filter-panel {
+            grid-column: 1 / -1;
+            border-top: 1px solid rgba(255, 255, 255, 0.35);
+            margin-top: 4px;
+            padding-top: 12px;
+        }
+
+        .attribute-filter-panel h3 {
+            margin: 0 0 10px;
+            font-size: 15px;
+        }
+
+        .attribute-filter-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
         .popular-category-label {
             color: #777;
             font-size: 13px;
@@ -78,8 +96,13 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .browse-search-grid .browse-wide-field {
+            .browse-search-grid .browse-wide-field,
+            .attribute-filter-grid {
                 grid-column: 1 / -1;
+            }
+
+            .attribute-filter-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
 
@@ -90,6 +113,10 @@
 
             .browse-search-grid .browse-wide-field {
                 grid-column: auto;
+            }
+
+            .attribute-filter-grid {
+                grid-template-columns: 1fr;
             }
 
             .browse-search-actions {
@@ -170,6 +197,20 @@
                         <option value="price_high" {% if search_sort == "price_high" %}selected{% endif %}>Price high to low</option>
                     </select>
                 </label>
+                {% if attribute_filter_fields %}
+                    <div class="attribute-filter-panel">
+                        <h3>Category details</h3>
+
+                        <div class="attribute-filter-grid">
+                            {% for field in attribute_filter_fields %}
+                                <label>
+                                    {{ field.label }}
+                                    <input type="text" name="{{ field.param }}" value="{{ field.value }}" placeholder="{{ field.placeholder }}">
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
 
             <div class="browse-search-actions">
@@ -202,7 +243,7 @@
     {% if is_paginated %}
         <div class="pagination">
             {% if page_obj.has_previous %}
-                <a href="?q={{ search_q }}&location={{ search_location }}&min_price={{ search_min_price }}&max_price={{ search_max_price }}&category={{ search_category }}&sort={{ search_sort }}&page={{ page_obj.previous_page_number }}">Previous</a>
+                <a href="{% if page_querystring %}?{{ page_querystring }}&page={{ page_obj.previous_page_number }}{% else %}?page={{ page_obj.previous_page_number }}{% endif %}">Previous</a>
             {% endif %}
 
             <span>
@@ -210,7 +251,7 @@
             </span>
 
             {% if page_obj.has_next %}
-                <a href="?q={{ search_q }}&location={{ search_location }}&min_price={{ search_min_price }}&max_price={{ search_max_price }}&category={{ search_category }}&sort={{ search_sort }}&page={{ page_obj.next_page_number }}">Next</a>
+                <a href="{% if page_querystring %}?{{ page_querystring }}&page={{ page_obj.next_page_number }}{% else %}?page={{ page_obj.next_page_number }}{% endif %}">Next</a>
             {% endif %}
         </div>
     {% endif %}

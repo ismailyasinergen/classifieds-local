@@ -6,6 +6,7 @@ from django.views.generic import ListView
 from django.utils import timezone
 
 from listings.models import Listing
+from listings.attribute_filters import apply_attribute_filters, get_attribute_filter_context, get_page_querystring
 
 from .models import Category
 
@@ -47,7 +48,11 @@ def apply_category_filters(queryset, request):
     else:
         queryset = queryset.order_by("-top_listing_priority", "-created_at")
 
-    return queryset
+    category_slug = getattr(getattr(request, "resolver_match", None), "kwargs", {}).get("slug", "")
+    if not category_slug:
+        category_slug = request.GET.get("category", "").strip()
+
+    return apply_attribute_filters(queryset, request, category_slug)
 
 
 class CategoryListingListView(ListView):
@@ -88,4 +93,6 @@ class CategoryListingListView(ListView):
         context["search_max_price"] = self.request.GET.get("max_price", "")
         context["search_category"] = ""
         context["search_sort"] = self.request.GET.get("sort", "newest")
+        context.update(get_attribute_filter_context(self.request, self.category.slug))
+        context["page_querystring"] = get_page_querystring(self.request)
         return context

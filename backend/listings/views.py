@@ -1681,3 +1681,25 @@ def listing_report_archive_listing(request, pk):
 
     messages.success(request, "Listing archived and owner notified.")
     return redirect("listings:report_queue")
+
+# Attribute-aware browse filters.
+_BaseAttributeListingListView = ListingListView
+class ListingListView(_BaseAttributeListingListView):
+    def get_queryset(self):
+        from .attribute_filters import apply_attribute_filters
+
+        queryset = super().get_queryset()
+        category_slug = self.request.GET.get("category", "").strip()
+        return apply_attribute_filters(queryset, self.request, category_slug)
+
+    def get_context_data(self, **kwargs):
+        from .attribute_filters import get_attribute_filter_context, get_page_querystring
+
+        context = super().get_context_data(**kwargs)
+        category_slug = (
+            context.get("search_category")
+            or self.request.GET.get("category", "").strip()
+        )
+        context.update(get_attribute_filter_context(self.request, category_slug))
+        context["page_querystring"] = get_page_querystring(self.request)
+        return context
