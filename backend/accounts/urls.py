@@ -5,6 +5,7 @@ from . import extra_evidence_views
 from . import notice_views
 from . import trust_safety_dashboard_views
 from . import trust_safety_report_views
+from . import verification_views
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
@@ -15,10 +16,6 @@ from .views import (
     dashboard_view,
     logout_view,
     profile_view,
-    verification_approve_view,
-    verification_queue_view,
-    verification_reject_view,
-    verification_request_view,
 )
 
 app_name = "accounts"
@@ -62,10 +59,10 @@ path("dashboard/", dashboard_view, name="dashboard"),
     path("notices/<int:pk>/read/", notice_views.moderation_notice_mark_read, name="moderation_notice_mark_read"),
     path("notices/read-all/", notice_views.moderation_notices_mark_all_read, name="moderation_notices_mark_all_read"),
 
-    path("verification/", verification_request_view, name="verification_request"),
-    path("verification/queue/", verification_queue_view, name="verification_queue"),
-    path("verification/<int:pk>/approve/", verification_approve_view, name="verification_approve"),
-    path("verification/<int:pk>/reject/", verification_reject_view, name="verification_reject"),
+    path("verification/", verification_views.verification_request_view, name="verification_request"),
+    path("verification/queue/", verification_views.verification_queue_view, name="verification_queue"),
+    path("verification/<int:pk>/approve/", verification_views.verification_approve_view, name="verification_approve"),
+    path("verification/<int:pk>/reject/", verification_views.verification_reject_view, name="verification_reject"),
 
     path("users/<int:pk>/report/", seller_report_action_views.user_report_create, name="user_report"),
     path("seller-reports/my/", seller_report_views.my_seller_reports, name="my_user_reports"),
@@ -83,7 +80,6 @@ path("dashboard/", dashboard_view, name="dashboard"),
 ]
 
 # TRUST_SAFETY_AUDIT_UI_V1
-from . import views as account_views
 from . import trust_safety_views
 from . import private_media_views
 
@@ -99,7 +95,6 @@ urlpatterns += [
 ]
 
 # TRUST_SAFETY_ACTION_LOG_EXPORT_V1
-from . import views as account_views
 
 urlpatterns += [
     path("trust-safety/actions/export/", trust_safety_views.trust_safety_action_log_export, name="trust_safety_action_log_export"),
@@ -164,5 +159,5 @@ urlpatterns += [
 
 # VERIFICATION_ADMIN_ALIAS_V1
 urlpatterns += [
-    path("verification/admin/", account_views.verification_queue_view, name="verification_admin"),
+    path("verification/admin/", verification_views.verification_queue_view, name="verification_admin"),
 ]
