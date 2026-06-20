@@ -37,6 +37,18 @@ class CleanupStep:
 
 STEPS = [
     CleanupStep(
+        key="obsolete_accounts_views_action_log_clusters",
+        description=(
+            "Remove obsolete Trust & Safety action-log implementations from accounts/views.py. "
+            "The active action-log routes use accounts/trust_safety_views.py."
+        ),
+        start_marker="",
+        end_marker="",
+        function_name="",
+        commit_message="Remove obsolete accounts action log views",
+        tag_name="project-checkpoint-v26-remove-obsolete-accounts-action-log-views",
+    ),
+    CleanupStep(
         key="obsolete_initial_user_report_views",
         description=(
             "Remove the obsolete initial seller-report create/list/queue/review/dismiss "
@@ -214,6 +226,70 @@ def apply_step_to_text(text: str, step: CleanupStep) -> str:
             span_start -= 1
 
         new_lines = lines[:span_start] + lines[end_index:]
+        return collapse_blank_runs("\n".join(new_lines))
+
+    if step.key == "obsolete_accounts_views_action_log_clusters":
+        urls_text = (ROOT / "backend" / "accounts" / "urls.py").read_text(encoding="utf-8")
+
+        if "trust_safety_views.trust_safety_action_log" not in urls_text:
+            raise RuntimeError("active action-log URL is not routed to trust_safety_views")
+        if "trust_safety_views.trust_safety_action_log_export" not in urls_text:
+            raise RuntimeError("active action-log export URL is not routed to trust_safety_views")
+
+        lines = text.splitlines()
+
+        def marker_index(marker: str) -> int:
+            for index, line in enumerate(lines):
+                if line.strip() == marker:
+                    return index
+            raise RuntimeError(f"marker not found: {marker}")
+
+        def add_range(ranges, start_marker: str, end_marker: str) -> None:
+            start = marker_index(start_marker)
+            end = marker_index(end_marker)
+            if end <= start:
+                raise RuntimeError(f"invalid marker order: {start_marker} before {end_marker}")
+            ranges.append((start, end, start_marker))
+
+        ranges = []
+
+        detail_index = marker_index("# TRUST_SAFETY_REPORT_DETAIL_UI_V1")
+        early_start = None
+        for index in range(0, detail_index):
+            if lines[index].startswith("# TRUST_SAFETY_ACTION_LOG"):
+                early_start = index
+                break
+
+        if early_start is None:
+            raise RuntimeError("early action-log cluster start not found before TRUST_SAFETY_REPORT_DETAIL_UI_V1")
+
+        ranges.append((early_start, detail_index, "early action-log cluster"))
+
+        add_range(
+            ranges,
+            "# TRUST_SAFETY_ACTION_LOG_WITH_APPEALS_V1",
+            "# MODERATION_APPEAL_QUEUE_PAGINATION_V1",
+        )
+        add_range(
+            ranges,
+            "# TRUST_SAFETY_ACTION_LOG_PAGINATION_V1",
+            "# MODERATION_APPEALS_DATE_FILTERS_V1",
+        )
+        add_range(
+            ranges,
+            "# TRUST_SAFETY_ACTION_LOG_CLEAN_DATE_EXPORT_FINAL_V3",
+            "# MODERATION_APPEALS_HAS_EVIDENCE_FILTER_FINAL_V1",
+        )
+
+        sorted_ranges = sorted(ranges, key=lambda item: item[0])
+        for previous, current in zip(sorted_ranges, sorted_ranges[1:]):
+            if previous[1] > current[0]:
+                raise RuntimeError(f"overlapping ranges: {previous[2]} and {current[2]}")
+
+        new_lines = list(lines)
+        for start, end, _name in sorted_ranges[::-1]:
+            del new_lines[start:end]
+
         return collapse_blank_runs("\n".join(new_lines))
 
     lines = text.splitlines()
