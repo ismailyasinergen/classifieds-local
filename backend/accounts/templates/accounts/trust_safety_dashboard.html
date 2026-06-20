@@ -12,24 +12,24 @@
             <a class="button-link" href="{% url 'accounts:user_report_queue' %}?status=pending">Seller Reports</a>
             <a class="button-link" href="{% url 'accounts:moderation_appeal_queue' %}">Appeals</a>
             <a class="button-link" href="{% url 'accounts:trust_safety_action_log' %}">Action Log</a>
-        <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}">Event Log</a>
+            <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}">Event Log</a>
             <a class="button-link" href="{% url 'accounts:trust_safety_audit' %}">Audit Tracking</a>
         </div>
     </div>
 
     <section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:12px; margin-bottom:16px;">
         <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
-            <h2 style="margin:0;">{{ pending_listing_reports }}</h2>
+            <h2 style="margin:0;">{{ pending_listing_reports_count }}</h2>
             <p class="muted">Pending listing reports</p>
         </article>
 
         <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
-            <h2 style="margin:0;">{{ pending_seller_reports }}</h2>
+            <h2 style="margin:0;">{{ pending_seller_reports_count }}</h2>
             <p class="muted">Pending seller reports</p>
         </article>
 
         <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
-            <h2 style="margin:0;">{{ pending_appeals }}</h2>
+            <h2 style="margin:0;">{{ pending_appeals_count }}</h2>
             <p class="muted">Pending appeals</p>
         </article>
     </section>
