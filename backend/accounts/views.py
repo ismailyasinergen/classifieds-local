@@ -477,62 +477,6 @@ def user_report_queue(request):
         },
     )
 
-# FINAL_MODERATION_NOTICE_V1
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-
-
-@login_required
-def moderation_notices(request):
-    from .models import ModerationNotice
-
-    notices = ModerationNotice.objects.filter(
-        recipient=request.user,
-    ).select_related(
-        "listing",
-        "listing_report",
-        "user_report",
-    )
-
-    return render(
-        request,
-        "accounts/moderation_notices.html",
-        {
-            "notices": notices,
-            "page_title": "Moderation Notices",
-        },
-    )
-
-
-@login_required
-@require_POST
-def moderation_notice_mark_read(request, pk):
-    from .models import ModerationNotice
-
-    notice = get_object_or_404(
-        ModerationNotice,
-        pk=pk,
-        recipient=request.user,
-    )
-    notice.is_read = True
-    notice.save(update_fields=["is_read"])
-
-    return redirect("accounts:moderation_notices")
-
-
-@login_required
-@require_POST
-def moderation_notices_mark_all_read(request):
-    from .models import ModerationNotice
-
-    ModerationNotice.objects.filter(
-        recipient=request.user,
-        is_read=False,
-    ).update(is_read=True)
-
-    return redirect("accounts:moderation_notices")
-
-
 # FINAL_SELLER_REPORT_NOTICE_ACTIONS_V1
 def _create_user_moderation_notice(recipient, title, body, notice_type="report_update", listing=None, user_report=None):
     from .models import ModerationNotice
