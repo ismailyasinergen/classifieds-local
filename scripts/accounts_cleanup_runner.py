@@ -37,6 +37,19 @@ class CleanupStep:
 
 STEPS = [
     CleanupStep(
+        key="obsolete_accounts_views_appeal_clusters",
+        description=(
+            "Remove obsolete moderation appeal implementations from accounts/views.py. "
+            "The active appeal routes use accounts/appeal_views.py, appeal_list_views.py, "
+            "extra_evidence_views.py, and evidence_stage_views.py."
+        ),
+        start_marker="",
+        end_marker="",
+        function_name="",
+        commit_message="Remove obsolete accounts appeal views",
+        tag_name="project-checkpoint-v28-remove-obsolete-accounts-appeal-views",
+    ),
+    CleanupStep(
         key="obsolete_accounts_views_action_log_clusters",
         description=(
             "Remove obsolete Trust & Safety action-log implementations from accounts/views.py. "
@@ -226,6 +239,66 @@ def apply_step_to_text(text: str, step: CleanupStep) -> str:
             span_start -= 1
 
         new_lines = lines[:span_start] + lines[end_index:]
+        return collapse_blank_runs("\n".join(new_lines))
+
+    if step.key == "obsolete_accounts_views_appeal_clusters":
+        urls_text = (ROOT / "backend" / "accounts" / "urls.py").read_text(encoding="utf-8")
+
+        required_routes = [
+            "appeal_views.moderation_appeal_create",
+            "appeal_views.moderation_appeal_detail",
+            "appeal_views.moderation_appeal_queue",
+            "appeal_views.moderation_appeal_admin_detail",
+            "appeal_views.moderation_appeal_decide",
+            "appeal_views.moderation_appeal_export_csv",
+            "appeal_views.moderation_appeal_evidence_zip",
+            "appeal_views.moderation_appeal_bulk_evidence_zip",
+            "appeal_views.moderation_appeal_attachment_download",
+            "appeal_list_views.my_moderation_appeals",
+            "extra_evidence_views.moderation_appeal_add_extra_evidence",
+            "evidence_stage_views.moderation_appeal_attachment_update_stage",
+        ]
+
+        missing = [route for route in required_routes if route not in urls_text]
+        if missing:
+            raise RuntimeError("active appeal URL route check failed: " + ", ".join(missing))
+
+        lines = text.splitlines()
+
+        def marker_index(marker: str) -> int:
+            for index, line in enumerate(lines):
+                if line.strip() == marker:
+                    return index
+            raise RuntimeError(f"marker not found: {marker}")
+
+        def add_range(ranges, start_marker: str, end_marker: str) -> None:
+            start = marker_index(start_marker)
+            end = marker_index(end_marker)
+            if end <= start:
+                raise RuntimeError(f"invalid marker order: {start_marker} before {end_marker}")
+            ranges.append((start, end, start_marker))
+
+        ranges = []
+        add_range(
+            ranges,
+            "# MODERATION_APPEALS_V1",
+            "# TRUST_SAFETY_DASHBOARD_APPEALS_V1",
+        )
+        add_range(
+            ranges,
+            "# MODERATION_APPEAL_MANUAL_RESOLUTION_PANEL_V1",
+            "# TRUST_SAFETY_USER_REPORT_EVENT_WIRING_V2",
+        )
+
+        sorted_ranges = sorted(ranges, key=lambda item: item[0])
+        for previous, current in zip(sorted_ranges, sorted_ranges[1:]):
+            if previous[1] > current[0]:
+                raise RuntimeError(f"overlapping ranges: {previous[2]} and {current[2]}")
+
+        new_lines = list(lines)
+        for start, end, _name in sorted_ranges[::-1]:
+            del new_lines[start:end]
+
         return collapse_blank_runs("\n".join(new_lines))
 
     if step.key == "obsolete_accounts_views_action_log_clusters":
