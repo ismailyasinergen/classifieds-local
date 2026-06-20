@@ -65,7 +65,7 @@ def trust_safety_dashboard(request):
 
     suspended_listings = Listing.objects.select_related("owner").filter(
         status=LISTING_SUSPENDED,
-    ).order_by("-updated_at", "-created_at")[:25]
+    ).order_by("-created_at")[:25]
 
     suspended_sellers = UserProfile.objects.select_related("user").filter(
         seller_suspended_until__gt=now,

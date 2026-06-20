@@ -3,6 +3,7 @@ from . import appeal_views
 from . import evidence_stage_views
 from . import extra_evidence_views
 from . import notice_views
+from . import trust_safety_dashboard_views
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
@@ -13,9 +14,6 @@ from .views import (
     dashboard_view,
     logout_view,
     profile_view,
-    trust_safety_dashboard,
-    trust_safety_lift_seller_suspension,
-    trust_safety_restore_listing,
     user_report_archive_seller_listings,
     user_report_block_messaging,
     user_report_create,
@@ -62,9 +60,9 @@ path("dashboard/", dashboard_view, name="dashboard"),
     path("logout/", logout_view, name="logout"),
     path("profile/", profile_view, name="profile"),
 
-    path("trust-safety/", trust_safety_dashboard, name="trust_safety_dashboard"),
-    path("trust-safety/listings/<int:pk>/restore/", trust_safety_restore_listing, name="trust_safety_restore_listing"),
-    path("trust-safety/sellers/<int:pk>/lift-suspension/", trust_safety_lift_seller_suspension, name="trust_safety_lift_seller_suspension"),
+    path("trust-safety/", trust_safety_dashboard_views.trust_safety_dashboard, name="trust_safety_dashboard"),
+    path("trust-safety/listings/<int:pk>/restore/", trust_safety_dashboard_views.trust_safety_restore_listing, name="trust_safety_restore_listing"),
+    path("trust-safety/sellers/<int:pk>/lift-suspension/", trust_safety_dashboard_views.trust_safety_lift_seller_suspension, name="trust_safety_lift_seller_suspension"),
 
     path("notices/", notice_views.moderation_notices, name="moderation_notices"),
     path("notices/<int:pk>/read/", notice_views.moderation_notice_mark_read, name="moderation_notice_mark_read"),
@@ -93,7 +91,6 @@ path("dashboard/", dashboard_view, name="dashboard"),
 # TRUST_SAFETY_AUDIT_UI_V1
 from . import views as account_views
 from . import trust_safety_views
-from . import trust_safety_dashboard_views
 from . import private_media_views
 
 urlpatterns += [
