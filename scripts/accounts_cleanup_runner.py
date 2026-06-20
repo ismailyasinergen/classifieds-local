@@ -37,6 +37,32 @@ class CleanupStep:
 
 STEPS = [
     CleanupStep(
+        key="obsolete_initial_user_report_views",
+        description=(
+            "Remove the obsolete initial seller-report create/list/queue/review/dismiss "
+            "views that are shadowed by FINAL_SELLER_REPORT_MODERATION_OVERRIDES_V2 "
+            "and the later notice-aware/action-event implementations."
+        ),
+        start_marker="",
+        end_marker="# FINAL_SELLER_REPORT_MODERATION_OVERRIDES_V2",
+        function_name="user_report_create",
+        commit_message="Remove obsolete initial seller report views",
+        tag_name="project-checkpoint-v23-remove-obsolete-initial-user-report-views",
+    ),
+    CleanupStep(
+        key="obsolete_pre_tracking_suspend_action",
+        description=(
+            "Remove the obsolete seller suspension action from "
+            "SELLER_SUSPENSION_SUSPEND_ACTIVE_LISTINGS_V1. The safer "
+            "SAFE_SELLER_SUSPENSION_TRACKING_FINAL_V1 implementation remains active."
+        ),
+        start_marker="# SELLER_SUSPENSION_SUSPEND_ACTIVE_LISTINGS_V1",
+        end_marker="# SAFE_SELLER_SUSPENSION_TRACKING_FINAL_V1",
+        function_name="user_report_suspend_seller",
+        commit_message="Remove obsolete pre tracking seller suspend action",
+        tag_name="project-checkpoint-v24-remove-obsolete-pre-tracking-suspend-action",
+    ),
+    CleanupStep(
         key="obsolete_notice_aware_suspend_action",
         description=(
             "Remove the older notice-aware user_report_suspend_seller definition that is "
@@ -170,6 +196,26 @@ def collapse_blank_runs(text: str) -> str:
 
 
 def apply_step_to_text(text: str, step: CleanupStep) -> str:
+    if step.key == "obsolete_initial_user_report_views":
+        lines = text.splitlines()
+        end_index = find_marker(lines, "# FINAL_SELLER_REPORT_MODERATION_OVERRIDES_V2")
+
+        def_index = None
+        for index in range(0, end_index):
+            if lines[index].startswith("def user_report_create("):
+                def_index = index
+                break
+
+        if def_index is None:
+            raise RuntimeError("initial user_report_create block not found before FINAL_SELLER_REPORT_MODERATION_OVERRIDES_V2")
+
+        span_start = def_index
+        while span_start > 0 and lines[span_start - 1].startswith("@"):
+            span_start -= 1
+
+        new_lines = lines[:span_start] + lines[end_index:]
+        return collapse_blank_runs("\n".join(new_lines))
+
     lines = text.splitlines()
     start_marker_index = find_marker(lines, step.start_marker)
     end_marker_index = find_marker(lines, step.end_marker)
