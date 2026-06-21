@@ -162,6 +162,10 @@ class SavedSearch(models.Model):
     path = models.CharField(max_length=255, default="/listings/")
     query_params = models.JSONField(default=dict)
     querystring = models.TextField()
+    # SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80
+    email_notifications_enabled = models.BooleanField(default=False)
+    last_notification_checked_at = models.DateTimeField(null=True, blank=True)
+    last_notification_sent_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -239,6 +243,14 @@ class SavedSearch(models.Model):
         from .saved_searches import saved_search_summary_sentence
 
         return saved_search_summary_sentence(self.query_params)
+
+    # SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80
+    @property
+    def email_notification_status_label(self):
+        if self.email_notifications_enabled:
+            return "Email alerts on"
+
+        return "Email alerts off"
 
 
 class ListingReport(models.Model):

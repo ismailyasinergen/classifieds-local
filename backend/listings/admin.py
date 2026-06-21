@@ -119,9 +119,10 @@ class ListingReportAdmin(admin.ModelAdmin):
 
 
 # SAVED_SEARCH_FOUNDATION_V77
+# SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80
 @admin.register(SavedSearch)
 class SavedSearchAdmin(admin.ModelAdmin):
-    list_display = ["display_name", "user", "created_at", "updated_at"]
+    list_display = ["display_name", "user", "email_notifications_enabled", "last_notification_checked_at", "last_notification_sent_at", "created_at", "updated_at"]
     search_fields = ["name", "querystring", "user__email", "user__username"]
-    list_filter = ["created_at", "updated_at"]
-    readonly_fields = ["created_at", "updated_at"]
+    list_filter = ["email_notifications_enabled", "created_at", "updated_at", "last_notification_checked_at", "last_notification_sent_at"]
+    readonly_fields = ["last_notification_checked_at", "last_notification_sent_at", "created_at", "updated_at"]

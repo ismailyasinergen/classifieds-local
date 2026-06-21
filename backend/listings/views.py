@@ -1781,6 +1781,7 @@ def listing_report_archive_listing(request, pk):
     return response
 
 # SAVED_SEARCH_FOUNDATION_V77
+# SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80
 @login_required
 @require_POST
 def saved_search_create(request):
@@ -1815,6 +1816,7 @@ def saved_search_list(request):
     # SAVED_SEARCH_MANAGEMENT_HARDENING_V79
     from django.core.paginator import Paginator
     from django.db.models import Q
+    from django.urls import reverse
     from django.utils.http import urlencode
 
     from .models import SavedSearch
@@ -1843,6 +1845,11 @@ def saved_search_list(request):
     if saved_search_search_query:
         pagination_params["q"] = saved_search_search_query
 
+    saved_search_current_path = reverse("listings:saved_search_list")
+    current_querystring = request.GET.urlencode()
+    if current_querystring:
+        saved_search_current_path = f"{saved_search_current_path}?{current_querystring}"
+
     return render(
         request,
         "listings/saved_search_list.html",
@@ -1854,8 +1861,42 @@ def saved_search_list(request):
             "saved_search_filtered_count": saved_search_filtered_count,
             "saved_search_page_size": paginator.per_page,
             "saved_search_pagination_querystring": urlencode(pagination_params),
+            # SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80
+            "saved_search_current_path": saved_search_current_path,
+            "saved_search_email_alert_count": saved_searches_base.filter(email_notifications_enabled=True).count(),
         },
     )
+
+
+@login_required
+@require_POST
+def saved_search_notifications_toggle(request, pk):
+    # SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80
+    from django.urls import reverse
+    from django.utils.http import url_has_allowed_host_and_scheme
+
+    from .models import SavedSearch
+
+    saved_search = get_object_or_404(SavedSearch, pk=pk, user=request.user)
+    enabled = request.POST.get("enabled") == "on"
+
+    saved_search.email_notifications_enabled = enabled
+    saved_search.save(update_fields=["email_notifications_enabled", "updated_at"])
+
+    if enabled:
+        messages.success(request, "Email alerts enabled for this saved search.")
+    else:
+        messages.success(request, "Email alerts disabled for this saved search.")
+
+    next_url = request.POST.get("next", "").strip()
+    if not url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        next_url = reverse("listings:saved_search_list")
+
+    return redirect(next_url)
 
 
 @login_required

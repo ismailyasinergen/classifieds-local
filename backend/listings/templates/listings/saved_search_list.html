@@ -6,6 +6,7 @@
 <style>
     /* SAVED_SEARCH_UX_POLISH_V78 */
     /* SAVED_SEARCH_MANAGEMENT_HARDENING_V79 */
+    /* SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80 */
     .saved-search-page-v78 {
         display: grid;
         gap: 18px;
@@ -45,6 +46,33 @@
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
+    }
+
+    .saved-search-alert-status-v80 {
+        border: 1px solid #fde68a;
+        background: #fffbeb;
+        color: #92400e;
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-weight: 850;
+    }
+
+    .saved-search-alert-status-v80.is-enabled {
+        border-color: #bbf7d0;
+        background: #ecfdf5;
+        color: #166534;
+    }
+
+    .saved-search-alert-toggle-v80 {
+        border-color: #bfdbfe;
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .saved-search-alert-toggle-v80.is-enabled {
+        border-color: #fecaca;
+        background: #fff5f5;
+        color: #991b1b;
     }
 
     .saved-search-grid-v78 {
@@ -142,7 +170,7 @@
     }
 </style>
 
-<section class="page-section saved-search-page-v78" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79">
+<section class="page-section saved-search-page-v78" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
     <div class="saved-search-header-v78">
         <div>
             <h1>Saved Searches</h1>
@@ -176,6 +204,7 @@
             <span>{{ saved_search_filtered_count }} shown</span>
             <span>{{ saved_search_total_count }} total</span>
             <span>{{ saved_search_page_size }} per page</span>
+            <span>{{ saved_search_email_alert_count }} email alert{{ saved_search_email_alert_count|pluralize }} on</span>
         </div>
     </div>
 
@@ -192,6 +221,21 @@
                             <span>Created {{ search.created_at|date:"M d, Y H:i" }}</span>
                             <span>Updated {{ search.updated_at|date:"M d, Y H:i" }}</span>
                             <span>Last run: not tracked yet</span>
+                            {% if search.email_notifications_enabled %}
+                                <span class="saved-search-alert-status-v80 is-enabled">Email alerts on</span>
+                            {% else %}
+                                <span class="saved-search-alert-status-v80">Email alerts off</span>
+                            {% endif %}
+                            {% if search.last_notification_checked_at %}
+                                <span>Last checked {{ search.last_notification_checked_at|date:"M d, Y H:i" }}</span>
+                            {% else %}
+                                <span>Last checked: not yet</span>
+                            {% endif %}
+                            {% if search.last_notification_sent_at %}
+                                <span>Last email {{ search.last_notification_sent_at|date:"M d, Y H:i" }}</span>
+                            {% else %}
+                                <span>Last email: none yet</span>
+                            {% endif %}
                         </div>
                     </div>
 
@@ -214,6 +258,22 @@
                         <a class="button-link button-primary" href="{{ search.get_absolute_url }}">
                             Run search
                         </a>
+
+                        <form method="post" action="{% url 'listings:saved_search_notifications_toggle' search.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ saved_search_current_path }}">
+                            {% if search.email_notifications_enabled %}
+                                <input type="hidden" name="enabled" value="off">
+                                <button class="button-link saved-search-alert-toggle-v80 is-enabled" type="submit">
+                                    Disable email alerts
+                                </button>
+                            {% else %}
+                                <input type="hidden" name="enabled" value="on">
+                                <button class="button-link saved-search-alert-toggle-v80" type="submit">
+                                    Email me when new listings match
+                                </button>
+                            {% endif %}
+                        </form>
 
                         <form method="post" action="{% url 'listings:saved_search_delete' search.pk %}">
                             {% csrf_token %}

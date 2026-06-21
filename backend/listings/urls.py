@@ -8,6 +8,7 @@ from .views import (
     saved_search_create,
     saved_search_delete,
     saved_search_list,
+    saved_search_notifications_toggle,
     ListingUpdateView,
     listing_approve,
     listing_archive,
@@ -36,6 +37,12 @@ urlpatterns = [
     # SAVED_SEARCH_FOUNDATION_V77
     path("listings/saved-searches/", saved_search_list, name="saved_search_list"),
     path("listings/saved-searches/create/", saved_search_create, name="saved_search_create"),
+    # SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80
+    path(
+        "listings/saved-searches/<int:pk>/notifications/",
+        saved_search_notifications_toggle,
+        name="saved_search_notifications_toggle",
+    ),
     path("listings/saved-searches/<int:pk>/delete/", saved_search_delete, name="saved_search_delete"),
     path("listings/create/", ListingCreateView.as_view(), name="listing_create"),
     path("listings/moderation/", moderation_queue, name="moderation_queue"),
