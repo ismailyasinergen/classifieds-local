@@ -64,6 +64,115 @@
             padding: 10px;
             border-radius: 6px;
         }
+
+        /* LISTING_IMAGE_UPLOAD_UX_V62 */
+        .image-upload-panel {
+            display: grid;
+            gap: 14px;
+        }
+
+        .image-upload-dropzone {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px;
+            align-items: center;
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 16px;
+            background: linear-gradient(180deg, #fbfdff 0%, #f8fafc 100%);
+        }
+
+        .image-upload-title {
+            display: inline-block;
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .image-upload-rules {
+            margin: 8px 0 0;
+            padding-left: 18px;
+            color: #555;
+            font-size: 13px;
+        }
+
+        .image-upload-input {
+            max-width: 260px;
+        }
+
+        .image-preview-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .image-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .image-preview-empty {
+            grid-column: 1 / -1;
+            margin: 0;
+            padding: 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fff;
+            color: #666;
+        }
+
+        .image-preview-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+        }
+
+        .image-preview-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+            background: #f1f3f5;
+        }
+
+        .image-preview-card-body {
+            padding: 10px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .image-preview-name {
+            font-size: 13px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .image-preview-meta {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .image-preview-remove {
+            justify-self: start;
+            padding: 6px 10px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 640px) {
+            .image-upload-dropzone {
+                grid-template-columns: 1fr;
+            }
+
+            .image-upload-input {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
     </style>
 
     <div class="page-title-row">
@@ -126,14 +235,35 @@
             </div>
         </section>
 
-        <section class="listing-form-panel">
+        <section class="listing-form-panel image-upload-panel">
             <h2>Images</h2>
 
-            <p>
-                <label for="id_images"><strong>Add images</strong></label><br>
-                <input type="file" name="images" id="id_images" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" multiple><br>
-                <span class="muted">Allowed: JPG, PNG, WEBP, GIF. Videos are not supported yet.</span>
-            </p>
+            <div class="image-upload-dropzone" id="image-upload-dropzone">
+                <div>
+                    <label for="id_images" class="image-upload-title">Add listing photos</label>
+                    <p class="muted">
+                        Choose clear photos that show the item, condition, and important details.
+                    </p>
+                    <ul class="image-upload-rules">
+                        <li>Allowed: JPG, PNG, WEBP, GIF.</li>
+                        <li>Videos are not supported yet.</li>
+                        <li>You can remove selected photos before saving.</li>
+                    </ul>
+                </div>
+
+                <input class="image-upload-input" type="file" name="images" id="id_images" accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif" multiple>
+            </div>
+
+            <div class="image-preview-toolbar" aria-live="polite">
+                <strong id="image-preview-count">No new photos selected</strong>
+                <button type="button" id="image-preview-clear" hidden>Clear selected</button>
+            </div>
+
+            <div class="image-preview-grid" id="image-preview-grid" aria-label="Selected image previews">
+                <p class="image-preview-empty" id="image-preview-empty">
+                    Selected photos will appear here before you submit the listing.
+                </p>
+            </div>
         </section>
 
         <p>
@@ -178,6 +308,123 @@
 
             categorySelect.addEventListener("change", updateAttributeRows);
             updateAttributeRows();
+        })();
+    </script>
+
+    <script>
+        (function () {
+            const input = document.getElementById("id_images");
+            const grid = document.getElementById("image-preview-grid");
+            const count = document.getElementById("image-preview-count");
+            const clearButton = document.getElementById("image-preview-clear");
+            const empty = document.getElementById("image-preview-empty");
+
+            if (!input || !grid || !count || !clearButton || !empty) {
+                return;
+            }
+
+            let objectUrls = [];
+
+            function formatBytes(bytes) {
+                if (!bytes) {
+                    return "0 KB";
+                }
+
+                const units = ["bytes", "KB", "MB"];
+                let size = bytes;
+                let unitIndex = 0;
+
+                while (size >= 1024 && unitIndex < units.length - 1) {
+                    size = size / 1024;
+                    unitIndex += 1;
+                }
+
+                return `${size.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+            }
+
+            function setFiles(files) {
+                const transfer = new DataTransfer();
+                files.forEach(function (file) {
+                    transfer.items.add(file);
+                });
+                input.files = transfer.files;
+            }
+
+            function clearObjectUrls() {
+                objectUrls.forEach(function (url) {
+                    URL.revokeObjectURL(url);
+                });
+                objectUrls = [];
+            }
+
+            function renderPreviews() {
+                clearObjectUrls();
+
+                const files = Array.from(input.files || []);
+                grid.innerHTML = "";
+
+                if (!files.length) {
+                    grid.appendChild(empty);
+                    empty.hidden = false;
+                    count.textContent = "No new photos selected";
+                    clearButton.hidden = true;
+                    return;
+                }
+
+                empty.hidden = true;
+                count.textContent = `${files.length} new photo${files.length === 1 ? "" : "s"} selected`;
+                clearButton.hidden = false;
+
+                files.forEach(function (file, index) {
+                    const card = document.createElement("article");
+                    card.className = "image-preview-card";
+
+                    const image = document.createElement("img");
+                    image.alt = file.name;
+                    image.src = URL.createObjectURL(file);
+                    objectUrls.push(image.src);
+
+                    const body = document.createElement("div");
+                    body.className = "image-preview-card-body";
+
+                    const name = document.createElement("div");
+                    name.className = "image-preview-name";
+                    name.textContent = file.name;
+
+                    const meta = document.createElement("div");
+                    meta.className = "image-preview-meta";
+                    meta.textContent = formatBytes(file.size);
+
+                    const remove = document.createElement("button");
+                    remove.className = "image-preview-remove";
+                    remove.type = "button";
+                    remove.textContent = "Remove";
+                    remove.addEventListener("click", function () {
+                        const nextFiles = Array.from(input.files || []).filter(function (_, fileIndex) {
+                            return fileIndex !== index;
+                        });
+                        setFiles(nextFiles);
+                        renderPreviews();
+                    });
+
+                    body.appendChild(name);
+                    body.appendChild(meta);
+                    body.appendChild(remove);
+
+                    card.appendChild(image);
+                    card.appendChild(body);
+                    grid.appendChild(card);
+                });
+            }
+
+            input.addEventListener("change", renderPreviews);
+
+            clearButton.addEventListener("click", function () {
+                setFiles([]);
+                renderPreviews();
+            });
+
+            renderPreviews();
         })();
     </script>
 
