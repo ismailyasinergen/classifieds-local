@@ -46,6 +46,31 @@ def _ts_action_label(obj, fallback):
     return _ts_label(value)
 
 
+# ACTION_LOG_DATE_FILTER_SAFETY_V94
+def _parse_action_log_date_filter(value):
+    raw_value = (value or "").strip()
+    if not raw_value:
+        return None, "", False
+
+    try:
+        parsed_date = datetime.date.fromisoformat(raw_value)
+    except ValueError:
+        return None, raw_value, True
+
+    return parsed_date, parsed_date.isoformat(), False
+
+
+def _action_log_start_of_day(value):
+    return timezone.make_aware(
+        datetime.datetime.combine(value, datetime.time.min),
+        timezone.get_current_timezone(),
+    )
+
+
+def _action_log_start_of_next_day(value):
+    return _action_log_start_of_day(value + datetime.timedelta(days=1))
+
+
 def _trust_safety_action_log_data(request):
     selected_type = (request.GET.get("type") or "all").strip()
     selected_action = (request.GET.get("action") or "").strip()
@@ -54,29 +79,28 @@ def _trust_safety_action_log_data(request):
     selected_date_to = (request.GET.get("date_to") or "").strip()
     q = (request.GET.get("q") or "").strip()
 
-    def parse_date(value):
-        if not value:
-            return None
-        try:
-            return datetime.date.fromisoformat(value)
-        except ValueError:
-            return None
+    date_from, selected_date_from, invalid_date_from = _parse_action_log_date_filter(
+        selected_date_from
+    )
+    date_to, selected_date_to, invalid_date_to = _parse_action_log_date_filter(
+        selected_date_to
+    )
+    date_filter_error = ""
 
-    date_from = parse_date(selected_date_from)
-    date_to = parse_date(selected_date_to)
+    if invalid_date_from or invalid_date_to:
+        date_filter_error = "Enter valid action log dates in YYYY-MM-DD format."
+    elif date_from and date_to and date_from > date_to:
+        date_filter_error = "From date cannot be after To date."
 
     date_from_dt = None
     date_to_dt = None
 
-    if date_from:
-        date_from_dt = timezone.make_aware(
-            datetime.datetime.combine(date_from, datetime.time.min)
-        )
+    if not date_filter_error:
+        if date_from:
+            date_from_dt = _action_log_start_of_day(date_from)
 
-    if date_to:
-        date_to_dt = timezone.make_aware(
-            datetime.datetime.combine(date_to + datetime.timedelta(days=1), datetime.time.min)
-        )
+        if date_to:
+            date_to_dt = _action_log_start_of_next_day(date_to)
 
     listing_reports = (
         ListingReport.objects.select_related(
@@ -109,6 +133,11 @@ def _trust_safety_action_log_data(request):
         .exclude(status="pending")
         .annotate(action_date=Coalesce("reviewed_at", "created_at"))
     )
+
+    if date_filter_error:
+        listing_reports = listing_reports.none()
+        seller_reports = seller_reports.none()
+        appeal_actions = appeal_actions.none()
 
     if selected_type == "listing":
         seller_reports = seller_reports.none()
@@ -225,6 +254,7 @@ def _trust_safety_action_log_data(request):
         "selected_status": selected_status,
         "selected_date_from": selected_date_from,
         "selected_date_to": selected_date_to,
+        "date_filter_error": date_filter_error,
         "selected_q": q,
         "action_choices": action_choices,
         "status_choices": status_choices,
