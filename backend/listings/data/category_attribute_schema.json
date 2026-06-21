@@ -9,21 +9,119 @@
       "source_url": "https://www.sahibinden.com/ilan/emlak-konut-satilik-ela-insaat-tan-pazara-yakin-catisi-kalkik-luks-dubleks-220m2-4-plus2-1313538591/detay",
       "attributes": [
         {
-          "key": "aidat_tl",
-          "label": "Aidat (TL)",
+          "key": "m2_brut",
+          "label": "m² (Brüt)",
           "input_type": "number",
           "required": false,
+          "sample_values": []
+        },
+        {
+          "key": "oda_sayisi",
+          "label": "Oda Sayısı",
+          "input_type": "choice",
+          "required": false,
           "sample_values": [
-            "0"
+            "1+0",
+            "1+1",
+            "2+1",
+            "3+1",
+            "4+1",
+            "5+2",
+            "6+2"
           ]
         },
         {
-          "key": "asansor",
-          "label": "Asansör",
-          "input_type": "boolean",
+          "key": "m2_net",
+          "label": "m² (Net)",
+          "input_type": "number",
+          "required": false,
+          "sample_values": []
+        },
+        {
+          "key": "bulundugu_kat",
+          "label": "Bulunduğu Kat",
+          "input_type": "choice",
           "required": false,
           "sample_values": [
+            "Bahçe Katı",
+            "Giriş Katı",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "En Üst Kat",
+            "Çatı Katı"
+          ]
+        },
+        {
+          "key": "kat_sayisi",
+          "label": "Kat Sayısı",
+          "input_type": "choice",
+          "required": false,
+          "sample_values": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6-10",
+            "11-20",
+            "21 ve üzeri"
+          ]
+        },
+        {
+          "key": "bina_yasi",
+          "label": "Bina Yaşı",
+          "input_type": "choice",
+          "required": false,
+          "sample_values": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5-10 arası",
+            "11-15 arası",
+            "16-20 arası",
+            "21 ve üzeri"
+          ]
+        },
+        {
+          "key": "isitma",
+          "label": "Isıtma",
+          "input_type": "choice",
+          "required": false,
+          "sample_values": [
+            "Kombi (Doğalgaz)",
+            "Merkezi",
+            "Yerden Isıtma",
+            "Klima",
+            "Soba",
             "Yok"
+          ]
+        },
+        {
+          "key": "banyo_sayisi",
+          "label": "Banyo Sayısı",
+          "input_type": "choice",
+          "required": false,
+          "sample_values": [
+            "1",
+            "2",
+            "3",
+            "4+"
+          ]
+        },
+        {
+          "key": "mutfak",
+          "label": "Mutfak",
+          "input_type": "choice",
+          "required": false,
+          "sample_values": [
+            "Açık",
+            "Kapalı",
+            "Amerikan"
           ]
         },
         {
@@ -32,52 +130,30 @@
           "input_type": "boolean",
           "required": false,
           "sample_values": [
-            "Var"
+            "Evet",
+            "Hayır"
           ]
         },
         {
-          "key": "banyo_sayisi",
-          "label": "Banyo Sayısı",
-          "input_type": "number",
+          "key": "asansor",
+          "label": "Asansör",
+          "input_type": "boolean",
           "required": false,
           "sample_values": [
-            "2"
+            "Evet",
+            "Hayır"
           ]
         },
         {
-          "key": "bina_yasi",
-          "label": "Bina Yaşı",
-          "input_type": "text",
+          "key": "otopark",
+          "label": "Otopark",
+          "input_type": "choice",
           "required": false,
           "sample_values": [
-            "16-20 arası"
-          ]
-        },
-        {
-          "key": "bulundugu_kat",
-          "label": "Bulunduğu Kat",
-          "input_type": "number",
-          "required": false,
-          "sample_values": [
-            "4"
-          ]
-        },
-        {
-          "key": "emlak_tipi",
-          "label": "Emlak Tipi",
-          "input_type": "text",
-          "required": false,
-          "sample_values": [
-            "Satılık Daire"
-          ]
-        },
-        {
-          "key": "enerji_kimlik_belgesi",
-          "label": "Enerji Kimlik Belgesi",
-          "input_type": "text",
-          "required": false,
-          "sample_values": [
-            "A"
+            "Yok",
+            "Açık Otopark",
+            "Kapalı Otopark",
+            "Açık & Kapalı Otopark"
           ]
         },
         {
@@ -86,34 +162,29 @@
           "input_type": "boolean",
           "required": false,
           "sample_values": [
+            "Evet",
             "Hayır"
           ]
         },
         {
-          "key": "isitma",
-          "label": "Isıtma",
-          "input_type": "text",
+          "key": "kullanim_durumu",
+          "label": "Kullanım Durumu",
+          "input_type": "choice",
           "required": false,
           "sample_values": [
-            "Kombi (Doğalgaz)"
+            "Boş",
+            "Kiracılı",
+            "Mülk Sahibi"
           ]
         },
         {
-          "key": "kat_sayisi",
-          "label": "Kat Sayısı",
-          "input_type": "number",
+          "key": "site_i_cerisinde",
+          "label": "Site İçerisinde",
+          "input_type": "boolean",
           "required": false,
           "sample_values": [
-            "5"
-          ]
-        },
-        {
-          "key": "kimden",
-          "label": "Kimden",
-          "input_type": "text",
-          "required": false,
-          "sample_values": [
-            "Emlak Ofisinden"
+            "Evet",
+            "Hayır"
           ]
         },
         {
@@ -122,61 +193,70 @@
           "input_type": "boolean",
           "required": false,
           "sample_values": [
-            "Evet"
+            "Evet",
+            "Hayır"
           ]
         },
         {
-          "key": "kullanim_durumu",
-          "label": "Kullanım Durumu",
-          "input_type": "text",
+          "key": "tapu_durumu",
+          "label": "Tapu Durumu",
+          "input_type": "choice",
           "required": false,
           "sample_values": [
-            "Mülk Sahibi"
+            "Kat Mülkiyetli",
+            "Kat İrtifaklı",
+            "Arsa Tapulu",
+            "Hisseli Tapu",
+            "Bilinmiyor"
           ]
         },
         {
-          "key": "mutfak",
-          "label": "Mutfak",
-          "input_type": "text",
+          "key": "kimden",
+          "label": "Kimden",
+          "input_type": "choice",
           "required": false,
           "sample_values": [
-            "Kapalı"
+            "Sahibinden",
+            "Emlak Ofisinden",
+            "İnşaat Firmasından",
+            "Bankadan"
           ]
         },
         {
-          "key": "m2_brut",
-          "label": "m² (Brüt)",
-          "input_type": "number",
-          "required": false,
-          "sample_values": [
-            "230"
-          ]
-        },
-        {
-          "key": "m2_net",
-          "label": "m² (Net)",
-          "input_type": "number",
-          "required": false,
-          "sample_values": [
-            "220"
-          ]
-        },
-        {
-          "key": "oda_sayisi",
-          "label": "Oda Sayısı",
-          "input_type": "text",
-          "required": false,
-          "sample_values": [
-            "4+2"
-          ]
-        },
-        {
-          "key": "otopark",
-          "label": "Otopark",
+          "key": "takas",
+          "label": "Takaslı",
           "input_type": "boolean",
           "required": false,
           "sample_values": [
-            "Yok"
+            "Evet",
+            "Hayır"
+          ]
+        },
+        {
+          "key": "acik_alan_m2",
+          "label": "Açık Alan m²",
+          "input_type": "number",
+          "required": false,
+          "sample_values": []
+        },
+        {
+          "key": "aidat_tl",
+          "label": "Aidat (TL)",
+          "input_type": "number",
+          "required": false,
+          "sample_values": []
+        },
+        {
+          "key": "emlak_tipi",
+          "label": "Emlak Tipi",
+          "input_type": "choice",
+          "required": false,
+          "sample_values": [
+            "Satılık Daire",
+            "Kiralık Daire",
+            "Müstakil Ev",
+            "Villa",
+            "Residence"
           ]
         },
         {
@@ -184,42 +264,57 @@
           "label": "Site Adı",
           "input_type": "text",
           "required": false,
+          "sample_values": []
+        },
+        {
+          "key": "enerji_kimlik_belgesi",
+          "label": "Enerji Kimlik Belgesi",
+          "input_type": "choice",
+          "required": false,
           "sample_values": [
-            "Belirtilmemiş"
+            "A",
+            "B",
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "Yok"
           ]
         },
         {
-          "key": "site_icerisinde",
-          "label": "Site İçerisinde",
+          "key": "foto_video",
+          "label": "Fotoğraf / Video",
+          "input_type": "choice",
+          "required": false,
+          "sample_values": [
+            "Fotoğraflı",
+            "Videolu",
+            "Fotoğraf + Video"
+          ]
+        },
+        {
+          "key": "harita",
+          "label": "Harita",
           "input_type": "boolean",
           "required": false,
           "sample_values": [
+            "Evet",
             "Hayır"
-          ]
-        },
-        {
-          "key": "takas",
-          "label": "Takas",
-          "input_type": "boolean",
-          "required": false,
-          "sample_values": [
-            "Hayır"
-          ]
-        },
-        {
-          "key": "tapu_durumu",
-          "label": "Tapu Durumu",
-          "input_type": "text",
-          "required": false,
-          "sample_values": [
-            "Kat İrtifaklı"
           ]
         }
       ],
       "local_category_slugs": [
         "homes-for-sale",
         "homes-for-rent"
-      ]
+      ],
+      "card_highlight_keys": [
+        "m2_brut",
+        "oda_sayisi",
+        "bulundugu_kat",
+        "isitma"
+      ],
+      "schema_marker": "REAL_ESTATE_ATTRIBUTE_SPEC_V67"
     },
     {
       "key": "vasita_otomobil_bmw",

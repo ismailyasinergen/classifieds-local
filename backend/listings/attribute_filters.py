@@ -136,3 +136,33 @@ def get_page_querystring(request):
     params = request.GET.copy()
     params.pop("page", None)
     return params.urlencode()
+
+
+# REAL_ESTATE_ATTRIBUTE_FILTERS_V67
+REAL_ESTATE_ATTRIBUTE_FILTERS_V67 = [
+    {"key": "m2_brut", "label": "m² (Brüt)", "placeholder": "120"},
+    {"key": "m2_net", "label": "m² (Net)", "placeholder": "95"},
+    {"key": "acik_alan_m2", "label": "Açık Alan m²", "placeholder": "25"},
+    {"key": "oda_sayisi", "label": "Oda Sayısı", "placeholder": "3+1"},
+    {"key": "bina_yasi", "label": "Bina Yaşı", "placeholder": "5-10 arası"},
+    {"key": "bulundugu_kat", "label": "Bulunduğu Kat", "placeholder": "3"},
+    {"key": "kat_sayisi", "label": "Kat Sayısı", "placeholder": "8"},
+    {"key": "isitma", "label": "Isıtma", "placeholder": "Kombi"},
+    {"key": "banyo_sayisi", "label": "Banyo Sayısı", "placeholder": "2"},
+    {"key": "mutfak", "label": "Mutfak", "placeholder": "Açık / Kapalı"},
+    {"key": "balkon", "label": "Balkon", "placeholder": "Evet / Hayır"},
+    {"key": "asansor", "label": "Asansör", "placeholder": "Evet / Hayır"},
+    {"key": "otopark", "label": "Otopark", "placeholder": "Açık / Kapalı"},
+    {"key": "esyali", "label": "Eşyalı", "placeholder": "Evet / Hayır"},
+    {"key": "kullanim_durumu", "label": "Kullanım Durumu", "placeholder": "Boş / Kiracılı"},
+    {"key": "site_i_cerisinde", "label": "Site İçerisinde", "placeholder": "Evet / Hayır"},
+    {"key": "krediye_uygun", "label": "Krediye Uygun", "placeholder": "Evet / Hayır"},
+    {"key": "tapu_durumu", "label": "Tapu Durumu", "placeholder": "Kat Mülkiyetli"},
+    {"key": "kimden", "label": "Kimden", "placeholder": "Sahibinden"},
+    {"key": "takas", "label": "Takaslı", "placeholder": "Evet / Hayır"},
+    {"key": "foto_video", "label": "Fotoğraf / Video", "placeholder": "Fotoğraflı"},
+    {"key": "harita", "label": "Harita", "placeholder": "Evet / Hayır"},
+]
+
+for _real_estate_slug in ("homes-for-sale", "homes-for-rent"):
+    ATTRIBUTE_FILTERS_BY_CATEGORY[_real_estate_slug] = REAL_ESTATE_ATTRIBUTE_FILTERS_V67
