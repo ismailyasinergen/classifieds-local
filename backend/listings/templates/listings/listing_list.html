@@ -232,6 +232,167 @@
             }
         }
 
+
+        /* VEHICLE_BROWSE_RESULTS_V71 */
+        .vehicle-results-shell {
+            border: 1px solid #dde3eb;
+            border-radius: 12px;
+            background: #fff;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .vehicle-results-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .vehicle-results-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 920px;
+        }
+
+        .vehicle-results-table th {
+            background: #f7f9fc;
+            border-bottom: 1px solid #dbe3ee;
+            color: #475467;
+            font-size: 12px;
+            font-weight: 850;
+            letter-spacing: 0.01em;
+            padding: 10px 12px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .vehicle-results-table td {
+            border-bottom: 1px solid #edf1f6;
+            padding: 12px;
+            vertical-align: top;
+            font-size: 13px;
+        }
+
+        .vehicle-results-table tbody tr:hover {
+            background: #fbfdff;
+        }
+
+        .vehicle-results-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .vehicle-title-cell {
+            min-width: 300px;
+        }
+
+        .vehicle-title-link {
+            color: #0f172a;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 850;
+            line-height: 1.35;
+            text-decoration: none;
+        }
+
+        .vehicle-title-link:hover,
+        .vehicle-title-link:focus {
+            text-decoration: underline;
+        }
+
+        .vehicle-row-subtitle {
+            color: #667085;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .vehicle-spec-cell {
+            color: #111827;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .vehicle-price-cell {
+            color: #b42318;
+            font-size: 14px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .vehicle-date-cell,
+        .vehicle-location-cell {
+            color: #344054;
+            white-space: nowrap;
+        }
+
+        .vehicle-mobile-label {
+            display: none;
+            color: #667085;
+            font-size: 11px;
+            font-weight: 850;
+            margin-bottom: 3px;
+        }
+
+        .vehicle-results-note {
+            color: #667085;
+            font-size: 12px;
+            padding: 9px 12px;
+            border-top: 1px solid #edf1f6;
+            background: #fbfdff;
+        }
+
+        @media (max-width: 780px) {
+            .vehicle-results-shell {
+                border: 0;
+                box-shadow: none;
+                background: transparent;
+            }
+
+            .vehicle-results-table-wrap {
+                overflow: visible;
+            }
+
+            .vehicle-results-table,
+            .vehicle-results-table thead,
+            .vehicle-results-table tbody,
+            .vehicle-results-table tr,
+            .vehicle-results-table th,
+            .vehicle-results-table td {
+                display: block;
+                min-width: 0;
+                width: 100%;
+            }
+
+            .vehicle-results-table thead {
+                display: none;
+            }
+
+            .vehicle-results-table tr {
+                border: 1px solid #dde3eb;
+                border-radius: 12px;
+                background: #fff;
+                margin-bottom: 12px;
+                overflow: hidden;
+                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            }
+
+            .vehicle-results-table td {
+                border-bottom: 1px solid #edf1f6;
+                padding: 10px 12px;
+            }
+
+            .vehicle-results-table td:last-child {
+                border-bottom: 0;
+            }
+
+            .vehicle-mobile-label {
+                display: block;
+            }
+
+            .vehicle-title-cell {
+                min-width: 0;
+            }
+        }
+
         /* REAL_ESTATE_BROWSE_RESULTS_V68 */
         .real-estate-results-shell {
             border: 1px solid #dde3eb;
@@ -683,6 +844,107 @@
                 </div>
                 <div class="real-estate-card-fallback-note">
                     Real-estate results show the most important sahibinden-style specs first. Open a listing for the full specification table.
+                </div>
+            </section>
+        {% else %}
+            <section class="browse-empty-state" aria-label="No listings found">
+                <h2>No listings match your search</h2>
+                <p class="muted">
+                    Try removing a filter, widening the price range, or searching a broader keyword.
+                </p>
+                <div class="browse-empty-actions">
+                    <a class="button-link" href="{% if current_category %}{{ current_category.get_absolute_url }}{% else %}{% url 'listings:listing_list' %}{% endif %}">
+                        Clear filters
+                    </a>
+                    {% if request.user.is_authenticated %}
+                        <a class="button-link button-primary" href="{% url 'listings:listing_create' %}">
+                            Post a listing
+                        </a>
+                    {% else %}
+                        <a class="button-link button-primary" href="{% url 'accounts:login' %}">
+                            Login to post
+                        </a>
+                    {% endif %}
+                </div>
+            </section>
+        {% endif %}
+    {% elif attribute_filter_category_slug == "cars" or attribute_filter_category_slug == "motorcycles" or attribute_filter_category_slug == "commercial-vehicles" %}
+        {% if listings %}
+            <section class="vehicle-results-shell" aria-label="Vehicle results table">
+                <div class="vehicle-results-table-wrap">
+                    <table class="vehicle-results-table">
+                        <thead>
+                            <tr>
+                                <th>İlan Başlığı</th>
+                                <th>Marka</th>
+                                <th>Model</th>
+                                <th>Yıl</th>
+                                <th>KM</th>
+                                <th>Yakıt</th>
+                                <th>Vites</th>
+                                <th>Fiyat</th>
+                                <th>İlan Tarihi</th>
+                                <th>İl / İlçe</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for listing in listings %}
+                                <tr>
+                                    <td class="vehicle-title-cell" data-label="İlan Başlığı">
+                                        <span class="vehicle-mobile-label">İlan Başlığı</span>
+                                        <a class="vehicle-title-link" href="{{ listing.get_absolute_url }}">
+                                            {{ listing.title }}
+                                        </a>
+                                        <div class="vehicle-row-subtitle">
+                                            {{ listing.category.name }}
+                                            {% if listing.attributes.renk %}
+                                                · {{ listing.attributes.renk }}
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="vehicle-spec-cell" data-label="Marka">
+                                        <span class="vehicle-mobile-label">Marka</span>
+                                        {{ listing.attributes.marka|default:"—" }}
+                                    </td>
+                                    <td class="vehicle-spec-cell" data-label="Model">
+                                        <span class="vehicle-mobile-label">Model</span>
+                                        {% firstof listing.attributes.model listing.attributes.seri "—" %}
+                                    </td>
+                                    <td class="vehicle-spec-cell" data-label="Yıl">
+                                        <span class="vehicle-mobile-label">Yıl</span>
+                                        {{ listing.attributes.yil|default:"—" }}
+                                    </td>
+                                    <td class="vehicle-spec-cell" data-label="KM">
+                                        <span class="vehicle-mobile-label">KM</span>
+                                        {{ listing.attributes.km|default:"—" }}
+                                    </td>
+                                    <td class="vehicle-spec-cell" data-label="Yakıt">
+                                        <span class="vehicle-mobile-label">Yakıt</span>
+                                        {{ listing.attributes.yakit_tipi|default:"—" }}
+                                    </td>
+                                    <td class="vehicle-spec-cell" data-label="Vites">
+                                        <span class="vehicle-mobile-label">Vites</span>
+                                        {% firstof listing.attributes.vites listing.attributes.sanziman_cekis "—" %}
+                                    </td>
+                                    <td class="vehicle-price-cell" data-label="Fiyat">
+                                        <span class="vehicle-mobile-label">Fiyat</span>
+                                        {{ listing.price }} TL
+                                    </td>
+                                    <td class="vehicle-date-cell" data-label="İlan Tarihi">
+                                        <span class="vehicle-mobile-label">İlan Tarihi</span>
+                                        {{ listing.created_at|date:"M d, Y" }}
+                                    </td>
+                                    <td class="vehicle-location-cell" data-label="İl / İlçe">
+                                        <span class="vehicle-mobile-label">İl / İlçe</span>
+                                        {{ listing.location }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="vehicle-results-note">
+                    Vehicle results show the most important comparison specs first. Open a listing for full technical details.
                 </div>
             </section>
         {% else %}

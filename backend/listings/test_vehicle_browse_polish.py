@@ -10,23 +10,15 @@ from categories.models import Category
 from listings.models import Listing
 
 
-class RealEstateBrowsePolishTests(TestCase):
+class VehicleBrowsePolishTests(TestCase):
     def setUp(self):
         User = get_user_model()
         self.seller = User.objects.create_user(
-            email="realestate-browse-v68@classifieds.local",
-            username="realestate_browse_v68",
+            email="vehicle-browse-v71@classifieds.local",
+            username="vehicle_browse_v71",
             password="Testpass12345",
         )
 
-        self.real_estate, _ = Category.objects.get_or_create(
-            slug="real-estate",
-            defaults={"name": "Real Estate"},
-        )
-        self.homes_for_sale, _ = Category.objects.get_or_create(
-            slug="homes-for-sale",
-            defaults={"name": "Homes for Sale", "parent": self.real_estate},
-        )
         self.vehicles, _ = Category.objects.get_or_create(
             slug="vehicles",
             defaults={"name": "Vehicles"},
@@ -48,7 +40,7 @@ class RealEstateBrowsePolishTests(TestCase):
         return Listing.objects.create(
             title=title,
             description=f"{title} description",
-            price=Decimal("5250000.00"),
+            price=Decimal("900000.00"),
             category=category,
             owner=self.seller,
             location="Istanbul / Kadikoy",
@@ -57,40 +49,48 @@ class RealEstateBrowsePolishTests(TestCase):
             attributes=attributes or {},
         )
 
-    def test_real_estate_browse_uses_table_like_result_layout(self):
+    def test_car_browse_uses_vehicle_table_like_result_layout(self):
         self._listing(
-            "V68 real estate table home",
-            self.homes_for_sale,
+            "V71 vehicle table car",
+            self.cars,
             {
-                "m2_brut": "180",
-                "m2_net": "150",
-                "oda_sayisi": "4+1",
-                "bulundugu_kat": "3",
-                "isitma": "Kombi (Doğalgaz)",
+                "marka": "Toyota",
+                "model": "Corolla",
+                "yil": "2020",
+                "km": "45000",
+                "yakit_tipi": "Benzinli",
+                "vites": "Otomatik",
+                "renk": "Beyaz",
             },
         )
 
         response = self.client.get(
             reverse("listings:listing_list"),
-            {"category": "homes-for-sale"},
+            {"category": "cars"},
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "REAL_ESTATE_BROWSE_RESULTS_V68")
-        self.assertContains(response, '<table class="real-estate-results-table">')
+        self.assertContains(response, "VEHICLE_BROWSE_RESULTS_V71")
+        self.assertContains(response, '<table class="vehicle-results-table">')
         self.assertContains(response, "İlan Başlığı")
-        self.assertContains(response, "m² (Brüt)")
-        self.assertContains(response, "Oda Sayısı")
-        self.assertContains(response, "Fiyat")
-        self.assertContains(response, "İlan Tarihi")
+        self.assertContains(response, "Marka")
+        self.assertContains(response, "Model")
+        self.assertContains(response, "Yıl")
+        self.assertContains(response, "KM")
+        self.assertContains(response, "Yakıt")
+        self.assertContains(response, "Vites")
         self.assertContains(response, "İl / İlçe")
-        self.assertContains(response, "V68 real estate table home")
-        self.assertContains(response, "180")
-        self.assertContains(response, "4+1")
+        self.assertContains(response, "V71 vehicle table car")
+        self.assertContains(response, "Toyota")
+        self.assertContains(response, "Corolla")
+        self.assertContains(response, "2020")
+        self.assertContains(response, "45000")
+        self.assertContains(response, "Benzinli")
+        self.assertContains(response, "Otomatik")
 
-    def test_non_real_estate_browse_keeps_card_grid(self):
+    def test_non_vehicle_non_real_estate_browse_keeps_card_grid(self):
         self._listing(
-            "V68 normal phone card listing",
+            "V71 normal phone card listing",
             self.phones,
             {"marka": "Apple", "model": "iPhone 14", "kapasite": "128 GB"},
         )
@@ -102,5 +102,6 @@ class RealEstateBrowsePolishTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="listing-grid"')
-        self.assertContains(response, "V68 normal phone card listing")
+        self.assertContains(response, "V71 normal phone card listing")
+        self.assertNotContains(response, '<table class="vehicle-results-table">')
         self.assertNotContains(response, '<table class="real-estate-results-table">')
