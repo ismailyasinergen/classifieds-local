@@ -86,4 +86,43 @@ Send only after the retry dry-run looks safe:
 docker exec classifieds_web python manage.py check_saved_search_notifications --saved-search-id 123 --send --site-base-url https://classifieds.local
 ```
 
+
+## Command/help alignment examples
+
+The command help and this runbook intentionally use the same operator-safe patterns.
+
+Dry-run one saved search:
+
+```bash
+docker exec classifieds_web python manage.py check_saved_search_notifications --saved-search-id 123 --site-base-url https://classifieds.local
+```
+
+Send one saved search after dry-run verification:
+
+```bash
+docker exec classifieds_web python manage.py check_saved_search_notifications --saved-search-id 123 --send --site-base-url https://classifieds.local
+```
+
+Dry-run a bounded stale batch:
+
+```bash
+docker exec classifieds_web python manage.py check_saved_search_notifications --stale-before-hours 24 --max-searches 100 --site-base-url https://classifieds.local
+```
+
+Retry multiple failed saved searches with a dry-run first:
+
+```bash
+docker exec classifieds_web python manage.py check_saved_search_notifications --saved-search-id 123 --saved-search-id 456 --site-base-url https://classifieds.local
+```
+
+Send multiple failed saved searches only after the retry dry-run looks safe:
+
+```bash
+docker exec classifieds_web python manage.py check_saved_search_notifications --saved-search-id 123 --saved-search-id 456 --send --site-base-url https://classifieds.local
+```
+
+Expected operator headers include `Mode: DRY RUN`, `Mode: SEND`, `Dry-run safety: no emails will be sent.`, and `Send safety: failures are isolated per saved search.`
+
+<!-- SAVED_SEARCH_NOTIFICATION_RUNBOOK_COMMAND_ALIGNMENT_V88 -->
+
 <!-- SAVED_SEARCH_NOTIFICATION_RUNBOOK_ADMIN_POLISH_V86 -->
