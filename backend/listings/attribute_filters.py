@@ -84,20 +84,147 @@ def normalize_category_slug(category_slug):
     return (category_slug or "").strip()
 
 
-def get_attribute_filter_specs(category_slug):
-    return list(ATTRIBUTE_FILTERS_BY_CATEGORY.get(normalize_category_slug(category_slug), []))
 
+# FILTER_BEHAVIOR_HARDENING_V75
+import re
+from decimal import Decimal, InvalidOperation
+
+
+NUMERIC_ATTRIBUTE_FILTER_KEYS = {
+    "m2_brut",
+    "m2_net",
+    "acik_alan_m2",
+    "bina_yasi",
+    "bulundugu_kat",
+    "kat_sayisi",
+    "banyo_sayisi",
+    "aidat_tl",
+    "yil",
+    "km",
+    "motor_gucu",
+    "motor_hacmi",
+    "sehir_ici_100_km_de",
+    "sehir_disi_100_km_de",
+    "ortalama_100_km_de",
+    "kapasite",
+}
+
+
+def _is_numeric_filter_key(key):
+    return key in NUMERIC_ATTRIBUTE_FILTER_KEYS
+
+
+def _with_filter_metadata(spec):
+    enriched = dict(spec)
+    key = enriched.get("key", "")
+    enriched["param"] = "attr_" + key
+
+    if _is_numeric_filter_key(key):
+        enriched["filter_type"] = "number"
+        enriched["param_min"] = "attr_" + key + "_min"
+        enriched["param_max"] = "attr_" + key + "_max"
+    else:
+        enriched.setdefault("filter_type", "text")
+        enriched["param_min"] = ""
+        enriched["param_max"] = ""
+
+    return enriched
+
+
+def _normalize_numeric_text(raw):
+    text = str(raw).strip().replace(" ", "")
+    if not text:
+        return ""
+
+    match = re.search(r"-?\d[\d.,]*", text)
+    if not match:
+        return ""
+
+    value = match.group(0)
+
+    if "," in value and "." in value:
+        decimal_separator = "," if value.rfind(",") > value.rfind(".") else "."
+        thousands_separator = "." if decimal_separator == "," else ","
+        value = value.replace(thousands_separator, "")
+        if decimal_separator == ",":
+            value = value.replace(",", ".")
+        return value
+
+    if "," in value:
+        parts = value.split(",")
+        if len(parts) > 1 and len(parts[-1]) == 3 and all(part.isdigit() for part in parts if part):
+            return "".join(parts)
+        return value.replace(",", ".")
+
+    if "." in value:
+        parts = value.split(".")
+        if len(parts) > 2:
+            return "".join(parts)
+        if len(parts) == 2 and len(parts[-1]) == 3 and all(part.isdigit() for part in parts if part):
+            return "".join(parts)
+
+    return value
+
+
+def _parse_numeric_value(raw):
+    if raw is None or raw == "":
+        return None
+
+    if isinstance(raw, Decimal):
+        return raw
+
+    try:
+        normalized = _normalize_numeric_text(raw)
+        if not normalized:
+            return None
+        return Decimal(normalized)
+    except (InvalidOperation, ValueError, TypeError):
+        return None
+
+
+def _filter_queryset_by_numeric_attribute(queryset, key, minimum=None, maximum=None):
+    matching_ids = []
+
+    for pk, attributes in queryset.values_list("pk", "attributes"):
+        if not isinstance(attributes, dict):
+            continue
+
+        value = _parse_numeric_value(attributes.get(key))
+        if value is None:
+            continue
+
+        if minimum is not None and value < minimum:
+            continue
+
+        if maximum is not None and value > maximum:
+            continue
+
+        matching_ids.append(pk)
+
+    if not matching_ids:
+        return queryset.none()
+
+    return queryset.filter(pk__in=matching_ids)
+
+def get_attribute_filter_specs(category_slug):
+    return [
+        _with_filter_metadata(spec)
+        for spec in ATTRIBUTE_FILTERS_BY_CATEGORY.get(normalize_category_slug(category_slug), [])
+    ]
 
 
 def get_attribute_filter_specs_by_category():
     result = {}
-    for category_slug, specs in ATTRIBUTE_FILTERS_BY_CATEGORY.items():
+    for category_slug in ATTRIBUTE_FILTERS_BY_CATEGORY.keys():
         result[category_slug] = [
             {
                 **spec,
-                "param": "attr_" + spec["key"],
+                "param": spec["param"],
+                "param_min": spec["param_min"],
+                "param_max": spec["param_max"],
+                "filter_type": spec["filter_type"],
             }
-            for spec in specs
+            for spec in get_attribute_filter_specs(category_slug)
         ]
     return result
 
@@ -105,12 +232,13 @@ def get_attribute_filter_specs_by_category():
 def get_attribute_filter_context(request, category_slug):
     fields = []
     for spec in get_attribute_filter_specs(category_slug):
-        param = "attr_" + spec["key"]
-        fields.append({
+        field = {
             **spec,
-            "param": param,
-            "value": request.GET.get(param, "").strip(),
-        })
+            "value": request.GET.get(spec["param"], "").strip(),
+            "value_min": request.GET.get(spec["param_min"], "").strip() if spec["param_min"] else "",
+            "value_max": request.GET.get(spec["param_max"], "").strip() if spec["param_max"] else "",
+        }
+        fields.append(field)
 
     return {
         "attribute_filter_category_slug": normalize_category_slug(category_slug),
@@ -121,13 +249,24 @@ def get_attribute_filter_context(request, category_slug):
 
 def apply_attribute_filters(queryset, request, category_slug):
     for spec in get_attribute_filter_specs(category_slug):
-        value = request.GET.get("attr_" + spec["key"], "").strip()
-        if not value:
-            continue
+        key = spec["key"]
+        value = request.GET.get(spec["param"], "").strip()
+        if value:
+            queryset = queryset.filter(**{
+                f"attributes__{key}__icontains": value,
+            })
 
-        queryset = queryset.filter(**{
-            f"attributes__{spec["key"]}__icontains": value,
-        })
+        if spec.get("filter_type") == "number":
+            minimum = _parse_numeric_value(request.GET.get(spec["param_min"], "").strip())
+            maximum = _parse_numeric_value(request.GET.get(spec["param_max"], "").strip())
+
+            if minimum is not None or maximum is not None:
+                queryset = _filter_queryset_by_numeric_attribute(
+                    queryset,
+                    key,
+                    minimum=minimum,
+                    maximum=maximum,
+                )
 
     return queryset
 
