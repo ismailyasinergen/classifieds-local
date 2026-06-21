@@ -412,6 +412,145 @@
             }
         }
 
+
+        /* LISTING_DETAIL_CONTACT_SAFETY_V66 */
+        .classified-contact-panel.contact-safety-v66 {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+        }
+
+        .seller-contact-header {
+            display: grid;
+            gap: 7px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #edf0f4;
+        }
+
+        .seller-contact-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .seller-contact-title h2 {
+            margin: 0;
+        }
+
+        .seller-contact-subtitle {
+            margin: 0;
+            color: #667085;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .seller-trust-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .seller-contact-card {
+            border: 1px solid #e3e8ef;
+            border-radius: 9px;
+            background: #f8fafc;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .seller-contact-label {
+            display: block;
+            color: #667085;
+            font-size: 11px;
+            font-weight: 850;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .seller-contact-value {
+            color: #111827;
+            font-weight: 750;
+        }
+
+        .seller-phone-link {
+            color: #111827;
+            font-size: 18px;
+            font-weight: 900;
+            text-decoration: none;
+        }
+
+        .seller-phone-link:hover,
+        .seller-phone-link:focus {
+            text-decoration: underline;
+        }
+
+        .seller-contact-actions {
+            margin-top: 12px;
+        }
+
+        .seller-contact-actions .button-link,
+        .seller-contact-actions button {
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: 850;
+        }
+
+        .seller-secondary-action {
+            background: #fff;
+        }
+
+        .seller-safety-box {
+            border: 1px solid #ffe3a3;
+            background: #fff8e5;
+            border-radius: 10px;
+            padding: 11px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #443200;
+        }
+
+        .seller-safety-box h3 {
+            margin: 0 0 7px;
+            font-size: 13px;
+            color: #2f2500;
+        }
+
+        .seller-safety-box ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .seller-safety-box li + li {
+            margin-top: 5px;
+        }
+
+        .seller-report-links-v66 {
+            border-top: 1px solid #edf0f4;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .seller-report-links-v66 .button-link {
+            font-size: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .classified-contact-panel.contact-safety-v66 {
+                border-radius: 8px;
+            }
+
+            .seller-contact-title {
+                align-items: flex-start;
+            }
+        }
+
     </style>
 
     <p class="classified-back-link">
@@ -581,33 +720,60 @@
             {% endif %}
         </section>
 
-        <aside class="classified-contact-panel">
-            <h2>Seller</h2>
-            <div class="seller-card-name">
-                {{ listing.owner.username }}
+        <aside class="classified-contact-panel contact-safety-v66" aria-label="Seller contact and safety">
+            <div class="seller-contact-header">
+                <div class="seller-contact-title">
+                    <h2>Seller</h2>
+                    {% if listing.owner.profile.is_verified_seller %}
+                        <span class="classified-badge verified">Verified</span>
+                    {% endif %}
+                </div>
+
+                <div class="seller-card-name">
+                    {{ listing.owner.username }}
+                </div>
+
+                <p class="seller-contact-subtitle">
+                    Contact the seller through the marketplace and review the safety tips before meeting or paying.
+                </p>
+
+                <div class="seller-trust-row" aria-label="Seller and listing trust indicators">
+                    {% if listing.owner.profile.is_verified_seller %}
+                        <span class="classified-badge verified">Verified Seller</span>
+                    {% else %}
+                        <span class="classified-badge">Unverified seller</span>
+                    {% endif %}
+
+                    {% if listing.is_featured %}
+                        <span class="classified-badge featured">Featured listing</span>
+                    {% endif %}
+
+                    {% if listing.top_listing_until %}
+                        <span class="classified-badge top">Top listing</span>
+                    {% endif %}
+                </div>
             </div>
 
-            {% if listing.owner.profile.is_verified_seller %}
-                <span class="classified-badge verified">Verified Seller</span>
-            {% endif %}
-
             {% if listing.owner.profile.location %}
-                <div class="seller-card-line">
-                    <strong>Seller location</strong><br>
-                    {{ listing.owner.profile.location }}
+                <div class="seller-contact-card">
+                    <span class="seller-contact-label">Seller location</span>
+                    <span class="seller-contact-value">{{ listing.owner.profile.location }}</span>
                 </div>
             {% endif %}
 
-            <div class="seller-card-line">
+            <div class="seller-contact-card">
+                <span class="seller-contact-label">Phone</span>
                 {% if listing.owner.profile.phone %}
-                    <strong>Phone</strong><br>
-                    <a href="tel:{{ listing.owner.profile.phone }}">{{ listing.owner.profile.phone }}</a>
+                    <a class="seller-phone-link" href="tel:{{ listing.owner.profile.phone }}">
+                        {{ listing.owner.profile.phone }}
+                    </a>
+                    <div class="muted">Use phone calls for quick questions; keep important agreements in messages.</div>
                 {% else %}
                     <span class="muted">Seller has not added a phone number.</span>
                 {% endif %}
             </div>
 
-            <div class="classified-action-stack">
+            <div class="classified-action-stack seller-contact-actions">
                 {% if request.user == listing.owner %}
                     <a class="button-link" href="{% url 'accounts:profile' %}">
                         Edit my contact info
@@ -627,16 +793,25 @@
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
                         {% if listing.id in favorite_listing_ids %}
-                            <button type="submit">Remove saved</button>
+                            <button class="seller-secondary-action" type="submit">Remove saved</button>
                         {% else %}
-                            <button type="submit">Save listing</button>
+                            <button class="seller-secondary-action" type="submit">Save listing</button>
                         {% endif %}
                     </form>
                 {% endif %}
             </div>
 
+            <div class="seller-safety-box">
+                <h3>Safe buying tips</h3>
+                <ul>
+                    <li>Meet in a public place and inspect the item before payment.</li>
+                    <li>Do not send deposits or personal documents outside the platform.</li>
+                    <li>Use reports if the listing or seller feels suspicious.</li>
+                </ul>
+            </div>
+
             {% if request.user.is_authenticated and request.user != listing.owner and listing.status == "approved" %}
-                <div class="classified-report-links">
+                <div class="classified-report-links seller-report-links-v66">
                     <a class="button-link" href="{% url 'listings:listing_report' listing.pk %}">Report listing</a>
                     <a class="button-link" href="{% url 'accounts:user_report' listing.owner.pk %}?listing={{ listing.pk }}">Report seller</a>
                 </div>
