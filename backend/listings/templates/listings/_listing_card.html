@@ -1,31 +1,28 @@
-<article class="listing-card">
+<article class="listing-card listing-card-polish-v64">
     {% if listing.owner.profile.is_verified_seller or listing.top_listing_until or listing.is_featured %}
-        <div class="promotion-badges">
+        <div class="promotion-badges" aria-label="Listing badges">
             {% if listing.owner.profile.is_verified_seller %}
-                <span style="background:#e7f7ec; color:#135c2b; border:1px solid #9bd0aa; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700;">
-                    VERIFIED SELLER
-                </span>
+                <span class="listing-badge listing-badge-verified">Verified seller</span>
             {% endif %}
             {% if listing.top_listing_until %}
-                <span style="background:#222; color:#fff; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700;">
-                    TOP LISTING
-                </span>
+                <span class="listing-badge listing-badge-top">Top listing</span>
             {% endif %}
-
             {% if listing.is_featured %}
-                <span style="background:#ffe08a; color:#222; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700;">
-                    FEATURED
-                </span>
+                <span class="listing-badge listing-badge-featured">Featured</span>
             {% endif %}
         </div>
     {% endif %}
 
-    <a class="listing-media-link" href="{{ listing.get_absolute_url }}">
-        {% with first_image=listing.images.first %}
+    <a class="listing-media-link listing-card-media" href="{{ listing.get_absolute_url }}" aria-label="View {{ listing.title }}">
+        {% with first_image=listing.images.first image_count=listing.images.count %}
             {% if first_image %}
-                <img class="listing-image" src="{{ first_image.image.url }}" alt="{{ listing.title }}" onerror="this.outerHTML='<div class=&quot;listing-placeholder&quot;>No image</div>'">
+                <img class="listing-image" src="{{ first_image.image.url }}" alt="{{ listing.title }}" loading="lazy" onerror="this.outerHTML='<div class=&quot;listing-placeholder&quot;>No image</div>'">
             {% else %}
                 <div class="listing-placeholder">No image</div>
+            {% endif %}
+
+            {% if image_count > 1 %}
+                <span class="listing-image-count">{{ image_count }} photos</span>
             {% endif %}
         {% endwith %}
     </a>
@@ -37,11 +34,13 @@
             </a>
         </h2>
 
-        <div class="price">{{ listing.price }} TL</div>
+        <div class="listing-card-price-row">
+            <div class="price">{{ listing.price }} TL</div>
+        </div>
 
         <div class="listing-card-meta">
-            <span>{{ listing.location }}</span>
-            <a href="{{ listing.category.get_absolute_url }}">
+            <span class="listing-card-location">{{ listing.location }}</span>
+            <a class="listing-card-category" href="{{ listing.category.get_absolute_url }}">
                 {{ listing.category.name }}
             </a>
         </div>
@@ -60,7 +59,7 @@
         {% endwith %}
 
         <div class="listing-card-date">
-            {{ listing.created_at|date:"M d, Y H:i" }}
+            Posted {{ listing.created_at|date:"M d, Y H:i" }}
         </div>
 
         {% if request.user.is_authenticated and request.user != listing.owner and listing.status == "approved" %}
@@ -69,9 +68,9 @@
                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
 
                 {% if listing.id in favorite_listing_ids %}
-                    <button type="submit">Remove saved</button>
+                    <button class="listing-save-button is-saved" type="submit">Saved</button>
                 {% else %}
-                    <button type="submit">Save listing</button>
+                    <button class="listing-save-button" type="submit">Save listing</button>
                 {% endif %}
             </form>
         {% endif %}
