@@ -305,6 +305,125 @@
             }
         }
 
+
+        /* REAL_ESTATE_DETAIL_SPECS_V69 */
+        .real-estate-detail-summary {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            background: #fffdf3;
+        }
+
+        .real-estate-summary-item {
+            border: 1px solid #ead687;
+            border-radius: 8px;
+            background: #fff;
+            padding: 9px 10px;
+            min-width: 0;
+        }
+
+        .real-estate-summary-label {
+            color: #777;
+            display: block;
+            font-size: 11px;
+            font-weight: 850;
+            letter-spacing: 0.03em;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+
+        .real-estate-summary-value {
+            color: #111;
+            display: block;
+            font-size: 15px;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .real-estate-specs-panel {
+            display: grid;
+            gap: 16px;
+        }
+
+        .real-estate-specs-intro {
+            color: #667085;
+            margin: -4px 0 0;
+            max-width: 760px;
+        }
+
+        .real-estate-spec-group {
+            border: 1px solid #dde3eb;
+            border-radius: 12px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .real-estate-spec-group h3 {
+            margin: 0;
+            padding: 11px 13px;
+            background: #f7f9fc;
+            border-bottom: 1px solid #dde3eb;
+            color: #111827;
+            font-size: 15px;
+        }
+
+        .real-estate-spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .real-estate-spec-table th,
+        .real-estate-spec-table td {
+            border-bottom: 1px dotted #d7dee8;
+            padding: 9px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .real-estate-spec-table tr:last-child th,
+        .real-estate-spec-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .real-estate-spec-table th {
+            width: 34%;
+            background: #fbfdff;
+            color: #555;
+            font-weight: 850;
+        }
+
+        .real-estate-spec-table td {
+            color: #111827;
+            font-weight: 650;
+        }
+
+        @media (max-width: 640px) {
+            .real-estate-detail-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .real-estate-spec-table,
+            .real-estate-spec-table tbody,
+            .real-estate-spec-table tr,
+            .real-estate-spec-table th,
+            .real-estate-spec-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .real-estate-spec-table th {
+                border-bottom: 0;
+                padding-bottom: 3px;
+            }
+
+            .real-estate-spec-table td {
+                padding-top: 3px;
+            }
+        }
+
         /* LISTING_DETAIL_GALLERY_INTERACTION_V63 */
         .classified-gallery-shell {
             display: grid;
@@ -660,6 +779,27 @@
                 <div class="classified-price">{{ listing.price }} TL</div>
             </div>
 
+            {% if listing.category.slug == "homes-for-sale" or listing.category.slug == "homes-for-rent" %}
+                <div class="real-estate-detail-summary" aria-label="Real estate summary">
+                    <div class="real-estate-summary-item">
+                        <span class="real-estate-summary-label">m² (Brüt)</span>
+                        <span class="real-estate-summary-value">{{ listing.attributes.m2_brut|default:"—" }}</span>
+                    </div>
+                    <div class="real-estate-summary-item">
+                        <span class="real-estate-summary-label">Oda Sayısı</span>
+                        <span class="real-estate-summary-value">{{ listing.attributes.oda_sayisi|default:"—" }}</span>
+                    </div>
+                    <div class="real-estate-summary-item">
+                        <span class="real-estate-summary-label">Bulunduğu Kat</span>
+                        <span class="real-estate-summary-value">{{ listing.attributes.bulundugu_kat|default:"—" }}</span>
+                    </div>
+                    <div class="real-estate-summary-item">
+                        <span class="real-estate-summary-label">Isıtma</span>
+                        <span class="real-estate-summary-value">{{ listing.attributes.isitma|default:"—" }}</span>
+                    </div>
+                </div>
+            {% endif %}
+
             <table class="classified-details-table">
                 <tbody>
                     <tr>
@@ -832,30 +972,87 @@
 
     <section id="details" class="classified-section-panel" style="margin-top:12px; border-top:1px solid #ddd; border-radius:4px;">
         <h2>Listing Details</h2>
-        <div class="classified-detail-grid">
-            <div class="classified-detail-box">
-                <div class="classified-detail-label">Listing No</div>
-                {{ listing.id }}
-            </div>
-            <div class="classified-detail-box">
-                <div class="classified-detail-label">Category</div>
-                {{ listing.category.name }}
-            </div>
-            <div class="classified-detail-box">
-                <div class="classified-detail-label">Location</div>
-                {{ listing.location }}
-            </div>
-            {% for label, value in listing.display_attributes %}
-                <div class="classified-detail-box">
-                    <div class="classified-detail-label">{{ label }}</div>
-                    {{ value }}
+
+        {% if listing.category.slug == "homes-for-sale" or listing.category.slug == "homes-for-rent" %}
+            <div class="real-estate-specs-panel" aria-label="Real estate specification groups">
+                <p class="real-estate-specs-intro">
+                    Key home specifications are grouped in the same order buyers expect on real-estate listings.
+                </p>
+
+                <div class="real-estate-spec-group">
+                    <h3>Konut Özellikleri</h3>
+                    <table class="real-estate-spec-table">
+                        <tbody>
+                            <tr><th>m² (Brüt)</th><td>{{ listing.attributes.m2_brut|default:"—" }}</td></tr>
+                            <tr><th>m² (Net)</th><td>{{ listing.attributes.m2_net|default:"—" }}</td></tr>
+                            <tr><th>Açık Alan m²</th><td>{{ listing.attributes.acik_alan_m2|default:"—" }}</td></tr>
+                            <tr><th>Oda Sayısı</th><td>{{ listing.attributes.oda_sayisi|default:"—" }}</td></tr>
+                            <tr><th>Bina Yaşı</th><td>{{ listing.attributes.bina_yasi|default:"—" }}</td></tr>
+                            <tr><th>Bulunduğu Kat</th><td>{{ listing.attributes.bulundugu_kat|default:"—" }}</td></tr>
+                            <tr><th>Kat Sayısı</th><td>{{ listing.attributes.kat_sayisi|default:"—" }}</td></tr>
+                            <tr><th>Isıtma</th><td>{{ listing.attributes.isitma|default:"—" }}</td></tr>
+                            <tr><th>Banyo Sayısı</th><td>{{ listing.attributes.banyo_sayisi|default:"—" }}</td></tr>
+                            <tr><th>Mutfak</th><td>{{ listing.attributes.mutfak|default:"—" }}</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-            {% endfor %}
-            <div class="classified-detail-box">
-                <div class="classified-detail-label">Status</div>
-                {{ listing.get_status_display }}
+
+                <div class="real-estate-spec-group">
+                    <h3>Bina ve Kullanım</h3>
+                    <table class="real-estate-spec-table">
+                        <tbody>
+                            <tr><th>Balkon</th><td>{{ listing.attributes.balkon|yesno:"Evet,Hayır,—" }}</td></tr>
+                            <tr><th>Asansör</th><td>{{ listing.attributes.asansor|yesno:"Evet,Hayır,—" }}</td></tr>
+                            <tr><th>Otopark</th><td>{{ listing.attributes.otopark|default:"—" }}</td></tr>
+                            <tr><th>Eşyalı</th><td>{{ listing.attributes.esyali|yesno:"Evet,Hayır,—" }}</td></tr>
+                            <tr><th>Kullanım Durumu</th><td>{{ listing.attributes.kullanim_durumu|default:"—" }}</td></tr>
+                            <tr><th>Site İçerisinde</th><td>{{ listing.attributes.site_i_cerisinde|yesno:"Evet,Hayır,—" }}</td></tr>
+                            <tr><th>Site Adı</th><td>{{ listing.attributes.site_adi|default:"—" }}</td></tr>
+                            <tr><th>Aidat (TL)</th><td>{{ listing.attributes.aidat_tl|default:"—" }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="real-estate-spec-group">
+                    <h3>Tapu / İlan Bilgileri</h3>
+                    <table class="real-estate-spec-table">
+                        <tbody>
+                            <tr><th>Krediye Uygun</th><td>{{ listing.attributes.krediye_uygun|yesno:"Evet,Hayır,—" }}</td></tr>
+                            <tr><th>Tapu Durumu</th><td>{{ listing.attributes.tapu_durumu|default:"—" }}</td></tr>
+                            <tr><th>Kimden</th><td>{{ listing.attributes.kimden|default:"—" }}</td></tr>
+                            <tr><th>Takaslı</th><td>{{ listing.attributes.takas|yesno:"Evet,Hayır,—" }}</td></tr>
+                            <tr><th>Fotoğraf / Video</th><td>{{ listing.attributes.foto_video|default:"—" }}</td></tr>
+                            <tr><th>Harita</th><td>{{ listing.attributes.harita|yesno:"Evet,Hayır,—" }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        {% else %}
+            <div class="classified-detail-grid">
+                <div class="classified-detail-box">
+                    <div class="classified-detail-label">Listing No</div>
+                    {{ listing.id }}
+                </div>
+                <div class="classified-detail-box">
+                    <div class="classified-detail-label">Category</div>
+                    {{ listing.category.name }}
+                </div>
+                <div class="classified-detail-box">
+                    <div class="classified-detail-label">Location</div>
+                    {{ listing.location }}
+                </div>
+                {% for label, value in listing.display_attributes %}
+                    <div class="classified-detail-box">
+                        <div class="classified-detail-label">{{ label }}</div>
+                        {{ value }}
+                    </div>
+                {% endfor %}
+                <div class="classified-detail-box">
+                    <div class="classified-detail-label">Status</div>
+                    {{ listing.get_status_display }}
+                </div>
+            </div>
+        {% endif %}
     </section>
 
     <section id="seller" class="classified-section-panel" style="margin-top:12px; border-top:1px solid #ddd; border-radius:4px;">
