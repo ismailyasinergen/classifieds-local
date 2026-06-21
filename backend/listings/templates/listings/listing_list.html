@@ -91,6 +91,95 @@
             font-weight: 700;
         }
 
+
+        /* BROWSE_RESULTS_UX_POLISH_V65 */
+        .browse-results-panel {
+            display: grid;
+            gap: 12px;
+            border: 1px solid #e1e5ea;
+            border-radius: 12px;
+            background: #fff;
+            padding: 14px 16px;
+            margin: 0 0 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.035);
+        }
+
+        .browse-results-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .browse-results-title {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 850;
+        }
+
+        .browse-results-count {
+            color: #555;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .active-filter-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .active-filter-label {
+            color: #666;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .active-filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid #d7dee8;
+            border-radius: 999px;
+            background: #f8fafc;
+            color: #222;
+            padding: 5px 9px;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .browse-empty-state {
+            grid-column: 1 / -1;
+            border: 1px dashed #cbd5e1;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            padding: 24px;
+            text-align: center;
+            display: grid;
+            gap: 10px;
+            justify-items: center;
+        }
+
+        .browse-empty-state h2 {
+            margin: 0;
+            font-size: 21px;
+        }
+
+        .browse-empty-state p {
+            margin: 0;
+            max-width: 560px;
+        }
+
+        .browse-empty-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 4px;
+        }
+
         @media (max-width: 900px) {
             .browse-search-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -121,6 +210,18 @@
 
             .browse-search-actions {
                 justify-content: stretch;
+            }
+
+            .browse-results-head {
+                align-items: flex-start;
+            }
+
+            .browse-results-count {
+                width: 100%;
+            }
+
+            .active-filter-list {
+                align-items: flex-start;
             }
 
             .browse-search-actions button,
@@ -300,11 +401,93 @@
         </div>
     {% endif %}
 
+    <section class="browse-results-panel" aria-label="Browse results summary">
+        <div class="browse-results-head">
+            <h2 class="browse-results-title">
+                {% if current_category %}
+                    {{ current_category.name }} listings
+                {% else %}
+                    Browse results
+                {% endif %}
+            </h2>
+
+            <div class="browse-results-count">
+                {% if page_obj.paginator.count %}
+                    Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} listing{% if page_obj.paginator.count != 1 %}s{% endif %}
+                {% else %}
+                    No listings found
+                {% endif %}
+            </div>
+        </div>
+
+        {% if current_category or search_q or search_location or search_min_price or search_max_price or search_category or search_sort != "newest" or attribute_filter_fields %}
+            <div class="active-filter-list" aria-label="Active filters">
+                <span class="active-filter-label">Active filters:</span>
+
+                {% if current_category %}
+                    <span class="active-filter-chip">Category: {{ current_category.name }}</span>
+                {% elif search_category %}
+                    <span class="active-filter-chip">Category: {{ search_category }}</span>
+                {% endif %}
+
+                {% if search_q %}
+                    <span class="active-filter-chip">Search: {{ search_q }}</span>
+                {% endif %}
+
+                {% if search_location %}
+                    <span class="active-filter-chip">Location: {{ search_location }}</span>
+                {% endif %}
+
+                {% if search_min_price %}
+                    <span class="active-filter-chip">Min: {{ search_min_price }} TL</span>
+                {% endif %}
+
+                {% if search_max_price %}
+                    <span class="active-filter-chip">Max: {{ search_max_price }} TL</span>
+                {% endif %}
+
+                {% if search_sort != "newest" %}
+                    <span class="active-filter-chip">
+                        Sort:
+                        {% if search_sort == "price_low" %}
+                            Price low to high
+                        {% elif search_sort == "price_high" %}
+                            Price high to low
+                        {% else %}
+                            {{ search_sort }}
+                        {% endif %}
+                    </span>
+                {% endif %}
+
+                {% for field in attribute_filter_fields %}
+                    {% if field.value %}
+                        <span class="active-filter-chip">{{ field.label }}: {{ field.value }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </section>
+
     <div class="listing-grid">
         {% for listing in listings %}
             {% include "listings/_listing_card.html" with listing=listing %}
         {% empty %}
-            <p>No listings found.</p>
+            <section class="browse-empty-state" aria-label="No listings found">
+                <h2>No listings match your search</h2>
+                <p class="muted">
+                    Try removing a filter, widening the price range, or searching a broader keyword.
+                </p>
+                <div class="browse-empty-actions">
+                    <a class="button-link" href="{% if current_category %}{{ current_category.get_absolute_url }}{% else %}{% url 'listings:listing_list' %}{% endif %}">
+                        Clear filters
+                    </a>
+                    {% if request.user.is_authenticated %}
+                        <a class="button-link button-primary" href="{% url 'listings:listing_create' %}">
+                            Post a listing
+                        </a>
+                    {% endif %}
+                </div>
+            </section>
         {% endfor %}
     </div>
 
