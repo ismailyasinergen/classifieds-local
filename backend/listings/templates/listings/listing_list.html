@@ -94,6 +94,61 @@
 
 
 
+
+        /* FILTER_UX_POLISH_V76 */
+        .active-filter-list-v76 {
+            align-items: center;
+        }
+
+        .active-filter-chip-v76 {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+            border: 1px solid #c7d7fe;
+            background: #eef4ff;
+            color: #1849a9;
+            transition: border-color 0.15s ease, background-color 0.15s ease;
+        }
+
+        .active-filter-chip-v76:hover {
+            border-color: #84adff;
+            background: #dbeafe;
+        }
+
+        .active-filter-remove-v76 {
+            display: inline-flex;
+            align-items: center;
+            border-left: 1px solid rgba(24, 73, 169, 0.22);
+            padding-left: 7px;
+            color: #175cd3;
+            font-size: 11px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .active-filter-clear-all-v76 {
+            margin-left: auto;
+            color: #b42318;
+            font-size: 12px;
+            font-weight: 900;
+            text-decoration: none;
+            border: 1px solid #fecdca;
+            background: #fff5f5;
+            border-radius: 999px;
+            padding: 5px 9px;
+        }
+
+        .active-filter-clear-all-v76:hover {
+            background: #fee4e2;
+        }
+
+        @media (max-width: 760px) {
+            .active-filter-clear-all-v76 {
+                margin-left: 0;
+            }
+        }
+
         /* FILTER_BEHAVIOR_HARDENING_V75 */
         .attribute-range-filter-v75 {
             display: grid;
@@ -1140,50 +1195,24 @@
             </div>
         </div>
 
-        {% if current_category or search_q or search_location or search_min_price or search_max_price or search_category or search_sort != "newest" or attribute_filter_fields %}
-            <div class="active-filter-list" aria-label="Active filters">
+        {% if active_filter_chips %}
+            <div class="active-filter-list active-filter-list-v76" aria-label="Active filters">
                 <span class="active-filter-label">Active filters:</span>
 
-                {% if current_category %}
-                    <span class="active-filter-chip">Category: {{ current_category.name }}</span>
-                {% elif search_category %}
-                    <span class="active-filter-chip">Category: {{ search_category }}</span>
-                {% endif %}
-
-                {% if search_q %}
-                    <span class="active-filter-chip">Search: {{ search_q }}</span>
-                {% endif %}
-
-                {% if search_location %}
-                    <span class="active-filter-chip">Location: {{ search_location }}</span>
-                {% endif %}
-
-                {% if search_min_price %}
-                    <span class="active-filter-chip">Min: {{ search_min_price }} TL</span>
-                {% endif %}
-
-                {% if search_max_price %}
-                    <span class="active-filter-chip">Max: {{ search_max_price }} TL</span>
-                {% endif %}
-
-                {% if search_sort != "newest" %}
-                    <span class="active-filter-chip">
-                        Sort:
-                        {% if search_sort == "price_low" %}
-                            Price low to high
-                        {% elif search_sort == "price_high" %}
-                            Price high to low
-                        {% else %}
-                            {{ search_sort }}
-                        {% endif %}
-                    </span>
-                {% endif %}
-
-                {% for field in attribute_filter_fields %}
-                    {% if field.value %}
-                        <span class="active-filter-chip">{{ field.label }}: {{ field.value }}</span>
-                    {% endif %}
+                {% for chip in active_filter_chips %}
+                    <a class="active-filter-chip active-filter-chip-v76"
+                       href="{{ chip.clear_url }}"
+                       title="Clear this filter"
+                       aria-label="Clear {{ chip.label }} filter"
+                       data-clear-filter-param="{{ chip.clear_param }}">
+                        <span>{{ chip.label }}: {{ chip.value }}</span>
+                        <span class="active-filter-remove-v76">Clear this filter ×</span>
+                    </a>
                 {% endfor %}
+
+                <a class="active-filter-clear-all-v76" href="{{ active_filter_clear_all_url }}">
+                    Clear all filters
+                </a>
             </div>
         {% endif %}
     </section>

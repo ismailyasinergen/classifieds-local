@@ -229,6 +229,111 @@ def get_attribute_filter_specs_by_category():
     return result
 
 
+
+# FILTER_UX_POLISH_V76
+def _querystring_without(request, remove_keys):
+    query = request.GET.copy()
+
+    remove_key_set = set(remove_keys)
+    remove_key_set.add("page")
+
+    for key in list(query.keys()):
+        if key in remove_key_set:
+            del query[key]
+
+    encoded = query.urlencode()
+    if encoded:
+        return f"{request.path}?{encoded}"
+    return request.path
+
+
+def _format_category_filter_value(category_slug):
+    return (category_slug or "").replace("-", " ").title()
+
+
+def _format_sort_filter_value(sort_value):
+    labels = {
+        "price_low": "Price low to high",
+        "price_high": "Price high to low",
+        "newest": "Newest",
+    }
+    return labels.get(sort_value, sort_value)
+
+
+def _format_range_filter_value(minimum, maximum):
+    if minimum and maximum:
+        return f"Min {minimum} – Max {maximum}"
+    if minimum:
+        return f"Min {minimum}"
+    if maximum:
+        return f"Max {maximum}"
+    return ""
+
+
+def _build_active_filter_chips(request, fields):
+    chips = []
+
+    all_attribute_keys = [key for key in request.GET.keys() if key.startswith("attr_")]
+
+    def add_chip(label, value, remove_keys, clear_param):
+        value = str(value or "").strip()
+        if not value:
+            return
+
+        chips.append({
+            "label": label,
+            "value": value,
+            "clear_url": _querystring_without(request, remove_keys),
+            "clear_param": clear_param,
+        })
+
+    category_slug = request.GET.get("category", "").strip()
+    add_chip(
+        "Category",
+        _format_category_filter_value(category_slug),
+        ["category", *all_attribute_keys],
+        "category",
+    )
+
+    add_chip("Search", request.GET.get("q", "").strip(), ["q"], "q")
+    add_chip("Location", request.GET.get("location", "").strip(), ["location"], "location")
+    add_chip("Min price", request.GET.get("min_price", "").strip() + " TL" if request.GET.get("min_price", "").strip() else "", ["min_price"], "min_price")
+    add_chip("Max price", request.GET.get("max_price", "").strip() + " TL" if request.GET.get("max_price", "").strip() else "", ["max_price"], "max_price")
+
+    sort_value = request.GET.get("sort", "newest").strip() or "newest"
+    if sort_value != "newest":
+        add_chip("Sort", _format_sort_filter_value(sort_value), ["sort"], "sort")
+
+    for field in fields:
+        if field.get("filter_type") == "number":
+            range_value = _format_range_filter_value(
+                field.get("value_min", ""),
+                field.get("value_max", ""),
+            )
+            if range_value:
+                remove_keys = [
+                    field.get("param", ""),
+                    field.get("param_min", ""),
+                    field.get("param_max", ""),
+                ]
+                remove_keys = [key for key in remove_keys if key]
+                add_chip(
+                    field.get("label", field.get("key", "Filter")),
+                    range_value,
+                    remove_keys,
+                    ",".join([field.get("param_min", ""), field.get("param_max", "")]).strip(","),
+                )
+        elif field.get("value"):
+            add_chip(
+                field.get("label", field.get("key", "Filter")),
+                field.get("value", ""),
+                [field.get("param", "")],
+                field.get("param", ""),
+            )
+
+    return chips
+
+
 def get_attribute_filter_context(request, category_slug):
     fields = []
     for spec in get_attribute_filter_specs(category_slug):
@@ -244,6 +349,8 @@ def get_attribute_filter_context(request, category_slug):
         "attribute_filter_category_slug": normalize_category_slug(category_slug),
         "attribute_filter_fields": fields,
         "attribute_filter_specs_by_category": get_attribute_filter_specs_by_category(),
+        "active_filter_chips": _build_active_filter_chips(request, fields),
+        "active_filter_clear_all_url": request.path,
     }
 
 
