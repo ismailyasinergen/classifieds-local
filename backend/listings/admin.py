@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from django.utils import timezone
 from datetime import timedelta
 
@@ -121,6 +122,7 @@ class ListingReportAdmin(admin.ModelAdmin):
 # SAVED_SEARCH_FOUNDATION_V77
 # SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80
 # SAVED_SEARCH_NOTIFICATION_ADMIN_POLISH_V84
+# SAVED_SEARCH_NOTIFICATION_RUNBOOK_ADMIN_POLISH_V86
 @admin.register(SavedSearch)
 class SavedSearchAdmin(admin.ModelAdmin):
     list_display = [
@@ -143,6 +145,7 @@ class SavedSearchAdmin(admin.ModelAdmin):
         "last_notification_sent_at",
     ]
     readonly_fields = [
+        "notification_run_guidance",
         "notification_status",
         "user_email",
         "query_preview",
@@ -174,3 +177,12 @@ class SavedSearchAdmin(admin.ModelAdmin):
         if len(querystring) > 120:
             return f"{querystring[:117]}..."
         return querystring or "(empty)"
+
+    @admin.display(description="Notification run guidance")
+    def notification_run_guidance(self, obj):
+        return format_html(
+            "<strong>Notifications are operator-triggered.</strong><br>"
+            "Run a dry-run before using <code>--send</code>. "
+            "Send failures are isolated per saved search; failed sends do not update timestamps. "
+            "See <code>SAVED_SEARCH_NOTIFICATIONS.md</code> for the runbook."
+        )
