@@ -92,6 +92,121 @@
         }
 
 
+
+        /* CATEGORY_FILTER_SIDEBAR_V74 */
+        .category-filter-sidebar-v74 {
+            border: 1px solid #dde3eb;
+            border-radius: 14px;
+            background: #ffffff;
+            padding: 14px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .category-filter-heading-v74 {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .category-filter-title-v74 {
+            display: grid;
+            gap: 3px;
+        }
+
+        .category-filter-kicker-v74 {
+            color: #667085;
+            font-size: 11px;
+            font-weight: 850;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .category-filter-title-v74 h3 {
+            margin: 0;
+            color: #111827;
+            font-size: 17px;
+        }
+
+        .category-filter-hint-v74 {
+            margin: 0;
+            color: #667085;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .category-filter-count-v74 {
+            flex: 0 0 auto;
+            border: 1px solid #d6e4ff;
+            border-radius: 999px;
+            background: #f5f9ff;
+            color: #175cd3;
+            font-size: 12px;
+            font-weight: 850;
+            padding: 4px 8px;
+            white-space: nowrap;
+        }
+
+        .category-filter-grid-v74 {
+            display: grid;
+            gap: 12px;
+        }
+
+        .category-filter-group-v74 {
+            border: 1px solid #edf1f6;
+            border-radius: 12px;
+            background: #fbfdff;
+            padding: 11px;
+        }
+
+        .category-filter-group-v74 h4 {
+            margin: 0 0 8px;
+            color: #344054;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .category-filter-group-grid-v74 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(130px, 1fr));
+            gap: 10px;
+        }
+
+        .attribute-filter-label-v74 {
+            display: grid;
+            gap: 5px;
+            color: #344054;
+            font-size: 12px;
+            font-weight: 850;
+        }
+
+        .attribute-filter-label-v74 input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #cfd7e3;
+            border-radius: 8px;
+            padding: 8px 9px;
+            font-size: 13px;
+            font-weight: 500;
+            background: #fff;
+        }
+
+        .attribute-filter-label-v74 input:focus {
+            outline: 2px solid #d6e4ff;
+            border-color: #84adff;
+        }
+
+        @media (max-width: 760px) {
+            .category-filter-heading-v74 {
+                display: grid;
+            }
+
+            .category-filter-group-grid-v74 {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* BROWSE_RESULTS_UX_POLISH_V65 */
         .browse-results-panel {
             display: grid;
@@ -620,16 +735,126 @@
                         <option value="price_high" {% if search_sort == "price_high" %}selected{% endif %}>Price high to low</option>
                     </select>
                 </label>
-                <div class="attribute-filter-panel" id="attribute-filter-panel" {% if not attribute_filter_fields %}hidden{% endif %}>
-                    <h3>Category details</h3>
+                <div class="attribute-filter-panel category-filter-sidebar-v74" id="attribute-filter-panel" data-filter-category="{{ attribute_filter_category_slug }}" {% if not attribute_filter_fields %}hidden{% endif %}>
+                    <div class="category-filter-heading-v74">
+                        <div class="category-filter-title-v74">
+                            <span class="category-filter-kicker-v74">
+                                {% if attribute_filter_category_slug == "homes-for-sale" or attribute_filter_category_slug == "homes-for-rent" %}
+                                    Emlak filtreleri
+                                {% elif attribute_filter_category_slug == "cars" or attribute_filter_category_slug == "motorcycles" or attribute_filter_category_slug == "commercial-vehicles" %}
+                                    Araç filtreleri
+                                {% else %}
+                                    Kategori filtreleri
+                                {% endif %}
+                            </span>
+                            <h3>
+                                {% if attribute_filter_category_slug == "homes-for-sale" or attribute_filter_category_slug == "homes-for-rent" %}
+                                    Sahibinden tarzı emlak araması
+                                {% elif attribute_filter_category_slug == "cars" or attribute_filter_category_slug == "motorcycles" or attribute_filter_category_slug == "commercial-vehicles" %}
+                                    Sahibinden tarzı araç araması
+                                {% else %}
+                                    Category details
+                                {% endif %}
+                            </h3>
+                            <p class="category-filter-hint-v74">
+                                {% if attribute_filter_category_slug == "homes-for-sale" or attribute_filter_category_slug == "homes-for-rent" %}
+                                    Alan, oda, bina ve ilan bilgilerini kullanarak sonuçları daraltın.
+                                {% elif attribute_filter_category_slug == "cars" or attribute_filter_category_slug == "motorcycles" or attribute_filter_category_slug == "commercial-vehicles" %}
+                                    Marka, model, yıl, kilometre ve motor bilgileriyle araçları karşılaştırın.
+                                {% else %}
+                                    Select a category to show matching detail filters.
+                                {% endif %}
+                            </p>
+                        </div>
+                        <span class="category-filter-count-v74">
+                            {{ attribute_filter_fields|length }} filter{% if attribute_filter_fields|length != 1 %}s{% endif %}
+                        </span>
+                    </div>
 
-                    <div class="attribute-filter-grid" id="attribute-filter-grid">
-                        {% for field in attribute_filter_fields %}
-                            <label>
-                                {{ field.label }}
-                                <input type="text" name="{{ field.param }}" value="{{ field.value }}" placeholder="{{ field.placeholder }}">
-                            </label>
-                        {% endfor %}
+                    <div class="attribute-filter-grid category-filter-grid-v74" id="attribute-filter-grid">
+                        {% if attribute_filter_category_slug == "homes-for-sale" or attribute_filter_category_slug == "homes-for-rent" %}
+                            <section class="category-filter-group-v74 filter-group-real-estate-v74" aria-label="Alan ve oda filtreleri">
+                                <h4>Alan ve Oda</h4>
+                                <div class="category-filter-group-grid-v74">
+                                    {% for field in attribute_filter_fields %}
+                                        {% if field.key == "m2_brut" or field.key == "m2_net" or field.key == "acik_alan_m2" or field.key == "oda_sayisi" %}
+                                            <label class="attribute-filter-label-v74">
+                                                {{ field.label }}
+                                                <input type="text" name="{{ field.param }}" value="{{ field.value }}" placeholder="{{ field.placeholder }}">
+                                            </label>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </section>
+
+                            <section class="category-filter-group-v74 filter-group-real-estate-v74" aria-label="Bina ve kullanım filtreleri">
+                                <h4>Bina ve Kullanım</h4>
+                                <div class="category-filter-group-grid-v74">
+                                    {% for field in attribute_filter_fields %}
+                                        {% if field.key == "bina_yasi" or field.key == "bulundugu_kat" or field.key == "kat_sayisi" or field.key == "isitma" or field.key == "banyo_sayisi" or field.key == "mutfak" or field.key == "balkon" or field.key == "asansor" or field.key == "otopark" or field.key == "esyali" or field.key == "kullanim_durumu" or field.key == "site_i_cerisinde" %}
+                                            <label class="attribute-filter-label-v74">
+                                                {{ field.label }}
+                                                <input type="text" name="{{ field.param }}" value="{{ field.value }}" placeholder="{{ field.placeholder }}">
+                                            </label>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </section>
+
+                            <section class="category-filter-group-v74 filter-group-real-estate-v74" aria-label="Tapu ve ilan filtreleri">
+                                <h4>Tapu / İlan Bilgileri</h4>
+                                <div class="category-filter-group-grid-v74">
+                                    {% for field in attribute_filter_fields %}
+                                        {% if field.key == "krediye_uygun" or field.key == "tapu_durumu" or field.key == "kimden" or field.key == "takas" or field.key == "foto_video" or field.key == "harita" %}
+                                            <label class="attribute-filter-label-v74">
+                                                {{ field.label }}
+                                                <input type="text" name="{{ field.param }}" value="{{ field.value }}" placeholder="{{ field.placeholder }}">
+                                            </label>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </section>
+                        {% elif attribute_filter_category_slug == "cars" or attribute_filter_category_slug == "motorcycles" or attribute_filter_category_slug == "commercial-vehicles" %}
+                            <section class="category-filter-group-v74 filter-group-vehicle-v74" aria-label="Araç özeti filtreleri">
+                                <h4>Araç Özeti</h4>
+                                <div class="category-filter-group-grid-v74">
+                                    {% for field in attribute_filter_fields %}
+                                        {% if field.key == "arac_tipi" or field.key == "marka" or field.key == "model" or field.key == "seri" or field.key == "yil" or field.key == "km" %}
+                                            <label class="attribute-filter-label-v74">
+                                                {{ field.label }}
+                                                <input type="text" name="{{ field.param }}" value="{{ field.value }}" placeholder="{{ field.placeholder }}">
+                                            </label>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </section>
+
+                            <section class="category-filter-group-v74 filter-group-vehicle-v74" aria-label="Motor ve performans filtreleri">
+                                <h4>Motor / Performans</h4>
+                                <div class="category-filter-group-grid-v74">
+                                    {% for field in attribute_filter_fields %}
+                                        {% if field.key == "yakit_tipi" or field.key == "vites" or field.key == "sanziman_cekis" or field.key == "motor_gucu" or field.key == "motor_hacmi" %}
+                                            <label class="attribute-filter-label-v74">
+                                                {{ field.label }}
+                                                <input type="text" name="{{ field.param }}" value="{{ field.value }}" placeholder="{{ field.placeholder }}">
+                                            </label>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </section>
+                        {% else %}
+                            <section class="category-filter-group-v74 filter-group-generic-v74" aria-label="Kategori detay filtreleri">
+                                <h4>Kategori Detayları</h4>
+                                <div class="category-filter-group-grid-v74">
+                                    {% for field in attribute_filter_fields %}
+                                        <label class="attribute-filter-label-v74">
+                                            {{ field.label }}
+                                            <input type="text" name="{{ field.param }}" value="{{ field.value }}" placeholder="{{ field.placeholder }}">
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </section>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -677,6 +902,7 @@
 
                 function makeFilterInput(spec, values) {
                     const label = document.createElement("label");
+                    label.className = "attribute-filter-label-v74";
                     label.appendChild(document.createTextNode(spec.label || spec.key));
 
                     const input = document.createElement("input");
@@ -687,6 +913,86 @@
 
                     label.appendChild(input);
                     return label;
+                }
+
+                function getFilterGroups(selectedCategory, specs) {
+                    const isRealEstate = selectedCategory === "homes-for-sale" || selectedCategory === "homes-for-rent";
+                    const isVehicle = selectedCategory === "cars" || selectedCategory === "motorcycles" || selectedCategory === "commercial-vehicles";
+
+                    if (isRealEstate) {
+                        return [
+                            { title: "Alan ve Oda", className: "filter-group-real-estate-v74", keys: ["m2_brut", "m2_net", "acik_alan_m2", "oda_sayisi"] },
+                            { title: "Bina ve Kullanım", className: "filter-group-real-estate-v74", keys: ["bina_yasi", "bulundugu_kat", "kat_sayisi", "isitma", "banyo_sayisi", "mutfak", "balkon", "asansor", "otopark", "esyali", "kullanim_durumu", "site_i_cerisinde"] },
+                            { title: "Tapu / İlan Bilgileri", className: "filter-group-real-estate-v74", keys: ["krediye_uygun", "tapu_durumu", "kimden", "takas", "foto_video", "harita"] },
+                        ];
+                    }
+
+                    if (isVehicle) {
+                        return [
+                            { title: "Araç Özeti", className: "filter-group-vehicle-v74", keys: ["arac_tipi", "marka", "model", "seri", "yil", "km"] },
+                            { title: "Motor / Performans", className: "filter-group-vehicle-v74", keys: ["yakit_tipi", "vites", "sanziman_cekis", "motor_gucu", "motor_hacmi"] },
+                        ];
+                    }
+
+                    return [
+                        { title: "Kategori Detayları", className: "filter-group-generic-v74", keys: specs.map(function (spec) { return spec.key; }) },
+                    ];
+                }
+
+                function renderFilterGroups(specs, values, selectedCategory) {
+                    const groups = getFilterGroups(selectedCategory, specs);
+                    const renderedKeys = new Set();
+
+                    groups.forEach(function (group) {
+                        const groupSpecs = specs.filter(function (spec) {
+                            return group.keys.indexOf(spec.key) !== -1;
+                        });
+
+                        if (!groupSpecs.length) {
+                            return;
+                        }
+
+                        const section = document.createElement("section");
+                        section.className = "category-filter-group-v74 " + group.className;
+
+                        const title = document.createElement("h4");
+                        title.textContent = group.title;
+                        section.appendChild(title);
+
+                        const groupGrid = document.createElement("div");
+                        groupGrid.className = "category-filter-group-grid-v74";
+
+                        groupSpecs.forEach(function (spec) {
+                            renderedKeys.add(spec.key);
+                            groupGrid.appendChild(makeFilterInput(spec, values));
+                        });
+
+                        section.appendChild(groupGrid);
+                        grid.appendChild(section);
+                    });
+
+                    const remainingSpecs = specs.filter(function (spec) {
+                        return !renderedKeys.has(spec.key);
+                    });
+
+                    if (remainingSpecs.length) {
+                        const section = document.createElement("section");
+                        section.className = "category-filter-group-v74 filter-group-generic-v74";
+
+                        const title = document.createElement("h4");
+                        title.textContent = "Diğer Filtreler";
+                        section.appendChild(title);
+
+                        const groupGrid = document.createElement("div");
+                        groupGrid.className = "category-filter-group-grid-v74";
+
+                        remainingSpecs.forEach(function (spec) {
+                            groupGrid.appendChild(makeFilterInput(spec, values));
+                        });
+
+                        section.appendChild(groupGrid);
+                        grid.appendChild(section);
+                    }
                 }
 
                 function refreshAttributeFilters() {
@@ -701,9 +1007,7 @@
                         return;
                     }
 
-                    specs.forEach(function (spec) {
-                        grid.appendChild(makeFilterInput(spec, values));
-                    });
+                    renderFilterGroups(specs, values, selectedCategory);
                     panel.hidden = false;
                 }
 
