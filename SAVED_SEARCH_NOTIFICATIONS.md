@@ -57,12 +57,15 @@ The send command isolates delivery failures per saved search.
 
 ## Admin guidance
 
-The SavedSearch admin shows lightweight notification status fields:
+The SavedSearch admin shows lightweight notification status fields and safe bulk actions:
 
 - `Notification status` summarizes disabled alerts, missing recipients, last checked, or last sent state.
 - `User email` shows the delivery recipient or `(no email)`.
 - `Query preview` helps operators identify what the saved search will run.
 - `Notification run guidance` reminds operators that sending is manual, dry-run-first, and failure-isolated.
+- `Enable email notifications for selected saved searches` turns email alerts on for the selected saved searches.
+- `Disable email notifications for selected saved searches` turns email alerts off for the selected saved searches.
+- Bulk enable/disable actions only change notification preferences; they do not send email and do not update checked/sent timestamps.
 
 ## Troubleshooting send failures
 
@@ -125,4 +128,5 @@ Expected operator headers include `Mode: DRY RUN`, `Mode: SEND`, `Dry-run safety
 
 <!-- SAVED_SEARCH_NOTIFICATION_RUNBOOK_COMMAND_ALIGNMENT_V88 -->
 
+<!-- SAVED_SEARCH_NOTIFICATION_ADMIN_ACTION_RUNBOOK_ALIGNMENT_V90 -->
 <!-- SAVED_SEARCH_NOTIFICATION_RUNBOOK_ADMIN_POLISH_V86 -->
