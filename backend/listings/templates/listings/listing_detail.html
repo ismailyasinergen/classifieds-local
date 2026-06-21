@@ -424,6 +424,124 @@
             }
         }
 
+
+        .vehicle-detail-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            background: #f8fbff;
+        }
+
+        .vehicle-summary-item {
+            border: 1px solid #cfe0f5;
+            border-radius: 8px;
+            background: #fff;
+            padding: 9px 10px;
+            min-width: 0;
+        }
+
+        .vehicle-summary-label {
+            color: #667085;
+            display: block;
+            font-size: 11px;
+            font-weight: 850;
+            letter-spacing: 0.03em;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+
+        .vehicle-summary-value {
+            color: #111827;
+            display: block;
+            font-size: 15px;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .vehicle-specs-panel {
+            display: grid;
+            gap: 16px;
+        }
+
+        .vehicle-specs-intro {
+            color: #667085;
+            margin: -4px 0 0;
+            max-width: 760px;
+        }
+
+        .vehicle-spec-group {
+            border: 1px solid #dde3eb;
+            border-radius: 12px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .vehicle-spec-group h3 {
+            margin: 0;
+            padding: 11px 13px;
+            background: #f7f9fc;
+            border-bottom: 1px solid #dde3eb;
+            color: #111827;
+            font-size: 15px;
+        }
+
+        .vehicle-spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .vehicle-spec-table th,
+        .vehicle-spec-table td {
+            border-bottom: 1px dotted #d7dee8;
+            padding: 9px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .vehicle-spec-table tr:last-child th,
+        .vehicle-spec-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .vehicle-spec-table th {
+            width: 34%;
+            background: #fbfdff;
+            color: #555;
+            font-weight: 850;
+        }
+
+        .vehicle-spec-table td {
+            color: #111827;
+            font-weight: 650;
+        }
+
+        @media (max-width: 640px) {
+            .vehicle-detail-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .vehicle-spec-table,
+            .vehicle-spec-table tbody,
+            .vehicle-spec-table tr,
+            .vehicle-spec-table th,
+            .vehicle-spec-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .vehicle-spec-table th {
+                border-bottom: 0;
+                padding-bottom: 3px;
+            }
+
+            .vehicle-spec-table td {
+                padding-top: 3px;
+            }
+        }
+
         /* LISTING_DETAIL_GALLERY_INTERACTION_V63 */
         .classified-gallery-shell {
             display: grid;
@@ -798,6 +916,34 @@
                         <span class="real-estate-summary-value">{{ listing.attributes.isitma|default:"—" }}</span>
                     </div>
                 </div>
+            {% elif listing.category.slug == "cars" or listing.category.slug == "motorcycles" or listing.category.slug == "commercial-vehicles" %}
+                <!-- VEHICLE_DETAIL_SPECS_V72 -->
+                <div class="vehicle-detail-summary" aria-label="Vehicle summary">
+                    <div class="vehicle-summary-item">
+                        <span class="vehicle-summary-label">Marka</span>
+                        <span class="vehicle-summary-value">{% firstof listing.attributes.marka "—" %}</span>
+                    </div>
+                    <div class="vehicle-summary-item">
+                        <span class="vehicle-summary-label">Seri / Model</span>
+                        <span class="vehicle-summary-value">{% firstof listing.attributes.model listing.attributes.seri "—" %}</span>
+                    </div>
+                    <div class="vehicle-summary-item">
+                        <span class="vehicle-summary-label">Yıl</span>
+                        <span class="vehicle-summary-value">{% firstof listing.attributes.yil "—" %}</span>
+                    </div>
+                    <div class="vehicle-summary-item">
+                        <span class="vehicle-summary-label">KM</span>
+                        <span class="vehicle-summary-value">{% firstof listing.attributes.km "—" %}</span>
+                    </div>
+                    <div class="vehicle-summary-item">
+                        <span class="vehicle-summary-label">Yakıt</span>
+                        <span class="vehicle-summary-value">{% firstof listing.attributes.yakit_tipi "—" %}</span>
+                    </div>
+                    <div class="vehicle-summary-item">
+                        <span class="vehicle-summary-label">Vites</span>
+                        <span class="vehicle-summary-value">{% firstof listing.attributes.vites listing.attributes.sanziman_cekis "—" %}</span>
+                    </div>
+                </div>
             {% endif %}
 
             <table class="classified-details-table">
@@ -1023,6 +1169,59 @@
                             <tr><th>Takaslı</th><td>{{ listing.attributes.takas|yesno:"Evet,Hayır,—" }}</td></tr>
                             <tr><th>Fotoğraf / Video</th><td>{{ listing.attributes.foto_video|default:"—" }}</td></tr>
                             <tr><th>Harita</th><td>{{ listing.attributes.harita|yesno:"Evet,Hayır,—" }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% elif listing.category.slug == "cars" or listing.category.slug == "motorcycles" or listing.category.slug == "commercial-vehicles" %}
+            <!-- VEHICLE_DETAIL_SPECS_V72 -->
+            <div class="vehicle-specs-panel" aria-label="Vehicle specification groups">
+                <p class="vehicle-specs-intro">
+                    Key vehicle specifications are grouped for easier comparison before contacting the seller.
+                </p>
+
+                <div class="vehicle-spec-group">
+                    <h3>Araç Özeti</h3>
+                    <table class="vehicle-spec-table">
+                        <tbody>
+                            <tr><th>Marka</th><td>{% firstof listing.attributes.marka "—" %}</td></tr>
+                            <tr><th>Seri</th><td>{% firstof listing.attributes.seri "—" %}</td></tr>
+                            <tr><th>Model</th><td>{% firstof listing.attributes.model "—" %}</td></tr>
+                            <tr><th>Yıl</th><td>{% firstof listing.attributes.yil "—" %}</td></tr>
+                            <tr><th>KM</th><td>{% firstof listing.attributes.km "—" %}</td></tr>
+                            <tr><th>Renk</th><td>{% firstof listing.attributes.renk "—" %}</td></tr>
+                            <tr><th>Kasa Tipi</th><td>{% firstof listing.attributes.kasa_tipi "—" %}</td></tr>
+                            <tr><th>Durum</th><td>{% firstof listing.attributes.durum "—" %}</td></tr>
+                            <tr><th>Araç Tipi</th><td>{% firstof listing.attributes.arac_tipi "—" %}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="vehicle-spec-group">
+                    <h3>Motor ve Performans</h3>
+                    <table class="vehicle-spec-table">
+                        <tbody>
+                            <tr><th>Yakıt Tipi</th><td>{% firstof listing.attributes.yakit_tipi "—" %}</td></tr>
+                            <tr><th>Vites</th><td>{% firstof listing.attributes.vites "—" %}</td></tr>
+                            <tr><th>Şanzıman / Çekiş</th><td>{% firstof listing.attributes.sanziman_cekis "—" %}</td></tr>
+                            <tr><th>Çekiş</th><td>{% firstof listing.attributes.cekis "—" %}</td></tr>
+                            <tr><th>Motor Gücü</th><td>{% firstof listing.attributes.motor_gucu "—" %}</td></tr>
+                            <tr><th>Motor Hacmi</th><td>{% firstof listing.attributes.motor_hacmi "—" %}</td></tr>
+                            <tr><th>Şehir İçi (100 km'de)</th><td>{% firstof listing.attributes.sehir_ici_100_km_de "—" %}</td></tr>
+                            <tr><th>Şehir Dışı (100 km'de)</th><td>{% firstof listing.attributes.sehir_disi_100_km_de "—" %}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="vehicle-spec-group">
+                    <h3>Donanım / İlan Bilgileri</h3>
+                    <table class="vehicle-spec-table">
+                        <tbody>
+                            <tr><th>Garanti</th><td>{% firstof listing.attributes.garanti "—" %}</td></tr>
+                            <tr><th>Kimden</th><td>{% firstof listing.attributes.kimden "—" %}</td></tr>
+                            <tr><th>Takas</th><td>{% firstof listing.attributes.takas "—" %}</td></tr>
+                            <tr><th>Fotoğraf / Video</th><td>{% firstof listing.attributes.foto_video "—" %}</td></tr>
+                            <tr><th>İlan Durumu</th><td>{{ listing.get_status_display }}</td></tr>
                         </tbody>
                     </table>
                 </div>
