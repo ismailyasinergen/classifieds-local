@@ -114,6 +114,44 @@
             }
         }
 
+
+        /* VEHICLE_FORM_GROUPS_V73 */
+        .vehicle-form-guide {
+            border: 1px solid #cfe0f5;
+            border-radius: 12px;
+            background: #f8fbff;
+            padding: 12px 14px;
+            margin: 0 0 14px;
+            color: #475467;
+        }
+
+        .vehicle-form-guide strong {
+            color: #111827;
+        }
+
+        .vehicle-form-group {
+            border: 1px solid #dde3eb;
+            border-radius: 12px;
+            background: #fff;
+            padding: 13px;
+        }
+
+        .vehicle-form-group h3 {
+            margin: 0 0 4px;
+            font-size: 16px;
+            color: #111827;
+        }
+
+        .vehicle-form-group .listing-form-grid {
+            margin-top: 0;
+        }
+
+        @media (max-width: 640px) {
+            .vehicle-form-group {
+                padding: 11px;
+            }
+        }
+
         /* LISTING_IMAGE_UPLOAD_UX_V62 */
         .image-upload-panel {
             display: grid;
@@ -276,6 +314,11 @@
                 fill the home, building, and deed details buyers expect to compare.
             </p>
 
+            <p class="vehicle-form-guide">
+                <strong>Vehicle listings:</strong>
+                fill the vehicle identity, engine, performance, equipment, and seller details buyers expect to compare.
+            </p>
+
             <div class="real-estate-form-groups" id="schema-attribute-fields">
                 <div class="real-estate-form-group" data-real-estate-form-group>
                     <h3>Konut Özellikleri</h3>
@@ -331,6 +374,61 @@
                     </div>
                 </div>
 
+
+                <div class="vehicle-form-group" data-vehicle-form-group>
+                    <h3>Araç Özeti</h3>
+                    <p class="real-estate-form-group-note">
+                        Brand, series, model, year, mileage, color, body type, and condition details.
+                    </p>
+                    <div class="listing-form-grid">
+                        {% for field in form.visible_fields %}
+                            {% if field.name == "attr__marka" or field.name == "attr__seri" or field.name == "attr__model" or field.name == "attr__yil" or field.name == "attr__km" or field.name == "attr__renk" or field.name == "attr__kasa_tipi" or field.name == "attr__durum" or field.name == "attr__arac_tipi" or field.name == "attr__arac_durumu" %}
+                                <p class="listing-form-row schema-attribute-row">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {{ field.errors }}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="vehicle-form-group" data-vehicle-form-group>
+                    <h3>Motor ve Performans</h3>
+                    <p class="real-estate-form-group-note">
+                        Fuel, transmission, traction, engine, and consumption details.
+                    </p>
+                    <div class="listing-form-grid">
+                        {% for field in form.visible_fields %}
+                            {% if field.name == "attr__yakit_tipi" or field.name == "attr__vites" or field.name == "attr__sanziman_cekis" or field.name == "attr__cekis" or field.name == "attr__motor_gucu" or field.name == "attr__motor_hacmi" or field.name == "attr__motor_tipi" or field.name == "attr__sehir_ici_100_km_de" or field.name == "attr__sehir_disi_100_km_de" or field.name == "attr__ortalama_100_km_de" %}
+                                <p class="listing-form-row schema-attribute-row">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {{ field.errors }}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="vehicle-form-group" data-vehicle-form-group>
+                    <h3>Donanım / İlan Bilgileri</h3>
+                    <p class="real-estate-form-group-note">
+                        Warranty, seller type, exchange, plate, heavy damage, and media details.
+                    </p>
+                    <div class="listing-form-grid">
+                        {% for field in form.visible_fields %}
+                            {% if field.name == "attr__garanti" or field.name == "attr__kimden" or field.name == "attr__takas" or field.name == "attr__agir_hasar_kayitli" or field.name == "attr__plaka_uyruk" or field.name == "attr__foto_video" %}
+                                <p class="listing-form-row schema-attribute-row">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {{ field.errors }}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
                 <div class="real-estate-form-group generic-attribute-group-v70" data-generic-form-group>
                     <h3>Other Category Details</h3>
                     <p class="real-estate-form-group-note">
@@ -339,7 +437,7 @@
                     <div class="listing-form-grid">
                         {% for field in form.visible_fields %}
                             {% if field.name in form.attribute_field_names %}
-                                {% if field.name != "attr__m2_brut" and field.name != "attr__m2_net" and field.name != "attr__acik_alan_m2" and field.name != "attr__oda_sayisi" and field.name != "attr__bina_yasi" and field.name != "attr__bulundugu_kat" and field.name != "attr__kat_sayisi" and field.name != "attr__isitma" and field.name != "attr__banyo_sayisi" and field.name != "attr__mutfak" and field.name != "attr__balkon" and field.name != "attr__asansor" and field.name != "attr__otopark" and field.name != "attr__esyali" and field.name != "attr__kullanim_durumu" and field.name != "attr__site_i_cerisinde" and field.name != "attr__site_adi" and field.name != "attr__aidat_tl" and field.name != "attr__enerji_kimlik_belgesi" and field.name != "attr__krediye_uygun" and field.name != "attr__tapu_durumu" and field.name != "attr__kimden" and field.name != "attr__takas" and field.name != "attr__emlak_tipi" and field.name != "attr__foto_video" and field.name != "attr__harita" %}
+                                {% if field.name != "attr__m2_brut" and field.name != "attr__m2_net" and field.name != "attr__acik_alan_m2" and field.name != "attr__oda_sayisi" and field.name != "attr__bina_yasi" and field.name != "attr__bulundugu_kat" and field.name != "attr__kat_sayisi" and field.name != "attr__isitma" and field.name != "attr__banyo_sayisi" and field.name != "attr__mutfak" and field.name != "attr__balkon" and field.name != "attr__asansor" and field.name != "attr__otopark" and field.name != "attr__esyali" and field.name != "attr__kullanim_durumu" and field.name != "attr__site_i_cerisinde" and field.name != "attr__site_adi" and field.name != "attr__aidat_tl" and field.name != "attr__enerji_kimlik_belgesi" and field.name != "attr__krediye_uygun" and field.name != "attr__tapu_durumu" and field.name != "attr__kimden" and field.name != "attr__takas" and field.name != "attr__emlak_tipi" and field.name != "attr__foto_video" and field.name != "attr__harita" and field.name != "attr__marka" and field.name != "attr__seri" and field.name != "attr__model" and field.name != "attr__yil" and field.name != "attr__km" and field.name != "attr__renk" and field.name != "attr__kasa_tipi" and field.name != "attr__durum" and field.name != "attr__arac_tipi" and field.name != "attr__arac_durumu" and field.name != "attr__yakit_tipi" and field.name != "attr__vites" and field.name != "attr__sanziman_cekis" and field.name != "attr__cekis" and field.name != "attr__motor_gucu" and field.name != "attr__motor_hacmi" and field.name != "attr__motor_tipi" and field.name != "attr__sehir_ici_100_km_de" and field.name != "attr__sehir_disi_100_km_de" and field.name != "attr__ortalama_100_km_de" and field.name != "attr__garanti" and field.name != "attr__agir_hasar_kayitli" and field.name != "attr__plaka_uyruk" %}
                                     <p class="listing-form-row schema-attribute-row">
                                         {{ field.label_tag }}
                                         {{ field }}
@@ -397,6 +495,8 @@
             const categorySelect = document.getElementById("id_category");
             const schemaMapElement = document.getElementById("category-schema-map");
             const emptyNote = document.getElementById("attribute-empty-note");
+            const realEstateGuide = document.querySelector(".real-estate-form-guide");
+            const vehicleGuide = document.querySelector(".vehicle-form-guide");
 
                 return;
             }
@@ -419,12 +519,27 @@
                     }
                 });
 
-                document.querySelectorAll("[data-real-estate-form-group], [data-generic-form-group]").forEach(function (group) {
+                document.querySelectorAll("[data-real-estate-form-group], [data-vehicle-form-group], [data-generic-form-group]").forEach(function (group) {
                     const visibleRows = Array.from(group.querySelectorAll(".schema-attribute-row")).filter(function (row) {
                         return row.style.display !== "none";
                     });
                     group.style.display = visibleRows.length ? "block" : "none";
                 });
+
+                const visibleRealEstateGroups = Array.from(document.querySelectorAll("[data-real-estate-form-group]")).filter(function (group) {
+                    return group.style.display !== "none";
+                });
+                const visibleVehicleGroups = Array.from(document.querySelectorAll("[data-vehicle-form-group]")).filter(function (group) {
+                    return group.style.display !== "none";
+                });
+
+                if (realEstateGuide) {
+                    realEstateGuide.style.display = visibleRealEstateGroups.length ? "block" : "none";
+                }
+
+                if (vehicleGuide) {
+                    vehicleGuide.style.display = visibleVehicleGroups.length ? "block" : "none";
+                }
 
                 if (emptyNote) {
                     emptyNote.style.display = visibleCount ? "none" : "block";
