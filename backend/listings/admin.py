@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils import timezone
 from datetime import timedelta
 
-from .models import Listing, ListingFavorite, ListingImage, ListingReport
+from .models import Listing, ListingFavorite, ListingImage, ListingReport, SavedSearch
 
 
 class ListingImageInline(admin.TabularInline):
@@ -116,3 +116,12 @@ class ListingReportAdmin(admin.ModelAdmin):
         "details",
         "admin_note",
     ]
+
+
+# SAVED_SEARCH_FOUNDATION_V77
+@admin.register(SavedSearch)
+class SavedSearchAdmin(admin.ModelAdmin):
+    list_display = ["display_name", "user", "created_at", "updated_at"]
+    search_fields = ["name", "querystring", "user__email", "user__username"]
+    list_filter = ["created_at", "updated_at"]
+    readonly_fields = ["created_at", "updated_at"]

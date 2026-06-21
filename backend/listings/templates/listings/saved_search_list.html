@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Saved Searches{% endblock %}
+
+{% block content %}
+<section class="page-section" data-marker="SAVED_SEARCH_FOUNDATION_V77">
+    <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap;">
+        <div>
+            <h1>Saved Searches</h1>
+            <p class="muted">
+                Return to your saved category and filter combinations.
+            </p>
+        </div>
+
+        <a class="button-link" href="{% url 'listings:listing_list' %}">
+            Browse listings
+        </a>
+    </div>
+
+    {% if saved_searches %}
+        <div class="listing-grid" style="margin-top:18px;">
+            {% for search in saved_searches %}
+                <article class="listing-card">
+                    <div class="listing-card-body">
+                        <h2 style="margin-top:0;">{{ search.display_name }}</h2>
+
+                        {% if search.name %}
+                            <p class="muted">{{ search.querystring }}</p>
+                        {% endif %}
+
+                        <p class="muted">
+                            Saved {{ search.created_at|date:"M d, Y H:i" }}
+                            · Updated {{ search.updated_at|date:"M d, Y H:i" }}
+                        </p>
+
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+                            <a class="button-link button-primary" href="{{ search.get_absolute_url }}">
+                                Run search
+                            </a>
+
+                            <form method="post" action="{% url 'listings:saved_search_delete' search.pk %}">
+                                {% csrf_token %}
+                                <button class="button-link" type="submit">
+                                    Remove
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <section class="browse-empty-state" style="margin-top:18px;">
+            <h2>No saved searches yet</h2>
+            <p class="muted">
+                Apply filters on the browse page, then save the search from the results panel.
+            </p>
+            <a class="button-link button-primary" href="{% url 'listings:listing_list' %}">
+                Start browsing
+            </a>
+        </section>
+    {% endif %}
+</section>
+{% endblock %}

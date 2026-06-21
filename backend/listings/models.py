@@ -149,6 +149,81 @@ class ListingFavorite(models.Model):
 
 
 
+
+
+# SAVED_SEARCH_FOUNDATION_V77
+class SavedSearch(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="saved_searches",
+    )
+    name = models.CharField(max_length=120, blank=True)
+    path = models.CharField(max_length=255, default="/listings/")
+    query_params = models.JSONField(default=dict)
+    querystring = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-created_at"]
+        indexes = [
+            models.Index(fields=["user", "-updated_at"], name="saved_search_user_updated_idx"),
+        ]
+
+    def __str__(self):
+        return self.name or self.display_name
+
+    @property
+    def display_name(self):
+        if self.name:
+            return self.name
+
+        parts = []
+        category = self.query_params.get("category")
+        q = self.query_params.get("q")
+        location = self.query_params.get("location")
+
+        if category:
+            parts.append(str(category).replace("-", " ").title())
+        if q:
+            parts.append(str(q))
+        if location:
+            parts.append(str(location))
+
+        min_price = self.query_params.get("min_price")
+        max_price = self.query_params.get("max_price")
+        if min_price:
+            parts.append(f"Min {min_price} TL")
+        if max_price:
+            parts.append(f"Max {max_price} TL")
+
+        if not parts:
+            parts.append("Saved search")
+
+        return " · ".join(parts)
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        from django.utils.http import urlencode
+
+        base_path = self.path or reverse("listings:listing_list")
+        pairs = []
+
+        for key, value in (self.query_params or {}).items():
+            if isinstance(value, list):
+                for item in value:
+                    pairs.append((key, item))
+            else:
+                pairs.append((key, value))
+
+        querystring = urlencode(pairs, doseq=True)
+        if querystring:
+            return f"{base_path}?{querystring}"
+
+        return base_path
+
+
 class ListingReport(models.Model):
     class Reason(models.TextChoices):
         SCAM = "scam", "Scam or fraud"

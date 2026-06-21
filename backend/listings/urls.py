@@ -5,6 +5,9 @@ from .views import (
     ListingDeleteView,
     ListingDetailView,
     ListingListView,
+    saved_search_create,
+    saved_search_delete,
+    saved_search_list,
     ListingUpdateView,
     listing_approve,
     listing_archive,
@@ -30,6 +33,10 @@ app_name = "listings"
 
 urlpatterns = [
     path("listings/", ListingListView.as_view(), name="listing_list"),
+    # SAVED_SEARCH_FOUNDATION_V77
+    path("listings/saved-searches/", saved_search_list, name="saved_search_list"),
+    path("listings/saved-searches/create/", saved_search_create, name="saved_search_create"),
+    path("listings/saved-searches/<int:pk>/delete/", saved_search_delete, name="saved_search_delete"),
     path("listings/create/", ListingCreateView.as_view(), name="listing_create"),
     path("listings/moderation/", moderation_queue, name="moderation_queue"),
 

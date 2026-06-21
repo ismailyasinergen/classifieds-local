@@ -95,6 +95,61 @@
 
 
 
+
+        /* SAVED_SEARCH_FOUNDATION_V77 */
+        .save-search-panel-v77 {
+            margin-top: 12px;
+            border: 1px solid #d7e3ff;
+            background: #f8fbff;
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .save-search-panel-v77 strong {
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .save-search-form-v77 {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .save-search-form-v77 input[type="text"] {
+            min-width: 220px;
+            max-width: 100%;
+        }
+
+        .saved-search-status-v77 {
+            border: 1px solid #bbf7d0;
+            background: #f0fdf4;
+            color: #166534;
+            border-radius: 999px;
+            padding: 7px 10px;
+            font-weight: 850;
+        }
+
+        @media (max-width: 760px) {
+            .save-search-panel-v77,
+            .save-search-form-v77 {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .save-search-form-v77 input[type="text"],
+            .save-search-form-v77 button,
+            .save-search-panel-v77 .button-link {
+                width: 100%;
+            }
+        }
+
         /* FILTER_UX_POLISH_V76 */
         .active-filter-list-v76 {
             align-items: center;
@@ -1213,6 +1268,39 @@
                 <a class="active-filter-clear-all-v76" href="{{ active_filter_clear_all_url }}">
                     Clear all filters
                 </a>
+            </div>
+        {% endif %}
+
+        {% if save_search_querystring %}
+            <div class="save-search-panel-v77" aria-label="Save search">
+                <div>
+                    <strong>Save this search</strong>
+                    <span class="muted">
+                        Keep this category and filter combination so you can return to it later.
+                    </span>
+                </div>
+
+                {% if request.user.is_authenticated %}
+                    {% if current_saved_search %}
+                        <span class="saved-search-status-v77">Saved search</span>
+                        <a class="button-link" href="{% url 'listings:saved_search_list' %}">
+                            View saved searches
+                        </a>
+                    {% else %}
+                        <form class="save-search-form-v77" method="post" action="{% url 'listings:saved_search_create' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="querystring" value="{{ save_search_querystring }}">
+                            <input type="text" name="name" placeholder="Optional search name">
+                            <button class="button-link button-primary" type="submit">
+                                Save this search
+                            </button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <a class="button-link button-primary" href="{% url 'accounts:login' %}?next={{ request.get_full_path|urlencode }}">
+                        Log in to save this search
+                    </a>
+                {% endif %}
             </div>
         {% endif %}
     </section>

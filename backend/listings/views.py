@@ -1702,6 +1702,10 @@ class ListingListView(_BaseAttributeListingListView):
         )
         context.update(get_attribute_filter_context(self.request, category_slug))
         context["page_querystring"] = get_page_querystring(self.request)
+
+        from .saved_searches import get_saved_search_context
+        context.update(get_saved_search_context(self.request))
+
         return context
 
 # TRUST_SAFETY_REPORT_EVENT_WIRING_V2
@@ -1775,3 +1779,57 @@ def listing_report_archive_listing(request, pk):
         pass
 
     return response
+
+# SAVED_SEARCH_FOUNDATION_V77
+@login_required
+@require_POST
+def saved_search_create(request):
+    from django.urls import reverse
+
+    from .saved_searches import create_saved_search_from_request
+
+    saved_search, created, querystring = create_saved_search_from_request(
+        request,
+        request.POST.get("querystring", ""),
+        request.POST.get("name", ""),
+    )
+
+    if not saved_search:
+        messages.warning(request, "Add at least one filter before saving a search.")
+        return redirect("listings:listing_list")
+
+    if created:
+        messages.success(request, "Search saved.")
+    else:
+        messages.info(request, "This search was already saved.")
+
+    url = reverse("listings:listing_list")
+    if querystring:
+        url = f"{url}?{querystring}"
+
+    return redirect(url)
+
+
+@login_required
+def saved_search_list(request):
+    from .models import SavedSearch
+
+    saved_searches = SavedSearch.objects.filter(user=request.user)
+    return render(
+        request,
+        "listings/saved_search_list.html",
+        {
+            "saved_searches": saved_searches,
+        },
+    )
+
+
+@login_required
+@require_POST
+def saved_search_delete(request, pk):
+    from .models import SavedSearch
+
+    saved_search = get_object_or_404(SavedSearch, pk=pk, user=request.user)
+    saved_search.delete()
+    messages.success(request, "Saved search removed.")
+    return redirect("listings:saved_search_list")
