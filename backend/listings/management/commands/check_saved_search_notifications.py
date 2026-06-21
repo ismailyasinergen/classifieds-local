@@ -2,6 +2,7 @@
 # SAVED_SEARCH_EMAIL_DELIVERY_SKELETON_V82
 # SAVED_SEARCH_NOTIFICATION_OPERATIONAL_HARDENING_V83
 # SAVED_SEARCH_NOTIFICATION_SCHEDULING_FILTERS_V84
+# SAVED_SEARCH_NOTIFICATION_OBSERVABILITY_V85
 from datetime import timedelta
 
 from django.core.management.base import BaseCommand, CommandError
@@ -102,6 +103,8 @@ class Command(BaseCommand):
         marked_checked = 0
         skipped_zero_matches = 0
         skipped_no_recipient = 0
+        send_failures = 0
+        failed_saved_search_ids = []
         should_send = options["send"]
         should_mark_checked = options["mark_checked"]
         site_base_url = options.get("site_base_url") or None
@@ -146,10 +149,23 @@ class Command(BaseCommand):
             self.stdout.write(f"  Email to: {', '.join(message.to)}")
 
             if should_send:
-                sent_count = send_saved_search_match_email(
-                    preview,
-                    site_base_url=site_base_url,
-                )
+                try:
+                    sent_count = send_saved_search_match_email(
+                        preview,
+                        site_base_url=site_base_url,
+                    )
+                except Exception as exc:
+                    send_failures += 1
+                    failed_saved_search_ids.append(saved_search.pk)
+                    self.stdout.write(
+                        self.style.ERROR(
+                            f"  Email send failed for saved search #{saved_search.pk}: "
+                            f"{exc.__class__.__name__}: {exc}"
+                        )
+                    )
+                    self.stdout.write("  Timestamps were not updated for this saved search.")
+                    continue
+
                 sent_emails += sent_count
 
                 if sent_count:
@@ -171,10 +187,18 @@ class Command(BaseCommand):
                 self.style.SUCCESS(
                     f"Processed {len(previews)} enabled saved search(es), "
                     f"{total_matches} total match(es), {sent_emails} email(s) sent, "
+                    f"{send_failures} email failure(s), "
                     f"{skipped_zero_matches} zero-match search(es) skipped, "
                     f"{skipped_no_recipient} no-recipient search(es) skipped."
                 )
             )
+            if failed_saved_search_ids:
+                self.stdout.write(
+                    self.style.ERROR(
+                        "Failed saved search ID(s): "
+                        + ", ".join(str(pk) for pk in failed_saved_search_ids)
+                    )
+                )
         else:
             self.stdout.write(
                 self.style.SUCCESS(
