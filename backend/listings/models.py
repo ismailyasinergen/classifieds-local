@@ -223,6 +223,23 @@ class SavedSearch(models.Model):
 
         return base_path
 
+    # SAVED_SEARCH_UX_POLISH_V78
+    @property
+    def filter_summaries(self):
+        from .saved_searches import summarize_saved_search_params
+
+        return summarize_saved_search_params(self.query_params)
+
+    @property
+    def filter_count(self):
+        return len(self.filter_summaries)
+
+    @property
+    def summary_sentence(self):
+        from .saved_searches import saved_search_summary_sentence
+
+        return saved_search_summary_sentence(self.query_params)
+
 
 class ListingReport(models.Model):
     class Reason(models.TextChoices):

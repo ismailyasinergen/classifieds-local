@@ -96,6 +96,34 @@
 
 
 
+
+        /* SAVED_SEARCH_UX_POLISH_V78 */
+        .save-search-panel-v78 {
+            border-color: #bfdbfe;
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.08);
+        }
+
+        .saved-search-already-v78 {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .saved-search-status-v78 {
+            border: 1px solid #bbf7d0;
+            background: #ecfdf5;
+            color: #166534;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-weight: 900;
+        }
+
+        .saved-search-name-v78 {
+            color: #475569;
+            font-weight: 750;
+        }
+
         /* SAVED_SEARCH_FOUNDATION_V77 */
         .save-search-panel-v77 {
             margin-top: 12px;
@@ -1272,7 +1300,7 @@
         {% endif %}
 
         {% if save_search_querystring %}
-            <div class="save-search-panel-v77" aria-label="Save search">
+            <div class="save-search-panel-v77 save-search-panel-v78" aria-label="Save search">
                 <div>
                     <strong>Save this search</strong>
                     <span class="muted">
@@ -1282,10 +1310,15 @@
 
                 {% if request.user.is_authenticated %}
                     {% if current_saved_search %}
-                        <span class="saved-search-status-v77">Saved search</span>
-                        <a class="button-link" href="{% url 'listings:saved_search_list' %}">
-                            View saved searches
-                        </a>
+                        <div class="saved-search-already-v78">
+                            <span class="saved-search-status-v77 saved-search-status-v78">Already saved</span>
+                            <span class="saved-search-name-v78">
+                                {{ current_saved_search.display_name }}
+                            </span>
+                            <a class="button-link" href="{% url 'listings:saved_search_list' %}">
+                                View saved searches
+                            </a>
+                        </div>
                     {% else %}
                         <form class="save-search-form-v77" method="post" action="{% url 'listings:saved_search_create' %}">
                             {% csrf_token %}
