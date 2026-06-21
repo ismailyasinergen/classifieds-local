@@ -1801,7 +1801,7 @@ def saved_search_create(request):
     if created:
         messages.success(request, "Search saved.")
     else:
-        messages.info(request, "This search was already saved.")
+        messages.info(request, "Saved search updated.")
 
     url = reverse("listings:listing_list")
     if querystring:
@@ -1812,14 +1812,48 @@ def saved_search_create(request):
 
 @login_required
 def saved_search_list(request):
+    # SAVED_SEARCH_MANAGEMENT_HARDENING_V79
+    from django.core.paginator import Paginator
+    from django.db.models import Q
+    from django.utils.http import urlencode
+
     from .models import SavedSearch
 
-    saved_searches = SavedSearch.objects.filter(user=request.user)
+    saved_search_search_query = request.GET.get("q", "").strip()
+    saved_searches_base = (
+        SavedSearch.objects
+        .filter(user=request.user)
+        .order_by("-updated_at", "-created_at")
+    )
+
+    saved_search_total_count = saved_searches_base.count()
+    saved_searches_queryset = saved_searches_base
+
+    if saved_search_search_query:
+        saved_searches_queryset = saved_searches_queryset.filter(
+            Q(name__icontains=saved_search_search_query)
+            | Q(querystring__icontains=saved_search_search_query)
+        )
+
+    saved_search_filtered_count = saved_searches_queryset.count()
+    paginator = Paginator(saved_searches_queryset, 6)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    pagination_params = {}
+    if saved_search_search_query:
+        pagination_params["q"] = saved_search_search_query
+
     return render(
         request,
         "listings/saved_search_list.html",
         {
-            "saved_searches": saved_searches,
+            "saved_searches": page_obj.object_list,
+            "page_obj": page_obj,
+            "saved_search_search_query": saved_search_search_query,
+            "saved_search_total_count": saved_search_total_count,
+            "saved_search_filtered_count": saved_search_filtered_count,
+            "saved_search_page_size": paginator.per_page,
+            "saved_search_pagination_querystring": urlencode(pagination_params),
         },
     )
 

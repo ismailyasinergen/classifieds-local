@@ -1,6 +1,7 @@
 # SAVED_SEARCH_FOUNDATION_V77
 from django.http import QueryDict
 from django.urls import reverse
+from django.utils.http import urlencode
 
 
 SAVED_SEARCH_ALLOWED_KEYS = {
@@ -59,9 +60,23 @@ def querydict_to_plain_params(querydict):
     return params
 
 
+# SAVED_SEARCH_MANAGEMENT_HARDENING_V79
+def canonical_saved_search_querystring(querydict):
+    pairs = []
+
+    for key in sorted(querydict.keys()):
+        for value in sorted(querydict.getlist(key)):
+            value = _clean_value(value)
+            if value:
+                pairs.append((key, value))
+
+    return urlencode(pairs, doseq=True)
+
+
 def get_saved_search_context(request):
     querydict = clean_saved_search_querydict(request.GET)
-    querystring = querydict.urlencode()
+    querystring = canonical_saved_search_querystring(querydict)
+    query_params = querydict_to_plain_params(querydict)
 
     context = {
         "save_search_querystring": querystring,
@@ -71,11 +86,13 @@ def get_saved_search_context(request):
     if not querystring or not request.user.is_authenticated:
         return context
 
+    from django.db.models import Q
     from .models import SavedSearch
 
     context["current_saved_search"] = (
         SavedSearch.objects
-        .filter(user=request.user, path=reverse("listings:listing_list"), querystring=querystring)
+        .filter(user=request.user, path=reverse("listings:listing_list"))
+        .filter(Q(querystring=querystring) | Q(query_params=query_params))
         .first()
     )
 
@@ -86,7 +103,7 @@ def create_saved_search_from_request(request, querystring, name=""):
     from .models import SavedSearch
 
     querydict = clean_saved_search_querydict(querystring)
-    clean_querystring = querydict.urlencode()
+    clean_querystring = canonical_saved_search_querystring(querydict)
 
     if not clean_querystring:
         return None, False, ""
@@ -95,15 +112,22 @@ def create_saved_search_from_request(request, querystring, name=""):
     query_params = querydict_to_plain_params(querydict)
     name = _clean_value(name)[:120]
 
+    from django.db.models import Q
+
     saved_search = (
         SavedSearch.objects
-        .filter(user=request.user, path=path, querystring=clean_querystring)
+        .filter(user=request.user, path=path)
+        .filter(Q(querystring=clean_querystring) | Q(query_params=query_params))
         .first()
     )
 
     if saved_search:
         update_fields = ["query_params", "updated_at"]
         saved_search.query_params = query_params
+
+        if saved_search.querystring != clean_querystring:
+            saved_search.querystring = clean_querystring
+            update_fields.append("querystring")
 
         if name and saved_search.name != name:
             saved_search.name = name

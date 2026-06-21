@@ -5,16 +5,45 @@
 {% block content %}
 <style>
     /* SAVED_SEARCH_UX_POLISH_V78 */
+    /* SAVED_SEARCH_MANAGEMENT_HARDENING_V79 */
     .saved-search-page-v78 {
         display: grid;
         gap: 18px;
     }
 
-    .saved-search-header-v78 {
+    .saved-search-header-v78,
+    .saved-search-management-bar-v79 {
         display: flex;
         justify-content: space-between;
         gap: 12px;
         align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .saved-search-management-bar-v79 {
+        border: 1px solid #dbe4ef;
+        border-radius: 16px;
+        background: #f8fafc;
+        padding: 14px;
+        align-items: center;
+    }
+
+    .saved-search-search-form-v79 {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .saved-search-search-form-v79 input {
+        min-width: min(320px, 100%);
+    }
+
+    .saved-search-counts-v79 {
+        color: #475569;
+        font-size: 13px;
+        display: flex;
+        gap: 8px;
         flex-wrap: wrap;
     }
 
@@ -40,12 +69,20 @@
         font-size: 20px;
     }
 
-    .saved-search-meta-v78 {
+    .saved-search-meta-v78,
+    .saved-search-management-meta-v79 {
         color: #64748b;
         font-size: 13px;
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
+    }
+
+    .saved-search-management-meta-v79 span {
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        border-radius: 999px;
+        padding: 4px 8px;
     }
 
     .saved-search-summary-v78 {
@@ -71,11 +108,24 @@
         color: #475569;
     }
 
-    .saved-search-actions-v78 {
+    .saved-search-actions-v78,
+    .saved-search-pagination-v79 {
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
         align-items: center;
+    }
+
+    .saved-search-pagination-v79 {
+        justify-content: center;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 14px;
+    }
+
+    .saved-search-page-indicator-v79 {
+        color: #475569;
+        font-weight: 800;
+        padding: 8px 10px;
     }
 
     .saved-search-remove-v78 {
@@ -92,7 +142,7 @@
     }
 </style>
 
-<section class="page-section saved-search-page-v78" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78">
+<section class="page-section saved-search-page-v78" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79">
     <div class="saved-search-header-v78">
         <div>
             <h1>Saved Searches</h1>
@@ -106,6 +156,29 @@
         </a>
     </div>
 
+    <div class="saved-search-management-bar-v79">
+        <form class="saved-search-search-form-v79" method="get" action="{% url 'listings:saved_search_list' %}">
+            <label for="saved-search-q"><strong>Search saved searches</strong></label>
+            <input
+                id="saved-search-q"
+                type="search"
+                name="q"
+                value="{{ saved_search_search_query }}"
+                placeholder="Search by name or saved filter"
+            >
+            <button class="button-link button-primary" type="submit">Search</button>
+            {% if saved_search_search_query %}
+                <a class="button-link" href="{% url 'listings:saved_search_list' %}">Clear search</a>
+            {% endif %}
+        </form>
+
+        <div class="saved-search-counts-v79" aria-label="Saved search counts">
+            <span>{{ saved_search_filtered_count }} shown</span>
+            <span>{{ saved_search_total_count }} total</span>
+            <span>{{ saved_search_page_size }} per page</span>
+        </div>
+    </div>
+
     {% if saved_searches %}
         <div class="saved-search-grid-v78">
             {% for search in saved_searches %}
@@ -114,8 +187,11 @@
                         <h2>{{ search.display_name }}</h2>
                         <div class="saved-search-meta-v78">
                             <span>{{ search.filter_count }} saved filter{{ search.filter_count|pluralize }}</span>
-                            <span>Saved {{ search.created_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                        <div class="saved-search-management-meta-v79">
+                            <span>Created {{ search.created_at|date:"M d, Y H:i" }}</span>
                             <span>Updated {{ search.updated_at|date:"M d, Y H:i" }}</span>
+                            <span>Last run: not tracked yet</span>
                         </div>
                     </div>
 
@@ -153,6 +229,36 @@
                 </article>
             {% endfor %}
         </div>
+
+        {% if page_obj.has_other_pages %}
+            <nav class="saved-search-pagination-v79" aria-label="Saved searches pagination">
+                {% if page_obj.has_previous %}
+                    <a class="button-link" href="?{% if saved_search_pagination_querystring %}{{ saved_search_pagination_querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                        Previous page
+                    </a>
+                {% endif %}
+
+                <span class="saved-search-page-indicator-v79">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a class="button-link" href="?{% if saved_search_pagination_querystring %}{{ saved_search_pagination_querystring }}&{% endif %}page={{ page_obj.next_page_number }}">
+                        Next page
+                    </a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% elif saved_search_search_query %}
+        <section class="saved-search-empty-v78">
+            <h2>No saved searches match “{{ saved_search_search_query }}”</h2>
+            <p class="muted">
+                Try a different saved-search name, category, keyword, or filter value.
+            </p>
+            <a class="button-link" href="{% url 'listings:saved_search_list' %}">
+                Clear search
+            </a>
+        </section>
     {% else %}
         <section class="saved-search-empty-v78">
             <h2>No saved searches yet</h2>
