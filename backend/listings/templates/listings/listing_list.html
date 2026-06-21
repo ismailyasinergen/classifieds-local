@@ -231,6 +231,167 @@
                 text-align: center;
             }
         }
+
+        /* REAL_ESTATE_BROWSE_RESULTS_V68 */
+        .real-estate-results-shell {
+            border: 1px solid #dde3eb;
+            border-radius: 12px;
+            background: #fff;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .real-estate-results-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .real-estate-results-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 860px;
+        }
+
+        .real-estate-results-table th {
+            background: #f7f9fc;
+            border-bottom: 1px solid #dbe3ee;
+            color: #475467;
+            font-size: 12px;
+            font-weight: 850;
+            letter-spacing: 0.01em;
+            padding: 10px 12px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .real-estate-results-table td {
+            border-bottom: 1px solid #edf1f6;
+            padding: 12px;
+            vertical-align: top;
+            font-size: 13px;
+        }
+
+        .real-estate-results-table tbody tr:hover {
+            background: #fbfdff;
+        }
+
+        .real-estate-results-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .real-estate-title-cell {
+            min-width: 300px;
+        }
+
+        .real-estate-title-link {
+            color: #0f172a;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 850;
+            line-height: 1.35;
+            text-decoration: none;
+        }
+
+        .real-estate-title-link:hover,
+        .real-estate-title-link:focus {
+            text-decoration: underline;
+        }
+
+        .real-estate-row-subtitle {
+            color: #667085;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .real-estate-spec-cell {
+            color: #111827;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .real-estate-price-cell {
+            color: #b42318;
+            font-size: 14px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .real-estate-date-cell,
+        .real-estate-location-cell {
+            color: #344054;
+            white-space: nowrap;
+        }
+
+        .real-estate-mobile-label {
+            display: none;
+            color: #667085;
+            font-size: 11px;
+            font-weight: 850;
+            margin-bottom: 3px;
+        }
+
+        .real-estate-card-fallback-note {
+            color: #667085;
+            font-size: 12px;
+            padding: 9px 12px;
+            border-top: 1px solid #edf1f6;
+            background: #fbfdff;
+        }
+
+        @media (max-width: 780px) {
+            .real-estate-results-shell {
+                border: 0;
+                box-shadow: none;
+                background: transparent;
+            }
+
+            .real-estate-results-table-wrap {
+                overflow: visible;
+            }
+
+            .real-estate-results-table,
+            .real-estate-results-table thead,
+            .real-estate-results-table tbody,
+            .real-estate-results-table tr,
+            .real-estate-results-table th,
+            .real-estate-results-table td {
+                display: block;
+                min-width: 0;
+                width: 100%;
+            }
+
+            .real-estate-results-table thead {
+                display: none;
+            }
+
+            .real-estate-results-table tr {
+                border: 1px solid #dde3eb;
+                border-radius: 12px;
+                background: #fff;
+                margin-bottom: 12px;
+                overflow: hidden;
+                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            }
+
+            .real-estate-results-table td {
+                border-bottom: 1px solid #edf1f6;
+                padding: 10px 12px;
+            }
+
+            .real-estate-results-table td:last-child {
+                border-bottom: 0;
+            }
+
+            .real-estate-mobile-label {
+                display: block;
+            }
+
+            .real-estate-title-cell {
+                min-width: 0;
+            }
+        }
+
     </style>
 
     <section class="browse-hero">
@@ -468,6 +629,85 @@
         {% endif %}
     </section>
 
+    {% if attribute_filter_category_slug == "homes-for-sale" or attribute_filter_category_slug == "homes-for-rent" %}
+        {% if listings %}
+            <section class="real-estate-results-shell" aria-label="Real estate results table">
+                <div class="real-estate-results-table-wrap">
+                    <table class="real-estate-results-table">
+                        <thead>
+                            <tr>
+                                <th>İlan Başlığı</th>
+                                <th>m² (Brüt)</th>
+                                <th>Oda Sayısı</th>
+                                <th>Fiyat</th>
+                                <th>İlan Tarihi</th>
+                                <th>İl / İlçe</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for listing in listings %}
+                                <tr>
+                                    <td class="real-estate-title-cell" data-label="İlan Başlığı">
+                                        <span class="real-estate-mobile-label">İlan Başlığı</span>
+                                        <a class="real-estate-title-link" href="{{ listing.get_absolute_url }}">
+                                            {{ listing.title }}
+                                        </a>
+                                        <div class="real-estate-row-subtitle">
+                                            {{ listing.category.name }}
+                                        </div>
+                                    </td>
+                                    <td class="real-estate-spec-cell" data-label="m² (Brüt)">
+                                        <span class="real-estate-mobile-label">m² (Brüt)</span>
+                                        {{ listing.attributes.m2_brut|default:"—" }}
+                                    </td>
+                                    <td class="real-estate-spec-cell" data-label="Oda Sayısı">
+                                        <span class="real-estate-mobile-label">Oda Sayısı</span>
+                                        {{ listing.attributes.oda_sayisi|default:"—" }}
+                                    </td>
+                                    <td class="real-estate-price-cell" data-label="Fiyat">
+                                        <span class="real-estate-mobile-label">Fiyat</span>
+                                        {{ listing.price }} TL
+                                    </td>
+                                    <td class="real-estate-date-cell" data-label="İlan Tarihi">
+                                        <span class="real-estate-mobile-label">İlan Tarihi</span>
+                                        {{ listing.created_at|date:"M d, Y" }}
+                                    </td>
+                                    <td class="real-estate-location-cell" data-label="İl / İlçe">
+                                        <span class="real-estate-mobile-label">İl / İlçe</span>
+                                        {{ listing.location }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="real-estate-card-fallback-note">
+                    Real-estate results show the most important sahibinden-style specs first. Open a listing for the full specification table.
+                </div>
+            </section>
+        {% else %}
+            <section class="browse-empty-state" aria-label="No listings found">
+                <h2>No listings match your search</h2>
+                <p class="muted">
+                    Try removing a filter, widening the price range, or searching a broader keyword.
+                </p>
+                <div class="browse-empty-actions">
+                    <a class="button-link" href="{% if current_category %}{{ current_category.get_absolute_url }}{% else %}{% url 'listings:listing_list' %}{% endif %}">
+                        Clear filters
+                    </a>
+                    {% if request.user.is_authenticated %}
+                        <a class="button-link button-primary" href="{% url 'listings:listing_create' %}">
+                            Post a listing
+                        </a>
+                    {% else %}
+                        <a class="button-link button-primary" href="{% url 'accounts:login' %}">
+                            Login to post
+                        </a>
+                    {% endif %}
+                </div>
+            </section>
+        {% endif %}
+    {% else %}
     <div class="listing-grid">
         {% for listing in listings %}
             {% include "listings/_listing_card.html" with listing=listing %}
@@ -490,6 +730,8 @@
             </section>
         {% endfor %}
     </div>
+    {% endif %}
+
 
     {% if is_paginated %}
         <div class="pagination">
