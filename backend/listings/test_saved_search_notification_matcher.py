@@ -277,3 +277,167 @@ class SavedSearchEmailDeliverySkeletonTests(SavedSearchNotificationMatcherTests)
             saved_search.last_notification_checked_at,
             saved_search.last_notification_sent_at,
         )
+
+# SAVED_SEARCH_NOTIFICATION_OPERATIONAL_HARDENING_V83_TESTS
+class SavedSearchNotificationOperationalHardeningTests(SavedSearchNotificationMatcherTests):
+    def test_command_skips_zero_match_search_without_marking_checked(self):
+        saved_search = self._saved_search()
+        original_checked_at = saved_search.last_notification_checked_at
+
+        output = StringIO()
+        call_command(
+            "check_saved_search_notifications",
+            "--saved-search-id",
+            str(saved_search.pk),
+            "--mark-checked",
+            stdout=output,
+        )
+
+        saved_search.refresh_from_db()
+        text = output.getvalue()
+
+        self.assertIn("0 new matching approved listing", text)
+        self.assertIn("No new matches; email skipped and timestamps unchanged", text)
+        self.assertIn("--mark-checked skipped because there were no matches", text)
+        self.assertIn("1 zero-match search(es) skipped", text)
+        self.assertEqual(saved_search.last_notification_checked_at, original_checked_at)
+        self.assertIsNone(saved_search.last_notification_sent_at)
+
+    def test_send_skips_zero_match_search_without_email_or_timestamp_update(self):
+        from django.core import mail
+        from django.test import override_settings
+
+        saved_search = self._saved_search()
+        original_checked_at = saved_search.last_notification_checked_at
+
+        with override_settings(
+            EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+            DEFAULT_FROM_EMAIL="alerts@classifieds.local",
+        ):
+            output = StringIO()
+            call_command(
+                "check_saved_search_notifications",
+                "--saved-search-id",
+                str(saved_search.pk),
+                "--send",
+                stdout=output,
+            )
+
+        saved_search.refresh_from_db()
+        text = output.getvalue()
+
+        self.assertIn("No new matches; email skipped and timestamps unchanged", text)
+        self.assertIn("0 email(s) sent", text)
+        self.assertIn("1 zero-match search(es) skipped", text)
+        self.assertEqual(len(getattr(mail, "outbox", [])), 0)
+        self.assertEqual(saved_search.last_notification_checked_at, original_checked_at)
+        self.assertIsNone(saved_search.last_notification_sent_at)
+
+    def test_command_reports_multiple_saved_searches_with_mixed_results(self):
+        from django.core import mail
+        from django.test import override_settings
+
+        matching_search = self._saved_search()
+        zero_match_search = SavedSearch.objects.create(
+            user=self.buyer,
+            name="V83 Honda zero matcher",
+            path=reverse("listings:listing_list"),
+            query_params={
+                "category": "cars",
+                "q": "Honda",
+                "min_price": "900000",
+                "max_price": "1000000",
+                "attr_marka": "Honda",
+                "attr_yil_min": "2019",
+                "attr_km_max": "50000",
+            },
+            querystring=(
+                "attr_km_max=50000&attr_marka=Honda&attr_yil_min=2019"
+                "&category=cars&max_price=1000000&min_price=900000&q=Honda"
+            ),
+            email_notifications_enabled=True,
+            last_notification_checked_at=timezone.now() - timedelta(days=1),
+        )
+        zero_original_checked_at = zero_match_search.last_notification_checked_at
+
+        self._listing("V83 Toyota mixed command match")
+
+        with override_settings(
+            EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+            DEFAULT_FROM_EMAIL="alerts@classifieds.local",
+        ):
+            if hasattr(mail, "outbox"):
+                mail.outbox.clear()
+
+            output = StringIO()
+            call_command(
+                "check_saved_search_notifications",
+                "--saved-search-id",
+                str(matching_search.pk),
+                "--saved-search-id",
+                str(zero_match_search.pk),
+                "--send",
+                stdout=output,
+            )
+
+        matching_search.refresh_from_db()
+        zero_match_search.refresh_from_db()
+        text = output.getvalue()
+
+        self.assertIn("Processed 2 enabled saved search(es)", text)
+        self.assertIn("1 total match(es)", text)
+        self.assertIn("1 email(s) sent", text)
+        self.assertIn("1 zero-match search(es) skipped", text)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIsNotNone(matching_search.last_notification_sent_at)
+        self.assertEqual(zero_match_search.last_notification_checked_at, zero_original_checked_at)
+        self.assertIsNone(zero_match_search.last_notification_sent_at)
+
+    def test_no_recipient_saved_search_is_skipped_without_crashing(self):
+        from django.core import mail
+        from django.test import override_settings
+
+        self.buyer.email = ""
+        self.buyer.save(update_fields=["email"])
+
+        saved_search = self._saved_search()
+        original_checked_at = saved_search.last_notification_checked_at
+        self._listing("V83 Toyota no recipient command match")
+
+        with override_settings(
+            EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+            DEFAULT_FROM_EMAIL="alerts@classifieds.local",
+        ):
+            output = StringIO()
+            call_command(
+                "check_saved_search_notifications",
+                "--saved-search-id",
+                str(saved_search.pk),
+                "--send",
+                stdout=output,
+            )
+
+        saved_search.refresh_from_db()
+        text = output.getvalue()
+
+        self.assertIn("for (no email)", text)
+        self.assertIn("Email skipped: saved search user has no email address", text)
+        self.assertIn("1 no-recipient search(es) skipped", text)
+        self.assertIn("0 email(s) sent", text)
+        self.assertEqual(len(getattr(mail, "outbox", [])), 0)
+        self.assertEqual(saved_search.last_notification_checked_at, original_checked_at)
+        self.assertIsNone(saved_search.last_notification_sent_at)
+
+    def test_email_builder_rejects_missing_recipient(self):
+        from listings.saved_search_notifications import build_saved_search_email_message
+
+        self.buyer.email = ""
+        self.buyer.save(update_fields=["email"])
+
+        saved_search = self._saved_search()
+        self._listing("V83 Toyota no recipient builder match")
+
+        preview = build_saved_search_match_preview(saved_search, limit=5)
+
+        with self.assertRaisesMessage(ValueError, "no email address"):
+            build_saved_search_email_message(preview)

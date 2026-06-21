@@ -195,10 +195,30 @@ def _saved_search_url_for_email(saved_search, site_base_url=None):
     return _join_site_url(path, site_base_url=site_base_url)
 
 
+
+# SAVED_SEARCH_NOTIFICATION_OPERATIONAL_HARDENING_V83
+def get_saved_search_recipient_email(saved_search):
+    return str(getattr(saved_search.user, "email", "") or "").strip()
+
+
+def _saved_search_display_name(saved_search):
+    display_name = getattr(saved_search, "display_name", None)
+    if callable(display_name):
+        display_name = display_name()
+
+    return str(
+        display_name
+        or saved_search.name
+        or f"Saved search #{saved_search.pk}"
+    ).strip()
+
 def build_saved_search_email_message(preview, from_email=None, site_base_url=None):
     saved_search = preview.saved_search
-    user_email = saved_search.user.email
-    saved_search_name = saved_search.display_name if hasattr(saved_search, "display_name") else saved_search.name
+    user_email = get_saved_search_recipient_email(saved_search)
+    if not user_email:
+        raise ValueError("Saved search user has no email address.")
+
+    saved_search_name = _saved_search_display_name(saved_search)
 
     subject = (
         f"{preview.match_count} new listing"
@@ -250,6 +270,9 @@ def build_saved_search_email_message(preview, from_email=None, site_base_url=Non
 
 def send_saved_search_match_email(preview, from_email=None, site_base_url=None):
     if preview.match_count <= 0:
+        return 0
+
+    if not get_saved_search_recipient_email(preview.saved_search):
         return 0
 
     message = build_saved_search_email_message(
