@@ -140,7 +140,14 @@ def build_saved_search_match_preview(saved_search, limit=10, now=None):
     )
 
 
-def iter_enabled_saved_search_match_previews(saved_search_ids=None, limit=10, now=None):
+# SAVED_SEARCH_NOTIFICATION_SCHEDULING_FILTERS_V84
+def iter_enabled_saved_search_match_previews(
+    saved_search_ids=None,
+    limit=10,
+    now=None,
+    stale_before=None,
+    max_searches=None,
+):
     queryset = (
         SavedSearch.objects
         .select_related("user")
@@ -150,6 +157,15 @@ def iter_enabled_saved_search_match_previews(saved_search_ids=None, limit=10, no
 
     if saved_search_ids:
         queryset = queryset.filter(pk__in=saved_search_ids)
+
+    if stale_before is not None:
+        queryset = queryset.filter(
+            Q(last_notification_checked_at__isnull=True)
+            | Q(last_notification_checked_at__lte=stale_before)
+        )
+
+    if max_searches is not None:
+        queryset = queryset[:max_searches]
 
     for saved_search in queryset:
         yield build_saved_search_match_preview(saved_search, limit=limit, now=now)

@@ -1,7 +1,10 @@
 # SAVED_SEARCH_MATCHER_FOUNDATION_V81
 # SAVED_SEARCH_EMAIL_DELIVERY_SKELETON_V82
 # SAVED_SEARCH_NOTIFICATION_OPERATIONAL_HARDENING_V83
-from django.core.management.base import BaseCommand
+# SAVED_SEARCH_NOTIFICATION_SCHEDULING_FILTERS_V84
+from datetime import timedelta
+
+from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from listings.saved_search_notifications import (
@@ -49,19 +52,48 @@ class Command(BaseCommand):
             default="",
             help="Optional base URL to prepend to listing and saved-search links.",
         )
+        parser.add_argument(
+            "--stale-before-hours",
+            type=float,
+            default=None,
+            help="Only process searches never checked or checked at least this many hours ago.",
+        )
+        parser.add_argument(
+            "--max-searches",
+            type=int,
+            default=None,
+            help="Maximum number of enabled saved searches to process in this run.",
+        )
 
     def handle(self, *args, **options):
         checked_at = timezone.now()
+        max_searches = options.get("max_searches")
+        stale_before_hours = options.get("stale_before_hours")
+        stale_before = None
+
+        if max_searches is not None and max_searches <= 0:
+            raise CommandError("--max-searches must be greater than 0.")
+
+        if stale_before_hours is not None:
+            if stale_before_hours < 0:
+                raise CommandError("--stale-before-hours must be zero or greater.")
+            stale_before = checked_at - timedelta(hours=stale_before_hours)
+
         previews = list(
             iter_enabled_saved_search_match_previews(
                 saved_search_ids=options.get("saved_search_ids"),
                 limit=options["limit_per_search"],
                 now=checked_at,
+                stale_before=stale_before,
+                max_searches=max_searches,
             )
         )
 
         if not previews:
-            self.stdout.write("No enabled saved searches found.")
+            if stale_before is not None:
+                self.stdout.write("No enabled saved searches found for the requested stale window.")
+            else:
+                self.stdout.write("No enabled saved searches found.")
             return
 
         total_matches = 0
@@ -73,6 +105,11 @@ class Command(BaseCommand):
         should_send = options["send"]
         should_mark_checked = options["mark_checked"]
         site_base_url = options.get("site_base_url") or None
+
+        if stale_before is not None:
+            self.stdout.write(f"Stale filter: checked at or before {stale_before}.")
+        if max_searches is not None:
+            self.stdout.write(f"Run limit: processing at most {max_searches} saved search(es).")
 
         for preview in previews:
             saved_search = preview.saved_search
