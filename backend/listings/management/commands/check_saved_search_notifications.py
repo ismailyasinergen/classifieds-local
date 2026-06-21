@@ -3,6 +3,8 @@
 # SAVED_SEARCH_NOTIFICATION_OPERATIONAL_HARDENING_V83
 # SAVED_SEARCH_NOTIFICATION_SCHEDULING_FILTERS_V84
 # SAVED_SEARCH_NOTIFICATION_OBSERVABILITY_V85
+# SAVED_SEARCH_NOTIFICATION_OPERATOR_UX_V87
+from argparse import RawDescriptionHelpFormatter
 from datetime import timedelta
 
 from django.core.management.base import BaseCommand, CommandError
@@ -23,8 +25,25 @@ class Command(BaseCommand):
         "Preview or send matching approved listings for enabled saved-search email alerts. "
         "Dry-run is the default; pass --send to send email."
     )
+    examples = """
+Examples:
+  Dry-run one saved search:
+    python manage.py check_saved_search_notifications --saved-search-id 123 --site-base-url https://classifieds.local
+
+  Send one saved search after dry-run verification:
+    python manage.py check_saved_search_notifications --saved-search-id 123 --send --site-base-url https://classifieds.local
+
+  Process only stale searches in a bounded batch:
+    python manage.py check_saved_search_notifications --stale-before-hours 24 --max-searches 100
+
+Safety notes:
+  Dry-run is the default. Use --send only after reviewing output.
+  Send failures are isolated per saved search and failed sends do not update timestamps.
+""".strip()
 
     def add_arguments(self, parser):
+        parser.formatter_class = RawDescriptionHelpFormatter
+        parser.epilog = self.examples
         parser.add_argument(
             "--saved-search-id",
             action="append",
@@ -70,7 +89,12 @@ class Command(BaseCommand):
         checked_at = timezone.now()
         max_searches = options.get("max_searches")
         stale_before_hours = options.get("stale_before_hours")
+        limit_per_search = options["limit_per_search"]
+        saved_search_ids = options.get("saved_search_ids") or []
         stale_before = None
+
+        if limit_per_search <= 0:
+            raise CommandError("--limit-per-search must be greater than 0.")
 
         if max_searches is not None and max_searches <= 0:
             raise CommandError("--max-searches must be greater than 0.")
@@ -82,8 +106,8 @@ class Command(BaseCommand):
 
         previews = list(
             iter_enabled_saved_search_match_previews(
-                saved_search_ids=options.get("saved_search_ids"),
-                limit=options["limit_per_search"],
+                saved_search_ids=saved_search_ids,
+                limit=limit_per_search,
                 now=checked_at,
                 stale_before=stale_before,
                 max_searches=max_searches,
@@ -109,6 +133,18 @@ class Command(BaseCommand):
         should_mark_checked = options["mark_checked"]
         site_base_url = options.get("site_base_url") or None
 
+        self.stdout.write(f"Mode: {'SEND' if should_send else 'DRY RUN'}")
+        self.stdout.write(f"Limit per search: {limit_per_search} listing(s).")
+        if saved_search_ids:
+            self.stdout.write(
+                "Saved search ID filter: " + ", ".join(str(pk) for pk in saved_search_ids)
+            )
+        if site_base_url:
+            self.stdout.write(f"Site base URL: {site_base_url}")
+        if should_send:
+            self.stdout.write("Send safety: failures are isolated per saved search.")
+        else:
+            self.stdout.write("Dry-run safety: no emails will be sent.")
         if stale_before is not None:
             self.stdout.write(f"Stale filter: checked at or before {stale_before}.")
         if max_searches is not None:
