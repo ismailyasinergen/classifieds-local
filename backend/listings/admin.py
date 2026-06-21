@@ -124,6 +124,7 @@ class ListingReportAdmin(admin.ModelAdmin):
 # SAVED_SEARCH_NOTIFICATION_ADMIN_POLISH_V84
 # SAVED_SEARCH_NOTIFICATION_RUNBOOK_ADMIN_POLISH_V86
 # SAVED_SEARCH_NOTIFICATION_ADMIN_ACTIONS_V89
+# SAVED_SEARCH_NOTIFICATION_ADMIN_LIST_POLISH_V91
 @admin.action(description="Enable email notifications for selected saved searches")
 def enable_saved_search_email_notifications(modeladmin, request, queryset):
     updated = queryset.update(email_notifications_enabled=True)
@@ -149,13 +150,16 @@ class SavedSearchAdmin(admin.ModelAdmin):
         "user",
         "user_email",
         "notification_status",
-        "email_notifications_enabled",
+        "notification_preference",
         "last_notification_checked_at",
         "last_notification_sent_at",
         "created_at",
         "updated_at",
     ]
     search_fields = ["name", "querystring", "user__email", "user__username"]
+    list_select_related = ["user"]
+    date_hierarchy = "updated_at"
+    ordering = ["-updated_at", "-created_at"]
     list_filter = [
         "email_notifications_enabled",
         "created_at",
@@ -181,6 +185,10 @@ class SavedSearchAdmin(admin.ModelAdmin):
     @admin.display(description="User email", ordering="user__email")
     def user_email(self, obj):
         return obj.user.email or "(no email)"
+
+    @admin.display(description="Email alerts", boolean=True, ordering="email_notifications_enabled")
+    def notification_preference(self, obj):
+        return obj.email_notifications_enabled
 
     @admin.display(description="Notification status")
     def notification_status(self, obj):
