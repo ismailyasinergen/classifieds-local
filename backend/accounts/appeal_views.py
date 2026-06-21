@@ -1821,6 +1821,37 @@ def _appeal_extra_evidence_label(state):
     return _appeal_deadline_queue_label(state)
 
 
+# APPEAL_QUEUE_DATE_FILTER_SAFETY_V93
+def _parse_appeal_queue_date_filter(value):
+    import datetime as _dt
+
+    raw_value = (value or "").strip()
+    if not raw_value:
+        return None, "", False
+
+    try:
+        parsed_date = _dt.date.fromisoformat(raw_value)
+    except ValueError:
+        return None, raw_value, True
+
+    return parsed_date, parsed_date.isoformat(), False
+
+
+def _appeal_queue_start_of_day(value):
+    import datetime as _dt
+
+    return timezone.make_aware(
+        _dt.datetime.combine(value, _dt.time.min),
+        timezone.get_current_timezone(),
+    )
+
+
+def _appeal_queue_start_of_next_day(value):
+    import datetime as _dt
+
+    return _appeal_queue_start_of_day(value + _dt.timedelta(days=1))
+
+
 def _moderation_appeals_filtered_queryset(request, include_status=True):
     import datetime as _dt
 
@@ -1831,16 +1862,14 @@ def _moderation_appeals_filtered_queryset(request, include_status=True):
     selected_date_from = (request.GET.get("date_from") or "").strip()
     selected_date_to = (request.GET.get("date_to") or "").strip()
 
-    def parse_date(value):
-        if not value:
-            return None
-        try:
-            return _dt.date.fromisoformat(value)
-        except ValueError:
-            return None
+    date_from, selected_date_from, invalid_date_from = _parse_appeal_queue_date_filter(selected_date_from)
+    date_to, selected_date_to, invalid_date_to = _parse_appeal_queue_date_filter(selected_date_to)
+    date_filter_error = ""
 
-    date_from = parse_date(selected_date_from)
-    date_to = parse_date(selected_date_to)
+    if invalid_date_from or invalid_date_to:
+        date_filter_error = "Enter valid appeal queue dates in YYYY-MM-DD format."
+    elif date_from and date_to and date_from > date_to:
+        date_filter_error = "From date cannot be after To date."
 
     qs = ModerationAppeal.objects.select_related(
         "appellant",
@@ -1849,6 +1878,17 @@ def _moderation_appeals_filtered_queryset(request, include_status=True):
         "reviewed_by",
         "extra_evidence_requested_by",
     ).prefetch_related("attachments")
+
+    if date_filter_error:
+        return qs.none(), {
+            "status": status,
+            "q": q,
+            "evidence": evidence_filter,
+            "extra_evidence": extra_evidence_filter,
+            "date_from": selected_date_from,
+            "date_to": selected_date_to,
+            "date_filter_error": date_filter_error,
+        }
 
     if q:
         qs = qs.filter(
@@ -1863,18 +1903,10 @@ def _moderation_appeals_filtered_queryset(request, include_status=True):
         ).distinct()
 
     if date_from:
-        qs = qs.filter(
-            created_at__gte=timezone.make_aware(
-                _dt.datetime.combine(date_from, _dt.time.min)
-            )
-        )
+        qs = qs.filter(created_at__gte=_appeal_queue_start_of_day(date_from))
 
     if date_to:
-        qs = qs.filter(
-            created_at__lt=timezone.make_aware(
-                _dt.datetime.combine(date_to + _dt.timedelta(days=1), _dt.time.min)
-            )
-        )
+        qs = qs.filter(created_at__lt=_appeal_queue_start_of_next_day(date_to))
 
     if evidence_filter == "has_evidence":
         qs = qs.filter(attachments__isnull=False).distinct()
@@ -1930,6 +1962,7 @@ def _moderation_appeals_filtered_queryset(request, include_status=True):
         "extra_evidence": extra_evidence_filter,
         "date_from": selected_date_from,
         "date_to": selected_date_to,
+        "date_filter_error": date_filter_error,
     }
 
 
@@ -1994,6 +2027,7 @@ def moderation_appeal_queue(request):
             "selected_extra_evidence": filters["extra_evidence"],
             "selected_date_from": filters["date_from"],
             "selected_date_to": filters["date_to"],
+            "date_filter_error": filters["date_filter_error"],
             "status_choices": ModerationAppeal.Status.choices,
             "evidence_choices": [
                 ("", "All evidence statuses"),
