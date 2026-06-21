@@ -123,6 +123,25 @@ class ListingReportAdmin(admin.ModelAdmin):
 # SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80
 # SAVED_SEARCH_NOTIFICATION_ADMIN_POLISH_V84
 # SAVED_SEARCH_NOTIFICATION_RUNBOOK_ADMIN_POLISH_V86
+# SAVED_SEARCH_NOTIFICATION_ADMIN_ACTIONS_V89
+@admin.action(description="Enable email notifications for selected saved searches")
+def enable_saved_search_email_notifications(modeladmin, request, queryset):
+    updated = queryset.update(email_notifications_enabled=True)
+    modeladmin.message_user(
+        request,
+        f"Enabled email notifications for {updated} saved search(es).",
+    )
+
+
+@admin.action(description="Disable email notifications for selected saved searches")
+def disable_saved_search_email_notifications(modeladmin, request, queryset):
+    updated = queryset.update(email_notifications_enabled=False)
+    modeladmin.message_user(
+        request,
+        f"Disabled email notifications for {updated} saved search(es).",
+    )
+
+
 @admin.register(SavedSearch)
 class SavedSearchAdmin(admin.ModelAdmin):
     list_display = [
@@ -153,6 +172,10 @@ class SavedSearchAdmin(admin.ModelAdmin):
         "last_notification_sent_at",
         "created_at",
         "updated_at",
+    ]
+    actions = [
+        enable_saved_search_email_notifications,
+        disable_saved_search_email_notifications,
     ]
 
     @admin.display(description="User email", ordering="user__email")
