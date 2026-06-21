@@ -65,6 +65,55 @@
             border-radius: 6px;
         }
 
+
+        /* REAL_ESTATE_FORM_GROUPS_V70 */
+        .real-estate-form-guide {
+            border: 1px solid #ead687;
+            border-radius: 12px;
+            background: #fffdf3;
+            padding: 12px 14px;
+            margin: 0 0 14px;
+            color: #475467;
+        }
+
+        .real-estate-form-guide strong {
+            color: #111827;
+        }
+
+        .real-estate-form-groups {
+            display: grid;
+            gap: 14px;
+        }
+
+        .real-estate-form-group {
+            border: 1px solid #dde3eb;
+            border-radius: 12px;
+            background: #fff;
+            padding: 13px;
+        }
+
+        .real-estate-form-group h3 {
+            margin: 0 0 4px;
+            font-size: 16px;
+            color: #111827;
+        }
+
+        .real-estate-form-group-note {
+            color: #667085;
+            font-size: 13px;
+            margin: 0 0 12px;
+        }
+
+        .real-estate-form-group .listing-form-grid {
+            margin-top: 0;
+        }
+
+        @media (max-width: 640px) {
+            .real-estate-form-group {
+                padding: 11px;
+            }
+        }
+
         /* LISTING_IMAGE_UPLOAD_UX_V62 */
         .image-upload-panel {
             display: grid;
@@ -216,22 +265,91 @@
             </div>
         </section>
 
-        <section class="listing-form-panel">
+        <section class="listing-form-panel category-details-panel-v70">
             <h2>Category Details</h2>
             <p class="attribute-empty-note" id="attribute-empty-note">
                 Select a category to show the matching detail fields.
             </p>
 
-            <div class="listing-form-grid" id="schema-attribute-fields">
-                {% for field in form.visible_fields %}
-                    {% if field.name in form.attribute_field_names %}
-                        <p class="listing-form-row schema-attribute-row">
-                            {{ field.label_tag }}
-                            {{ field }}
-                            {{ field.errors }}
-                        </p>
-                    {% endif %}
-                {% endfor %}
+            <p class="real-estate-form-guide">
+                <strong>Real-estate listings:</strong>
+                fill the home, building, and deed details buyers expect to compare.
+            </p>
+
+            <div class="real-estate-form-groups" id="schema-attribute-fields">
+                <div class="real-estate-form-group" data-real-estate-form-group>
+                    <h3>Konut Özellikleri</h3>
+                    <p class="real-estate-form-group-note">
+                        Size, room count, floor, age, heating, bathroom, and kitchen details.
+                    </p>
+                    <div class="listing-form-grid">
+                        {% for field in form.visible_fields %}
+                            {% if field.name == "attr__m2_brut" or field.name == "attr__m2_net" or field.name == "attr__acik_alan_m2" or field.name == "attr__oda_sayisi" or field.name == "attr__bina_yasi" or field.name == "attr__bulundugu_kat" or field.name == "attr__kat_sayisi" or field.name == "attr__isitma" or field.name == "attr__banyo_sayisi" or field.name == "attr__mutfak" %}
+                                <p class="listing-form-row schema-attribute-row">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {{ field.errors }}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="real-estate-form-group" data-real-estate-form-group>
+                    <h3>Bina ve Kullanım</h3>
+                    <p class="real-estate-form-group-note">
+                        Balcony, elevator, parking, furnishing, usage, site, and dues information.
+                    </p>
+                    <div class="listing-form-grid">
+                        {% for field in form.visible_fields %}
+                            {% if field.name == "attr__balkon" or field.name == "attr__asansor" or field.name == "attr__otopark" or field.name == "attr__esyali" or field.name == "attr__kullanim_durumu" or field.name == "attr__site_i_cerisinde" or field.name == "attr__site_adi" or field.name == "attr__aidat_tl" or field.name == "attr__enerji_kimlik_belgesi" %}
+                                <p class="listing-form-row schema-attribute-row">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {{ field.errors }}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="real-estate-form-group" data-real-estate-form-group>
+                    <h3>Tapu / İlan Bilgileri</h3>
+                    <p class="real-estate-form-group-note">
+                        Credit eligibility, deed status, seller type, exchange, media, and map details.
+                    </p>
+                    <div class="listing-form-grid">
+                        {% for field in form.visible_fields %}
+                            {% if field.name == "attr__krediye_uygun" or field.name == "attr__tapu_durumu" or field.name == "attr__kimden" or field.name == "attr__takas" or field.name == "attr__emlak_tipi" or field.name == "attr__foto_video" or field.name == "attr__harita" %}
+                                <p class="listing-form-row schema-attribute-row">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {{ field.errors }}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="real-estate-form-group generic-attribute-group-v70" data-generic-form-group>
+                    <h3>Other Category Details</h3>
+                    <p class="real-estate-form-group-note">
+                        These fields are shown for vehicle, electronics, land, furniture, appliance, and other non-home categories.
+                    </p>
+                    <div class="listing-form-grid">
+                        {% for field in form.visible_fields %}
+                            {% if field.name in form.attribute_field_names %}
+                                {% if field.name != "attr__m2_brut" and field.name != "attr__m2_net" and field.name != "attr__acik_alan_m2" and field.name != "attr__oda_sayisi" and field.name != "attr__bina_yasi" and field.name != "attr__bulundugu_kat" and field.name != "attr__kat_sayisi" and field.name != "attr__isitma" and field.name != "attr__banyo_sayisi" and field.name != "attr__mutfak" and field.name != "attr__balkon" and field.name != "attr__asansor" and field.name != "attr__otopark" and field.name != "attr__esyali" and field.name != "attr__kullanim_durumu" and field.name != "attr__site_i_cerisinde" and field.name != "attr__site_adi" and field.name != "attr__aidat_tl" and field.name != "attr__enerji_kimlik_belgesi" and field.name != "attr__krediye_uygun" and field.name != "attr__tapu_durumu" and field.name != "attr__kimden" and field.name != "attr__takas" and field.name != "attr__emlak_tipi" and field.name != "attr__foto_video" and field.name != "attr__harita" %}
+                                    <p class="listing-form-row schema-attribute-row">
+                                        {{ field.label_tag }}
+                                        {{ field }}
+                                        {{ field.errors }}
+                                    </p>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -299,6 +417,13 @@
                     if (shouldShow) {
                         visibleCount += 1;
                     }
+                });
+
+                document.querySelectorAll("[data-real-estate-form-group], [data-generic-form-group]").forEach(function (group) {
+                    const visibleRows = Array.from(group.querySelectorAll(".schema-attribute-row")).filter(function (row) {
+                        return row.style.display !== "none";
+                    });
+                    group.style.display = visibleRows.length ? "block" : "none";
                 });
 
                 if (emptyNote) {
