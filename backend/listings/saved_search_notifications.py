@@ -2,6 +2,8 @@
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 
+from django.conf import settings
+from django.core.mail import EmailMessage
 from django.db.models import Q
 from django.http import QueryDict
 from django.utils import timezone
@@ -157,4 +159,115 @@ def mark_saved_search_checked(saved_search, checked_at=None):
     checked_at = checked_at or timezone.now()
     saved_search.last_notification_checked_at = checked_at
     saved_search.save(update_fields=["last_notification_checked_at", "updated_at"])
+    return saved_search
+
+
+# SAVED_SEARCH_EMAIL_DELIVERY_SKELETON_V82
+def _join_site_url(path, site_base_url=None):
+    path = path or "/"
+    site_base_url = (site_base_url or "").strip().rstrip("/")
+
+    if site_base_url:
+        if not path.startswith("/"):
+            path = f"/{path}"
+        return f"{site_base_url}{path}"
+
+    return path
+
+
+def _listing_url_for_email(listing, site_base_url=None):
+    try:
+        path = listing.get_absolute_url()
+    except Exception:
+        path = f"/listings/{listing.pk}/"
+
+    return _join_site_url(path, site_base_url=site_base_url)
+
+
+def _saved_search_url_for_email(saved_search, site_base_url=None):
+    path = saved_search.path or "/listings/"
+    querystring = saved_search.querystring or ""
+
+    if querystring:
+        separator = "&" if "?" in path else "?"
+        path = f"{path}{separator}{querystring}"
+
+    return _join_site_url(path, site_base_url=site_base_url)
+
+
+def build_saved_search_email_message(preview, from_email=None, site_base_url=None):
+    saved_search = preview.saved_search
+    user_email = saved_search.user.email
+    saved_search_name = saved_search.display_name if hasattr(saved_search, "display_name") else saved_search.name
+
+    subject = (
+        f"{preview.match_count} new listing"
+        f"{'' if preview.match_count == 1 else 's'} for {saved_search_name}"
+    )
+
+    lines = [
+        "Hi,",
+        "",
+        (
+            f"We found {preview.match_count} new listing"
+            f"{'' if preview.match_count == 1 else 's'} matching your saved search:"
+        ),
+        f"{saved_search_name}",
+        "",
+        f"Checked since: {preview.checked_since}",
+        "",
+        "Matching listings:",
+    ]
+
+    for listing in preview.listings:
+        lines.append(
+            f"- {listing.title} — {listing.price} — {listing.location} — "
+            f"{_listing_url_for_email(listing, site_base_url=site_base_url)}"
+        )
+
+    if preview.match_count > len(preview.listings):
+        remaining = preview.match_count - len(preview.listings)
+        lines.append(f"- And {remaining} more matching listing{'' if remaining == 1 else 's'}.")
+
+    lines.extend(
+        [
+            "",
+            f"Run this saved search: {_saved_search_url_for_email(saved_search, site_base_url=site_base_url)}",
+            "",
+            "You can disable email alerts from your saved searches page.",
+            "",
+            "No action is required if these listings are not relevant.",
+        ]
+    )
+
+    return EmailMessage(
+        subject=subject,
+        body="\n".join(lines),
+        from_email=from_email or settings.DEFAULT_FROM_EMAIL,
+        to=[user_email],
+    )
+
+
+def send_saved_search_match_email(preview, from_email=None, site_base_url=None):
+    if preview.match_count <= 0:
+        return 0
+
+    message = build_saved_search_email_message(
+        preview,
+        from_email=from_email,
+        site_base_url=site_base_url,
+    )
+    return message.send(fail_silently=False)
+
+
+def mark_saved_search_sent(saved_search, sent_at=None, mark_checked=True):
+    sent_at = sent_at or timezone.now()
+    saved_search.last_notification_sent_at = sent_at
+    update_fields = ["last_notification_sent_at", "updated_at"]
+
+    if mark_checked:
+        saved_search.last_notification_checked_at = sent_at
+        update_fields.append("last_notification_checked_at")
+
+    saved_search.save(update_fields=update_fields)
     return saved_search

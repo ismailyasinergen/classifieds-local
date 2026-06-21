@@ -159,3 +159,121 @@ class SavedSearchNotificationMatcherTests(TestCase):
 
         self.assertIn("No enabled saved searches found", output.getvalue())
         self.assertNotIn("V81 Toyota disabled should not show", output.getvalue())
+
+# SAVED_SEARCH_EMAIL_DELIVERY_SKELETON_V82_TESTS
+class SavedSearchEmailDeliverySkeletonTests(SavedSearchNotificationMatcherTests):
+    def test_build_saved_search_email_message_contains_safe_delivery_details(self):
+        from django.test import override_settings
+
+        from listings.saved_search_notifications import build_saved_search_email_message
+
+        saved_search = self._saved_search()
+        self._listing("V82 Toyota email body match")
+
+        preview = build_saved_search_match_preview(saved_search, limit=5)
+
+        with override_settings(DEFAULT_FROM_EMAIL="alerts@classifieds.local"):
+            message = build_saved_search_email_message(
+                preview,
+                site_base_url="https://classifieds.local",
+            )
+
+        self.assertEqual(message.to, [self.buyer.email])
+        self.assertEqual(message.from_email, "alerts@classifieds.local")
+        self.assertIn("1 new listing", message.subject)
+        self.assertIn("V81 Toyota matcher", message.subject)
+        self.assertIn("V82 Toyota email body match", message.body)
+        self.assertIn("https://classifieds.local", message.body)
+        self.assertIn("disable email alerts", message.body)
+
+    def test_send_saved_search_match_email_uses_django_mail_backend(self):
+        from django.core import mail
+        from django.test import override_settings
+
+        from listings.saved_search_notifications import send_saved_search_match_email
+
+        saved_search = self._saved_search()
+        self._listing("V82 Toyota send helper match")
+
+        preview = build_saved_search_match_preview(saved_search, limit=5)
+
+        with override_settings(
+            EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+            DEFAULT_FROM_EMAIL="alerts@classifieds.local",
+        ):
+            sent_count = send_saved_search_match_email(
+                preview,
+                site_base_url="https://classifieds.local",
+            )
+
+        self.assertEqual(sent_count, 1)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [self.buyer.email])
+        self.assertIn("V82 Toyota send helper match", mail.outbox[0].body)
+
+    def test_management_command_dry_run_does_not_send_or_mark_sent(self):
+        from django.core import mail
+        from django.test import override_settings
+
+        saved_search = self._saved_search()
+        self._listing("V82 Toyota dry run command match")
+
+        with override_settings(
+            EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+            DEFAULT_FROM_EMAIL="alerts@classifieds.local",
+        ):
+            output = StringIO()
+            call_command(
+                "check_saved_search_notifications",
+                "--saved-search-id",
+                str(saved_search.pk),
+                "--site-base-url",
+                "https://classifieds.local",
+                stdout=output,
+            )
+
+        saved_search.refresh_from_db()
+        text = output.getvalue()
+
+        self.assertIn("Dry run: email not sent", text)
+        self.assertIn("No emails were sent. Pass --send to send", text)
+        self.assertIn("Email subject:", text)
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertIsNone(saved_search.last_notification_sent_at)
+
+    def test_management_command_send_sends_email_and_updates_notification_timestamps(self):
+        from django.core import mail
+        from django.test import override_settings
+
+        saved_search = self._saved_search()
+        original_checked_at = saved_search.last_notification_checked_at
+        self._listing("V82 Toyota send command match")
+
+        with override_settings(
+            EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+            DEFAULT_FROM_EMAIL="alerts@classifieds.local",
+        ):
+            output = StringIO()
+            call_command(
+                "check_saved_search_notifications",
+                "--saved-search-id",
+                str(saved_search.pk),
+                "--send",
+                "--site-base-url",
+                "https://classifieds.local",
+                stdout=output,
+            )
+
+        saved_search.refresh_from_db()
+        text = output.getvalue()
+
+        self.assertIn("Email sent and notification timestamps updated", text)
+        self.assertIn("1 email(s) sent", text)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("V82 Toyota send command match", mail.outbox[0].body)
+        self.assertGreater(saved_search.last_notification_checked_at, original_checked_at)
+        self.assertIsNotNone(saved_search.last_notification_sent_at)
+        self.assertEqual(
+            saved_search.last_notification_checked_at,
+            saved_search.last_notification_sent_at,
+        )
