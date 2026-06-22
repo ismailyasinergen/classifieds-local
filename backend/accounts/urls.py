@@ -15,14 +15,8 @@ from . import (
     trust_safety_views,
     verification_views,
 )
-from .views import (
-    MyListingsView,
-    RegisterView,
-    SavedListingsView,
-    dashboard_view,
-    logout_view,
-    profile_view,
-)
+from .account_listing_views import MyListingsView, SavedListingsView
+from .account_views import RegisterView, dashboard_view, logout_view, profile_view
 
 app_name = "accounts"
 
