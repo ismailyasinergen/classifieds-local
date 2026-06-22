@@ -46,6 +46,10 @@
         </div>
     </form>
 
+    {% if date_filter_error %}
+        <p class="alert alert-warning" role="alert">{{ date_filter_error }}</p>
+    {% endif %}
+
     <section style="display:flex; gap:8px; flex-wrap:wrap; margin:0 0 16px; align-items:center;">
         <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}?date_from={{ quick_today }}&date_to={{ quick_today }}">Today</a>
         <a class="button-link" href="{% url 'accounts:trust_safety_event_log' %}?date_from={{ quick_last_7_days }}&date_to={{ quick_today }}">Last 7 days</a>

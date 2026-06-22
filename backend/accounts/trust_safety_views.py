@@ -449,11 +449,50 @@ def trust_safety_action_log_export(request):
     return response
 
 
+
+# TRUST_SAFETY_EVENT_LOG_DATE_FILTER_SAFETY_V96
+def _parse_trust_safety_event_date_filter(value):
+    raw_value = (value or "").strip()
+    if not raw_value:
+        return None, "", False
+
+    try:
+        parsed_date = datetime.date.fromisoformat(raw_value)
+    except ValueError:
+        return None, raw_value, True
+
+    return parsed_date, parsed_date.isoformat(), False
+
+
+def _trust_safety_event_start_of_day(value):
+    return timezone.make_aware(
+        datetime.datetime.combine(value, datetime.time.min),
+        timezone.get_current_timezone(),
+    )
+
+
+def _trust_safety_event_start_of_next_day(value):
+    return _trust_safety_event_start_of_day(value + datetime.timedelta(days=1))
+
+
 def _event_log_filtered_queryset(request):
     q = (request.GET.get("q") or "").strip()
     event_type = (request.GET.get("event_type") or "").strip()
-    date_from_raw = (request.GET.get("date_from") or "").strip()
-    date_to_raw = (request.GET.get("date_to") or "").strip()
+    selected_date_from = (request.GET.get("date_from") or "").strip()
+    selected_date_to = (request.GET.get("date_to") or "").strip()
+
+    date_from, selected_date_from, invalid_date_from = _parse_trust_safety_event_date_filter(
+        selected_date_from
+    )
+    date_to, selected_date_to, invalid_date_to = _parse_trust_safety_event_date_filter(
+        selected_date_to
+    )
+    date_filter_error = ""
+
+    if invalid_date_from or invalid_date_to:
+        date_filter_error = "Enter valid Trust & Safety event dates in YYYY-MM-DD format."
+    elif date_from and date_to and date_from > date_to:
+        date_filter_error = "From date cannot be after To date."
 
     events = TrustSafetyEvent.objects.select_related(
         "actor",
@@ -467,30 +506,14 @@ def _event_log_filtered_queryset(request):
     if event_type:
         events = events.filter(event_type=event_type)
 
-    def parse_date(value):
-        if not value:
-            return None
-        try:
-            return datetime.date.fromisoformat(value)
-        except ValueError:
-            return None
+    if date_filter_error:
+        events = events.none()
+    else:
+        if date_from:
+            events = events.filter(created_at__gte=_trust_safety_event_start_of_day(date_from))
 
-    date_from = parse_date(date_from_raw)
-    date_to = parse_date(date_to_raw)
-
-    if date_from:
-        events = events.filter(
-            created_at__gte=timezone.make_aware(
-                datetime.datetime.combine(date_from, datetime.time.min)
-            )
-        )
-
-    if date_to:
-        events = events.filter(
-            created_at__lt=timezone.make_aware(
-                datetime.datetime.combine(date_to + datetime.timedelta(days=1), datetime.time.min)
-            )
-        )
+        if date_to:
+            events = events.filter(created_at__lt=_trust_safety_event_start_of_next_day(date_to))
 
     if q:
         events = events.filter(
@@ -507,8 +530,9 @@ def _event_log_filtered_queryset(request):
     return events, {
         "q": q,
         "event_type": event_type,
-        "date_from": date_from_raw,
-        "date_to": date_to_raw,
+        "date_from": selected_date_from,
+        "date_to": selected_date_to,
+        "date_filter_error": date_filter_error,
     }
 
 
@@ -536,6 +560,7 @@ def trust_safety_event_log(request):
             "selected_event_type": filters["event_type"],
             "selected_date_from": filters["date_from"],
             "selected_date_to": filters["date_to"],
+            "date_filter_error": filters["date_filter_error"],
             "event_type_choices": TrustSafetyEvent.EventType.choices,
             "quick_today": today.isoformat(),
             "quick_last_7_days": (today - datetime.timedelta(days=6)).isoformat(),
