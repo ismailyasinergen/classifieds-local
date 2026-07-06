@@ -3,7 +3,7 @@
 {% block title %}Seller Stores{% endblock %}
 
 {% block content %}
-<section class="content-card seller-store-directory-v107">
+<section class="content-card seller-store-directory-v107 seller-store-directory-v109">
     <div class="page-header">
         <div>
             <p class="muted" style="margin-bottom: 4px;">Store Directory</p>
@@ -70,6 +70,15 @@
                         {% else %}
                             <p class="muted">Browse this seller’s approved listings.</p>
                         {% endif %}
+
+                        <div class="seller-store-directory-trust-v109" style="display:flex; flex-wrap:wrap; gap:6px; margin:10px 0;">
+                            {% if store.owner.profile.is_verified_seller %}
+                                <span class="classified-badge verified">Verified Seller</span>
+                            {% else %}
+                                <span class="classified-badge">Unverified seller</span>
+                            {% endif %}
+                            <span class="classified-badge">Member since {{ store.owner.date_joined|date:"M Y" }}</span>
+                        </div>
 
                         <div class="listing-card-meta">
                             {% if store.location %}

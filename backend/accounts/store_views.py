@@ -150,6 +150,21 @@ def seller_store_public(request, slug):
 
     base_listings_queryset = _active_public_listings_for_user(store.owner)
     listing_count = base_listings_queryset.count()
+    contact_listing = base_listings_queryset.first()
+    owner_profile = getattr(store.owner, "profile", None)
+    is_seller_messaging_blocked = bool(
+        owner_profile and owner_profile.is_seller_messaging_blocked
+    )
+    can_message_seller = (
+        request.user.is_authenticated
+        and request.user != store.owner
+        and contact_listing is not None
+        and not is_seller_messaging_blocked
+    )
+    can_report_seller = (
+        request.user.is_authenticated
+        and request.user != store.owner
+    )
 
     q = request.GET.get("q", "").strip()
     selected_category_slug = request.GET.get("category", "").strip()
@@ -199,6 +214,11 @@ def seller_store_public(request, slug):
             "selected_category_slug": selected_category_slug,
             "page_url_prefix": page_url_prefix,
             "can_preview": can_preview,
+            "owner_profile": owner_profile,
+            "contact_listing": contact_listing,
+            "can_message_seller": can_message_seller,
+            "can_report_seller": can_report_seller,
+            "is_seller_messaging_blocked": is_seller_messaging_blocked,
             "page_title": store.display_name,
         },
     )
