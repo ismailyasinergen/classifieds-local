@@ -42,6 +42,7 @@ class CorePageSmokeTests(TestCase):
         self.assert_page_ok("pages:home")
         self.assert_page_ok("accounts:login")
         self.assert_page_ok("accounts:register")
+        self.assert_page_ok("accounts:seller_store_directory")
 
     def test_buyer_account_pages_render(self):
         self.assert_page_ok("accounts:dashboard", self.buyer)

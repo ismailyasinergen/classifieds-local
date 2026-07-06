@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -41,6 +41,72 @@ def _active_public_listings_for_user(user):
         .filter(owner=user, status=Listing.Status.APPROVED)
         .filter(Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()))
         .order_by("-top_listing_priority", "-created_at")
+    )
+
+
+def seller_store_directory(request):
+    now = timezone.now()
+    q = request.GET.get("q", "").strip()
+
+    active_listing_filter = (
+        Q(owner__listings__status=Listing.Status.APPROVED)
+        & (
+            Q(owner__listings__expires_at__isnull=True)
+            | Q(owner__listings__expires_at__gt=now)
+        )
+    )
+
+    stores_queryset = (
+        SellerStore.objects
+        .select_related("owner", "owner__profile")
+        .filter(is_active=True)
+        .annotate(
+            active_listing_count=Count(
+                "owner__listings",
+                filter=active_listing_filter,
+                distinct=True,
+            )
+        )
+        .filter(active_listing_count__gt=0)
+    )
+
+    if q:
+        stores_queryset = stores_queryset.filter(
+            Q(name__icontains=q)
+            | Q(headline__icontains=q)
+            | Q(description__icontains=q)
+            | Q(location__icontains=q)
+            | Q(owner__username__icontains=q)
+            | Q(owner__email__icontains=q)
+        )
+
+    stores_queryset = stores_queryset.order_by(
+        "-active_listing_count",
+        "name",
+        "owner__username",
+        "id",
+    )
+
+    query_params = request.GET.copy()
+    query_params.pop("page", None)
+    pagination_query = query_params.urlencode()
+    page_url_prefix = f"?{pagination_query}&" if pagination_query else "?"
+
+    paginator = Paginator(stores_queryset, 12)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    return render(
+        request,
+        "accounts/seller_store_directory.html",
+        {
+            "stores": page_obj.object_list,
+            "page_obj": page_obj,
+            "is_paginated": page_obj.has_other_pages(),
+            "q": q,
+            "page_url_prefix": page_url_prefix,
+            "store_count": stores_queryset.count(),
+            "page_title": "Seller Stores",
+        },
     )
 
 

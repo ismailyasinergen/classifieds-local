@@ -50,6 +50,7 @@ urlpatterns = [
     path("logout/", logout_view, name="logout"),
     path("profile/", profile_view, name="profile"),
     path("seller-store/settings/", store_views.seller_store_settings, name="seller_store_settings"),
+    path("stores/", store_views.seller_store_directory, name="seller_store_directory"),
     path("stores/<slug:slug>/", store_views.seller_store_public, name="seller_store_public"),
 
     path("trust-safety/", trust_safety_dashboard_views.trust_safety_dashboard, name="trust_safety_dashboard"),

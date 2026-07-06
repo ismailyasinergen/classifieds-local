@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Seller Stores{% endblock %}
+
+{% block content %}
+<section class="content-card seller-store-directory-v107">
+    <div class="page-header">
+        <div>
+            <p class="muted" style="margin-bottom: 4px;">Store Directory</p>
+            <h1>Seller Stores</h1>
+            <p class="muted">
+                Browse active seller storefronts with approved public listings.
+            </p>
+        </div>
+    </div>
+
+    <form method="get" style="display:grid; grid-template-columns: minmax(220px, 1fr) auto auto; gap:10px; align-items:end; margin-bottom:18px;">
+        <label>
+            Search stores
+            <input type="search" name="q" value="{{ q }}" placeholder="Store name, seller, location...">
+        </label>
+
+        <button type="submit">Search stores</button>
+
+        {% if q %}
+            <a class="button-link" href="{% url 'accounts:seller_store_directory' %}">
+                Clear
+            </a>
+        {% endif %}
+    </form>
+
+    <p class="muted">
+        {% if q %}
+            {{ store_count }} matching seller store{{ store_count|pluralize }} found.
+        {% else %}
+            {{ store_count }} active seller store{{ store_count|pluralize }} found.
+        {% endif %}
+    </p>
+
+    {% if stores %}
+        <div class="listing-grid">
+            {% for store in stores %}
+                <article class="listing-card seller-store-directory-card-v107">
+                    <div class="listing-card-body">
+                        <p class="muted" style="margin-bottom:4px;">Seller Store</p>
+
+                        <h2>
+                            <a href="{% url 'accounts:seller_store_public' store.slug %}">
+                                {{ store.display_name }}
+                            </a>
+                        </h2>
+
+                        {% if store.headline %}
+                            <p>{{ store.headline }}</p>
+                        {% else %}
+                            <p class="muted">Browse this seller’s approved listings.</p>
+                        {% endif %}
+
+                        <div class="listing-card-meta">
+                            {% if store.location %}
+                                <span class="listing-card-location">{{ store.location }}</span>
+                            {% endif %}
+                            <span>{{ store.active_listing_count }} active listing{{ store.active_listing_count|pluralize }}</span>
+                        </div>
+
+                        <p class="muted">
+                            Seller: {{ store.owner.username }}
+                        </p>
+
+                        <p>
+                            <a class="button-link" href="{% url 'accounts:seller_store_public' store.slug %}">
+                                View store
+                            </a>
+                        </p>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a class="button-link" href="{{ page_url_prefix }}page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+                <span class="muted">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a class="button-link" href="{{ page_url_prefix }}page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        {% if q %}
+            <p class="muted">No seller stores match your search.</p>
+        {% else %}
+            <p class="muted">No active seller stores are available yet.</p>
+        {% endif %}
+    {% endif %}
+</section>
+{% endblock %}
