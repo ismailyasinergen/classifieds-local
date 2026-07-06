@@ -169,12 +169,56 @@ def seller_store_public(request, slug):
     q = request.GET.get("q", "").strip()
     selected_category_slug = request.GET.get("category", "").strip()
 
-    category_options = (
+    category_counts = {
+        row["category_id"]: row["listing_count"]
+        for row in (
+            base_listings_queryset
+            .order_by()
+            .values("category_id")
+            .annotate(listing_count=Count("id"))
+        )
+    }
+
+    category_options = list(
         Category.objects
-        .filter(id__in=base_listings_queryset.values("category_id"))
+        .filter(id__in=category_counts.keys())
         .order_by("name")
         .distinct()
     )
+
+    for category in category_options:
+        category.store_listing_count = category_counts.get(category.id, 0)
+
+    def build_store_tab_url(category_slug=None):
+        tab_query_params = request.GET.copy()
+        tab_query_params.pop("page", None)
+
+        if category_slug:
+            tab_query_params["category"] = category_slug
+        else:
+            tab_query_params.pop("category", None)
+
+        tab_query = tab_query_params.urlencode()
+        tab_suffix = f"?{tab_query}" if tab_query else ""
+        return f"{request.path}{tab_suffix}#store-listings-v109"
+
+    all_listings_tab = {
+        "label": "All listings",
+        "count": listing_count,
+        "url": build_store_tab_url(),
+        "is_active": not selected_category_slug,
+    }
+
+    category_tabs = [
+        {
+            "label": category.name,
+            "slug": category.slug,
+            "count": category.store_listing_count,
+            "url": build_store_tab_url(category.slug),
+            "is_active": selected_category_slug == category.slug,
+        }
+        for category in category_options
+    ]
 
     listings_queryset = base_listings_queryset
 
@@ -210,6 +254,8 @@ def seller_store_public(request, slug):
             "listing_count": listing_count,
             "filtered_listing_count": filtered_listing_count,
             "category_options": category_options,
+            "all_listings_tab": all_listings_tab,
+            "category_tabs": category_tabs,
             "q": q,
             "selected_category_slug": selected_category_slug,
             "page_url_prefix": page_url_prefix,

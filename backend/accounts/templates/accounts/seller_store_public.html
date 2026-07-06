@@ -144,13 +144,35 @@
     {% endif %}
 </section>
 
-<section id="store-listings-v109" class="content-card storefront-filters-v106 storefront-listings-v109" style="margin-top: 16px;">
+<section id="store-listings-v109" class="content-card storefront-filters-v106 storefront-listings-v109 storefront-category-tabs-v110" style="margin-top: 16px;">
     <div class="page-header">
         <div>
             <h2>Active Listings{% if filtered_listing_count != listing_count %} ({{ filtered_listing_count }} of {{ listing_count }}){% else %} ({{ listing_count }}){% endif %}</h2>
             <p class="muted">Search inside this seller’s public approved listings.</p>
         </div>
     </div>
+
+    {% if category_tabs %}
+        <nav class="seller-store-category-tabs-v110" aria-label="Store listing categories" style="display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 18px;">
+            <a
+                class="button-link{% if all_listings_tab.is_active %} button-primary store-category-tab-active-v110{% endif %}"
+                href="{{ all_listings_tab.url }}"
+                {% if all_listings_tab.is_active %}aria-current="true"{% endif %}
+            >
+                {{ all_listings_tab.label }} ({{ all_listings_tab.count }})
+            </a>
+
+            {% for tab in category_tabs %}
+                <a
+                    class="button-link{% if tab.is_active %} button-primary store-category-tab-active-v110{% endif %}"
+                    href="{{ tab.url }}"
+                    {% if tab.is_active %}aria-current="true"{% endif %}
+                >
+                    {{ tab.label }} ({{ tab.count }})
+                </a>
+            {% endfor %}
+        </nav>
+    {% endif %}
 
     <form method="get" style="display:grid; grid-template-columns: minmax(220px, 1fr) minmax(180px, 260px) auto auto; gap:10px; align-items:end; margin-bottom:18px;">
         <label>
