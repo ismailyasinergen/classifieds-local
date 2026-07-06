@@ -8,6 +8,8 @@
 
 services:
   db:
+    env_file:
+      - .env.production
     restart: unless-stopped
 
   web:
@@ -28,8 +30,9 @@ services:
   nginx:
     restart: unless-stopped
     volumes:
-      - prod_static:/app/staticfiles:ro
-      - prod_media:/app/media:ro
+      # Match nginx/default.conf aliases: /static/ and /media/.
+      - prod_static:/static:ro
+      - prod_media:/media:ro
 
 volumes:
   prod_static:
