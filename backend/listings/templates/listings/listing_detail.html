@@ -822,6 +822,52 @@
             background: #fff;
         }
 
+        .seller-store-brand-row-v108 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .seller-store-logo-v108,
+        .seller-store-logo-placeholder-v108 {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            border: 1px solid #d9e2ef;
+            background: #fff;
+            flex: 0 0 auto;
+        }
+
+        .seller-store-logo-v108 {
+            object-fit: cover;
+        }
+
+        .seller-store-logo-placeholder-v108 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+
+        .seller-store-banner-v108 {
+            width: 100%;
+            max-height: 140px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .seller-store-section-banner-v108 {
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            display: block;
+        }
+
 </style>
 
     <p class="classified-back-link">
@@ -1076,8 +1122,32 @@
 
             {% if seller_store %}
                 <div class="seller-store-card-v105">
-                    <h3>Seller Store</h3>
-                    <p><strong>{{ seller_store.display_name }}</strong></p>
+                    {% if seller_store.banner %}
+                        <img
+                            class="seller-store-banner-v108"
+                            src="{{ seller_store.banner.url }}"
+                            alt="{{ seller_store.display_name }} banner"
+                        >
+                    {% endif %}
+
+                    <div class="seller-store-brand-row-v108">
+                        {% if seller_store.logo %}
+                            <img
+                                class="seller-store-logo-v108"
+                                src="{{ seller_store.logo.url }}"
+                                alt="{{ seller_store.display_name }} logo"
+                            >
+                        {% else %}
+                            <div class="seller-store-logo-placeholder-v108">
+                                {{ seller_store.display_name|first|upper }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h3>Seller Store</h3>
+                            <p><strong>{{ seller_store.display_name }}</strong></p>
+                        </div>
+                    </div>
+
                     {% if seller_store.headline %}
                         <p class="muted">{{ seller_store.headline }}</p>
                     {% endif %}
@@ -1322,10 +1392,34 @@
     {% if seller_store %}
     <section id="store" class="classified-section-panel" style="margin-top:12px; border-top:1px solid #ddd; border-radius:4px;">
         <h2>Seller Store</h2>
-        <p><strong>{{ seller_store.display_name }}</strong></p>
-        {% if seller_store.headline %}
-            <p>{{ seller_store.headline }}</p>
+
+        {% if seller_store.banner %}
+            <img
+                class="seller-store-section-banner-v108"
+                src="{{ seller_store.banner.url }}"
+                alt="{{ seller_store.display_name }} banner"
+            >
         {% endif %}
+
+        <div class="seller-store-brand-row-v108">
+            {% if seller_store.logo %}
+                <img
+                    class="seller-store-logo-v108"
+                    src="{{ seller_store.logo.url }}"
+                    alt="{{ seller_store.display_name }} logo"
+                >
+            {% else %}
+                <div class="seller-store-logo-placeholder-v108">
+                    {{ seller_store.display_name|first|upper }}
+                </div>
+            {% endif %}
+            <div>
+                <p><strong>{{ seller_store.display_name }}</strong></p>
+                {% if seller_store.headline %}
+                    <p>{{ seller_store.headline }}</p>
+                {% endif %}
+            </div>
+        </div>
         {% if seller_store.description %}
             <div>{{ seller_store.description|linebreaks }}</div>
         {% else %}

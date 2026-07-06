@@ -3,16 +3,38 @@
 {% block title %}{{ store.display_name }}{% endblock %}
 
 {% block content %}
-<section class="content-card storefront-hero-v106">
+<section class="content-card storefront-hero-v106 storefront-hero-v108">
+    {% if store.banner %}
+        <img
+            class="storefront-banner-v108"
+            src="{{ store.banner.url }}"
+            alt="{{ store.display_name }} banner"
+            style="width:100%; max-height:220px; object-fit:cover; border-radius:14px; display:block; margin-bottom:16px;"
+        >
+    {% endif %}
     <div class="page-header">
-        <div>
-            <p class="muted" style="margin-bottom: 4px;">Seller Store</p>
-            <h1>{{ store.display_name }}</h1>
-            {% if store.headline %}
-                <p class="muted">{{ store.headline }}</p>
+        <div style="display:flex; gap:14px; align-items:center;">
+            {% if store.logo %}
+                <img
+                    class="storefront-logo-v108"
+                    src="{{ store.logo.url }}"
+                    alt="{{ store.display_name }} logo"
+                    style="width:72px; height:72px; object-fit:cover; border-radius:18px; border:1px solid #d9e2ef; background:#fff;"
+                >
             {% else %}
-                <p class="muted">Browse this seller’s active marketplace listings.</p>
+                <div class="storefront-logo-placeholder-v108" style="width:72px; height:72px; border-radius:18px; border:1px dashed #c7d2e3; display:flex; align-items:center; justify-content:center; background:#fff; font-weight:800; font-size:1.4rem;">
+                    {{ store.display_name|first|upper }}
+                </div>
             {% endif %}
+            <div>
+                <p class="muted" style="margin-bottom: 4px;">Seller Store</p>
+                <h1>{{ store.display_name }}</h1>
+                {% if store.headline %}
+                    <p class="muted">{{ store.headline }}</p>
+                {% else %}
+                    <p class="muted">Browse this seller’s active marketplace listings.</p>
+                {% endif %}
+            </div>
         </div>
         {% if can_preview %}
             <div class="header-actions">

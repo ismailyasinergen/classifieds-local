@@ -28,6 +28,8 @@ class SellerStoreForm(forms.ModelForm):
         model = SellerStore
         fields = [
             "name",
+            "logo",
+            "banner",
             "headline",
             "description",
             "location",
@@ -35,6 +37,8 @@ class SellerStoreForm(forms.ModelForm):
         ]
         labels = {
             "name": "Store name",
+            "logo": "Store logo",
+            "banner": "Store banner",
             "headline": "Short headline",
             "description": "About your store",
             "location": "Store location",
@@ -43,6 +47,8 @@ class SellerStoreForm(forms.ModelForm):
         help_texts = {
             "name": "Leave blank to use your username as the store name.",
             "headline": "A short trust-building line shown on your public store and listing detail.",
+            "logo": "Upload a square logo or avatar for your public store.",
+            "banner": "Upload a wide cover image for the top of your public store.",
             "is_active": "Turn this off to hide your public store page from buyers.",
         }
         widgets = {

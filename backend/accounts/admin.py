@@ -46,6 +46,8 @@ class SellerStoreAdmin(admin.ModelAdmin):
         "owner",
         "slug",
         "location",
+        "has_logo",
+        "has_banner",
         "is_active",
         "updated_at",
     ]
@@ -66,6 +68,15 @@ class SellerStoreAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     ]
+
+
+    @admin.display(boolean=True, description="Logo")
+    def has_logo(self, obj):
+        return bool(obj.logo)
+
+    @admin.display(boolean=True, description="Banner")
+    def has_banner(self, obj):
+        return bool(obj.banner)
 
 
 # TRUST_SAFETY_EVENT_ADMIN_V1

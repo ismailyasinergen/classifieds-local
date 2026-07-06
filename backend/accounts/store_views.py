@@ -115,7 +115,7 @@ def seller_store_settings(request):
     store = _get_or_create_store_for_user(request.user)
 
     if request.method == "POST":
-        form = SellerStoreForm(request.POST, instance=store)
+        form = SellerStoreForm(request.POST, request.FILES, instance=store)
         if form.is_valid():
             form.save()
             messages.success(request, "Store settings saved.")

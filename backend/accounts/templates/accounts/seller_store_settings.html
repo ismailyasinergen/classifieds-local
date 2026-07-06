@@ -3,7 +3,7 @@
 {% block title %}Store Settings{% endblock %}
 
 {% block content %}
-<section class="content-card">
+<section class="content-card seller-store-settings-v108">
     <div class="page-header">
         <div>
             <h1>Store Settings</h1>
@@ -16,7 +16,40 @@
         </div>
     </div>
 
-    <form method="post">
+
+    <div class="store-branding-preview-v108" style="border:1px solid #dbe3ef; border-radius:14px; padding:14px; margin:16px 0; background:#f8fbff;">
+        <h2 style="margin-top:0;">Store branding preview</h2>
+
+        {% if store.banner %}
+            <img
+                src="{{ store.banner.url }}"
+                alt="{{ store.display_name }} banner"
+                style="width:100%; max-height:180px; object-fit:cover; border-radius:12px; display:block; margin-bottom:12px;"
+            >
+        {% endif %}
+
+        <div style="display:flex; gap:12px; align-items:center;">
+            {% if store.logo %}
+                <img
+                    src="{{ store.logo.url }}"
+                    alt="{{ store.display_name }} logo"
+                    style="width:64px; height:64px; object-fit:cover; border-radius:16px; border:1px solid #d9e2ef; background:#fff;"
+                >
+            {% else %}
+                <div style="width:64px; height:64px; border-radius:16px; border:1px dashed #c7d2e3; display:flex; align-items:center; justify-content:center; background:#fff; font-weight:700;">
+                    {{ store.display_name|first|upper }}
+                </div>
+            {% endif %}
+            <div>
+                <strong>{{ store.display_name }}</strong>
+                <p class="muted" style="margin:4px 0 0;">
+                    {% if store.headline %}{{ store.headline }}{% else %}Upload a logo and banner to make your seller store feel branded.{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Save store settings</button>

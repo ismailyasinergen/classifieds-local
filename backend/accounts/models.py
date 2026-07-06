@@ -72,6 +72,16 @@ class SellerStore(models.Model):
     headline = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
     location = models.CharField(max_length=120, blank=True)
+    logo = models.ImageField(
+        upload_to="seller_store_logos/",
+        blank=True,
+        null=True,
+    )
+    banner = models.ImageField(
+        upload_to="seller_store_banners/",
+        blank=True,
+        null=True,
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
