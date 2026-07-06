@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 
 from .views import (
     InboxView,
@@ -13,6 +14,7 @@ app_name = "conversations"
 
 
 urlpatterns = [
+    path("", RedirectView.as_view(pattern_name="conversations:inbox", permanent=False), name="messages_home"),
     path("inbox/", InboxView.as_view(), name="inbox"),
     path("sent/", SentMessagesView.as_view(), name="sent"),
     path("listings/<int:pk>/contact/", ListingMessageCreateView.as_view(), name="listing_contact"),
