@@ -13,6 +13,7 @@ from accounts.models import (
     ModerationAppealAttachment,
     ModerationNotice,
     UserProfile,
+    UserReport,
 )
 from listings.models import Listing
 
@@ -158,6 +159,176 @@ class TrustSafetyFlowTests(TestCase):
         self.profile.seller_suspended_until = timezone.now() + timezone.timedelta(days=7)
         self.profile.seller_suspension_reason = "Automated test suspension."
         self.profile.save(update_fields=["seller_suspended_until", "seller_suspension_reason"])
+
+    def _create_user_report(self, *, source_listing=None):
+        return UserReport.objects.create(
+            reported_user=self.seller,
+            reporter=self.buyer,
+            source_listing=source_listing,
+            reasons=[UserReport.Reason.SCAM],
+            details="Buyer reported a seller safety issue.",
+        )
+
+    def test_user_report_suspend_seller_hides_active_listings_and_creates_appealable_notice(self):
+        source_listing = self._create_listing(
+            owner=self.seller,
+            status=LISTING_APPROVED,
+            title="Reported approved listing",
+        )
+        pending_listing = self._create_listing(
+            owner=self.seller,
+            status=LISTING_PENDING,
+            title="Pending listing hidden by seller suspension",
+        )
+        listing_level_suspended = self._create_listing(
+            owner=self.seller,
+            status=LISTING_SUSPENDED,
+            title="Listing-level suspended listing remains untouched",
+        )
+        listing_level_suspended.suspended_due_to_seller = False
+        listing_level_suspended.status_before_seller_suspension = ""
+        listing_level_suspended.save(
+            update_fields=[
+                "suspended_due_to_seller",
+                "status_before_seller_suspension",
+            ]
+        )
+
+        report = self._create_user_report(source_listing=source_listing)
+
+        self.client.login(username="test_admin", password="Testpass12345")
+        response = self.client.post(
+            reverse("accounts:user_report_suspend", args=[report.pk]),
+            {
+                "duration_days": "14",
+                "admin_note": "Confirmed seller suspension from report queue.",
+                "reporter_note": "We reviewed your report and restricted this seller.",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        report.refresh_from_db()
+        self.profile.refresh_from_db()
+        source_listing.refresh_from_db()
+        pending_listing.refresh_from_db()
+        listing_level_suspended.refresh_from_db()
+
+        self.assertEqual(report.status, UserReport.Status.REVIEWED)
+        self.assertEqual(report.action_taken, UserReport.Action.SUSPENDED_SELLER)
+        self.assertIsNotNone(report.action_taken_at)
+
+        self.assertTrue(self.profile.is_seller_suspended)
+        self.assertEqual(
+            self.profile.seller_suspension_reason,
+            "Confirmed seller suspension from report queue.",
+        )
+
+        self.assertEqual(source_listing.status, LISTING_SUSPENDED)
+        self.assertTrue(source_listing.suspended_due_to_seller)
+        self.assertEqual(source_listing.status_before_seller_suspension, LISTING_APPROVED)
+
+        self.assertEqual(pending_listing.status, LISTING_SUSPENDED)
+        self.assertTrue(pending_listing.suspended_due_to_seller)
+        self.assertEqual(pending_listing.status_before_seller_suspension, LISTING_PENDING)
+
+        self.assertEqual(listing_level_suspended.status, LISTING_SUSPENDED)
+        self.assertFalse(listing_level_suspended.suspended_due_to_seller)
+        self.assertEqual(listing_level_suspended.status_before_seller_suspension, "")
+
+        seller_notice = ModerationNotice.objects.get(
+            recipient=self.seller,
+            notice_type=ModerationNotice.NoticeType.SELLER_ACTION,
+            user_report=report,
+        )
+        self.assertIn("temporarily suspended", seller_notice.title.lower())
+        self.assertIn("2 active listing(s)", seller_notice.body)
+        self.assertFalse(ModerationAppeal.objects.filter(moderation_notice=seller_notice).exists())
+
+        self.client.login(username="test_seller", password="Testpass12345")
+        appeal_response = self.client.post(
+            reverse("accounts:moderation_appeal_create", args=[seller_notice.pk]),
+            {"message": "Please review this report-based seller suspension."},
+        )
+
+        self.assertEqual(appeal_response.status_code, 302)
+
+        appeal = ModerationAppeal.objects.get(
+            appellant=self.seller,
+            moderation_notice=seller_notice,
+        )
+        self.assertEqual(appeal.status, ModerationAppeal.Status.PENDING)
+        self.assertEqual(appeal.appeal_type, ModerationAppeal.AppealType.SELLER_ACTION)
+        self.assertEqual(appeal.user_report, report)
+
+        self.profile.refresh_from_db()
+        source_listing.refresh_from_db()
+        pending_listing.refresh_from_db()
+
+        self.assertTrue(self.profile.is_seller_suspended)
+        self.assertEqual(source_listing.status, LISTING_SUSPENDED)
+        self.assertTrue(source_listing.suspended_due_to_seller)
+        self.assertEqual(pending_listing.status, LISTING_SUSPENDED)
+        self.assertTrue(pending_listing.suspended_due_to_seller)
+
+    def test_report_suspension_appeal_approval_does_not_auto_lift_or_restore(self):
+        source_listing = self._create_listing(
+            owner=self.seller,
+            status=LISTING_APPROVED,
+            title="Report suspension appeal listing",
+        )
+        report = self._create_user_report(source_listing=source_listing)
+
+        self.client.login(username="test_admin", password="Testpass12345")
+        response = self.client.post(
+            reverse("accounts:user_report_suspend", args=[report.pk]),
+            {
+                "duration_days": "10",
+                "admin_note": "Suspend seller before appeal.",
+                "reporter_note": "Action was taken.",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+
+        seller_notice = ModerationNotice.objects.get(
+            recipient=self.seller,
+            notice_type=ModerationNotice.NoticeType.SELLER_ACTION,
+            user_report=report,
+        )
+
+        self.client.login(username="test_seller", password="Testpass12345")
+        response = self.client.post(
+            reverse("accounts:moderation_appeal_create", args=[seller_notice.pk]),
+            {"message": "I appeal this suspension."},
+        )
+        self.assertEqual(response.status_code, 302)
+
+        appeal = ModerationAppeal.objects.get(
+            appellant=self.seller,
+            moderation_notice=seller_notice,
+        )
+
+        self.client.login(username="test_admin", password="Testpass12345")
+        response = self.client.post(
+            reverse("accounts:moderation_appeal_decide", args=[appeal.pk, "approve"]),
+            {
+                "decision_note": "Appeal approved; manual lift still required.",
+                "admin_note": "Verify no automatic restriction changes.",
+                "evidence_reviewed": "yes",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        appeal.refresh_from_db()
+        self.profile.refresh_from_db()
+        source_listing.refresh_from_db()
+
+        self.assertEqual(appeal.status, ModerationAppeal.Status.APPROVED)
+        self.assertTrue(self.profile.is_seller_suspended)
+        self.assertEqual(source_listing.status, LISTING_SUSPENDED)
+        self.assertTrue(source_listing.suspended_due_to_seller)
+        self.assertEqual(source_listing.status_before_seller_suspension, LISTING_APPROVED)
 
     def test_lift_seller_suspension_restores_only_seller_hidden_listing(self):
         seller_hidden = self._create_listing(
