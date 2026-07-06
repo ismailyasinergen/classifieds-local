@@ -174,7 +174,7 @@
         </nav>
     {% endif %}
 
-    <form method="get" style="display:grid; grid-template-columns: minmax(220px, 1fr) minmax(180px, 260px) auto auto; gap:10px; align-items:end; margin-bottom:18px;">
+    <form method="get" class="seller-store-sort-form-v111" style="display:grid; grid-template-columns: minmax(220px, 1fr) minmax(180px, 240px) minmax(170px, 220px) auto auto; gap:10px; align-items:end; margin-bottom:18px;">
         <label>
             Search this store
             <input type="search" name="q" value="{{ q }}" placeholder="Title, description, location...">
@@ -192,9 +192,20 @@
             </select>
         </label>
 
+        <label class="seller-store-sort-v111">
+            Sort
+            <select name="sort">
+                {% for option in sort_options %}
+                    <option value="{{ option.value }}" {% if option.is_selected %}selected{% endif %}>
+                        {{ option.label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
         <button type="submit">Filter store</button>
 
-        {% if q or selected_category_slug %}
+        {% if q or selected_category_slug or selected_sort != "newest" %}
             <a class="button-link" href="{% url 'accounts:seller_store_public' store.slug %}">
                 Clear
             </a>

@@ -13,6 +13,21 @@ from .forms import SellerStoreForm
 from .models import SellerStore
 
 
+SELLER_STORE_SORT_OPTIONS_V111 = (
+    ("newest", "Newest first"),
+    ("oldest", "Oldest first"),
+    ("price_asc", "Price: low to high"),
+    ("price_desc", "Price: high to low"),
+)
+
+SELLER_STORE_SORT_ORDERINGS_V111 = {
+    "newest": ("-top_listing_priority", "-created_at", "-id"),
+    "oldest": ("created_at", "id"),
+    "price_asc": ("price", "-created_at", "-id"),
+    "price_desc": ("-price", "-created_at", "-id"),
+}
+
+
 def _get_or_create_store_for_user(user):
     store, created = SellerStore.objects.get_or_create(owner=user)
 
@@ -168,6 +183,20 @@ def seller_store_public(request, slug):
 
     q = request.GET.get("q", "").strip()
     selected_category_slug = request.GET.get("category", "").strip()
+    requested_sort = request.GET.get("sort", "newest").strip()
+    selected_sort = (
+        requested_sort
+        if requested_sort in SELLER_STORE_SORT_ORDERINGS_V111
+        else "newest"
+    )
+    sort_options = [
+        {
+            "value": value,
+            "label": label,
+            "is_selected": selected_sort == value,
+        }
+        for value, label in SELLER_STORE_SORT_OPTIONS_V111
+    ]
 
     category_counts = {
         row["category_id"]: row["listing_count"]
@@ -192,6 +221,11 @@ def seller_store_public(request, slug):
     def build_store_tab_url(category_slug=None):
         tab_query_params = request.GET.copy()
         tab_query_params.pop("page", None)
+
+        if selected_sort == "newest":
+            tab_query_params.pop("sort", None)
+        else:
+            tab_query_params["sort"] = selected_sort
 
         if category_slug:
             tab_query_params["category"] = category_slug
@@ -233,10 +267,18 @@ def seller_store_public(request, slug):
     if selected_category_slug:
         listings_queryset = listings_queryset.filter(category__slug=selected_category_slug)
 
+    listings_queryset = listings_queryset.order_by(
+        *SELLER_STORE_SORT_ORDERINGS_V111[selected_sort]
+    )
+
     filtered_listing_count = listings_queryset.count()
 
     query_params = request.GET.copy()
     query_params.pop("page", None)
+    if selected_sort == "newest":
+        query_params.pop("sort", None)
+    else:
+        query_params["sort"] = selected_sort
     pagination_query = query_params.urlencode()
     page_url_prefix = f"?{pagination_query}&" if pagination_query else "?"
 
@@ -258,6 +300,8 @@ def seller_store_public(request, slug):
             "category_tabs": category_tabs,
             "q": q,
             "selected_category_slug": selected_category_slug,
+            "selected_sort": selected_sort,
+            "sort_options": sort_options,
             "page_url_prefix": page_url_prefix,
             "can_preview": can_preview,
             "owner_profile": owner_profile,
