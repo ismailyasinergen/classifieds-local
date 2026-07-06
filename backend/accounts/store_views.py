@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Count, Q
+from django.db.models import Case, Count, IntegerField, Q, Value, When
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -28,6 +28,40 @@ SELLER_STORE_SORT_ORDERINGS_V111 = {
 }
 
 SELLER_STORE_PINNED_LIMIT_V112 = 3
+
+SELLER_STORE_DIRECTORY_DEFAULT_SORT_V114 = "most_listings"
+
+SELLER_STORE_DIRECTORY_SORT_OPTIONS_V114 = (
+    ("most_listings", "Most listings"),
+    ("name_az", "Store name A-Z"),
+    ("newest", "Newest stores"),
+    ("verified_first", "Verified sellers first"),
+)
+
+SELLER_STORE_DIRECTORY_SORT_ORDERINGS_V114 = {
+    "most_listings": (
+        "-active_listing_count",
+        "name",
+        "owner__username",
+        "id",
+    ),
+    "name_az": (
+        "name",
+        "owner__username",
+        "id",
+    ),
+    "newest": (
+        "-created_at",
+        "-id",
+    ),
+    "verified_first": (
+        "-verified_seller_rank",
+        "-active_listing_count",
+        "name",
+        "owner__username",
+        "id",
+    ),
+}
 
 
 def _seller_store_pinned_listing_filter(now):
@@ -93,6 +127,12 @@ def seller_store_directory(request):
     min_listings = _parse_directory_min_listings_v113(
         request.GET.get("min_listings", "")
     )
+    selected_directory_sort = request.GET.get(
+        "sort",
+        SELLER_STORE_DIRECTORY_DEFAULT_SORT_V114,
+    ).strip()
+    if selected_directory_sort not in dict(SELLER_STORE_DIRECTORY_SORT_OPTIONS_V114):
+        selected_directory_sort = SELLER_STORE_DIRECTORY_DEFAULT_SORT_V114
 
     active_listing_filter = (
         Q(owner__listings__status=Listing.Status.APPROVED)
@@ -111,7 +151,17 @@ def seller_store_directory(request):
                 "owner__listings",
                 filter=active_listing_filter,
                 distinct=True,
-            )
+            ),
+            verified_seller_rank=Case(
+                When(
+                    owner__profile__verification_status=(
+                        UserProfile.VerificationStatus.APPROVED
+                    ),
+                    then=Value(1),
+                ),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
         )
         .filter(active_listing_count__gt=0)
     )
@@ -145,10 +195,7 @@ def seller_store_directory(request):
         )
 
     stores_queryset = stores_queryset.order_by(
-        "-active_listing_count",
-        "name",
-        "owner__username",
-        "id",
+        *SELLER_STORE_DIRECTORY_SORT_ORDERINGS_V114[selected_directory_sort]
     )
 
     has_advanced_directory_filters = bool(
@@ -179,6 +226,11 @@ def seller_store_directory(request):
     else:
         query_params.pop("min_listings", None)
 
+    if selected_directory_sort != SELLER_STORE_DIRECTORY_DEFAULT_SORT_V114:
+        query_params["sort"] = selected_directory_sort
+    else:
+        query_params.pop("sort", None)
+
     pagination_query = query_params.urlencode()
     page_url_prefix = f"?{pagination_query}&" if pagination_query else "?"
 
@@ -198,6 +250,8 @@ def seller_store_directory(request):
             "min_listings": str(min_listings or ""),
             "has_directory_filters": has_directory_filters,
             "has_advanced_directory_filters": has_advanced_directory_filters,
+            "selected_directory_sort": selected_directory_sort,
+            "directory_sort_options": SELLER_STORE_DIRECTORY_SORT_OPTIONS_V114,
             "page_url_prefix": page_url_prefix,
             "store_count": stores_queryset.count(),
             "page_title": "Seller Stores",

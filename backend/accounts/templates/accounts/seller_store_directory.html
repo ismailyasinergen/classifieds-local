@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    <form method="get" class="seller-store-directory-filters-v113" style="display:grid; grid-template-columns: minmax(220px, 1fr) minmax(160px, 220px) minmax(140px, 190px) auto auto; gap:10px; align-items:end; margin-bottom:18px;">
+    <form method="get" class="seller-store-directory-filters-v113 seller-store-directory-sorting-v114" style="display:grid; grid-template-columns: minmax(220px, 1fr) minmax(150px, 210px) minmax(130px, 170px) minmax(160px, 210px) auto auto; gap:10px; align-items:end; margin-bottom:18px;">
         <label>
             Search stores
             <input type="search" name="q" value="{{ q }}" placeholder="Store name, seller, headline...">
@@ -30,6 +30,17 @@
             <input type="number" name="min_listings" value="{{ min_listings }}" min="1" placeholder="Any">
         </label>
 
+        <label>
+            Sort by
+            <select name="sort">
+                {% for sort_value, sort_label in directory_sort_options %}
+                    <option value="{{ sort_value }}" {% if selected_directory_sort == sort_value %}selected{% endif %}>
+                        {{ sort_label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
         <label style="display:flex; gap:8px; align-items:center; padding-bottom:8px;">
             <input type="checkbox" name="verified_only" value="1" {% if verified_only %}checked{% endif %}>
             Verified only
@@ -37,7 +48,7 @@
 
         <button type="submit">Filter stores</button>
 
-        {% if has_directory_filters %}
+        {% if has_directory_filters or selected_directory_sort != "most_listings" %}
             <a class="button-link" href="{% url 'accounts:seller_store_directory' %}">
                 Clear
             </a>
