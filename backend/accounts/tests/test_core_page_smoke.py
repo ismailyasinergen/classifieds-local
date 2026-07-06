@@ -53,6 +53,7 @@ class CorePageSmokeTests(TestCase):
     def test_seller_pages_render(self):
         self.assert_page_ok("accounts:dashboard", self.seller)
         self.assert_page_ok("accounts:my_listings", self.seller)
+        self.assert_page_ok("accounts:seller_store_settings", self.seller)
         self.assert_page_ok("accounts:verification_request", self.seller)
 
     def test_admin_trust_safety_pages_render(self):

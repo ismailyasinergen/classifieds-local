@@ -45,6 +45,16 @@
             </a>
         </div>
 
+        {% with store=listing.public_seller_store %}
+            {% if store %}
+                <div class="listing-card-store-v106" style="margin-top:8px;">
+                    <a class="muted" href="{% url 'accounts:seller_store_public' store.slug %}">
+                        Store: {{ store.display_name }}
+                    </a>
+                </div>
+            {% endif %}
+        {% endwith %}
+
 
         {% with highlights=listing.card_highlights %}
             {% if highlights %}

@@ -73,6 +73,11 @@ def dashboard_view(request):
         is_read=False,
     ).count()
 
+    seller_store, _ = SellerStore.objects.get_or_create(owner=request.user)
+    seller_store_active_listing_count = user_listings.filter(
+        status=Listing.Status.APPROVED,
+    ).count()
+
     return render(
         request,
         "accounts/dashboard.html",
@@ -81,6 +86,8 @@ def dashboard_view(request):
             "my_listings": my_listings,
             "saved_count": saved_count,
             "unread_count": unread_count,
+            "seller_store": seller_store,
+            "seller_store_active_listing_count": seller_store_active_listing_count,
             "approved_count": user_listings.filter(status=Listing.Status.APPROVED).count(),
             "pending_count": user_listings.filter(status=Listing.Status.PENDING).count(),
             "archived_count": user_listings.filter(status=Listing.Status.ARCHIVED).count(),

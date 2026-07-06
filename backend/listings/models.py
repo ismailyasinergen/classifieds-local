@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.urls import reverse
 
@@ -108,6 +109,19 @@ class Listing(models.Model):
         from .attribute_schema import get_card_highlights
 
         return get_card_highlights(self)
+
+
+    @property
+    def public_seller_store(self):
+        try:
+            store = self.owner.seller_store
+        except ObjectDoesNotExist:
+            return None
+
+        if not store.is_active:
+            return None
+
+        return store
 
 
 class ListingImage(models.Model):

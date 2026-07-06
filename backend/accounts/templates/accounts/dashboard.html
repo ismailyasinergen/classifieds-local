@@ -46,6 +46,29 @@
         </a>
     </div>
 
+    {% if seller_store %}
+        <section class="content-card storefront-summary-v106" style="margin-bottom:24px;">
+            <div class="page-header">
+                <div>
+                    <h2>Seller Store</h2>
+                    <p class="muted">
+                        {{ seller_store.display_name }} ·
+                        {{ seller_store_active_listing_count }} active approved listing{{ seller_store_active_listing_count|pluralize }} ·
+                        {% if seller_store.is_active %}Public{% else %}Hidden{% endif %}
+                    </p>
+                </div>
+                <div class="header-actions">
+                    <a class="button-link" href="{% url 'accounts:seller_store_settings' %}">
+                        Store Settings
+                    </a>
+                    <a class="button-link" href="{% url 'accounts:seller_store_public' seller_store.slug %}">
+                        View Public Store
+                    </a>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
     <h2>Recent My Listings</h2>
 
     <div class="listing-grid">

@@ -6,6 +6,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
+from categories.models import Category
 from listings.models import Listing
 
 from .forms import SellerStoreForm
@@ -81,7 +82,39 @@ def seller_store_public(request, slug):
     if not store.is_active and not can_preview:
         raise Http404("Store not found.")
 
-    listings_queryset = _active_public_listings_for_user(store.owner)
+    base_listings_queryset = _active_public_listings_for_user(store.owner)
+    listing_count = base_listings_queryset.count()
+
+    q = request.GET.get("q", "").strip()
+    selected_category_slug = request.GET.get("category", "").strip()
+
+    category_options = (
+        Category.objects
+        .filter(id__in=base_listings_queryset.values("category_id"))
+        .order_by("name")
+        .distinct()
+    )
+
+    listings_queryset = base_listings_queryset
+
+    if q:
+        listings_queryset = listings_queryset.filter(
+            Q(title__icontains=q)
+            | Q(description__icontains=q)
+            | Q(location__icontains=q)
+            | Q(category__name__icontains=q)
+        )
+
+    if selected_category_slug:
+        listings_queryset = listings_queryset.filter(category__slug=selected_category_slug)
+
+    filtered_listing_count = listings_queryset.count()
+
+    query_params = request.GET.copy()
+    query_params.pop("page", None)
+    pagination_query = query_params.urlencode()
+    page_url_prefix = f"?{pagination_query}&" if pagination_query else "?"
+
     paginator = Paginator(listings_queryset, 12)
     page_obj = paginator.get_page(request.GET.get("page"))
 
@@ -93,8 +126,14 @@ def seller_store_public(request, slug):
             "listings": page_obj.object_list,
             "page_obj": page_obj,
             "is_paginated": page_obj.has_other_pages(),
-            "listing_count": listings_queryset.count(),
+            "listing_count": listing_count,
+            "filtered_listing_count": filtered_listing_count,
+            "category_options": category_options,
+            "q": q,
+            "selected_category_slug": selected_category_slug,
+            "page_url_prefix": page_url_prefix,
             "can_preview": can_preview,
             "page_title": store.display_name,
         },
     )
+
