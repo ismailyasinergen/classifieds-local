@@ -10,7 +10,7 @@ from categories.models import Category
 from listings.models import Listing
 
 from .forms import SellerStoreForm
-from .models import SellerStore
+from .models import SellerStore, UserProfile
 
 
 SELLER_STORE_SORT_OPTIONS_V111 = (
@@ -73,9 +73,26 @@ def _active_public_listings_for_user(user):
     )
 
 
+def _parse_directory_min_listings_v113(value):
+    try:
+        parsed_value = int(str(value).strip())
+    except (TypeError, ValueError):
+        return None
+
+    if parsed_value < 1:
+        return None
+
+    return parsed_value
+
+
 def seller_store_directory(request):
     now = timezone.now()
     q = request.GET.get("q", "").strip()
+    location = request.GET.get("location", "").strip()
+    verified_only = request.GET.get("verified_only") == "1"
+    min_listings = _parse_directory_min_listings_v113(
+        request.GET.get("min_listings", "")
+    )
 
     active_listing_filter = (
         Q(owner__listings__status=Listing.Status.APPROVED)
@@ -109,6 +126,24 @@ def seller_store_directory(request):
             | Q(owner__email__icontains=q)
         )
 
+    if location:
+        stores_queryset = stores_queryset.filter(
+            Q(location__icontains=location)
+            | Q(owner__profile__location__icontains=location)
+        )
+
+    if verified_only:
+        stores_queryset = stores_queryset.filter(
+            owner__profile__verification_status=(
+                UserProfile.VerificationStatus.APPROVED
+            )
+        )
+
+    if min_listings is not None:
+        stores_queryset = stores_queryset.filter(
+            active_listing_count__gte=min_listings
+        )
+
     stores_queryset = stores_queryset.order_by(
         "-active_listing_count",
         "name",
@@ -116,8 +151,34 @@ def seller_store_directory(request):
         "id",
     )
 
+    has_advanced_directory_filters = bool(
+        location or verified_only or min_listings is not None
+    )
+    has_directory_filters = bool(q or has_advanced_directory_filters)
+
     query_params = request.GET.copy()
     query_params.pop("page", None)
+
+    if q:
+        query_params["q"] = q
+    else:
+        query_params.pop("q", None)
+
+    if location:
+        query_params["location"] = location
+    else:
+        query_params.pop("location", None)
+
+    if verified_only:
+        query_params["verified_only"] = "1"
+    else:
+        query_params.pop("verified_only", None)
+
+    if min_listings is not None:
+        query_params["min_listings"] = str(min_listings)
+    else:
+        query_params.pop("min_listings", None)
+
     pagination_query = query_params.urlencode()
     page_url_prefix = f"?{pagination_query}&" if pagination_query else "?"
 
@@ -132,6 +193,11 @@ def seller_store_directory(request):
             "page_obj": page_obj,
             "is_paginated": page_obj.has_other_pages(),
             "q": q,
+            "location": location,
+            "verified_only": verified_only,
+            "min_listings": str(min_listings or ""),
+            "has_directory_filters": has_directory_filters,
+            "has_advanced_directory_filters": has_advanced_directory_filters,
             "page_url_prefix": page_url_prefix,
             "store_count": stores_queryset.count(),
             "page_title": "Seller Stores",

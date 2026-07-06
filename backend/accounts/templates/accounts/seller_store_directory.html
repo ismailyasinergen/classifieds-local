@@ -14,15 +14,30 @@
         </div>
     </div>
 
-    <form method="get" style="display:grid; grid-template-columns: minmax(220px, 1fr) auto auto; gap:10px; align-items:end; margin-bottom:18px;">
+    <form method="get" class="seller-store-directory-filters-v113" style="display:grid; grid-template-columns: minmax(220px, 1fr) minmax(160px, 220px) minmax(140px, 190px) auto auto; gap:10px; align-items:end; margin-bottom:18px;">
         <label>
             Search stores
-            <input type="search" name="q" value="{{ q }}" placeholder="Store name, seller, location...">
+            <input type="search" name="q" value="{{ q }}" placeholder="Store name, seller, headline...">
         </label>
 
-        <button type="submit">Search stores</button>
+        <label>
+            Location
+            <input type="search" name="location" value="{{ location }}" placeholder="City or area">
+        </label>
 
-        {% if q %}
+        <label>
+            Minimum listings
+            <input type="number" name="min_listings" value="{{ min_listings }}" min="1" placeholder="Any">
+        </label>
+
+        <label style="display:flex; gap:8px; align-items:center; padding-bottom:8px;">
+            <input type="checkbox" name="verified_only" value="1" {% if verified_only %}checked{% endif %}>
+            Verified only
+        </label>
+
+        <button type="submit">Filter stores</button>
+
+        {% if has_directory_filters %}
             <a class="button-link" href="{% url 'accounts:seller_store_directory' %}">
                 Clear
             </a>
@@ -30,7 +45,7 @@
     </form>
 
     <p class="muted">
-        {% if q %}
+        {% if has_directory_filters %}
             {{ store_count }} matching seller store{{ store_count|pluralize }} found.
         {% else %}
             {{ store_count }} active seller store{{ store_count|pluralize }} found.
@@ -113,8 +128,10 @@
             </div>
         {% endif %}
     {% else %}
-        {% if q %}
+        {% if q and not has_advanced_directory_filters %}
             <p class="muted">No seller stores match your search.</p>
+        {% elif has_directory_filters %}
+            <p class="muted">No seller stores match your directory filters.</p>
         {% else %}
             <p class="muted">No active seller stores are available yet.</p>
         {% endif %}
