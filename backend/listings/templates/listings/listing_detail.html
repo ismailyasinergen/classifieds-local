@@ -788,7 +788,41 @@
             }
         }
 
-    </style>
+    
+        .seller-store-card-v105 {
+            margin-top: 14px;
+            padding: 14px;
+            border: 1px solid #d9e2ef;
+            border-radius: 10px;
+            background: #f8fbff;
+        }
+
+        .seller-store-card-v105 h3 {
+            margin: 0 0 6px;
+            font-size: 1rem;
+        }
+
+        .seller-store-card-v105 p {
+            margin: 0 0 10px;
+        }
+
+        .seller-store-meta-v105 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0 12px;
+        }
+
+        .seller-store-meta-v105 span {
+            display: inline-flex;
+            padding: 4px 8px;
+            border: 1px solid #dde6f2;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            background: #fff;
+        }
+
+</style>
 
     <p class="classified-back-link">
         <a href="{% url 'listings:listing_list' %}">&larr; Back to listings</a>
@@ -1040,6 +1074,25 @@
                 </div>
             </div>
 
+            {% if seller_store %}
+                <div class="seller-store-card-v105">
+                    <h3>Seller Store</h3>
+                    <p><strong>{{ seller_store.display_name }}</strong></p>
+                    {% if seller_store.headline %}
+                        <p class="muted">{{ seller_store.headline }}</p>
+                    {% endif %}
+                    <div class="seller-store-meta-v105">
+                        <span>{{ seller_store_listing_count }} active listing{{ seller_store_listing_count|pluralize }}</span>
+                        {% if seller_store.location %}
+                            <span>{{ seller_store.location }}</span>
+                        {% endif %}
+                    </div>
+                    <a class="button-link" href="{% url 'accounts:seller_store_public' seller_store.slug %}">
+                        View seller store
+                    </a>
+                </div>
+            {% endif %}
+
             {% if listing.owner.profile.location %}
                 <div class="seller-contact-card">
                     <span class="seller-contact-label">Seller location</span>
@@ -1060,6 +1113,15 @@
             </div>
 
             <div class="classified-action-stack seller-contact-actions">
+                {% if request.user == listing.owner %}
+                    <a class="button-link" href="{% url 'accounts:seller_store_settings' %}">
+                        Manage my store
+                    </a>
+                {% elif seller_store %}
+                    <a class="button-link" href="{% url 'accounts:seller_store_public' seller_store.slug %}">
+                        View seller store
+                    </a>
+                {% endif %}
                 {% if request.user == listing.owner %}
                     <a class="button-link" href="{% url 'accounts:profile' %}">
                         Edit my contact info
@@ -1108,6 +1170,9 @@
     <nav class="classified-tabs" aria-label="Listing detail sections">
         <a class="classified-tab active" href="#description">Description</a>
         <a class="classified-tab" href="#details">Listing Details</a>
+        {% if seller_store %}
+            <a class="classified-tab" href="#store">Seller Store</a>
+        {% endif %}
         <a class="classified-tab" href="#seller">Seller / Contact</a>
     </nav>
 
@@ -1253,6 +1318,26 @@
             </div>
         {% endif %}
     </section>
+
+    {% if seller_store %}
+    <section id="store" class="classified-section-panel" style="margin-top:12px; border-top:1px solid #ddd; border-radius:4px;">
+        <h2>Seller Store</h2>
+        <p><strong>{{ seller_store.display_name }}</strong></p>
+        {% if seller_store.headline %}
+            <p>{{ seller_store.headline }}</p>
+        {% endif %}
+        {% if seller_store.description %}
+            <div>{{ seller_store.description|linebreaks }}</div>
+        {% else %}
+            <p class="muted">This seller has not added a store description yet.</p>
+        {% endif %}
+        <p>
+            <a class="button-link" href="{% url 'accounts:seller_store_public' seller_store.slug %}">
+                Open public store page
+            </a>
+        </p>
+    </section>
+    {% endif %}
 
     <section id="seller" class="classified-section-panel" style="margin-top:12px; border-top:1px solid #ddd; border-radius:4px;">
         <h2>Seller / Contact</h2>

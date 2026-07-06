@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ store.display_name }}{% endblock %}
+
+{% block content %}
+<section class="content-card">
+    <div class="page-header">
+        <div>
+            <h1>{{ store.display_name }}</h1>
+            {% if store.headline %}
+                <p class="muted">{{ store.headline }}</p>
+            {% else %}
+                <p class="muted">Seller storefront</p>
+            {% endif %}
+        </div>
+        {% if can_preview %}
+            <div class="header-actions">
+                <a class="button-link" href="{% url 'accounts:seller_store_settings' %}">
+                    Edit store
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if not store.is_active and can_preview %}
+        <div class="message warning">
+            This store is hidden from buyers. Turn on “Show my public store” in store settings to publish it.
+        </div>
+    {% endif %}
+
+    <div class="classified-detail-grid">
+        <div class="classified-detail-box">
+            <div class="classified-detail-label">Seller</div>
+            <div>{{ store.owner.username }}</div>
+        </div>
+        {% if store.location %}
+            <div class="classified-detail-box">
+                <div class="classified-detail-label">Location</div>
+                <div>{{ store.location }}</div>
+            </div>
+        {% endif %}
+        <div class="classified-detail-box">
+            <div class="classified-detail-label">Active listings</div>
+            <div>{{ listing_count }}</div>
+        </div>
+    </div>
+
+    {% if store.description %}
+        <div style="margin-top: 18px;">
+            {{ store.description|linebreaks }}
+        </div>
+    {% endif %}
+</section>
+
+<section class="content-card" style="margin-top: 16px;">
+    <h2>Active Listings</h2>
+
+    {% if listings %}
+        <div class="listing-grid">
+            {% for listing in listings %}
+                {% include "listings/_listing_card.html" with listing=listing %}
+            {% endfor %}
+        </div>
+
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a class="button-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+                <span class="muted">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a class="button-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="muted">This seller does not have active approved listings right now.</p>
+    {% endif %}
+</section>
+{% endblock %}

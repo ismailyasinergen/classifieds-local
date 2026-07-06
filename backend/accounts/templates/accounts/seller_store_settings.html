@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Store Settings{% endblock %}
+
+{% block content %}
+<section class="content-card">
+    <div class="page-header">
+        <div>
+            <h1>Store Settings</h1>
+            <p class="muted">Create the public storefront buyers see from your listings.</p>
+        </div>
+        <div class="header-actions">
+            <a class="button-link" href="{% url 'accounts:seller_store_public' store.slug %}">
+                View public store
+            </a>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save store settings</button>
+    </form>
+
+    <p class="muted" style="margin-top: 16px;">
+        Public store URL:
+        <a href="{% url 'accounts:seller_store_public' store.slug %}">
+            {% url 'accounts:seller_store_public' store.slug %}
+        </a>
+    </p>
+</section>
+{% endblock %}

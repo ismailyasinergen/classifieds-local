@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
@@ -6,7 +7,7 @@ from django.views.generic import CreateView
 from listings.models import Listing, ListingFavorite
 
 from .forms import RegisterForm, UserProfileForm
-from .models import UserProfile
+from .models import SellerStore, UserProfile
 
 
 class RegisterView(CreateView):
@@ -17,7 +18,13 @@ class RegisterView(CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         UserProfile.objects.get_or_create(user=self.object)
-        login(self.request, self.object)
+        SellerStore.objects.get_or_create(owner=self.object)
+        auth_backend = getattr(
+            settings,
+            "AUTHENTICATION_BACKENDS",
+            ["django.contrib.auth.backends.ModelBackend"],
+        )[0]
+        login(self.request, self.object, backend=auth_backend)
         return response
 
 

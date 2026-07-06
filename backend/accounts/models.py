@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 
 
 class UserProfile(models.Model):
@@ -57,6 +59,57 @@ class UserProfile(models.Model):
     @property
     def is_verified_seller(self):
         return self.verification_status == self.VerificationStatus.APPROVED
+
+
+class SellerStore(models.Model):
+    owner = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="seller_store",
+    )
+    name = models.CharField(max_length=160, blank=True)
+    slug = models.SlugField(max_length=180, unique=True)
+    headline = models.CharField(max_length=200, blank=True)
+    description = models.TextField(blank=True)
+    location = models.CharField(max_length=120, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name", "id"]
+        indexes = [
+            models.Index(fields=["is_active", "updated_at"]),
+        ]
+
+    def __str__(self):
+        return self.display_name
+
+    @property
+    def display_name(self):
+        return self.name or self.owner.get_username()
+
+    def get_absolute_url(self):
+        return reverse("accounts:seller_store_public", kwargs={"slug": self.slug})
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self._generate_unique_slug()
+        super().save(*args, **kwargs)
+
+    def _generate_unique_slug(self):
+        base_value = self.name or self.owner.get_username() or f"seller-{self.owner_id}"
+        base_slug = slugify(base_value)[:140] or f"seller-{self.owner_id}"
+        candidate = base_slug
+        counter = 2
+
+        queryset = type(self).objects.exclude(pk=self.pk)
+        while queryset.filter(slug=candidate).exists():
+            suffix = f"-{counter}"
+            candidate = f"{base_slug[:180 - len(suffix)]}{suffix}"
+            counter += 1
+
+        return candidate
 
 
 class UserReport(models.Model):

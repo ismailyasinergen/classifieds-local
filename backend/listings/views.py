@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
+from accounts.models import SellerStore
 from categories.models import Category
 
 from .forms import ListingForm
@@ -173,7 +174,7 @@ class ListingDetailView(SidebarCategoriesMixin, DetailView):
     def get_queryset(self):
         queryset = (
             Listing.objects
-            .select_related("category", "owner")
+            .select_related("category", "owner", "owner__profile", "owner__seller_store")
             .prefetch_related("images")
         )
 
@@ -187,6 +188,32 @@ class ListingDetailView(SidebarCategoriesMixin, DetailView):
             )
 
         return queryset.filter(status=Listing.Status.APPROVED).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()))
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        seller_store = None
+        try:
+            seller_store = self.object.owner.seller_store
+        except SellerStore.DoesNotExist:
+            seller_store = None
+
+        can_preview_store = (
+            self.request.user.is_authenticated
+            and (self.request.user.is_staff or self.request.user == self.object.owner)
+        )
+
+        if seller_store and (seller_store.is_active or can_preview_store):
+            context["seller_store"] = seller_store
+            context["seller_store_listing_count"] = (
+                Listing.objects
+                .filter(owner=self.object.owner, status=Listing.Status.APPROVED)
+                .filter(Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()))
+                .count()
+            )
+
+        return context
 
 
 class ListingCreateView(LoginRequiredMixin, SidebarCategoriesMixin, CreateView):
@@ -207,6 +234,7 @@ class ListingCreateView(LoginRequiredMixin, SidebarCategoriesMixin, CreateView):
         form.instance.owner = self.request.user
         form.instance.status = Listing.Status.PENDING
         form.instance.expires_at = default_listing_expiry()
+        SellerStore.objects.get_or_create(owner=self.request.user)
 
         response = super().form_valid(form)
 

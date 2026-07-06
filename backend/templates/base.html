@@ -1139,6 +1139,7 @@
     {% safe_url 'listings:listing_create' as nav_post_url %}
     {% safe_url 'accounts:dashboard' as nav_dashboard_url %}
     {% safe_url 'accounts:profile' as nav_profile_url %}
+    {% safe_url 'accounts:seller_store_settings' as nav_store_settings_url %}
     {% safe_url 'listings:my_listings' as nav_my_listings_url %}
     {% safe_url 'listings:saved_listings' as nav_saved_url %}
     {% safe_url 'listings:saved_search_list' as nav_saved_searches_url %}
@@ -1180,6 +1181,7 @@
                             <div class="nav-menu-heading">Account</div>
                             <a href="{{ nav_dashboard_url }}">Dashboard</a>
                             <a href="{{ nav_profile_url }}">Profile</a>
+                            <a href="{{ nav_store_settings_url }}">Store Settings</a>
                             <a href="{{ nav_my_listings_url }}">My Listings</a>
                             <a href="{{ nav_saved_url }}">Saved Listings</a>
                             <a href="{{ nav_saved_searches_url }}">Saved Searches</a>

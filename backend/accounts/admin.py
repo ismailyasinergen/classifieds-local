@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import UserProfile
+from .models import SellerStore, UserProfile
 
 
 @admin.action(description="Approve seller verification")
@@ -37,6 +37,35 @@ class UserProfileAdmin(admin.ModelAdmin):
         reject_verification,
     ]
 
+
+
+@admin.register(SellerStore)
+class SellerStoreAdmin(admin.ModelAdmin):
+    list_display = [
+        "display_name",
+        "owner",
+        "slug",
+        "location",
+        "is_active",
+        "updated_at",
+    ]
+    list_filter = [
+        "is_active",
+        "created_at",
+        "updated_at",
+    ]
+    search_fields = [
+        "name",
+        "headline",
+        "description",
+        "location",
+        "owner__username",
+        "owner__email",
+    ]
+    readonly_fields = [
+        "created_at",
+        "updated_at",
+    ]
 
 
 # TRUST_SAFETY_EVENT_ADMIN_V1

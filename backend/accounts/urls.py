@@ -10,6 +10,7 @@ from . import (
     private_media_views,
     seller_report_action_views,
     seller_report_views,
+    store_views,
     trust_safety_dashboard_views,
     trust_safety_report_views,
     trust_safety_views,
@@ -48,6 +49,8 @@ urlpatterns = [
     path("login/", auth_views.LoginView.as_view(template_name="accounts/login.html"), name="login"),
     path("logout/", logout_view, name="logout"),
     path("profile/", profile_view, name="profile"),
+    path("seller-store/settings/", store_views.seller_store_settings, name="seller_store_settings"),
+    path("stores/<slug:slug>/", store_views.seller_store_public, name="seller_store_public"),
 
     path("trust-safety/", trust_safety_dashboard_views.trust_safety_dashboard, name="trust_safety_dashboard"),
     path("trust-safety/listings/<int:pk>/restore/", trust_safety_dashboard_views.trust_safety_restore_listing, name="trust_safety_restore_listing"),
