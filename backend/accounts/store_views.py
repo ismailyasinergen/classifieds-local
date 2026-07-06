@@ -119,6 +119,19 @@ def _parse_directory_min_listings_v113(value):
     return parsed_value
 
 
+def _directory_url_from_query_v115(path, query_params):
+    query_string = query_params.urlencode()
+    if query_string:
+        return f"{path}?{query_string}"
+    return path
+
+
+def _directory_clear_url_v115(path, query_params, field_name):
+    updated_params = query_params.copy()
+    updated_params.pop(field_name, None)
+    return _directory_url_from_query_v115(path, updated_params)
+
+
 def seller_store_directory(request):
     now = timezone.now()
     q = request.GET.get("q", "").strip()
@@ -231,6 +244,75 @@ def seller_store_directory(request):
     else:
         query_params.pop("sort", None)
 
+    directory_sort_labels = dict(SELLER_STORE_DIRECTORY_SORT_OPTIONS_V114)
+    selected_directory_sort_label = directory_sort_labels[selected_directory_sort]
+
+    directory_active_chips = []
+    if q:
+        directory_active_chips.append(
+            {
+                "label": "Search",
+                "value": q,
+                "clear_url": _directory_clear_url_v115(
+                    request.path,
+                    query_params,
+                    "q",
+                ),
+            }
+        )
+
+    if location:
+        directory_active_chips.append(
+            {
+                "label": "Location",
+                "value": location,
+                "clear_url": _directory_clear_url_v115(
+                    request.path,
+                    query_params,
+                    "location",
+                ),
+            }
+        )
+
+    if min_listings is not None:
+        directory_active_chips.append(
+            {
+                "label": "Minimum listings",
+                "value": f"{min_listings}+ active listings",
+                "clear_url": _directory_clear_url_v115(
+                    request.path,
+                    query_params,
+                    "min_listings",
+                ),
+            }
+        )
+
+    if verified_only:
+        directory_active_chips.append(
+            {
+                "label": "Trust",
+                "value": "Verified only",
+                "clear_url": _directory_clear_url_v115(
+                    request.path,
+                    query_params,
+                    "verified_only",
+                ),
+            }
+        )
+
+    if selected_directory_sort != SELLER_STORE_DIRECTORY_DEFAULT_SORT_V114:
+        directory_active_chips.append(
+            {
+                "label": "Sort",
+                "value": selected_directory_sort_label,
+                "clear_url": _directory_clear_url_v115(
+                    request.path,
+                    query_params,
+                    "sort",
+                ),
+            }
+        )
+
     pagination_query = query_params.urlencode()
     page_url_prefix = f"?{pagination_query}&" if pagination_query else "?"
 
@@ -251,7 +333,10 @@ def seller_store_directory(request):
             "has_directory_filters": has_directory_filters,
             "has_advanced_directory_filters": has_advanced_directory_filters,
             "selected_directory_sort": selected_directory_sort,
+            "selected_directory_sort_label": selected_directory_sort_label,
             "directory_sort_options": SELLER_STORE_DIRECTORY_SORT_OPTIONS_V114,
+            "directory_active_chips": directory_active_chips,
+            "directory_clear_all_url": request.path,
             "page_url_prefix": page_url_prefix,
             "store_count": stores_queryset.count(),
             "page_title": "Seller Stores",

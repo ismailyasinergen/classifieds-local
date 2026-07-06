@@ -14,76 +14,287 @@
         </div>
     </div>
 
-    <form method="get" class="seller-store-directory-filters-v113 seller-store-directory-sorting-v114" style="display:grid; grid-template-columns: minmax(220px, 1fr) minmax(150px, 210px) minmax(130px, 170px) minmax(160px, 210px) auto auto; gap:10px; align-items:end; margin-bottom:18px;">
-        <label>
-            Search stores
-            <input type="search" name="q" value="{{ q }}" placeholder="Store name, seller, headline...">
-        </label>
+    <style>
+        .seller-store-directory-shell-v115 {
+            display: grid;
+            gap: 16px;
+        }
 
-        <label>
-            Location
-            <input type="search" name="location" value="{{ location }}" placeholder="City or area">
-        </label>
+        .seller-store-directory-discovery-panel-v115 {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            padding: 16px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
 
-        <label>
-            Minimum listings
-            <input type="number" name="min_listings" value="{{ min_listings }}" min="1" placeholder="Any">
-        </label>
+        .seller-store-directory-filters-v115 {
+            display: grid;
+            grid-template-columns: minmax(220px, 1.2fr) minmax(150px, 0.8fr) minmax(130px, 0.6fr) minmax(165px, 0.8fr) auto auto;
+            gap: 12px;
+            align-items: end;
+        }
 
-        <label>
-            Sort by
-            <select name="sort">
-                {% for sort_value, sort_label in directory_sort_options %}
-                    <option value="{{ sort_value }}" {% if selected_directory_sort == sort_value %}selected{% endif %}>
-                        {{ sort_label }}
-                    </option>
-                {% endfor %}
-            </select>
-        </label>
+        .seller-store-directory-filters-v115 label {
+            display: grid;
+            gap: 6px;
+            font-weight: 700;
+            color: #374151;
+            font-size: 13px;
+        }
 
-        <label style="display:flex; gap:8px; align-items:center; padding-bottom:8px;">
-            <input type="checkbox" name="verified_only" value="1" {% if verified_only %}checked{% endif %}>
-            Verified only
-        </label>
+        .seller-store-directory-filters-v115 input,
+        .seller-store-directory-filters-v115 select {
+            min-height: 38px;
+            width: 100%;
+            background: #fff;
+        }
 
-        <button type="submit">Filter stores</button>
+        .seller-store-directory-verified-v115 {
+            align-self: end;
+            min-height: 38px;
+            display: inline-flex !important;
+            grid-auto-flow: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px !important;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            background: #fff;
+            padding: 8px 10px;
+            white-space: nowrap;
+        }
 
-        {% if has_directory_filters or selected_directory_sort != "most_listings" %}
-            <a class="button-link" href="{% url 'accounts:seller_store_directory' %}">
-                Clear
-            </a>
-        {% endif %}
-    </form>
+        .seller-store-directory-actions-v115 {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            align-self: end;
+        }
 
-    <p class="muted">
-        {% if has_directory_filters %}
-            {{ store_count }} matching seller store{{ store_count|pluralize }} found.
-        {% else %}
-            {{ store_count }} active seller store{{ store_count|pluralize }} found.
-        {% endif %}
-    </p>
+        .seller-store-active-chips-v115 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .seller-store-active-chip-v115 {
+            display: inline-flex;
+            gap: 6px;
+            align-items: center;
+            border: 1px solid #d7e2f3;
+            border-radius: 999px;
+            background: #eef6ff;
+            color: #1264a3;
+            padding: 6px 10px;
+            font-size: 13px;
+            text-decoration: none;
+        }
+
+        .seller-store-active-chip-v115 strong {
+            color: #111827;
+        }
+
+        .seller-store-directory-results-summary-v115 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .seller-store-directory-sort-summary-v115 {
+            color: #4b5563;
+            font-size: 13px;
+        }
+
+        .seller-store-directory-card-v115 {
+            border-radius: 16px;
+            border-color: #e5e7eb;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+        }
+
+        .seller-store-card-header-v115 {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .seller-store-card-title-v115 h2 {
+            margin: 0;
+            line-height: 1.25;
+        }
+
+        .seller-store-card-title-v115 p {
+            margin: 0 0 4px;
+        }
+
+        .seller-store-card-description-v115 {
+            min-height: 42px;
+        }
+
+        .seller-store-card-stats-v115 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .seller-store-card-stat-v115 {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f8fafc;
+            padding: 8px;
+        }
+
+        .seller-store-card-stat-v115 span {
+            display: block;
+            color: #6b7280;
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .seller-store-card-stat-v115 strong {
+            display: block;
+            color: #111827;
+            font-size: 13px;
+        }
+
+        .seller-store-card-actions-v115 {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 980px) {
+            .seller-store-directory-filters-v115 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .seller-store-directory-actions-v115 {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .seller-store-directory-filters-v115 {
+                grid-template-columns: 1fr;
+            }
+
+            .seller-store-directory-actions-v115 {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .seller-store-directory-actions-v115 button,
+            .seller-store-directory-actions-v115 .button-link {
+                width: 100%;
+                text-align: center;
+            }
+
+            .seller-store-card-stats-v115 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <div class="seller-store-directory-shell-v115">
+        <div class="seller-store-directory-discovery-panel-v115">
+            <form method="get" class="seller-store-directory-filters-v113 seller-store-directory-sorting-v114 seller-store-directory-filters-v115">
+                <label>
+                    Search stores
+                    <input type="search" name="q" value="{{ q }}" placeholder="Store name, seller, headline...">
+                </label>
+
+                <label>
+                    Location
+                    <input type="search" name="location" value="{{ location }}" placeholder="City or area">
+                </label>
+
+                <label>
+                    Minimum listings
+                    <input type="number" name="min_listings" value="{{ min_listings }}" min="1" placeholder="Any">
+                </label>
+
+                <label>
+                    Sort by
+                    <select name="sort">
+                        {% for sort_value, sort_label in directory_sort_options %}
+                            <option value="{{ sort_value }}" {% if selected_directory_sort == sort_value %}selected{% endif %}>
+                                {{ sort_label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label class="seller-store-directory-verified-v115">
+                    <input type="checkbox" name="verified_only" value="1" {% if verified_only %}checked{% endif %}>
+                    Verified only
+                </label>
+
+                <div class="seller-store-directory-actions-v115">
+                    <button type="submit">Filter stores</button>
+
+                    {% if has_directory_filters or selected_directory_sort != "most_listings" %}
+                        <a class="button-link" href="{{ directory_clear_all_url }}">
+                            Clear all
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+
+            {% if directory_active_chips %}
+                <div class="seller-store-active-chips-v115" aria-label="Active directory filters">
+                    {% for chip in directory_active_chips %}
+                        <a class="seller-store-active-chip-v115" href="{{ chip.clear_url }}">
+                            <span>{{ chip.label }}:</span>
+                            <strong>{{ chip.value }}</strong>
+                            <span aria-hidden="true">×</span>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="seller-store-directory-results-summary-v115">
+            <p class="muted" style="margin:0;">
+                {% if has_directory_filters %}
+                    {{ store_count }} matching seller store{{ store_count|pluralize }} found.
+                {% else %}
+                    {{ store_count }} active seller store{{ store_count|pluralize }} found.
+                {% endif %}
+            </p>
+            <span class="seller-store-directory-sort-summary-v115">
+                Sorted by {{ selected_directory_sort_label }}
+            </span>
+        </div>
+    </div>
 
     {% if stores %}
         <div class="listing-grid">
             {% for store in stores %}
-                <article class="listing-card seller-store-directory-card-v107">
+                <article class="listing-card seller-store-directory-card-v107 seller-store-directory-card-v115">
                     <div class="listing-card-body">
-                        <div style="display:flex; gap:12px; align-items:center; margin-bottom:10px;">
+                        <div class="seller-store-card-header-v115">
                             {% if store.logo %}
                                 <img
                                     class="seller-store-directory-logo-v108"
                                     src="{{ store.logo.url }}"
                                     alt="{{ store.display_name }} logo"
-                                    style="width:52px; height:52px; object-fit:cover; border-radius:14px; border:1px solid #d9e2ef; background:#fff;"
+                                    style="width:56px; height:56px; object-fit:cover; border-radius:16px; border:1px solid #d9e2ef; background:#fff;"
                                 >
                             {% else %}
-                                <div class="seller-store-directory-logo-placeholder-v108" style="width:52px; height:52px; border-radius:14px; border:1px dashed #c7d2e3; display:flex; align-items:center; justify-content:center; background:#fff; font-weight:800;">
+                                <div class="seller-store-directory-logo-placeholder-v108" style="width:56px; height:56px; border-radius:16px; border:1px dashed #c7d2e3; display:flex; align-items:center; justify-content:center; background:#fff; font-weight:800;">
                                     {{ store.display_name|first|upper }}
                                 </div>
                             {% endif %}
-                            <div>
-                                <p class="muted" style="margin-bottom:4px;">Seller Store</p>
-                                <h2 style="margin-top:0;">
+                            <div class="seller-store-card-title-v115">
+                                <p class="muted">Seller Store</p>
+                                <h2>
                                     <a href="{% url 'accounts:seller_store_public' store.slug %}">
                                         {{ store.display_name }}
                                     </a>
@@ -92,9 +303,9 @@
                         </div>
 
                         {% if store.headline %}
-                            <p>{{ store.headline }}</p>
+                            <p class="seller-store-card-description-v115">{{ store.headline }}</p>
                         {% else %}
-                            <p class="muted">Browse this seller’s approved listings.</p>
+                            <p class="muted seller-store-card-description-v115">Browse this seller’s approved listings.</p>
                         {% endif %}
 
                         <div class="seller-store-directory-trust-v109" style="display:flex; flex-wrap:wrap; gap:6px; margin:10px 0;">
@@ -106,22 +317,23 @@
                             <span class="classified-badge">Member since {{ store.owner.date_joined|date:"M Y" }}</span>
                         </div>
 
-                        <div class="listing-card-meta">
-                            {% if store.location %}
-                                <span class="listing-card-location">{{ store.location }}</span>
-                            {% endif %}
-                            <span>{{ store.active_listing_count }} active listing{{ store.active_listing_count|pluralize }}</span>
+                        <div class="seller-store-card-stats-v115">
+                            <div class="seller-store-card-stat-v115">
+                                <span>Active listings</span>
+                                <strong>{{ store.active_listing_count }} active listing{{ store.active_listing_count|pluralize }}</strong>
+                            </div>
+                            <div class="seller-store-card-stat-v115">
+                                <span>Location</span>
+                                <strong>{% if store.location %}{{ store.location }}{% else %}Not specified{% endif %}</strong>
+                            </div>
                         </div>
 
-                        <p class="muted">
-                            Seller: {{ store.owner.username }}
-                        </p>
-
-                        <p>
+                        <div class="seller-store-card-actions-v115">
+                            <span class="muted">Seller: {{ store.owner.username }}</span>
                             <a class="button-link" href="{% url 'accounts:seller_store_public' store.slug %}">
                                 View store
                             </a>
-                        </p>
+                        </div>
                     </div>
                 </article>
             {% endfor %}
