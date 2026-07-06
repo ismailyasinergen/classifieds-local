@@ -1161,9 +1161,10 @@ def my_listing_reports(request):
 
 @staff_member_required
 def listing_report_queue(request):
-    from .models import ListingReport
+    from .models import Listing, ListingReport
 
     status_filter = request.GET.get("status", "").strip()
+    listing_status_filter = request.GET.get("listing_status", "").strip()
     reason_filter = request.GET.get("reason", "").strip()
     q = request.GET.get("q", "").strip()
 
@@ -1178,10 +1179,21 @@ def listing_report_queue(request):
         ListingReport.Status.REVIEWED,
         ListingReport.Status.DISMISSED,
     }
+    valid_listing_statuses = {
+        Listing.Status.APPROVED,
+        Listing.Status.SUSPENDED,
+        Listing.Status.ARCHIVED,
+        Listing.Status.PENDING,
+        Listing.Status.REJECTED,
+        Listing.Status.DRAFT,
+    }
     valid_reasons = {choice[0] for choice in ListingReport.Reason.choices}
 
     if status_filter in valid_statuses:
         reports = reports.filter(status=status_filter)
+
+    if listing_status_filter in valid_listing_statuses:
+        reports = reports.filter(listing__status=listing_status_filter)
 
     if reason_filter in valid_reasons:
         reports = reports.filter(Q(reason=reason_filter) | Q(reasons__contains=[reason_filter]))
@@ -1197,7 +1209,7 @@ def listing_report_queue(request):
             | Q(admin_note__icontains=q)
         )
 
-    all_reports = ListingReport.objects.all()
+    all_reports = ListingReport.objects.select_related("listing").all()
 
     counts = {
         "all": all_reports.count(),
@@ -1206,15 +1218,24 @@ def listing_report_queue(request):
         "dismissed": all_reports.filter(status=ListingReport.Status.DISMISSED).count(),
     }
 
+    listing_status_counts = {
+        "approved": all_reports.filter(listing__status=Listing.Status.APPROVED).count(),
+        "suspended": all_reports.filter(listing__status=Listing.Status.SUSPENDED).count(),
+        "archived": all_reports.filter(listing__status=Listing.Status.ARCHIVED).count(),
+    }
+
     return render(
         request,
         "listings/report_queue.html",
         {
             "reports": reports,
             "counts": counts,
+            "listing_status_counts": listing_status_counts,
             "status_filter": status_filter,
+            "listing_status_filter": listing_status_filter,
             "reason_filter": reason_filter,
             "reason_choices": ListingReport.Reason.choices,
+            "listing_status_choices": Listing.Status.choices,
             "q": q,
             "page_title": "Listing Reports",
         },
@@ -1224,9 +1245,49 @@ def listing_report_queue(request):
 @staff_member_required
 def listing_report_export_csv(request):
     import csv
-    from .models import ListingReport
+    from .models import Listing, ListingReport
+
+    status_filter = request.GET.get("status", "").strip()
+    listing_status_filter = request.GET.get("listing_status", "").strip()
+    reason_filter = request.GET.get("reason", "").strip()
+    q = request.GET.get("q", "").strip()
 
     reports = ListingReport.objects.select_related("listing", "reporter", "listing__owner")
+
+    valid_statuses = {
+        ListingReport.Status.PENDING,
+        ListingReport.Status.REVIEWED,
+        ListingReport.Status.DISMISSED,
+    }
+    valid_listing_statuses = {
+        Listing.Status.APPROVED,
+        Listing.Status.SUSPENDED,
+        Listing.Status.ARCHIVED,
+        Listing.Status.PENDING,
+        Listing.Status.REJECTED,
+        Listing.Status.DRAFT,
+    }
+    valid_reasons = {choice[0] for choice in ListingReport.Reason.choices}
+
+    if status_filter in valid_statuses:
+        reports = reports.filter(status=status_filter)
+
+    if listing_status_filter in valid_listing_statuses:
+        reports = reports.filter(listing__status=listing_status_filter)
+
+    if reason_filter in valid_reasons:
+        reports = reports.filter(Q(reason=reason_filter) | Q(reasons__contains=[reason_filter]))
+
+    if q:
+        reports = reports.filter(
+            Q(listing__title__icontains=q)
+            | Q(reporter__username__icontains=q)
+            | Q(reporter__email__icontains=q)
+            | Q(listing__owner__username__icontains=q)
+            | Q(listing__owner__email__icontains=q)
+            | Q(details__icontains=q)
+            | Q(admin_note__icontains=q)
+        )
 
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = 'attachment; filename="listing_reports.csv"'
@@ -1590,6 +1651,7 @@ def listing_report_suspend_listing(request, pk):
         ]
     )
 
+    report.status = ListingReport.Status.REVIEWED
     report.action_taken = "suspended_listing"
     report.reporter_note = reporter_note
     if internal_note:

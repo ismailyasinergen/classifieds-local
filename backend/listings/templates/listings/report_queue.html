@@ -8,7 +8,7 @@
         </div>
 
         <div style="display:grid; grid-template-columns:repeat(2, minmax(130px, 1fr)); gap:8px; width:min(100%, 280px); align-items:stretch;">
-            <a class="button-link" href="{% url 'listings:report_export_csv' %}?status={{ status_filter }}&reason={{ reason_filter }}&q={{ q }}" style="display:block; text-align:center; white-space:nowrap;">Export CSV</a>
+            <a class="button-link" href="{% url 'listings:report_export_csv' %}?status={{ status_filter }}&listing_status={{ listing_status_filter }}&reason={{ reason_filter }}&q={{ q }}" style="display:block; text-align:center; white-space:nowrap;">Export CSV</a>
             <a class="button-link" href="{% url 'accounts:user_report_queue' %}" style="display:block; text-align:center; white-space:nowrap;">Seller Reports</a>
         </div>
     </div>
@@ -39,25 +39,37 @@
     </section>
 
     <div class="tag-row">
-        <a class="tag" href="{% url 'listings:report_queue' %}">All ({{ counts.all }})</a>
-        <a class="tag" href="{% url 'listings:report_queue' %}?status=pending">Pending ({{ counts.pending }})</a>
-        <a class="tag" href="{% url 'listings:report_queue' %}?status=reviewed">Reviewed ({{ counts.reviewed }})</a>
-        <a class="tag" href="{% url 'listings:report_queue' %}?status=dismissed">Dismissed ({{ counts.dismissed }})</a>
+        <a class="tag" href="{% url 'listings:report_queue' %}">All reports ({{ counts.all }})</a>
+        <a class="tag" href="{% url 'listings:report_queue' %}?status=pending">Pending review ({{ counts.pending }})</a>
+        <a class="tag" href="{% url 'listings:report_queue' %}?status=reviewed">Marked reviewed ({{ counts.reviewed }})</a>
+        <a class="tag" href="{% url 'listings:report_queue' %}?status=dismissed">Dismissed as invalid ({{ counts.dismissed }})</a>
+        <a class="tag" href="{% url 'listings:report_queue' %}?listing_status=suspended">Listing suspended ({{ listing_status_counts.suspended }})</a>
+        <a class="tag" href="{% url 'listings:report_queue' %}?listing_status=archived">Listing archived ({{ listing_status_counts.archived }})</a>
     </div>
 
-    <form method="get" style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin:16px 0; box-shadow:0 6px 18px rgba(15,23,42,0.05); display:grid; grid-template-columns:minmax(180px, 2fr) minmax(140px, 1fr) minmax(160px, 1fr) auto auto; gap:12px; align-items:end;">
+    <form method="get" style="border:1px solid #d7dee8; border-radius:14px; padding:16px; background:linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%); margin:16px 0; box-shadow:0 6px 18px rgba(15,23,42,0.05); display:grid; grid-template-columns:minmax(180px, 2fr) minmax(150px, 1fr) minmax(150px, 1fr) minmax(160px, 1fr) auto auto; gap:12px; align-items:end;">
         <label>
             Search
             <input type="text" name="q" value="{{ q }}" placeholder="Listing, reporter, owner...">
         </label>
 
         <label>
-            Status
+            Report status
             <select name="status">
-                <option value="">All statuses</option>
-                <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>Pending</option>
-                <option value="reviewed" {% if status_filter == "reviewed" %}selected{% endif %}>Reviewed</option>
-                <option value="dismissed" {% if status_filter == "dismissed" %}selected{% endif %}>Dismissed</option>
+                <option value="">All report statuses</option>
+                <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>Pending review</option>
+                <option value="reviewed" {% if status_filter == "reviewed" %}selected{% endif %}>Marked reviewed</option>
+                <option value="dismissed" {% if status_filter == "dismissed" %}selected{% endif %}>Dismissed as invalid</option>
+            </select>
+        </label>
+
+        <label>
+            Listing status
+            <select name="listing_status">
+                <option value="">All listing statuses</option>
+                {% for value, label in listing_status_choices %}
+                    <option value="{{ value }}" {% if listing_status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
             </select>
         </label>
 
@@ -83,9 +95,9 @@
 
             <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
                 <span style="display:inline-block; padding:3px 8px; border:1px solid #d7dee8; border-radius:999px; background:#fff; font-size:12px; color:#374151;">{{ report.get_reasons_display }}</span>
-                <span style="display:inline-block; padding:3px 8px; border:1px solid #f0c36d; border-radius:999px; background:#fffaf0; font-size:12px; color:#92400e;">Report {{ report.get_status_display }}</span>
-                <span style="display:inline-block; padding:3px 8px; border:1px solid #d7dee8; border-radius:999px; background:#fff; font-size:12px; color:#374151;">Listing {{ report.listing.get_status_display }}</span>
-                <span style="display:inline-block; padding:3px 8px; border:1px solid #d7dee8; border-radius:999px; background:#fff; font-size:12px; color:#374151;">Action {{ report.action_taken|default:"No action" }}</span>
+                <span style="display:inline-block; padding:3px 8px; border:1px solid #f0c36d; border-radius:999px; background:#fffaf0; font-size:12px; color:#92400e;">Report status: {{ report.get_status_display }}</span>
+                <span style="display:inline-block; padding:3px 8px; border:1px solid #d7dee8; border-radius:999px; background:#fff; font-size:12px; color:#374151;">Listing status: {{ report.listing.get_status_display }}</span>
+                <span style="display:inline-block; padding:3px 8px; border:1px solid #d7dee8; border-radius:999px; background:#fff; font-size:12px; color:#374151;">Action taken: {{ report.action_taken|default:"No action" }}</span>
             </div>
 
             <p class="muted" style="margin:0 0 10px; line-height:1.45;">
