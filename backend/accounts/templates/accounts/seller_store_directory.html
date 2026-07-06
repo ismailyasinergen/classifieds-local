@@ -236,6 +236,73 @@
             margin-top: 10px;
         }
 
+        .seller-store-combined-discovery-v119 {
+            margin-top: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            padding: 16px;
+        }
+
+        .seller-store-combined-header-v119 {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: start;
+            margin-bottom: 14px;
+        }
+
+        .seller-store-combined-header-v119 h2 {
+            margin: 2px 0 4px;
+        }
+
+        .seller-store-combined-description-v119 {
+            max-width: 680px;
+            margin: 0;
+        }
+
+        .seller-store-combined-metrics-v119 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .seller-store-combined-grid-v119 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .seller-store-combined-card-v119 {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            background: #fff;
+            padding: 14px;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+            min-width: 0;
+        }
+
+        .seller-store-discovery-section-eyebrow-v119 {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .seller-store-combined-discovery-v119 .seller-store-category-discovery-v117,
+        .seller-store-combined-discovery-v119 .seller-store-location-discovery-v118 {
+            margin-top: 0;
+            border-top: 0;
+            padding-top: 0;
+        }
+
         .seller-store-category-discovery-v117 {
             margin-top: 14px;
             border-top: 1px solid #e5e7eb;
@@ -350,11 +417,32 @@
             .seller-store-directory-actions-v115 {
                 grid-column: 1 / -1;
             }
+
+            .seller-store-combined-grid-v119 {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 640px) {
             .seller-store-directory-filters-v115 {
                 grid-template-columns: 1fr;
+            }
+
+            .seller-store-combined-header-v119,
+            .seller-store-category-header-v117,
+            .seller-store-location-header-v118 {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .seller-store-combined-metrics-v119 {
+                justify-content: flex-start;
+            }
+
+            .seller-store-category-chip-v117,
+            .seller-store-location-chip-v118 {
+                width: 100%;
+                justify-content: space-between;
             }
 
             .seller-store-directory-actions-v115 {
@@ -431,70 +519,104 @@
                 </div>
             {% endif %}
 
-            {% if popular_directory_categories %}
-                <div class="seller-store-category-discovery-v117" aria-label="Popular store categories">
-                    <div class="seller-store-category-header-v117">
+            {% if popular_directory_categories or popular_directory_locations %}
+                <div class="seller-store-combined-discovery-v119" aria-label="Explore seller store discovery">
+                    <div class="seller-store-combined-header-v119">
                         <div>
-                            <h2>Shop stores by category</h2>
-                            <p class="muted">
-                                Explore seller stores by the categories they actively list in.
+                            <p class="muted" style="margin:0;">Explore seller stores</p>
+                            <h2>Browse by category or city</h2>
+                            <p class="muted seller-store-combined-description-v119">
+                                Start with what buyers care about most: the type of products they want and the places they prefer to shop from.
                             </p>
                         </div>
-                        <span class="classified-badge">
-                            {{ popular_directory_categories|length }} popular categor{{ popular_directory_categories|length|pluralize:"y,ies" }}
-                        </span>
-                    </div>
-
-                    <div class="seller-store-category-chips-v117">
-                        {% if selected_directory_category %}
-                            <a class="seller-store-category-chip-v117" href="{{ directory_category_clear_url }}">
-                                <strong>All categories</strong>
-                            </a>
-                        {% endif %}
-
-                        {% for category in popular_directory_categories %}
-                            <a
-                                class="seller-store-category-chip-v117{% if selected_directory_category and selected_directory_category.slug == category.slug %} active{% endif %}"
-                                href="{{ category.directory_url }}"
-                            >
-                                <strong>{{ category.name }}</strong>
-                                <span>{{ category.directory_store_count }} store{{ category.directory_store_count|pluralize }}</span>
-                            </a>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-
-            {% if popular_directory_locations %}
-                <div class="seller-store-location-discovery-v118" aria-label="Popular store locations">
-                    <div class="seller-store-location-header-v118">
-                        <div>
-                            <h2>Shop stores by location</h2>
-                            <p class="muted">
-                                Find active seller stores near the city or area buyers care about.
-                            </p>
+                        <div class="seller-store-combined-metrics-v119" aria-label="Discovery shortcuts summary">
+                            {% if popular_directory_categories %}
+                                <span class="classified-badge">
+                                    {{ popular_directory_categories|length }} categor{{ popular_directory_categories|length|pluralize:"y,ies" }}
+                                </span>
+                            {% endif %}
+                            {% if popular_directory_locations %}
+                                <span class="classified-badge">
+                                    {{ popular_directory_locations|length }} cit{{ popular_directory_locations|length|pluralize:"y,ies" }}
+                                </span>
+                            {% endif %}
                         </div>
-                        <span class="classified-badge">
-                            {{ popular_directory_locations|length }} popular cit{{ popular_directory_locations|length|pluralize:"y,ies" }}
-                        </span>
                     </div>
 
-                    <div class="seller-store-location-chips-v118">
-                        {% if location %}
-                            <a class="seller-store-location-chip-v118" href="{{ directory_location_clear_url }}">
-                                <strong>All locations</strong>
-                            </a>
+                    <div class="seller-store-combined-grid-v119">
+                        {% if popular_directory_categories %}
+                            <div class="seller-store-combined-card-v119">
+                                <div class="seller-store-category-discovery-v117" aria-label="Popular store categories">
+                                    <div class="seller-store-category-header-v117">
+                                        <div>
+                                            <span class="seller-store-discovery-section-eyebrow-v119">Categories</span>
+                                            <h2>Shop stores by category</h2>
+                                            <p class="muted">
+                                                Explore seller stores by the categories they actively list in.
+                                            </p>
+                                        </div>
+                                        <span class="classified-badge">
+                                            {{ popular_directory_categories|length }} popular categor{{ popular_directory_categories|length|pluralize:"y,ies" }}
+                                        </span>
+                                    </div>
+
+                                    <div class="seller-store-category-chips-v117">
+                                        {% if selected_directory_category %}
+                                            <a class="seller-store-category-chip-v117" href="{{ directory_category_clear_url }}">
+                                                <strong>All categories</strong>
+                                            </a>
+                                        {% endif %}
+
+                                        {% for category in popular_directory_categories %}
+                                            <a
+                                                class="seller-store-category-chip-v117{% if selected_directory_category and selected_directory_category.slug == category.slug %} active{% endif %}"
+                                                href="{{ category.directory_url }}"
+                                            >
+                                                <strong>{{ category.name }}</strong>
+                                                <span>{{ category.directory_store_count }} store{{ category.directory_store_count|pluralize }}</span>
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
                         {% endif %}
 
-                        {% for location_item in popular_directory_locations %}
-                            <a
-                                class="seller-store-location-chip-v118{% if location_item.is_selected %} active{% endif %}"
-                                href="{{ location_item.directory_url }}"
-                            >
-                                <strong>{{ location_item.label }}</strong>
-                                <span>{{ location_item.store_count }} store{{ location_item.store_count|pluralize }}</span>
-                            </a>
-                        {% endfor %}
+                        {% if popular_directory_locations %}
+                            <div class="seller-store-combined-card-v119">
+                                <div class="seller-store-location-discovery-v118" aria-label="Popular store locations">
+                                    <div class="seller-store-location-header-v118">
+                                        <div>
+                                            <span class="seller-store-discovery-section-eyebrow-v119">Locations</span>
+                                            <h2>Shop stores by location</h2>
+                                            <p class="muted">
+                                                Find active seller stores near the city or area buyers care about.
+                                            </p>
+                                        </div>
+                                        <span class="classified-badge">
+                                            {{ popular_directory_locations|length }} popular cit{{ popular_directory_locations|length|pluralize:"y,ies" }}
+                                        </span>
+                                    </div>
+
+                                    <div class="seller-store-location-chips-v118">
+                                        {% if location %}
+                                            <a class="seller-store-location-chip-v118" href="{{ directory_location_clear_url }}">
+                                                <strong>All locations</strong>
+                                            </a>
+                                        {% endif %}
+
+                                        {% for location_item in popular_directory_locations %}
+                                            <a
+                                                class="seller-store-location-chip-v118{% if location_item.is_selected %} active{% endif %}"
+                                                href="{{ location_item.directory_url }}"
+                                            >
+                                                <strong>{{ location_item.label }}</strong>
+                                                <span>{{ location_item.store_count }} store{{ location_item.store_count|pluralize }}</span>
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             {% endif %}
