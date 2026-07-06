@@ -66,6 +66,7 @@ SELLER_STORE_DIRECTORY_SORT_ORDERINGS_V114 = {
 SELLER_STORE_DIRECTORY_FEATURED_VERIFIED_LIMIT_V116 = 3
 SELLER_STORE_DIRECTORY_CATEGORY_LIMIT_V117 = 8
 SELLER_STORE_DIRECTORY_LOCATION_LIMIT_V118 = 8
+SELLER_STORE_DIRECTORY_EMPTY_SUGGESTION_LIMIT_V120 = 4
 
 
 def _seller_store_pinned_listing_filter(now):
@@ -456,6 +457,56 @@ def seller_store_directory(request):
         "location",
     )
 
+    empty_suggestion_base_params = query_params.copy()
+    for empty_suggestion_field in (
+        "q",
+        "location",
+        "category",
+        "min_listings",
+        "verified_only",
+        "page",
+    ):
+        empty_suggestion_base_params.pop(empty_suggestion_field, None)
+
+    if selected_directory_sort != SELLER_STORE_DIRECTORY_DEFAULT_SORT_V114:
+        empty_suggestion_base_params["sort"] = selected_directory_sort
+    else:
+        empty_suggestion_base_params.pop("sort", None)
+
+    directory_empty_category_suggestions = []
+    for category in popular_directory_categories[
+        :SELLER_STORE_DIRECTORY_EMPTY_SUGGESTION_LIMIT_V120
+    ]:
+        category_suggestion_params = empty_suggestion_base_params.copy()
+        category_suggestion_params["category"] = category.slug
+        directory_empty_category_suggestions.append(
+            {
+                "label": category.name,
+                "store_count": category.directory_store_count,
+                "url": _directory_url_from_query_v115(
+                    request.path,
+                    category_suggestion_params,
+                ),
+            }
+        )
+
+    directory_empty_location_suggestions = []
+    for location_item in popular_directory_locations[
+        :SELLER_STORE_DIRECTORY_EMPTY_SUGGESTION_LIMIT_V120
+    ]:
+        location_suggestion_params = empty_suggestion_base_params.copy()
+        location_suggestion_params["location"] = location_item["label"]
+        directory_empty_location_suggestions.append(
+            {
+                "label": location_item["label"],
+                "store_count": location_item["store_count"],
+                "url": _directory_url_from_query_v115(
+                    request.path,
+                    location_suggestion_params,
+                ),
+            }
+        )
+
     featured_verified_stores = []
     if not directory_active_chips:
         featured_verified_stores = list(
@@ -509,6 +560,15 @@ def seller_store_directory(request):
             "popular_directory_locations": popular_directory_locations,
             "directory_location_limit": SELLER_STORE_DIRECTORY_LOCATION_LIMIT_V118,
             "directory_location_clear_url": directory_location_clear_url,
+            "directory_empty_category_suggestions": (
+                directory_empty_category_suggestions
+            ),
+            "directory_empty_location_suggestions": (
+                directory_empty_location_suggestions
+            ),
+            "directory_empty_suggestion_limit": (
+                SELLER_STORE_DIRECTORY_EMPTY_SUGGESTION_LIMIT_V120
+            ),
             "page_url_prefix": page_url_prefix,
             "store_count": stores_queryset.count(),
             "page_title": "Seller Stores",

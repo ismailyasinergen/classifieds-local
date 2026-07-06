@@ -409,6 +409,78 @@
             color: #6b7280;
         }
 
+        .seller-store-empty-state-v120 {
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            padding: 18px;
+            margin-top: 18px;
+            text-align: left;
+        }
+
+        .seller-store-empty-state-v120 h2 {
+            margin: 0 0 6px;
+        }
+
+        .seller-store-empty-actions-v120 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .seller-store-empty-suggestions-v120 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .seller-store-empty-suggestion-card-v120 {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            background: #fff;
+            padding: 14px;
+        }
+
+        .seller-store-empty-suggestion-card-v120 h3 {
+            margin: 0 0 4px;
+            font-size: 16px;
+        }
+
+        .seller-store-empty-suggestion-card-v120 p {
+            margin: 0 0 10px;
+        }
+
+        .seller-store-empty-suggestion-chips-v120 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .seller-store-empty-suggestion-chip-v120 {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            border: 1px solid #d7e2f3;
+            border-radius: 999px;
+            background: #f8fbff;
+            color: #111827;
+            padding: 8px 11px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .seller-store-empty-suggestion-chip-v120:hover {
+            border-color: #bfdbfe;
+            background: #eff6ff;
+            color: #1264a3;
+        }
+
+        .seller-store-empty-suggestion-chip-v120 span {
+            color: #6b7280;
+        }
+
         @media (max-width: 980px) {
             .seller-store-directory-filters-v115 {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -418,7 +490,8 @@
                 grid-column: 1 / -1;
             }
 
-            .seller-store-combined-grid-v119 {
+            .seller-store-combined-grid-v119,
+            .seller-store-empty-suggestions-v120 {
                 grid-template-columns: 1fr;
             }
         }
@@ -440,7 +513,8 @@
             }
 
             .seller-store-category-chip-v117,
-            .seller-store-location-chip-v118 {
+            .seller-store-location-chip-v118,
+            .seller-store-empty-suggestion-chip-v120 {
                 width: 100%;
                 justify-content: space-between;
             }
@@ -781,13 +855,70 @@
             </div>
         {% endif %}
     {% else %}
-        {% if q and not has_advanced_directory_filters %}
-            <p class="muted">No seller stores match your search.</p>
-        {% elif has_directory_filters %}
-            <p class="muted">No seller stores match your directory filters.</p>
-        {% else %}
-            <p class="muted">No active seller stores are available yet.</p>
-        {% endif %}
+        <div class="seller-store-empty-state-v120" aria-label="Seller store empty-state suggestions">
+            {% if q and not has_advanced_directory_filters %}
+                <h2>No seller stores match your search.</h2>
+                <p class="muted">
+                    Try a broader keyword, clear the search, or jump into an active category or city below.
+                </p>
+            {% elif has_directory_filters %}
+                <h2>No seller stores match your directory filters.</h2>
+                <p class="muted">
+                    Your current filters are too narrow. Clear them or try one of the active discovery shortcuts below.
+                </p>
+            {% else %}
+                <h2>No active seller stores are available yet.</h2>
+                <p class="muted">
+                    Active seller stores will appear here after they publish approved public listings.
+                </p>
+            {% endif %}
+
+            {% if has_directory_filters or selected_directory_sort != "most_listings" %}
+                <div class="seller-store-empty-actions-v120">
+                    <a class="button-link" href="{{ directory_clear_all_url }}">
+                        Clear all filters
+                    </a>
+                </div>
+            {% endif %}
+
+            {% if directory_empty_category_suggestions or directory_empty_location_suggestions %}
+                <div class="seller-store-empty-suggestions-v120" aria-label="Try active seller store shortcuts">
+                    {% if directory_empty_category_suggestions %}
+                        <div class="seller-store-empty-suggestion-card-v120">
+                            <h3>Try a category</h3>
+                            <p class="muted">
+                                These categories currently have active seller stores.
+                            </p>
+                            <div class="seller-store-empty-suggestion-chips-v120">
+                                {% for suggestion in directory_empty_category_suggestions %}
+                                    <a class="seller-store-empty-suggestion-chip-v120" href="{{ suggestion.url }}">
+                                        <strong>{{ suggestion.label }}</strong>
+                                        <span>{{ suggestion.store_count }} store{{ suggestion.store_count|pluralize }}</span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if directory_empty_location_suggestions %}
+                        <div class="seller-store-empty-suggestion-card-v120">
+                            <h3>Try a location</h3>
+                            <p class="muted">
+                                These cities currently have active seller stores.
+                            </p>
+                            <div class="seller-store-empty-suggestion-chips-v120">
+                                {% for suggestion in directory_empty_location_suggestions %}
+                                    <a class="seller-store-empty-suggestion-chip-v120" href="{{ suggestion.url }}">
+                                        <strong>{{ suggestion.label }}</strong>
+                                        <span>{{ suggestion.store_count }} store{{ suggestion.store_count|pluralize }}</span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
     {% endif %}
 </section>
 {% endblock %}
