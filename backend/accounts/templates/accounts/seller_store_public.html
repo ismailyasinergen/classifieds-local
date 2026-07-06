@@ -212,8 +212,27 @@
         {% endif %}
     </form>
 
+    {% if pinned_store_listings %}
+        <div class="seller-store-pinned-listings-v112" style="border:1px solid #dbe3ef; border-radius:14px; padding:14px; margin:0 0 18px; background:#fffaf0;">
+            <div class="page-header" style="margin-bottom:10px;">
+                <div>
+                    <h3 style="margin:0;">Pinned by this seller</h3>
+                    <p class="muted">
+                        Highlighted listings from this store that match your current filters.
+                    </p>
+                </div>
+            </div>
+
+            <div class="listing-grid seller-store-pinned-grid-v112">
+                {% for listing in pinned_store_listings %}
+                    {% include "listings/_listing_card.html" with listing=listing %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
     {% if listings %}
-        <div class="listing-grid">
+        <div class="listing-grid seller-store-regular-grid-v112">
             {% for listing in listings %}
                 {% include "listings/_listing_card.html" with listing=listing %}
             {% endfor %}
@@ -230,7 +249,7 @@
                 {% endif %}
             </div>
         {% endif %}
-    {% else %}
+    {% elif not pinned_store_listings %}
         {% if q or selected_category_slug %}
             <p class="muted">No listings match your store filters.</p>
         {% else %}

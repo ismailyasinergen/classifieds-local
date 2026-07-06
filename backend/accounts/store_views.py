@@ -27,6 +27,20 @@ SELLER_STORE_SORT_ORDERINGS_V111 = {
     "price_desc": ("-price", "-created_at", "-id"),
 }
 
+SELLER_STORE_PINNED_LIMIT_V112 = 3
+
+
+def _seller_store_pinned_listing_filter(now):
+    active_top_listing = (
+        Q(top_listing_priority__gt=0)
+        & (Q(top_listing_until__isnull=True) | Q(top_listing_until__gt=now))
+    )
+    active_featured_listing = (
+        (Q(is_featured=True) | Q(featured_priority__gt=0))
+        & (Q(featured_until__isnull=True) | Q(featured_until__gt=now))
+    )
+    return active_top_listing | active_featured_listing
+
 
 def _get_or_create_store_for_user(user):
     store, created = SellerStore.objects.get_or_create(owner=user)
@@ -267,11 +281,27 @@ def seller_store_public(request, slug):
     if selected_category_slug:
         listings_queryset = listings_queryset.filter(category__slug=selected_category_slug)
 
-    listings_queryset = listings_queryset.order_by(
-        *SELLER_STORE_SORT_ORDERINGS_V111[selected_sort]
-    )
+    filtered_listings_queryset = listings_queryset
+    filtered_listing_count = filtered_listings_queryset.count()
+    now = timezone.now()
 
-    filtered_listing_count = listings_queryset.count()
+    pinned_store_listings = list(
+        filtered_listings_queryset
+        .filter(_seller_store_pinned_listing_filter(now))
+        .order_by(
+            "-top_listing_priority",
+            "-featured_priority",
+            "-created_at",
+            "-id",
+        )[:SELLER_STORE_PINNED_LIMIT_V112]
+    )
+    pinned_listing_ids = [listing.pk for listing in pinned_store_listings]
+
+    listings_queryset = (
+        filtered_listings_queryset
+        .exclude(pk__in=pinned_listing_ids)
+        .order_by(*SELLER_STORE_SORT_ORDERINGS_V111[selected_sort])
+    )
 
     query_params = request.GET.copy()
     query_params.pop("page", None)
@@ -298,6 +328,7 @@ def seller_store_public(request, slug):
             "category_options": category_options,
             "all_listings_tab": all_listings_tab,
             "category_tabs": category_tabs,
+            "pinned_store_listings": pinned_store_listings,
             "q": q,
             "selected_category_slug": selected_category_slug,
             "selected_sort": selected_sort,
