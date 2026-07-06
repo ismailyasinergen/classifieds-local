@@ -65,6 +65,7 @@ SELLER_STORE_DIRECTORY_SORT_ORDERINGS_V114 = {
 
 SELLER_STORE_DIRECTORY_FEATURED_VERIFIED_LIMIT_V116 = 3
 SELLER_STORE_DIRECTORY_CATEGORY_LIMIT_V117 = 8
+SELLER_STORE_DIRECTORY_LOCATION_LIMIT_V118 = 8
 
 
 def _seller_store_pinned_listing_filter(now):
@@ -397,6 +398,64 @@ def seller_store_directory(request):
         "category",
     )
 
+    location_counts = {}
+    location_queryset = (
+        SellerStore.objects
+        .select_related("owner", "owner__profile")
+        .filter(is_active=True)
+        .annotate(
+            active_listing_count=Count(
+                "owner__listings",
+                filter=active_listing_filter,
+                distinct=True,
+            )
+        )
+        .filter(active_listing_count__gt=0)
+        .order_by("location", "owner__profile__location", "id")
+    )
+
+    for store in location_queryset:
+        owner_profile = getattr(store.owner, "profile", None)
+        profile_location = getattr(owner_profile, "location", "")
+        display_location = (store.location or profile_location or "").strip()
+
+        if not display_location:
+            continue
+
+        normalized_location = display_location.casefold()
+        if normalized_location not in location_counts:
+            location_counts[normalized_location] = {
+                "label": display_location,
+                "store_count": 0,
+            }
+        location_counts[normalized_location]["store_count"] += 1
+
+    popular_directory_locations = sorted(
+        location_counts.values(),
+        key=lambda location_item: (
+            -location_item["store_count"],
+            location_item["label"].casefold(),
+        ),
+    )[:SELLER_STORE_DIRECTORY_LOCATION_LIMIT_V118]
+
+    for location_item in popular_directory_locations:
+        location_query_params = query_params.copy()
+        location_query_params["location"] = location_item["label"]
+        location_item["directory_url"] = _directory_url_from_query_v115(
+            request.path,
+            location_query_params,
+        )
+        location_item["is_selected"] = (
+            bool(location)
+            and location.casefold() == location_item["label"].casefold()
+        )
+
+    directory_location_clear_url = _directory_clear_url_v115(
+        request.path,
+        query_params,
+        "location",
+    )
+
     featured_verified_stores = []
     if not directory_active_chips:
         featured_verified_stores = list(
@@ -447,6 +506,9 @@ def seller_store_directory(request):
             "directory_category_limit": SELLER_STORE_DIRECTORY_CATEGORY_LIMIT_V117,
             "selected_directory_category": selected_directory_category,
             "directory_category_clear_url": directory_category_clear_url,
+            "popular_directory_locations": popular_directory_locations,
+            "directory_location_limit": SELLER_STORE_DIRECTORY_LOCATION_LIMIT_V118,
+            "directory_location_clear_url": directory_location_clear_url,
             "page_url_prefix": page_url_prefix,
             "store_count": stores_queryset.count(),
             "page_title": "Seller Stores",

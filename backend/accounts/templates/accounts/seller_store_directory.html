@@ -289,6 +289,59 @@
             color: #6b7280;
         }
 
+        .seller-store-location-discovery-v118 {
+            margin-top: 14px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 14px;
+        }
+
+        .seller-store-location-header-v118 {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .seller-store-location-header-v118 h2 {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .seller-store-location-header-v118 p {
+            margin: 2px 0 0;
+        }
+
+        .seller-store-location-chips-v118 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .seller-store-location-chip-v118 {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            border: 1px solid #e5e7eb;
+            border-radius: 999px;
+            background: #fff;
+            color: #111827;
+            padding: 8px 11px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .seller-store-location-chip-v118:hover,
+        .seller-store-location-chip-v118.active {
+            border-color: #bbf7d0;
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .seller-store-location-chip-v118 span {
+            color: #6b7280;
+        }
+
         @media (max-width: 980px) {
             .seller-store-directory-filters-v115 {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -406,6 +459,40 @@
                             >
                                 <strong>{{ category.name }}</strong>
                                 <span>{{ category.directory_store_count }} store{{ category.directory_store_count|pluralize }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if popular_directory_locations %}
+                <div class="seller-store-location-discovery-v118" aria-label="Popular store locations">
+                    <div class="seller-store-location-header-v118">
+                        <div>
+                            <h2>Shop stores by location</h2>
+                            <p class="muted">
+                                Find active seller stores near the city or area buyers care about.
+                            </p>
+                        </div>
+                        <span class="classified-badge">
+                            {{ popular_directory_locations|length }} popular cit{{ popular_directory_locations|length|pluralize:"y,ies" }}
+                        </span>
+                    </div>
+
+                    <div class="seller-store-location-chips-v118">
+                        {% if location %}
+                            <a class="seller-store-location-chip-v118" href="{{ directory_location_clear_url }}">
+                                <strong>All locations</strong>
+                            </a>
+                        {% endif %}
+
+                        {% for location_item in popular_directory_locations %}
+                            <a
+                                class="seller-store-location-chip-v118{% if location_item.is_selected %} active{% endif %}"
+                                href="{{ location_item.directory_url }}"
+                            >
+                                <strong>{{ location_item.label }}</strong>
+                                <span>{{ location_item.store_count }} store{{ location_item.store_count|pluralize }}</span>
                             </a>
                         {% endfor %}
                     </div>
