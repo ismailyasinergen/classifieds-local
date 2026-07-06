@@ -797,6 +797,125 @@
 }
 
 
+
+/* ADMIN_NAV_GROUPED_TOOLBAR_V99 */
+.staff-admin-toolbar-inner {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    justify-content: start;
+    align-items: center;
+    gap: 10px;
+}
+
+.staff-admin-primary {
+    background: #fffbea !important;
+    border-color: #e7bf00 !important;
+}
+
+.staff-admin-menu {
+    position: relative;
+    min-width: 0;
+}
+
+.staff-admin-menu summary {
+    color: #252525;
+    text-decoration: none;
+    border: 1px solid #d9d9d9;
+    border-radius: 999px;
+    background: #fff;
+    padding: 8px 12px;
+    min-height: 36px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    list-style: none;
+}
+
+.staff-admin-menu summary::-webkit-details-marker {
+    display: none;
+}
+
+.staff-admin-menu summary::after {
+    content: "▾";
+    color: #666;
+    font-size: 11px;
+    margin-left: 2px;
+}
+
+.staff-admin-menu[open] summary,
+.staff-admin-menu summary:hover {
+    background: #fffbea;
+    border-color: #e7bf00;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-decoration: none;
+}
+
+.staff-admin-menu[open] summary::after {
+    content: "▴";
+}
+
+.staff-admin-menu-content {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 230px;
+    padding: 8px;
+    display: grid;
+    gap: 6px;
+    background: #fff;
+    border: 1px solid #d9d9d9;
+    border-radius: 14px;
+    box-shadow: 0 14px 34px rgba(15,23,42,0.16);
+    z-index: 90;
+}
+
+.staff-admin-menu-content a {
+    width: 100%;
+    justify-content: flex-start;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    box-shadow: none;
+}
+
+.staff-admin-menu-content a:hover {
+    background: #fffbea;
+    border-color: transparent;
+    box-shadow: none;
+    transform: none;
+}
+
+@media (max-width: 920px) {
+    .staff-admin-toolbar-inner {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .staff-admin-toolbar-label,
+    .staff-admin-primary,
+    .staff-admin-menu,
+    .staff-admin-menu summary {
+        width: 100%;
+    }
+
+    .staff-admin-menu-content {
+        position: static;
+        min-width: 0;
+        width: 100%;
+        margin-top: 7px;
+        box-shadow: none;
+    }
+}
+
+
         /* LISTING_CARD_POLISH_V64 */
         .listing-card-polish-v64 {
             position: relative;
@@ -1096,21 +1215,41 @@
     </header>
 
     {% if user.is_authenticated and user.is_staff %}
-        <nav class="staff-admin-toolbar" aria-label="Admin tools" data-nav-marker="ADMIN_NAV_CLEANUP_V2">
+        <nav class="staff-admin-toolbar" aria-label="Admin tools" data-nav-marker="ADMIN_NAV_GROUPED_TOOLBAR_V99">
             <div class="staff-admin-toolbar-inner">
                 <span class="staff-admin-toolbar-label">Admin tools</span>
-                <a href="{{ nav_ts_url }}">Overview</a>
-                <a href="{{ nav_appeals_url }}">
-                    Appeals
-                    {% if staff_pending_moderation_appeal_count|nonzero %}
-                        <span class="nav-badge">{{ staff_pending_moderation_appeal_count }}</span>
-                    {% endif %}
-                </a>
-                <a href="{{ nav_listing_reports_url }}">Listing Reports</a>
-                <a href="{{ nav_seller_reports_url }}">Seller Reports</a>
-                <a href="{{ nav_action_log_url }}">Action Log</a>
-                <a href="{{ nav_event_log_url }}">Event Log</a>
-                <a href="{{ nav_audit_url }}">Audit</a>
+
+                <a class="staff-admin-primary" href="{{ nav_ts_url }}">Overview</a>
+
+                <details class="staff-admin-menu">
+                    <summary>
+                        Queues
+                        {% if staff_pending_moderation_appeal_count|nonzero %}
+                            <span class="nav-badge">{{ staff_pending_moderation_appeal_count }}</span>
+                        {% endif %}
+                    </summary>
+
+                    <div class="staff-admin-menu-content">
+                        <a href="{{ nav_appeals_url }}">
+                            Appeals
+                            {% if staff_pending_moderation_appeal_count|nonzero %}
+                                <span class="nav-badge">{{ staff_pending_moderation_appeal_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ nav_listing_reports_url }}">Listing Reports</a>
+                        <a href="{{ nav_seller_reports_url }}">Seller Reports</a>
+                    </div>
+                </details>
+
+                <details class="staff-admin-menu">
+                    <summary>Audit &amp; Logs</summary>
+
+                    <div class="staff-admin-menu-content">
+                        <a href="{{ nav_action_log_url }}">Action Log</a>
+                        <a href="{{ nav_event_log_url }}">Event Log</a>
+                        <a href="{{ nav_audit_url }}">Audit Tracking</a>
+                    </div>
+                </details>
             </div>
         </nav>
     {% endif %}
