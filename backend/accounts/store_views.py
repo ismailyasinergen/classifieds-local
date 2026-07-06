@@ -64,6 +64,7 @@ SELLER_STORE_DIRECTORY_SORT_ORDERINGS_V114 = {
 }
 
 SELLER_STORE_DIRECTORY_FEATURED_VERIFIED_LIMIT_V116 = 3
+SELLER_STORE_DIRECTORY_CATEGORY_LIMIT_V117 = 8
 
 
 def _seller_store_pinned_listing_filter(now):
@@ -138,6 +139,15 @@ def seller_store_directory(request):
     now = timezone.now()
     q = request.GET.get("q", "").strip()
     location = request.GET.get("location", "").strip()
+    selected_category_slug = request.GET.get("category", "").strip()
+    selected_directory_category = None
+    if selected_category_slug:
+        selected_directory_category = Category.objects.filter(
+            slug=selected_category_slug
+        ).first()
+        if selected_directory_category is None:
+            selected_category_slug = ""
+
     verified_only = request.GET.get("verified_only") == "1"
     min_listings = _parse_directory_min_listings_v113(
         request.GET.get("min_listings", "")
@@ -197,6 +207,20 @@ def seller_store_directory(request):
             | Q(owner__profile__location__icontains=location)
         )
 
+    if selected_directory_category is not None:
+        stores_queryset = stores_queryset.filter(
+            Q(
+                owner__listings__category_id__in=(
+                    selected_directory_category.get_descendant_ids()
+                )
+            )
+            & Q(owner__listings__status=Listing.Status.APPROVED)
+            & (
+                Q(owner__listings__expires_at__isnull=True)
+                | Q(owner__listings__expires_at__gt=now)
+            )
+        ).distinct()
+
     if verified_only:
         stores_queryset = stores_queryset.filter(
             owner__profile__verification_status=(
@@ -214,7 +238,10 @@ def seller_store_directory(request):
     )
 
     has_advanced_directory_filters = bool(
-        location or verified_only or min_listings is not None
+        location
+        or selected_directory_category is not None
+        or verified_only
+        or min_listings is not None
     )
     has_directory_filters = bool(q or has_advanced_directory_filters)
 
@@ -230,6 +257,11 @@ def seller_store_directory(request):
         query_params["location"] = location
     else:
         query_params.pop("location", None)
+
+    if selected_directory_category is not None:
+        query_params["category"] = selected_directory_category.slug
+    else:
+        query_params.pop("category", None)
 
     if verified_only:
         query_params["verified_only"] = "1"
@@ -276,6 +308,19 @@ def seller_store_directory(request):
             }
         )
 
+    if selected_directory_category is not None:
+        directory_active_chips.append(
+            {
+                "label": "Category",
+                "value": selected_directory_category.name,
+                "clear_url": _directory_clear_url_v115(
+                    request.path,
+                    query_params,
+                    "category",
+                ),
+            }
+        )
+
     if min_listings is not None:
         directory_active_chips.append(
             {
@@ -314,6 +359,43 @@ def seller_store_directory(request):
                 ),
             }
         )
+
+    active_category_listing_filter = (
+        Q(listings__status=Listing.Status.APPROVED)
+        & (
+            Q(listings__expires_at__isnull=True)
+            | Q(listings__expires_at__gt=now)
+        )
+        & Q(listings__owner__seller_store__is_active=True)
+    )
+    popular_directory_categories = list(
+        Category.objects
+        .annotate(
+            directory_store_count=Count(
+                "listings__owner__seller_store",
+                filter=active_category_listing_filter,
+                distinct=True,
+            )
+        )
+        .filter(directory_store_count__gt=0)
+        .order_by("-directory_store_count", "name", "id")[
+            :SELLER_STORE_DIRECTORY_CATEGORY_LIMIT_V117
+        ]
+    )
+
+    for category in popular_directory_categories:
+        category_query_params = query_params.copy()
+        category_query_params["category"] = category.slug
+        category.directory_url = _directory_url_from_query_v115(
+            request.path,
+            category_query_params,
+        )
+
+    directory_category_clear_url = _directory_clear_url_v115(
+        request.path,
+        query_params,
+        "category",
+    )
 
     featured_verified_stores = []
     if not directory_active_chips:
@@ -361,6 +443,10 @@ def seller_store_directory(request):
             "featured_verified_limit": (
                 SELLER_STORE_DIRECTORY_FEATURED_VERIFIED_LIMIT_V116
             ),
+            "popular_directory_categories": popular_directory_categories,
+            "directory_category_limit": SELLER_STORE_DIRECTORY_CATEGORY_LIMIT_V117,
+            "selected_directory_category": selected_directory_category,
+            "directory_category_clear_url": directory_category_clear_url,
             "page_url_prefix": page_url_prefix,
             "store_count": stores_queryset.count(),
             "page_title": "Seller Stores",
