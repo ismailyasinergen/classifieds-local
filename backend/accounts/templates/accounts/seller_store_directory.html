@@ -170,6 +170,72 @@
             margin-top: 12px;
         }
 
+        .seller-store-featured-verified-v116 {
+            margin: 18px 0;
+            border: 1px solid #d7e2f3;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+            padding: 16px;
+        }
+
+        .seller-store-featured-header-v116 {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .seller-store-featured-header-v116 h2 {
+            margin: 0 0 4px;
+        }
+
+        .seller-store-featured-grid-v116 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 12px;
+        }
+
+        .seller-store-featured-card-v116 {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            background: #fff;
+            padding: 12px;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+        }
+
+        .seller-store-featured-card-header-v116 {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .seller-store-featured-card-v116 h3 {
+            margin: 0;
+            line-height: 1.25;
+            font-size: 16px;
+        }
+
+        .seller-store-featured-card-v116 p {
+            margin: 8px 0;
+        }
+
+        .seller-store-featured-meta-v116 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 10px 0;
+        }
+
+        .seller-store-featured-actions-v116 {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
         @media (max-width: 980px) {
             .seller-store-directory-filters-v115 {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -273,6 +339,74 @@
             </span>
         </div>
     </div>
+
+    {% if featured_verified_stores %}
+        <section class="seller-store-featured-verified-v116" aria-label="Featured verified seller stores">
+            <div class="seller-store-featured-header-v116">
+                <div>
+                    <p class="muted" style="margin:0 0 4px;">Featured verified stores</p>
+                    <h2>Shop trusted seller stores</h2>
+                    <p class="muted" style="margin:0;">
+                        Verified sellers with active approved listings, highlighted for faster discovery.
+                    </p>
+                </div>
+                <span class="classified-badge verified">
+                    Verified picks
+                </span>
+            </div>
+
+            <div class="seller-store-featured-grid-v116">
+                {% for store in featured_verified_stores %}
+                    <article class="seller-store-featured-card-v116">
+                        <div class="seller-store-featured-card-header-v116">
+                            {% if store.logo %}
+                                <img
+                                    class="seller-store-directory-logo-v108"
+                                    src="{{ store.logo.url }}"
+                                    alt="{{ store.display_name }} logo"
+                                    style="width:48px; height:48px; object-fit:cover; border-radius:14px; border:1px solid #d9e2ef; background:#fff;"
+                                >
+                            {% else %}
+                                <div class="seller-store-directory-logo-placeholder-v108" style="width:48px; height:48px; border-radius:14px; border:1px dashed #c7d2e3; display:flex; align-items:center; justify-content:center; background:#fff; font-weight:800;">
+                                    {{ store.display_name|first|upper }}
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h3>
+                                    <a href="{% url 'accounts:seller_store_public' store.slug %}">
+                                        {{ store.display_name }}
+                                    </a>
+                                </h3>
+                                <span class="classified-badge verified">Verified Seller</span>
+                            </div>
+                        </div>
+
+                        {% if store.headline %}
+                            <p>{{ store.headline }}</p>
+                        {% else %}
+                            <p class="muted">Browse this verified seller’s approved listings.</p>
+                        {% endif %}
+
+                        <div class="seller-store-featured-meta-v116">
+                            <span class="classified-badge">
+                                {{ store.active_listing_count }} active listing{{ store.active_listing_count|pluralize }}
+                            </span>
+                            {% if store.location %}
+                                <span class="classified-badge">{{ store.location }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="seller-store-featured-actions-v116">
+                            <span class="muted">Seller: {{ store.owner.username }}</span>
+                            <a class="button-link" href="{% url 'accounts:seller_store_public' store.slug %}">
+                                View verified store
+                            </a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
 
     {% if stores %}
         <div class="listing-grid">

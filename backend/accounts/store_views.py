@@ -63,6 +63,8 @@ SELLER_STORE_DIRECTORY_SORT_ORDERINGS_V114 = {
     ),
 }
 
+SELLER_STORE_DIRECTORY_FEATURED_VERIFIED_LIMIT_V116 = 3
+
 
 def _seller_store_pinned_listing_filter(now):
     active_top_listing = (
@@ -313,6 +315,24 @@ def seller_store_directory(request):
             }
         )
 
+    featured_verified_stores = []
+    if not directory_active_chips:
+        featured_verified_stores = list(
+            stores_queryset
+            .filter(
+                owner__profile__verification_status=(
+                    UserProfile.VerificationStatus.APPROVED
+                )
+            )
+            .order_by(
+                "-active_listing_count",
+                "-created_at",
+                "name",
+                "owner__username",
+                "id",
+            )[:SELLER_STORE_DIRECTORY_FEATURED_VERIFIED_LIMIT_V116]
+        )
+
     pagination_query = query_params.urlencode()
     page_url_prefix = f"?{pagination_query}&" if pagination_query else "?"
 
@@ -337,6 +357,10 @@ def seller_store_directory(request):
             "directory_sort_options": SELLER_STORE_DIRECTORY_SORT_OPTIONS_V114,
             "directory_active_chips": directory_active_chips,
             "directory_clear_all_url": request.path,
+            "featured_verified_stores": featured_verified_stores,
+            "featured_verified_limit": (
+                SELLER_STORE_DIRECTORY_FEATURED_VERIFIED_LIMIT_V116
+            ),
             "page_url_prefix": page_url_prefix,
             "store_count": stores_queryset.count(),
             "page_title": "Seller Stores",
