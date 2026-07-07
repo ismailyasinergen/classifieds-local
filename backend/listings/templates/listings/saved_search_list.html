@@ -723,6 +723,54 @@
         }
     }
 
+
+    /* SAVED_SEARCH_RENAME_UX_POLISH_V133 */
+    .saved-search-rename-form-v133 {
+        gap: 10px;
+        border-style: dashed;
+    }
+
+    .saved-search-rename-helper-v133 {
+        margin: -2px 0 0;
+        color: #1e40af;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .saved-search-rename-row-v133 {
+        grid-template-columns: minmax(180px, 1fr) auto;
+    }
+
+    .saved-search-rename-input-v133 {
+        min-height: 40px;
+    }
+
+    .saved-search-rename-submit-v133 {
+        min-height: 40px;
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    /* SAVED_SEARCH_RENAME_UX_POLISH_V133_MOBILE */
+    @media (max-width: 760px) {
+        .saved-search-rename-form-v133 {
+            padding: 12px;
+        }
+
+        .saved-search-rename-helper-v133 {
+            font-size: 12px;
+        }
+
+        .saved-search-rename-row-v133 {
+            grid-template-columns: 1fr;
+        }
+
+        .saved-search-rename-input-v133,
+        .saved-search-rename-submit-v133 {
+            width: 100%;
+        }
+    }
+
 </style>
 
 <section class="page-section saved-search-page-v78 saved-search-page-v129" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
@@ -853,7 +901,7 @@
             {% for search in saved_searches %}
                 <article class="saved-search-card-v78 saved-search-card-v129">
                     <form
-                        class="saved-search-rename-form-v132"
+                        class="saved-search-rename-form-v132 saved-search-rename-form-v133"
                         method="post"
                         action="{% url 'listings:saved_search_rename' search.pk %}"
                         data-marker="SAVED_SEARCH_RENAME_EDIT_FLOW_V132_FORM"
@@ -866,10 +914,16 @@
                         >
                             Rename saved search
                         </label>
-                        <div class="saved-search-rename-row-v132">
+                        <p
+                            class="saved-search-rename-helper-v133"
+                            data-marker="SAVED_SEARCH_RENAME_UX_POLISH_V133_HELPER"
+                        >
+                            Current name is shown above. Type a new name only when you want to update this saved search.
+                        </p>
+                        <div class="saved-search-rename-row-v132 saved-search-rename-row-v133">
                             <input
                                 id="saved-search-name-{{ search.pk }}-v132"
-                                class="saved-search-rename-input-v132"
+                                class="saved-search-rename-input-v132 saved-search-rename-input-v133"
                                 type="text"
                                 name="name"
                                 value=""
@@ -879,7 +933,7 @@
                                 required
                             >
                             <button
-                                class="button-link saved-search-rename-submit-v132"
+                                class="button-link saved-search-rename-submit-v132 saved-search-rename-submit-v133"
                                 type="submit"
                             >
                                 Save name
