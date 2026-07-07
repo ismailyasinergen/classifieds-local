@@ -1869,24 +1869,23 @@ def listing_report_archive_listing(request, pk):
         pass
 
     return response
-
 # SAVED_SEARCH_FOUNDATION_V77
 # SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80
+# SELLER_STORE_SAVED_SEARCH_CREATE_INTEGRATION_V122
 @login_required
 @require_POST
 def saved_search_create(request):
-    from django.urls import reverse
-
     from .saved_searches import create_saved_search_from_request
 
     saved_search, created, querystring = create_saved_search_from_request(
         request,
         request.POST.get("querystring", ""),
-        request.POST.get("name", ""),
+        name=request.POST.get("name", ""),
+        path=request.POST.get("path", ""),
     )
 
     if not saved_search:
-        messages.warning(request, "Add at least one filter before saving a search.")
+        messages.warning(request, "Add a search or filters before saving.")
         return redirect("listings:listing_list")
 
     if created:
@@ -1894,12 +1893,7 @@ def saved_search_create(request):
     else:
         messages.info(request, "Saved search updated.")
 
-    url = reverse("listings:listing_list")
-    if querystring:
-        url = f"{url}?{querystring}"
-
-    return redirect(url)
-
+    return redirect(saved_search.get_absolute_url())
 
 @login_required
 def saved_search_list(request):

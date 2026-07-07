@@ -11,6 +11,9 @@ SAVED_SEARCH_ALLOWED_KEYS = {
     "max_price",
     "category",
     "sort",
+    # SELLER_STORE_SAVED_SEARCH_CREATE_INTEGRATION_V122
+    "min_listings",
+    "verified_only",
 }
 
 
@@ -60,6 +63,24 @@ def querydict_to_plain_params(querydict):
     return params
 
 
+# SELLER_STORE_SAVED_SEARCH_CREATE_INTEGRATION_V122
+def clean_saved_search_path_v122(path=""):
+    default_path = reverse("listings:listing_list")
+    allowed_paths = {default_path}
+
+    try:
+        allowed_paths.add(reverse("accounts:seller_store_directory"))
+    except Exception:
+        # Keep saved-search creation resilient during URL loading/imports.
+        pass
+
+    candidate_path = _clean_value(path)
+    if candidate_path in allowed_paths:
+        return candidate_path
+
+    return default_path
+
+
 # SAVED_SEARCH_MANAGEMENT_HARDENING_V79
 def canonical_saved_search_querystring(querydict):
     pairs = []
@@ -73,10 +94,11 @@ def canonical_saved_search_querystring(querydict):
     return urlencode(pairs, doseq=True)
 
 
-def get_saved_search_context(request):
+def get_saved_search_context(request, path=""):
     querydict = clean_saved_search_querydict(request.GET)
     querystring = canonical_saved_search_querystring(querydict)
     query_params = querydict_to_plain_params(querydict)
+    saved_search_path = clean_saved_search_path_v122(path)
 
     context = {
         "save_search_querystring": querystring,
@@ -91,15 +113,14 @@ def get_saved_search_context(request):
 
     context["current_saved_search"] = (
         SavedSearch.objects
-        .filter(user=request.user, path=reverse("listings:listing_list"))
+        .filter(user=request.user, path=saved_search_path)
         .filter(Q(querystring=querystring) | Q(query_params=query_params))
         .first()
     )
 
     return context
 
-
-def create_saved_search_from_request(request, querystring, name=""):
+def create_saved_search_from_request(request, querystring, name="", path=""):
     from .models import SavedSearch
 
     querydict = clean_saved_search_querydict(querystring)
@@ -108,7 +129,7 @@ def create_saved_search_from_request(request, querystring, name=""):
     if not clean_querystring:
         return None, False, ""
 
-    path = reverse("listings:listing_list")
+    path = clean_saved_search_path_v122(path)
     query_params = querydict_to_plain_params(querydict)
     name = _clean_value(name)[:120]
 
@@ -145,11 +166,16 @@ def create_saved_search_from_request(request, querystring, name=""):
     )
     return saved_search, True, clean_querystring
 
+
 # SAVED_SEARCH_UX_POLISH_V78
 SORT_LABELS_V78 = {
     "newest": "Newest",
     "price_low": "Price low to high",
     "price_high": "Price high to low",
+    "name_az": "Name A-Z",
+    "newest_store": "Newest stores",
+    "verified_first": "Verified first",
+    "most_listings": "Most listings",
 }
 
 ATTRIBUTE_LABELS_V78 = {
@@ -182,8 +208,9 @@ ATTRIBUTE_LABELS_V78 = {
     "garanti": "Warranty",
     "takas": "Exchange",
     "kapasite": "Capacity",
+    "min_listings": "Minimum listings",
+    "verified_only": "Verified sellers only",
 }
-
 
 def _format_key_label_v78(key):
     key = str(key or "")

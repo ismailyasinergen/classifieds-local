@@ -226,6 +226,14 @@ class SavedSearch(models.Model):
         from django.utils.http import urlencode
 
         base_path = self.path or reverse("listings:listing_list")
+
+        # SELLER_STORE_SAVED_SEARCH_CREATE_INTEGRATION_V122
+        # Prefer the canonical stored querystring when present so saved-search
+        # redirects keep the same deterministic parameter ordering used by the
+        # save/create helper.
+        if self.querystring:
+            return f"{base_path}?{self.querystring}"
+
         pairs = []
 
         for key, value in (self.query_params or {}).items():

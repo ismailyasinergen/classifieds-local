@@ -528,12 +528,42 @@ def seller_store_directory(request):
     pagination_query = query_params.urlencode()
     page_url_prefix = f"?{pagination_query}&" if pagination_query else "?"
 
-    directory_saved_search_querystring = query_params.urlencode()
+    # SELLER_STORE_SAVED_SEARCH_CREATE_INTEGRATION_V122
+    from listings.saved_searches import (
+        canonical_saved_search_querystring,
+        clean_saved_search_querydict,
+        querydict_to_plain_params,
+    )
+
+    directory_saved_search_querydict = clean_saved_search_querydict(query_params)
+    directory_saved_search_querystring = canonical_saved_search_querystring(
+        directory_saved_search_querydict
+    )
+    directory_saved_search_params = querydict_to_plain_params(
+        directory_saved_search_querydict
+    )
+    directory_saved_search_path = request.path
     directory_saved_search_url = _directory_url_from_query_v115(
         request.path,
-        query_params,
+        directory_saved_search_querydict,
     )
-    directory_saved_search_active = bool(directory_active_chips)
+    directory_saved_search_active = (
+        bool(directory_active_chips) and bool(directory_saved_search_querystring)
+    )
+    directory_current_saved_search = None
+
+    if directory_saved_search_active and request.user.is_authenticated:
+        from listings.models import SavedSearch
+
+        directory_current_saved_search = (
+            SavedSearch.objects
+            .filter(user=request.user, path=directory_saved_search_path)
+            .filter(
+                Q(querystring=directory_saved_search_querystring)
+                | Q(query_params=directory_saved_search_params)
+            )
+            .first()
+        )
 
     paginator = Paginator(stores_queryset, 12)
     page_obj = paginator.get_page(request.GET.get("page"))
@@ -581,6 +611,8 @@ def seller_store_directory(request):
             "directory_saved_search_querystring": (
                 directory_saved_search_querystring
             ),
+            "directory_saved_search_path": directory_saved_search_path,
+            "directory_current_saved_search": directory_current_saved_search,
             "directory_saved_search_filter_count": len(directory_active_chips),
             "page_url_prefix": page_url_prefix,
             "store_count": stores_queryset.count(),
