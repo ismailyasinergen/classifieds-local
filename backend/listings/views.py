@@ -1875,25 +1875,34 @@ def listing_report_archive_listing(request, pk):
 @login_required
 @require_POST
 def saved_search_create(request):
+    # SELLER_STORE_DIRECTORY_SAVED_SEARCH_UX_POLISH_V125
     from .saved_searches import create_saved_search_from_request
 
-    saved_search, created, querystring = create_saved_search_from_request(
+    saved_search_result = create_saved_search_from_request(
         request,
         request.POST.get("querystring", ""),
         name=request.POST.get("name", ""),
         path=request.POST.get("path", ""),
     )
+    saved_search = (
+        saved_search_result[0]
+        if isinstance(saved_search_result, (tuple, list))
+        else saved_search_result
+    )
 
-    if not saved_search:
-        messages.warning(request, "Add a search or filters before saving.")
-        return redirect("listings:listing_list")
-
-    if created:
-        messages.success(request, "Search saved.")
+    if saved_search.is_seller_store_directory_search:
+        messages.success(
+            request,
+            "Seller store search saved. You can reopen it from Saved Searches.",
+        )
     else:
-        messages.info(request, "Saved search updated.")
+        messages.success(
+            request,
+            "Search saved. You can reopen it from Saved Searches.",
+        )
 
     return redirect(saved_search.get_absolute_url())
+
 
 @login_required
 def saved_search_list(request):

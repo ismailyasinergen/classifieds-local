@@ -582,7 +582,67 @@
                 grid-template-columns: 1fr;
             }
         }
-    </style>
+    
+    /* SELLER_STORE_DIRECTORY_SAVED_SEARCH_UX_POLISH_V125 */
+    .seller-store-saved-search-cta-v125 {
+        display: grid;
+        gap: 12px;
+    }
+
+    .seller-store-saved-search-copy-v125 {
+        display: grid;
+        gap: 4px;
+    }
+
+    .seller-store-saved-search-copy-v125 strong {
+        color: #0f172a;
+    }
+
+    .seller-store-saved-search-copy-v125 p,
+    .seller-store-saved-search-saved-state-v125 p {
+        margin: 0;
+        color: #475569;
+        line-height: 1.5;
+    }
+
+    .seller-store-saved-search-form-v125 {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .seller-store-saved-search-saved-state-v125 {
+        border: 1px solid #bbf7d0;
+        background: #ecfdf5;
+        border-radius: 14px;
+        padding: 12px;
+        display: grid;
+        gap: 6px;
+    }
+
+    .seller-store-saved-search-actions-v125 {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 640px) {
+        .seller-store-saved-search-form-v125,
+        .seller-store-saved-search-actions-v125 {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .seller-store-saved-search-form-v125 .button-link,
+        .seller-store-saved-search-actions-v125 .button-link {
+            justify-content: center;
+            width: 100%;
+        }
+    }
+
+</style>
 
     <div class="seller-store-directory-shell-v115">
         <div class="seller-store-directory-discovery-panel-v115">
@@ -642,7 +702,7 @@
             {% endif %}
 
             {% if directory_saved_search_active %}
-                <section class="seller-store-saved-search-cta-v121" aria-label="Save seller store search">
+                <section class="seller-store-saved-search-cta-v121 seller-store-saved-search-cta-v125" aria-label="Save seller store search">
                     <div class="seller-store-saved-search-copy-v121">
                         <p class="muted" style="margin:0 0 4px;">Saved search shortcut</p>
                         <h2>Save this seller store search</h2>
@@ -664,15 +724,25 @@
                         </a>
                         {% if user.is_authenticated %}
                             {% if directory_current_saved_search %}
-                                <span class="classified-badge verified">
-                                    Already saved
-                                </span>
-                                <a class="button-link" href="{% url 'listings:saved_search_list' %}">
-                                    View saved searches
-                                </a>
+                            <div class="seller-store-saved-search-saved-state-v125">
+                                <strong>Already saved</strong>
+                                <p>This seller store search is already in your Saved Searches, so you can reopen the same filters anytime.</p>
+                                <div class="seller-store-saved-search-actions-v125">
+                                    <a class="button-link" href="{% url 'listings:saved_search_list' %}">
+                                        View saved searches
+                                    </a>
+                                    <a class="button-link" href="{{ directory_saved_search_url }}">
+                                        Reopen this search
+                                    </a>
+                                </div>
+                            </div>
                             {% else %}
-                                <form
-                                    class="seller-store-saved-search-form-v122"
+                                <div class="seller-store-saved-search-copy-v125">
+                                <strong>Save this seller store search</strong>
+                                <p>Keep these seller-store filters for later and return to this exact directory view with one click.</p>
+                            </div>
+                            <form
+                                    class="seller-store-saved-search-form-v122 seller-store-saved-search-form-v125"
                                     method="post"
                                     action="{% url 'listings:saved_search_create' %}"
                                 >
