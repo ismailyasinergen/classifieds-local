@@ -581,6 +581,91 @@
         }
     }
 
+
+    /* SAVED_SEARCH_BULK_UI_POLISH_V131 */
+    .saved-search-bulk-action-v131 {
+        display: grid;
+        gap: 12px;
+    }
+
+    .saved-search-bulk-topline-v131 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 10px 12px;
+    }
+
+    .saved-search-bulk-select-all-v131 {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #1e3a8a;
+        font-size: 13px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    .saved-search-bulk-select-all-v131 input {
+        width: 17px;
+        height: 17px;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    .saved-search-bulk-selected-count-v131 {
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-radius: 999px;
+        padding: 5px 9px;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .saved-search-bulk-delete-v131 {
+        transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .saved-search-bulk-delete-v131[disabled] {
+        opacity: 0.48;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .saved-search-bulk-delete-v131.is-active-v131 {
+        border-color: #fca5a5;
+        background: #fee2e2;
+        box-shadow: 0 8px 18px rgba(153, 27, 27, 0.10);
+    }
+
+    .saved-search-card-v129:has(input[name="selected_saved_searches"]:checked) {
+        border-color: #60a5fa;
+        box-shadow: 0 18px 38px rgba(37, 99, 235, 0.16);
+    }
+
+    /* SAVED_SEARCH_BULK_UI_POLISH_V131_MOBILE */
+    @media (max-width: 760px) {
+        .saved-search-bulk-topline-v131 {
+            display: grid;
+            grid-template-columns: 1fr;
+            align-items: stretch;
+        }
+
+        .saved-search-bulk-selected-count-v131 {
+            width: fit-content;
+        }
+
+        .saved-search-bulk-select-all-v131 {
+            width: 100%;
+        }
+    }
+
 </style>
 
 <section class="page-section saved-search-page-v78 saved-search-page-v129" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
@@ -668,13 +753,28 @@
     {% if saved_searches %}
         <form
             id="saved-search-bulk-action-form-v130"
-            class="saved-search-bulk-action-v130"
+            class="saved-search-bulk-action-v130 saved-search-bulk-action-v131"
             method="post"
             action="{% url 'listings:saved_search_bulk_action' %}"
         >
             {% csrf_token %}
             <input type="hidden" name="bulk_action" value="delete">
             <input type="hidden" name="next" value="{{ saved_search_current_path }}">
+            <div class="saved-search-bulk-topline-v131" data-marker="SAVED_SEARCH_BULK_UI_POLISH_V131_CONTROLS">
+                <label class="saved-search-bulk-select-all-v131" for="saved-search-select-all-visible-v131">
+                    <input
+                        id="saved-search-select-all-visible-v131"
+                        type="checkbox"
+                    >
+                    <span>Select all visible</span>
+                </label>
+                <span
+                    id="saved-search-selected-count-v131"
+                    class="saved-search-bulk-selected-count-v131"
+                    aria-live="polite"
+                >0 selected</span>
+            </div>
+
             <div class="saved-search-bulk-action-inner-v130">
                 <div class="saved-search-bulk-action-copy-v130">
                     <strong>Bulk actions</strong>
@@ -682,7 +782,9 @@
                 </div>
                 <button
                     type="submit"
-                    class="button-link saved-search-bulk-delete-v130"
+                    id="saved-search-bulk-delete-button-v131"
+                    class="button-link saved-search-bulk-delete-v130 saved-search-bulk-delete-v131"
+                    disabled
                     onclick="return confirm('Delete selected saved searches?');"
                 >
                     Delete selected
@@ -837,5 +939,56 @@
             </div>
         </section>
     {% endif %}
+
+<script>
+    // SAVED_SEARCH_BULK_UI_POLISH_V131_SCRIPT
+    (function () {
+        const form = document.getElementById("saved-search-bulk-action-form-v130");
+        if (!form) {
+            return;
+        }
+
+        const selectAll = document.getElementById("saved-search-select-all-visible-v131");
+        const selectedCount = document.getElementById("saved-search-selected-count-v131");
+        const deleteButton = document.getElementById("saved-search-bulk-delete-button-v131");
+        const checkboxes = Array.from(document.querySelectorAll(
+            'input[name="selected_saved_searches"][form="saved-search-bulk-action-form-v130"]'
+        ));
+
+        function updateBulkUi() {
+            const selected = checkboxes.filter((checkbox) => checkbox.checked).length;
+
+            if (selectedCount) {
+                selectedCount.textContent = selected === 1 ? "1 selected" : selected + " selected";
+            }
+
+            if (deleteButton) {
+                deleteButton.disabled = selected === 0;
+                deleteButton.classList.toggle("is-active-v131", selected > 0);
+            }
+
+            if (selectAll) {
+                selectAll.checked = checkboxes.length > 0 && selected === checkboxes.length;
+                selectAll.indeterminate = selected > 0 && selected < checkboxes.length;
+            }
+        }
+
+        if (selectAll) {
+            selectAll.addEventListener("change", function () {
+                checkboxes.forEach((checkbox) => {
+                    checkbox.checked = selectAll.checked;
+                });
+                updateBulkUi();
+            });
+        }
+
+        checkboxes.forEach((checkbox) => {
+            checkbox.addEventListener("change", updateBulkUi);
+        });
+
+        updateBulkUi();
+    })();
+</script>
+
 </section>
 {% endblock %}
