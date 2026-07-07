@@ -1907,6 +1907,7 @@ def saved_search_create(request):
 @login_required
 def saved_search_list(request):
     # SAVED_SEARCH_TYPE_FILTER_TABS_V127
+    # SAVED_SEARCH_TAB_COUNT_POLISH_V128
     from django.core.paginator import Paginator
     from django.db.models import Q
     from django.shortcuts import render
@@ -1937,22 +1938,14 @@ def saved_search_list(request):
     order_fields.append("-id")
 
     all_saved_searches = SavedSearch.objects.filter(user=request.user).order_by(*order_fields)
+    listing_saved_searches = all_saved_searches.exclude(path=seller_store_directory_path)
+    seller_store_saved_searches = all_saved_searches.filter(path=seller_store_directory_path)
 
-    listing_saved_search_count = all_saved_searches.exclude(
-        path=seller_store_directory_path
-    ).count()
-    seller_store_saved_search_count = all_saved_searches.filter(
-        path=seller_store_directory_path
-    ).count()
-    all_saved_search_count = listing_saved_search_count + seller_store_saved_search_count
+    # SAVED_SEARCH_TAB_COUNT_POLISH_V128_QUERY_AWARE_COUNTS
+    def apply_saved_search_keyword_filter(queryset):
+        if not search_query:
+            return queryset
 
-    saved_searches = all_saved_searches
-    if saved_search_type_filter == "listings":
-        saved_searches = saved_searches.exclude(path=seller_store_directory_path)
-    elif saved_search_type_filter == "seller-stores":
-        saved_searches = saved_searches.filter(path=seller_store_directory_path)
-
-    if search_query:
         search_filter = Q()
         if "name" in field_names:
             search_filter |= Q(name__icontains=search_query)
@@ -1962,10 +1955,188 @@ def saved_search_list(request):
             search_filter |= Q(path__icontains=search_query)
 
         if search_filter.children:
-            saved_searches = saved_searches.filter(search_filter)
+            return queryset.filter(search_filter)
+
+        return queryset
+
+    filtered_all_saved_searches = apply_saved_search_keyword_filter(all_saved_searches)
+    filtered_listing_saved_searches = apply_saved_search_keyword_filter(listing_saved_searches)
+    filtered_seller_store_saved_searches = apply_saved_search_keyword_filter(seller_store_saved_searches)
+
+    all_saved_search_count = all_saved_searches.count()
+    listing_saved_search_count = listing_saved_searches.count()
+    seller_store_saved_search_count = seller_store_saved_searches.count()
+
+    all_tab_count = filtered_all_saved_searches.count()
+    listing_tab_count = filtered_listing_saved_searches.count()
+    seller_store_tab_count = filtered_seller_store_saved_searches.count()
+
+    if saved_search_type_filter == "listings":
+        saved_searches = filtered_listing_saved_searches
+    elif saved_search_type_filter == "seller-stores":
+        saved_searches = filtered_seller_store_saved_searches
+    else:
+        saved_searches = filtered_all_saved_searches
 
     paginator = Paginator(saved_searches, 6)
     page_obj = paginator.get_page(request.GET.get("page"))
+
+    def build_type_url(filter_value):
+        params = request.GET.copy()
+        params.pop("page", None)
+        if filter_value == "all":
+            params.pop("type", None)
+        else:
+            params["type"] = filter_value
+
+        querystring = params.urlencode()
+        return f"?{querystring}" if querystring else request.path
+
+    saved_search_type_tabs = [
+        {
+            "key": "all",
+            "label": "All",
+            "count": all_tab_count,
+            "total_count": all_saved_search_count,
+            "url": build_type_url("all"),
+            "active": saved_search_type_filter == "all",
+        },
+        {
+            "key": "listings",
+            "label": "Listing searches",
+            "count": listing_tab_count,
+            "total_count": listing_saved_search_count,
+            "url": build_type_url("listings"),
+            "active": saved_search_type_filter == "listings",
+        },
+        {
+            "key": "seller-stores",
+            "label": "Seller store searches",
+            "count": seller_store_tab_count,
+            "total_count": seller_store_saved_search_count,
+            "url": build_type_url("seller-stores"),
+            "active": saved_search_type_filter == "seller-stores",
+        },
+    ]
+
+    active_type_label = ""
+    if saved_search_type_filter == "listings":
+        active_type_label = "Listing searches"
+    elif saved_search_type_filter == "seller-stores":
+        active_type_label = "Seller store searches"
+
+    saved_search_active_filter_summary = []
+    if search_query:
+        saved_search_active_filter_summary.append(
+            {
+                "label": "Search",
+                "value": search_query,
+            }
+        )
+    if active_type_label:
+        saved_search_active_filter_summary.append(
+            {
+                "label": "Type",
+                "value": active_type_label,
+            }
+        )
+
+    saved_search_tab_count_note = ""
+    if search_query:
+        saved_search_tab_count_note = (
+            f'Tab counts are narrowed by “{search_query}”. '
+            "Clear the search to see all saved-search totals."
+        )
+
+    has_results = page_obj.paginator.count > 0
+    type_empty_title = ""
+    type_empty_message = ""
+    if not has_results and saved_search_type_filter == "listings":
+        type_empty_title = "No listing searches saved yet"
+        if search_query and listing_saved_search_count:
+            type_empty_message = "No listing saved searches match this keyword. Try another search or clear the search."
+        else:
+            type_empty_message = "Save a filtered listing search to return to matching listings faster."
+    elif not has_results and saved_search_type_filter == "seller-stores":
+        type_empty_title = "No seller store searches saved yet"
+        if search_query and seller_store_saved_search_count:
+            type_empty_message = "No seller store saved searches match this keyword. Try another search or clear the search."
+        else:
+            type_empty_message = "Save a seller store directory search to revisit matching stores later."
+    elif not has_results and search_query:
+        type_empty_title = "No saved searches match"
+        type_empty_message = "Try another keyword or switch saved-search type."
+
+    # SAVED_SEARCH_TYPE_FILTER_TABS_V127_LEGACY_CONTEXT
+    shown_count = len(page_obj.object_list)
+    total_count = saved_searches.count()
+    per_page = paginator.per_page
+
+    if "email_notifications_enabled" in field_names:
+        email_alert_count = (
+            all_saved_searches
+            .exclude(path=seller_store_directory_path)
+            .filter(email_notifications_enabled=True)
+            .count()
+        )
+    else:
+        email_alert_count = 0
+
+    preserved_query_params = request.GET.copy()
+    preserved_query_params.pop("page", None)
+    preserved_querystring = preserved_query_params.urlencode()
+    page_url_prefix = f"{preserved_querystring}&" if preserved_querystring else ""
+
+    # SAVED_SEARCH_TYPE_FILTER_TABS_V127_EXACT_TEMPLATE_CONTEXT
+    saved_search_search_query = search_query
+    saved_search_total_count = all_saved_search_count
+    saved_search_filtered_count = saved_searches.count()
+    saved_search_page_size = paginator.per_page
+    saved_search_pagination_querystring = preserved_querystring
+    saved_search_current_path = request.path
+    current_querystring = request.GET.urlencode()
+    if current_querystring:
+        saved_search_current_path = f"{saved_search_current_path}?{current_querystring}"
+    saved_search_email_alert_count = email_alert_count
+
+    return render(
+        request,
+        "listings/saved_search_list.html",
+        {
+            "saved_searches": page_obj.object_list,
+            "page_obj": page_obj,
+            "paginator": paginator,
+            "search_query": search_query,
+            "saved_search_search_query": saved_search_search_query,
+            "q": search_query,
+            "query": search_query,
+            "saved_search_type_filter": saved_search_type_filter,
+            "saved_search_type_tabs": saved_search_type_tabs,
+            "saved_search_active_filter_summary": saved_search_active_filter_summary,
+            "saved_search_tab_count_note": saved_search_tab_count_note,
+            "listing_saved_search_count": listing_saved_search_count,
+            "saved_search_total_count": saved_search_total_count,
+            "seller_store_saved_search_count": seller_store_saved_search_count,
+            "all_saved_search_count": all_saved_search_count,
+            "saved_search_filtered_count": saved_search_filtered_count,
+            "shown_count": shown_count,
+            "total_count": total_count,
+            "saved_search_page_size": saved_search_page_size,
+            "per_page": per_page,
+            "saved_search_pagination_querystring": saved_search_pagination_querystring,
+            "saved_search_type_has_results": has_results,
+            "saved_search_type_empty_title": type_empty_title,
+            "saved_search_type_empty_message": type_empty_message,
+            "saved_search_preserved_querystring": preserved_querystring,
+            "saved_search_current_path": saved_search_current_path,
+            "saved_search_email_alert_count": saved_search_email_alert_count,
+            "email_alert_count": email_alert_count,
+            "page_url_prefix": page_url_prefix,
+            "is_paginated": paginator.num_pages > 1,
+            "has_saved_searches": all_saved_search_count > 0,
+        },
+    )
+
 
     def build_type_url(filter_value):
         params = request.GET.copy()

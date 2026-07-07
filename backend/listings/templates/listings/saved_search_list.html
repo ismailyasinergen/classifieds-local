@@ -299,6 +299,39 @@
         }
     }
 
+
+    /* SAVED_SEARCH_TAB_COUNT_POLISH_V128 */
+    .saved-search-active-filter-summary-v128 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: -8px 0 16px;
+    }
+
+    .saved-search-active-filter-chip-v128 {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        color: #1e3a8a;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 13px;
+        font-weight: 850;
+    }
+
+    .saved-search-active-filter-chip-v128 span:first-child {
+        color: #475569;
+    }
+
+    .saved-search-tab-count-note-v128 {
+        margin: -10px 0 16px;
+        color: #475569;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
 </style>
 
 <section class="page-section saved-search-page-v78" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
@@ -317,6 +350,21 @@
                 </a>
             {% endfor %}
         </nav>
+        {% if saved_search_active_filter_summary %}
+            <div class="saved-search-active-filter-summary-v128" aria-label="Active saved search filters">
+                {% for item in saved_search_active_filter_summary %}
+                    <span class="saved-search-active-filter-chip-v128">
+                        <span>{{ item.label }}:</span>
+                        <strong>{{ item.value }}</strong>
+                    </span>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if saved_search_tab_count_note %}
+            <p class="saved-search-tab-count-note-v128">{{ saved_search_tab_count_note }}</p>
+        {% endif %}
+
 
         {% if saved_search_type_empty_title %}
             <div class="saved-search-type-empty-v127">
