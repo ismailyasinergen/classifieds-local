@@ -7,6 +7,7 @@
     /* SAVED_SEARCH_UX_POLISH_V78 */
     /* SAVED_SEARCH_MANAGEMENT_HARDENING_V79 */
     /* SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80 */
+    /* SELLER_STORE_SAVED_SEARCH_MANAGEMENT_POLISH_V123 */
     .saved-search-page-v78 {
         display: grid;
         gap: 18px;
@@ -19,6 +20,13 @@
         gap: 12px;
         align-items: flex-start;
         flex-wrap: wrap;
+    }
+
+    .saved-search-header-actions-v123 {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
     }
 
     .saved-search-management-bar-v79 {
@@ -113,6 +121,29 @@
         padding: 4px 8px;
     }
 
+    .saved-search-source-badge-v123 {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #dbe4ef;
+        background: #f8fafc;
+        color: #334155;
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-weight: 850;
+    }
+
+    .saved-search-source-badge-v123.is-seller-store {
+        border-color: #bbf7d0;
+        background: #ecfdf5;
+        color: #166534;
+    }
+
+    .saved-search-source-badge-v123.is-listing {
+        border-color: #bfdbfe;
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
     .saved-search-summary-v78 {
         display: flex;
         gap: 8px;
@@ -168,6 +199,13 @@
         padding: 24px;
         background: #f8fafc;
     }
+
+    .saved-search-empty-actions-v123 {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
 </style>
 
 <section class="page-section saved-search-page-v78" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
@@ -175,13 +213,18 @@
         <div>
             <h1>Saved Searches</h1>
             <p class="muted">
-                Return to your saved category and filter combinations.
+                Return to your saved listing searches and seller store searches.
             </p>
         </div>
 
-        <a class="button-link" href="{% url 'listings:listing_list' %}">
-            Browse listings
-        </a>
+        <div class="saved-search-header-actions-v123">
+            <a class="button-link" href="{% url 'listings:listing_list' %}">
+                Browse listings
+            </a>
+            <a class="button-link" href="{% url 'accounts:seller_store_directory' %}">
+                Browse seller stores
+            </a>
+        </div>
     </div>
 
     <div class="saved-search-management-bar-v79">
@@ -215,6 +258,9 @@
                     <div>
                         <h2>{{ search.display_name }}</h2>
                         <div class="saved-search-meta-v78">
+                            <span class="saved-search-source-badge-v123 {{ search.search_source_css_class }}">
+                                {{ search.search_source_label }}
+                            </span>
                             <span>{{ search.filter_count }} saved filter{{ search.filter_count|pluralize }}</span>
                         </div>
                         <div class="saved-search-management-meta-v79">
@@ -256,7 +302,7 @@
 
                     <div class="saved-search-actions-v78">
                         <a class="button-link button-primary" href="{{ search.get_absolute_url }}">
-                            Run search
+                            {{ search.run_action_label }}
                         </a>
 
                         <form method="post" action="{% url 'listings:saved_search_notifications_toggle' search.pk %}">
@@ -323,11 +369,16 @@
         <section class="saved-search-empty-v78">
             <h2>No saved searches yet</h2>
             <p class="muted">
-                Apply filters on the browse page, then save the search from the results panel.
+                Apply filters on the listings browse page or seller store directory, then save the search from the results panel.
             </p>
-            <a class="button-link button-primary" href="{% url 'listings:listing_list' %}">
-                Start browsing
-            </a>
+            <div class="saved-search-empty-actions-v123">
+                <a class="button-link button-primary" href="{% url 'listings:listing_list' %}">
+                    Start browsing listings
+                </a>
+                <a class="button-link" href="{% url 'accounts:seller_store_directory' %}">
+                    Browse seller stores
+                </a>
+            </div>
         </section>
     {% endif %}
 </section>

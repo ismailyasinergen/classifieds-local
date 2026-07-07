@@ -249,6 +249,39 @@ class SavedSearch(models.Model):
 
         return base_path
 
+    # SELLER_STORE_SAVED_SEARCH_MANAGEMENT_POLISH_V123
+    @property
+    def is_seller_store_directory_search(self):
+        from django.urls import reverse
+
+        try:
+            seller_store_directory_path = reverse("accounts:seller_store_directory")
+        except Exception:
+            return False
+
+        return (self.path or "").rstrip("/") == seller_store_directory_path.rstrip("/")
+
+    @property
+    def search_source_label(self):
+        if self.is_seller_store_directory_search:
+            return "Seller stores"
+
+        return "Listings"
+
+    @property
+    def search_source_css_class(self):
+        if self.is_seller_store_directory_search:
+            return "is-seller-store"
+
+        return "is-listing"
+
+    @property
+    def run_action_label(self):
+        if self.is_seller_store_directory_search:
+            return "Run store search"
+
+        return "Run search"
+
     # SAVED_SEARCH_UX_POLISH_V78
     @property
     def filter_summaries(self):
