@@ -96,6 +96,48 @@
             color: #111827;
         }
 
+        .seller-store-saved-search-cta-v121 {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px;
+            align-items: center;
+            margin-top: 14px;
+            border: 1px solid #d7e2f3;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+            padding: 14px;
+        }
+
+        .seller-store-saved-search-copy-v121 h2 {
+            margin: 0 0 4px;
+            font-size: 16px;
+        }
+
+        .seller-store-saved-search-copy-v121 p {
+            margin: 0;
+        }
+
+        .seller-store-saved-search-meta-v121 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .seller-store-saved-search-actions-v121 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .seller-store-saved-search-url-v121 {
+            word-break: break-word;
+            color: #4b5563;
+            font-size: 12px;
+        }
+
         .seller-store-directory-results-summary-v115 {
             display: flex;
             flex-wrap: wrap;
@@ -491,8 +533,13 @@
             }
 
             .seller-store-combined-grid-v119,
-            .seller-store-empty-suggestions-v120 {
+            .seller-store-empty-suggestions-v120,
+            .seller-store-saved-search-cta-v121 {
                 grid-template-columns: 1fr;
+            }
+
+            .seller-store-saved-search-actions-v121 {
+                justify-content: flex-start;
             }
         }
 
@@ -525,7 +572,8 @@
             }
 
             .seller-store-directory-actions-v115 button,
-            .seller-store-directory-actions-v115 .button-link {
+            .seller-store-directory-actions-v115 .button-link,
+            .seller-store-saved-search-actions-v121 .button-link {
                 width: 100%;
                 text-align: center;
             }
@@ -591,6 +639,40 @@
                         </a>
                     {% endfor %}
                 </div>
+            {% endif %}
+
+            {% if directory_saved_search_active %}
+                <section class="seller-store-saved-search-cta-v121" aria-label="Save seller store search">
+                    <div class="seller-store-saved-search-copy-v121">
+                        <p class="muted" style="margin:0 0 4px;">Saved search shortcut</p>
+                        <h2>Save this seller store search</h2>
+                        <p class="muted">
+                            Keep this filtered store directory handy so you can revisit sellers with the same search, city, category, trust, and sort settings.
+                        </p>
+                        <div class="seller-store-saved-search-meta-v121">
+                            <span class="classified-badge">
+                                {{ directory_saved_search_filter_count }} active selection{{ directory_saved_search_filter_count|pluralize }}
+                            </span>
+                            <span class="classified-badge">
+                                {{ store_count }} matching store{{ store_count|pluralize }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="seller-store-saved-search-actions-v121">
+                        <a class="button-link" href="{{ directory_saved_search_url }}">
+                            Reopen this search
+                        </a>
+                        {% if user.is_authenticated %}
+                            <a class="button-link" href="{% url 'listings:saved_search_list' %}">
+                                View saved searches
+                            </a>
+                        {% else %}
+                            <a class="button-link" href="{% url 'accounts:login' %}?next={{ directory_saved_search_url|urlencode }}">
+                                Log in to revisit searches
+                            </a>
+                        {% endif %}
+                    </div>
+                </section>
             {% endif %}
 
             {% if popular_directory_categories or popular_directory_locations %}

@@ -528,6 +528,13 @@ def seller_store_directory(request):
     pagination_query = query_params.urlencode()
     page_url_prefix = f"?{pagination_query}&" if pagination_query else "?"
 
+    directory_saved_search_querystring = query_params.urlencode()
+    directory_saved_search_url = _directory_url_from_query_v115(
+        request.path,
+        query_params,
+    )
+    directory_saved_search_active = bool(directory_active_chips)
+
     paginator = Paginator(stores_queryset, 12)
     page_obj = paginator.get_page(request.GET.get("page"))
 
@@ -569,6 +576,12 @@ def seller_store_directory(request):
             "directory_empty_suggestion_limit": (
                 SELLER_STORE_DIRECTORY_EMPTY_SUGGESTION_LIMIT_V120
             ),
+            "directory_saved_search_active": directory_saved_search_active,
+            "directory_saved_search_url": directory_saved_search_url,
+            "directory_saved_search_querystring": (
+                directory_saved_search_querystring
+            ),
+            "directory_saved_search_filter_count": len(directory_active_chips),
             "page_url_prefix": page_url_prefix,
             "store_count": stores_queryset.count(),
             "page_title": "Seller Stores",
