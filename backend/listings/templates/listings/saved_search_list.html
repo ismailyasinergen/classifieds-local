@@ -771,6 +771,72 @@
         }
     }
 
+
+    /* SAVED_SEARCH_RENAME_INLINE_TOGGLE_V134 */
+    .saved-search-rename-toggle-bar-v134 {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .saved-search-rename-toggle-v134 {
+        border-color: #bfdbfe;
+        background: #ffffff;
+        color: #1d4ed8;
+        font-weight: 900;
+        min-height: 38px;
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .saved-search-rename-toggle-v134:hover {
+        background: #eff6ff;
+        text-decoration: none;
+    }
+
+    .saved-search-rename-form-v134[hidden] {
+        display: none !important;
+    }
+
+    .saved-search-rename-row-v134 {
+        grid-template-columns: minmax(180px, 1fr) auto auto;
+    }
+
+    .saved-search-rename-cancel-v134 {
+        border-color: #e5e7eb;
+        background: #ffffff;
+        color: #475569;
+        font-weight: 900;
+        min-height: 40px;
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .saved-search-rename-cancel-v134:hover {
+        background: #f8fafc;
+        text-decoration: none;
+    }
+
+    /* SAVED_SEARCH_RENAME_INLINE_TOGGLE_V134_MOBILE */
+    @media (max-width: 760px) {
+        .saved-search-rename-toggle-bar-v134 {
+            width: 100%;
+        }
+
+        .saved-search-rename-toggle-v134 {
+            width: 100%;
+        }
+
+        .saved-search-rename-row-v134 {
+            grid-template-columns: 1fr;
+        }
+
+        .saved-search-rename-cancel-v134 {
+            width: 100%;
+        }
+    }
+
 </style>
 
 <section class="page-section saved-search-page-v78 saved-search-page-v129" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
@@ -900,11 +966,28 @@
         <div class="saved-search-grid-v78 saved-search-grid-v129">
             {% for search in saved_searches %}
                 <article class="saved-search-card-v78 saved-search-card-v129">
+                    <div
+                        class="saved-search-rename-toggle-bar-v134"
+                        data-marker="SAVED_SEARCH_RENAME_INLINE_TOGGLE_V134_TOGGLE"
+                    >
+                        <button
+                            class="button-link saved-search-rename-toggle-v134"
+                            type="button"
+                            aria-expanded="false"
+                            aria-controls="saved-search-rename-form-{{ search.pk }}-v134"
+                            data-rename-toggle-v134="saved-search-rename-form-{{ search.pk }}-v134"
+                        >
+                            Rename
+                        </button>
+                    </div>
                     <form
-                        class="saved-search-rename-form-v132 saved-search-rename-form-v133"
+                        id="saved-search-rename-form-{{ search.pk }}-v134"
+                        hidden
+                        class="saved-search-rename-form-v132 saved-search-rename-form-v133 saved-search-rename-form-v134"
                         method="post"
                         action="{% url 'listings:saved_search_rename' search.pk %}"
                         data-marker="SAVED_SEARCH_RENAME_EDIT_FLOW_V132_FORM"
+                        data-rename-form-v134
                     >
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -920,7 +1003,7 @@
                         >
                             Current name is shown above. Type a new name only when you want to update this saved search.
                         </p>
-                        <div class="saved-search-rename-row-v132 saved-search-rename-row-v133">
+                        <div class="saved-search-rename-row-v132 saved-search-rename-row-v133 saved-search-rename-row-v134">
                             <input
                                 id="saved-search-name-{{ search.pk }}-v132"
                                 class="saved-search-rename-input-v132 saved-search-rename-input-v133"
@@ -937,6 +1020,14 @@
                                 type="submit"
                             >
                                 Save name
+                            </button>
+                            <button
+                                class="button-link saved-search-rename-cancel-v134"
+                                type="button"
+                                data-marker="SAVED_SEARCH_RENAME_INLINE_TOGGLE_V134_CANCEL"
+                                data-rename-cancel-v134="saved-search-rename-form-{{ search.pk }}-v134"
+                            >
+                                Cancel
                             </button>
                         </div>
                     </form>
@@ -1136,4 +1227,62 @@
 </script>
 
 </section>
+
+<script data-marker="SAVED_SEARCH_RENAME_INLINE_TOGGLE_V134_SCRIPT">
+(function () {
+    function getFormFromButton(button, attributeName) {
+        var formId = button.getAttribute(attributeName);
+        if (!formId) {
+            return null;
+        }
+        return document.getElementById(formId);
+    }
+
+    function setExpanded(button, form, expanded) {
+        if (!button || !form) {
+            return;
+        }
+
+        button.setAttribute("aria-expanded", expanded ? "true" : "false");
+
+        if (expanded) {
+            form.removeAttribute("hidden");
+            var input = form.querySelector(".saved-search-rename-input-v132");
+            if (input) {
+                input.focus();
+            }
+        } else {
+            form.setAttribute("hidden", "hidden");
+        }
+    }
+
+    document.addEventListener("click", function (event) {
+        var toggleButton = event.target.closest("[data-rename-toggle-v134]");
+        if (toggleButton) {
+            var toggleForm = getFormFromButton(toggleButton, "data-rename-toggle-v134");
+            if (!toggleForm) {
+                return;
+            }
+
+            var shouldExpand = toggleForm.hasAttribute("hidden");
+            setExpanded(toggleButton, toggleForm, shouldExpand);
+            return;
+        }
+
+        var cancelButton = event.target.closest("[data-rename-cancel-v134]");
+        if (cancelButton) {
+            var cancelForm = getFormFromButton(cancelButton, "data-rename-cancel-v134");
+            if (!cancelForm) {
+                return;
+            }
+
+            var linkedToggle = document.querySelector(
+                '[data-rename-toggle-v134="' + cancelForm.id + '"]'
+            );
+            setExpanded(linkedToggle, cancelForm, false);
+        }
+    });
+})();
+</script>
+
 {% endblock %}
