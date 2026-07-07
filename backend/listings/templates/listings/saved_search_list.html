@@ -332,13 +332,179 @@
         line-height: 1.45;
     }
 
+
+    /* SAVED_SEARCH_MANAGEMENT_UI_POLISH_V129 */
+    .saved-search-page-v129 {
+        gap: 20px;
+    }
+
+    .saved-search-header-v129 {
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        padding: 18px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+    }
+
+    .saved-search-header-v129 h1 {
+        letter-spacing: -0.02em;
+    }
+
+    .saved-search-header-v129 .muted {
+        max-width: 760px;
+        line-height: 1.55;
+    }
+
+    .saved-search-type-tabs-v129 {
+        margin: 16px 0 14px;
+        padding: 4px;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        background: #f8fafc;
+        width: fit-content;
+        max-width: 100%;
+    }
+
+    .saved-search-type-tabs-v129 .saved-search-type-tab-v127 {
+        box-shadow: none;
+        border-color: transparent;
+        background: transparent;
+    }
+
+    .saved-search-type-tabs-v129 .saved-search-type-tab-v127.is-active {
+        background: #ffffff;
+        border-color: #bfdbfe;
+        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.13);
+    }
+
+    .saved-search-active-filter-summary-v129 {
+        margin-top: -2px;
+        margin-bottom: 14px;
+    }
+
+    .saved-search-tab-count-note-v129 {
+        border-left: 4px solid #bfdbfe;
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 10px 12px;
+    }
+
+    .saved-search-management-bar-v129 {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        border-radius: 18px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    .saved-search-search-form-v129 {
+        min-width: 0;
+    }
+
+    .saved-search-search-form-v129 label {
+        color: #0f172a;
+    }
+
+    .saved-search-search-form-v129 input[type="search"] {
+        border-radius: 999px;
+        border-color: #cbd5e1;
+        background: #ffffff;
+        min-height: 40px;
+    }
+
+    .saved-search-search-form-v129 input[type="search"]:focus {
+        outline: 3px solid rgba(37, 99, 235, 0.18);
+        border-color: #60a5fa;
+    }
+
+    .saved-search-counts-v129 {
+        justify-content: flex-end;
+    }
+
+    .saved-search-counts-v129 span {
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        border-radius: 999px;
+        padding: 5px 9px;
+        color: #334155;
+        font-weight: 800;
+    }
+
+    .saved-search-grid-v129 {
+        gap: 16px;
+    }
+
+    .saved-search-card-v129 {
+        border-color: #dbeafe;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.07);
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .saved-search-card-v129:hover {
+        transform: translateY(-2px);
+        border-color: #93c5fd;
+        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.10);
+    }
+
+    .saved-search-card-v129 h2 {
+        letter-spacing: -0.01em;
+    }
+
+    .saved-search-actions-v129 {
+        border-top: 1px solid #e5e7eb;
+        padding-top: 12px;
+    }
+
+    .saved-search-empty-v129 {
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+    }
+
+    /* SAVED_SEARCH_MANAGEMENT_UI_POLISH_V129_MOBILE */
+    @media (max-width: 760px) {
+        .saved-search-header-v129 {
+            padding: 15px;
+        }
+
+        .saved-search-header-actions-v129,
+        .saved-search-actions-v129,
+        .saved-search-search-form-v129 {
+            display: grid;
+            grid-template-columns: 1fr;
+            width: 100%;
+        }
+
+        .saved-search-header-actions-v129 a,
+        .saved-search-actions-v129 a,
+        .saved-search-actions-v129 button,
+        .saved-search-search-form-v129 button,
+        .saved-search-search-form-v129 .button-link {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .saved-search-type-tabs-v129 {
+            border-radius: 18px;
+            width: 100%;
+        }
+
+        .saved-search-management-bar-v129 {
+            grid-template-columns: 1fr;
+        }
+
+        .saved-search-counts-v129 {
+            justify-content: flex-start;
+        }
+    }
+
 </style>
 
-<section class="page-section saved-search-page-v78" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
-    <div class="saved-search-header-v78">
+<section class="page-section saved-search-page-v78 saved-search-page-v129" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
+    <div class="saved-search-header-v78 saved-search-header-v129">
         <div>
             <h1>Saved Searches</h1>
-        <nav class="saved-search-type-tabs-v127" aria-label="Saved search type filters">
+        <nav class="saved-search-type-tabs-v127 saved-search-type-tabs-v129" aria-label="Saved search type filters">
             {% for tab in saved_search_type_tabs %}
                 <a
                     class="saved-search-type-tab-v127{% if tab.active %} is-active{% endif %}"
@@ -351,7 +517,7 @@
             {% endfor %}
         </nav>
         {% if saved_search_active_filter_summary %}
-            <div class="saved-search-active-filter-summary-v128" aria-label="Active saved search filters">
+            <div class="saved-search-active-filter-summary-v128 saved-search-active-filter-summary-v129" aria-label="Active saved search filters">
                 {% for item in saved_search_active_filter_summary %}
                     <span class="saved-search-active-filter-chip-v128">
                         <span>{{ item.label }}:</span>
@@ -362,7 +528,7 @@
         {% endif %}
 
         {% if saved_search_tab_count_note %}
-            <p class="saved-search-tab-count-note-v128">{{ saved_search_tab_count_note }}</p>
+            <p class="saved-search-tab-count-note-v128 saved-search-tab-count-note-v129">{{ saved_search_tab_count_note }}</p>
         {% endif %}
 
 
@@ -378,7 +544,7 @@
             </p>
         </div>
 
-        <div class="saved-search-header-actions-v123">
+        <div class="saved-search-header-actions-v123 saved-search-header-actions-v129">
             <a class="button-link" href="{% url 'listings:listing_list' %}">
                 Browse listings
             </a>
@@ -388,8 +554,8 @@
         </div>
     </div>
 
-    <div class="saved-search-management-bar-v79">
-        <form class="saved-search-search-form-v79" method="get" action="{% url 'listings:saved_search_list' %}">
+    <div class="saved-search-management-bar-v79 saved-search-management-bar-v129">
+        <form class="saved-search-search-form-v79 saved-search-search-form-v129" method="get" action="{% url 'listings:saved_search_list' %}">
             <label for="saved-search-q"><strong>Search saved searches</strong></label>
             <input
                 id="saved-search-q"
@@ -408,7 +574,7 @@
             {% endif %}
         </form>
 
-        <div class="saved-search-counts-v79" aria-label="Saved search counts">
+        <div class="saved-search-counts-v79 saved-search-counts-v129" aria-label="Saved search counts">
             <span>{{ saved_search_filtered_count }} shown</span>
             <span>{{ saved_search_total_count }} total</span>
             <span>{{ saved_search_page_size }} per page</span>
@@ -417,9 +583,9 @@
     </div>
 
     {% if saved_searches %}
-        <div class="saved-search-grid-v78">
+        <div class="saved-search-grid-v78 saved-search-grid-v129">
             {% for search in saved_searches %}
-                <article class="saved-search-card-v78">
+                <article class="saved-search-card-v78 saved-search-card-v129">
                     <div>
                         <h2>{{ search.display_name }}</h2>
                         <div class="saved-search-meta-v78">
@@ -465,7 +631,7 @@
 
                     <p class="muted">{{ search.summary_sentence }}</p>
 
-                    <div class="saved-search-actions-v78">
+                    <div class="saved-search-actions-v78 saved-search-actions-v129">
                         <a class="button-link button-primary" href="{{ search.get_absolute_url }}">
                             {{ search.run_action_label }}
                         </a>
@@ -527,7 +693,7 @@
             </nav>
         {% endif %}
     {% elif saved_search_search_query %}
-        <section class="saved-search-empty-v78">
+        <section class="saved-search-empty-v78 saved-search-empty-v129">
             <h2>No saved searches match “{{ saved_search_search_query }}”</h2>
             <p class="muted">
                 Try a different saved-search name, category, keyword, or filter value.
@@ -537,7 +703,7 @@
             </a>
         </section>
     {% else %}
-        <section class="saved-search-empty-v78">
+        <section class="saved-search-empty-v78 saved-search-empty-v129">
             <h2>No saved searches yet</h2>
             <p class="muted">
                 Apply filters on the listings browse page or seller store directory, then save the search from the results panel.
