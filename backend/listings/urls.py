@@ -1,4 +1,5 @@
 from django.urls import path
+from . import views as listing_views_v130
 
 from .views import (
     ListingCreateView,
@@ -70,4 +71,5 @@ urlpatterns = [
     path("listings/<int:pk>/report/", listing_report_create, name="listing_report"),
 
     path("listing-images/<int:pk>/delete/", listing_image_delete, name="listing_image_delete"),
+    path("saved-searches/bulk/", listing_views_v130.saved_search_bulk_action, name="saved_search_bulk_action"),
 ]

@@ -498,6 +498,89 @@
         }
     }
 
+
+    /* SAVED_SEARCH_BULK_ACTIONS_V130 */
+    .saved-search-bulk-action-v130 {
+        border: 1px solid #dbeafe;
+        background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+        border-radius: 18px;
+        padding: 14px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    .saved-search-bulk-action-inner-v130 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .saved-search-bulk-action-copy-v130 {
+        display: grid;
+        gap: 3px;
+    }
+
+    .saved-search-bulk-action-copy-v130 strong {
+        color: #0f172a;
+        font-size: 15px;
+    }
+
+    .saved-search-bulk-action-copy-v130 span {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .saved-search-bulk-delete-v130 {
+        border-color: #fecaca;
+        background: #fff5f5;
+        color: #991b1b;
+        font-weight: 850;
+    }
+
+    .saved-search-bulk-select-v130 {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .saved-search-bulk-select-v130 label {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border: 1px solid #dbeafe;
+        background: #eff6ff;
+        color: #1e3a8a;
+        border-radius: 999px;
+        padding: 6px 9px;
+        font-size: 13px;
+        font-weight: 850;
+        cursor: pointer;
+    }
+
+    .saved-search-bulk-select-v130 input {
+        width: 16px;
+        height: 16px;
+        padding: 0;
+    }
+
+    /* SAVED_SEARCH_BULK_ACTIONS_V130_MOBILE */
+    @media (max-width: 760px) {
+        .saved-search-bulk-action-v130,
+        .saved-search-bulk-delete-v130 {
+            width: 100%;
+        }
+
+        .saved-search-bulk-action-inner-v130 {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .saved-search-bulk-select-v130 {
+            justify-content: flex-start;
+        }
+    }
+
 </style>
 
 <section class="page-section saved-search-page-v78 saved-search-page-v129" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
@@ -583,9 +666,45 @@
     </div>
 
     {% if saved_searches %}
+        <form
+            id="saved-search-bulk-action-form-v130"
+            class="saved-search-bulk-action-v130"
+            method="post"
+            action="{% url 'listings:saved_search_bulk_action' %}"
+        >
+            {% csrf_token %}
+            <input type="hidden" name="bulk_action" value="delete">
+            <input type="hidden" name="next" value="{{ saved_search_current_path }}">
+            <div class="saved-search-bulk-action-inner-v130">
+                <div class="saved-search-bulk-action-copy-v130">
+                    <strong>Bulk actions</strong>
+                    <span>Select saved searches below, then delete them in one safe owner-scoped action.</span>
+                </div>
+                <button
+                    type="submit"
+                    class="button-link saved-search-bulk-delete-v130"
+                    onclick="return confirm('Delete selected saved searches?');"
+                >
+                    Delete selected
+                </button>
+            </div>
+        </form>
+
         <div class="saved-search-grid-v78 saved-search-grid-v129">
             {% for search in saved_searches %}
                 <article class="saved-search-card-v78 saved-search-card-v129">
+                    <!-- SAVED_SEARCH_BULK_ACTIONS_V130_CHECKBOX -->
+                    <div class="saved-search-bulk-select-v130">
+                        <label>
+                            <input
+                                form="saved-search-bulk-action-form-v130"
+                                type="checkbox"
+                                name="selected_saved_searches"
+                                value="{{ saved_search.pk }}"
+                            >
+                            <span>Select</span>
+                        </label>
+                    </div>
                     <div>
                         <h2>{{ search.display_name }}</h2>
                         <div class="saved-search-meta-v78">

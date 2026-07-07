@@ -2304,3 +2304,55 @@ def saved_search_delete(request, pk):
     saved_search.delete()
     messages.success(request, "Saved search removed.")
     return redirect("listings:saved_search_list")
+
+@login_required
+def saved_search_bulk_action(request):
+    # SAVED_SEARCH_BULK_ACTIONS_V130
+    from django.contrib import messages
+    from django.http import HttpResponseNotAllowed
+    from django.shortcuts import redirect
+    from django.urls import reverse
+
+    from .models import SavedSearch
+
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    saved_search_list_url = reverse("listings:saved_search_list")
+    next_url = request.POST.get("next", "").strip()
+
+    # SAVED_SEARCH_BULK_ACTIONS_V130_SAFE_NEXT
+    if not (
+        next_url == saved_search_list_url
+        or next_url.startswith(f"{saved_search_list_url}?")
+    ):
+        next_url = saved_search_list_url
+
+    action = request.POST.get("bulk_action", "").strip()
+    selected_ids = request.POST.getlist("selected_saved_searches")
+
+    if action != "delete":
+        messages.error(request, "Choose a valid bulk action.")
+        return redirect(next_url)
+
+    if not selected_ids:
+        messages.warning(request, "Select at least one saved search first.")
+        return redirect(next_url)
+
+    # SAVED_SEARCH_BULK_ACTIONS_V130_OWNER_SCOPED
+    selected_searches = SavedSearch.objects.filter(
+        user=request.user,
+        pk__in=selected_ids,
+    )
+    deleted_count = selected_searches.count()
+    selected_searches.delete()
+
+    if deleted_count == 1:
+        messages.success(request, "Deleted 1 saved search.")
+    elif deleted_count > 1:
+        messages.success(request, f"Deleted {deleted_count} saved searches.")
+    else:
+        messages.warning(request, "No matching saved searches were deleted.")
+
+    return redirect(next_url)
+
