@@ -72,4 +72,5 @@ urlpatterns = [
 
     path("listing-images/<int:pk>/delete/", listing_image_delete, name="listing_image_delete"),
     path("saved-searches/bulk/", listing_views_v130.saved_search_bulk_action, name="saved_search_bulk_action"),
+    path("saved-searches/<int:pk>/rename/", listing_views_v130.saved_search_rename, name="saved_search_rename"),
 ]

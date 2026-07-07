@@ -2356,3 +2356,48 @@ def saved_search_bulk_action(request):
 
     return redirect(next_url)
 
+@login_required
+def saved_search_rename(request, pk):
+    # SAVED_SEARCH_RENAME_EDIT_FLOW_V132
+    from django.contrib import messages
+    from django.http import HttpResponseNotAllowed
+    from django.shortcuts import get_object_or_404, redirect
+    from django.urls import reverse
+
+    from .models import SavedSearch
+
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    saved_search_list_url = reverse("listings:saved_search_list")
+    next_url = request.POST.get("next", "").strip()
+
+    # SAVED_SEARCH_RENAME_EDIT_FLOW_V132_SAFE_NEXT
+    if not (
+        next_url == saved_search_list_url
+        or next_url.startswith(f"{saved_search_list_url}?")
+    ):
+        next_url = saved_search_list_url
+
+    # SAVED_SEARCH_RENAME_EDIT_FLOW_V132_OWNER_SCOPED
+    saved_search = get_object_or_404(
+        SavedSearch,
+        user=request.user,
+        pk=pk,
+    )
+
+    # SAVED_SEARCH_RENAME_EDIT_FLOW_V132_NAME_CLEAN
+    new_name = " ".join(request.POST.get("name", "").split()).strip()
+    if not new_name:
+        messages.error(request, "Saved search name cannot be blank.")
+        return redirect(next_url)
+
+    max_length = SavedSearch._meta.get_field("name").max_length or 120
+    if len(new_name) > max_length:
+        new_name = new_name[:max_length].rstrip()
+
+    saved_search.name = new_name
+    saved_search.save(update_fields=["name"])
+    messages.success(request, "Saved search name updated.")
+    return redirect(next_url)
+

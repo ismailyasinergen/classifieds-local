@@ -666,6 +666,63 @@
         }
     }
 
+
+    /* SAVED_SEARCH_RENAME_EDIT_FLOW_V132 */
+    .saved-search-rename-form-v132 {
+        border: 1px solid #dbeafe;
+        background: #eff6ff;
+        border-radius: 14px;
+        padding: 10px;
+        display: grid;
+        gap: 8px;
+    }
+
+    .saved-search-rename-label-v132 {
+        color: #1e3a8a;
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .saved-search-rename-row-v132 {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .saved-search-rename-input-v132 {
+        width: 100%;
+        border-color: #bfdbfe;
+        background: #ffffff;
+        font-weight: 700;
+    }
+
+    .saved-search-rename-submit-v132 {
+        border-color: #93c5fd;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .saved-search-rename-submit-v132:hover {
+        background: #bfdbfe;
+        text-decoration: none;
+    }
+
+    /* SAVED_SEARCH_RENAME_EDIT_FLOW_V132_MOBILE */
+    @media (max-width: 760px) {
+        .saved-search-rename-row-v132 {
+            grid-template-columns: 1fr;
+        }
+
+        .saved-search-rename-submit-v132 {
+            width: 100%;
+        }
+    }
+
 </style>
 
 <section class="page-section saved-search-page-v78 saved-search-page-v129" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
@@ -795,6 +852,40 @@
         <div class="saved-search-grid-v78 saved-search-grid-v129">
             {% for search in saved_searches %}
                 <article class="saved-search-card-v78 saved-search-card-v129">
+                    <form
+                        class="saved-search-rename-form-v132"
+                        method="post"
+                        action="{% url 'listings:saved_search_rename' search.pk %}"
+                        data-marker="SAVED_SEARCH_RENAME_EDIT_FLOW_V132_FORM"
+                    >
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <label
+                            class="saved-search-rename-label-v132"
+                            for="saved-search-name-{{ search.pk }}-v132"
+                        >
+                            Rename saved search
+                        </label>
+                        <div class="saved-search-rename-row-v132">
+                            <input
+                                id="saved-search-name-{{ search.pk }}-v132"
+                                class="saved-search-rename-input-v132"
+                                type="text"
+                                name="name"
+                                value=""
+                                placeholder="Type a new name"
+                                data-marker="SAVED_SEARCH_RENAME_EDIT_FLOW_V132_NO_DUPLICATE_NAME"
+                                maxlength="120"
+                                required
+                            >
+                            <button
+                                class="button-link saved-search-rename-submit-v132"
+                                type="submit"
+                            >
+                                Save name
+                            </button>
+                        </div>
+                    </form>
                     <!-- SAVED_SEARCH_BULK_ACTIONS_V130_CHECKBOX -->
                     <div class="saved-search-bulk-select-v130">
                         <label>
