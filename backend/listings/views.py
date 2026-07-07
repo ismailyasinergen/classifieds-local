@@ -1906,42 +1906,146 @@ def saved_search_create(request):
 
 @login_required
 def saved_search_list(request):
-    # SAVED_SEARCH_MANAGEMENT_HARDENING_V79
+    # SAVED_SEARCH_TYPE_FILTER_TABS_V127
     from django.core.paginator import Paginator
     from django.db.models import Q
+    from django.shortcuts import render
     from django.urls import reverse
-    from django.utils.http import urlencode
-
     from .models import SavedSearch
 
-    saved_search_search_query = request.GET.get("q", "").strip()
-    saved_searches_base = (
-        SavedSearch.objects
-        .filter(user=request.user)
-        .order_by("-updated_at", "-created_at")
-    )
+    search_query = request.GET.get("q", "").strip()
+    raw_type_filter = request.GET.get("type", "all").strip()
 
-    saved_search_total_count = saved_searches_base.count()
-    saved_searches_queryset = saved_searches_base
+    type_aliases = {
+        "all": "all",
+        "listing": "listings",
+        "listings": "listings",
+        "seller-store": "seller-stores",
+        "seller-stores": "seller-stores",
+        "seller_store": "seller-stores",
+        "seller_stores": "seller-stores",
+    }
+    saved_search_type_filter = type_aliases.get(raw_type_filter, "all")
+    seller_store_directory_path = reverse("accounts:seller_store_directory")
 
-    if saved_search_search_query:
-        saved_searches_queryset = saved_searches_queryset.filter(
-            Q(name__icontains=saved_search_search_query)
-            | Q(querystring__icontains=saved_search_search_query)
-        )
+    field_names = {field.name for field in SavedSearch._meta.get_fields()}
+    order_fields = []
+    if "updated_at" in field_names:
+        order_fields.append("-updated_at")
+    if "created_at" in field_names:
+        order_fields.append("-created_at")
+    order_fields.append("-id")
 
-    saved_search_filtered_count = saved_searches_queryset.count()
-    paginator = Paginator(saved_searches_queryset, 6)
+    all_saved_searches = SavedSearch.objects.filter(user=request.user).order_by(*order_fields)
+
+    listing_saved_search_count = all_saved_searches.exclude(
+        path=seller_store_directory_path
+    ).count()
+    seller_store_saved_search_count = all_saved_searches.filter(
+        path=seller_store_directory_path
+    ).count()
+    all_saved_search_count = listing_saved_search_count + seller_store_saved_search_count
+
+    saved_searches = all_saved_searches
+    if saved_search_type_filter == "listings":
+        saved_searches = saved_searches.exclude(path=seller_store_directory_path)
+    elif saved_search_type_filter == "seller-stores":
+        saved_searches = saved_searches.filter(path=seller_store_directory_path)
+
+    if search_query:
+        search_filter = Q()
+        if "name" in field_names:
+            search_filter |= Q(name__icontains=search_query)
+        if "querystring" in field_names:
+            search_filter |= Q(querystring__icontains=search_query)
+        if "path" in field_names:
+            search_filter |= Q(path__icontains=search_query)
+
+        if search_filter.children:
+            saved_searches = saved_searches.filter(search_filter)
+
+    paginator = Paginator(saved_searches, 6)
     page_obj = paginator.get_page(request.GET.get("page"))
 
-    pagination_params = {}
-    if saved_search_search_query:
-        pagination_params["q"] = saved_search_search_query
+    def build_type_url(filter_value):
+        params = request.GET.copy()
+        params.pop("page", None)
+        if filter_value == "all":
+            params.pop("type", None)
+        else:
+            params["type"] = filter_value
 
-    saved_search_current_path = reverse("listings:saved_search_list")
+        querystring = params.urlencode()
+        return f"?{querystring}" if querystring else request.path
+
+    saved_search_type_tabs = [
+        {
+            "key": "all",
+            "label": "All",
+            "count": all_saved_search_count,
+            "url": build_type_url("all"),
+            "active": saved_search_type_filter == "all",
+        },
+        {
+            "key": "listings",
+            "label": "Listing searches",
+            "count": listing_saved_search_count,
+            "url": build_type_url("listings"),
+            "active": saved_search_type_filter == "listings",
+        },
+        {
+            "key": "seller-stores",
+            "label": "Seller store searches",
+            "count": seller_store_saved_search_count,
+            "url": build_type_url("seller-stores"),
+            "active": saved_search_type_filter == "seller-stores",
+        },
+    ]
+
+    has_results = page_obj.paginator.count > 0
+    type_empty_title = ""
+    type_empty_message = ""
+    if not has_results and saved_search_type_filter == "listings":
+        type_empty_title = "No listing searches saved yet"
+        type_empty_message = "Save a filtered listing search to return to matching listings faster."
+    elif not has_results and saved_search_type_filter == "seller-stores":
+        type_empty_title = "No seller store searches saved yet"
+        type_empty_message = "Save a seller store directory search to revisit matching stores later."
+    elif not has_results and search_query:
+        type_empty_title = "No saved searches match"
+        type_empty_message = "Try another keyword or switch saved-search type."
+
+    # SAVED_SEARCH_TYPE_FILTER_TABS_V127_LEGACY_CONTEXT
+    shown_count = len(page_obj.object_list)
+    total_count = saved_searches.count()
+    per_page = paginator.per_page
+
+    if "email_notifications_enabled" in field_names:
+        email_alert_count = (
+            all_saved_searches
+            .exclude(path=seller_store_directory_path)
+            .filter(email_notifications_enabled=True)
+            .count()
+        )
+    else:
+        email_alert_count = 0
+
+    preserved_query_params = request.GET.copy()
+    preserved_query_params.pop("page", None)
+    preserved_querystring = preserved_query_params.urlencode()
+    page_url_prefix = f"{preserved_querystring}&" if preserved_querystring else ""
+
+    # SAVED_SEARCH_TYPE_FILTER_TABS_V127_EXACT_TEMPLATE_CONTEXT
+    saved_search_search_query = search_query
+    saved_search_total_count = all_saved_search_count
+    saved_search_filtered_count = saved_searches.count()
+    saved_search_page_size = paginator.per_page
+    saved_search_pagination_querystring = preserved_querystring
+    saved_search_current_path = request.path
     current_querystring = request.GET.urlencode()
     if current_querystring:
         saved_search_current_path = f"{saved_search_current_path}?{current_querystring}"
+    saved_search_email_alert_count = email_alert_count
 
     return render(
         request,
@@ -1949,14 +2053,33 @@ def saved_search_list(request):
         {
             "saved_searches": page_obj.object_list,
             "page_obj": page_obj,
+            "paginator": paginator,
+            "search_query": search_query,
             "saved_search_search_query": saved_search_search_query,
+            "q": search_query,
+            "query": search_query,
+            "saved_search_type_filter": saved_search_type_filter,
             "saved_search_total_count": saved_search_total_count,
+            "saved_search_type_tabs": saved_search_type_tabs,
+            "shown_count": shown_count,
+            "total_count": total_count,
+            "per_page": per_page,
+            "email_alert_count": email_alert_count,
+            "page_url_prefix": page_url_prefix,
+            "is_paginated": paginator.num_pages > 1,
+            "listing_saved_search_count": listing_saved_search_count,
             "saved_search_filtered_count": saved_search_filtered_count,
-            "saved_search_page_size": paginator.per_page,
-            "saved_search_pagination_querystring": urlencode(pagination_params),
-            # SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80
+            "seller_store_saved_search_count": seller_store_saved_search_count,
+            "saved_search_page_size": saved_search_page_size,
+            "all_saved_search_count": all_saved_search_count,
+            "saved_search_pagination_querystring": saved_search_pagination_querystring,
+            "saved_search_type_has_results": has_results,
+            "saved_search_type_empty_title": type_empty_title,
+            "saved_search_type_empty_message": type_empty_message,
+            "saved_search_preserved_querystring": preserved_querystring,
             "saved_search_current_path": saved_search_current_path,
-            "saved_search_email_alert_count": saved_searches_base.filter(email_notifications_enabled=True).count(),
+            "saved_search_email_alert_count": saved_search_email_alert_count,
+            "has_saved_searches": all_saved_search_count > 0,
         },
     )
 

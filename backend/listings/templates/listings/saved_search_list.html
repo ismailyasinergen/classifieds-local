@@ -218,12 +218,113 @@
         flex-wrap: wrap;
         align-items: center;
     }
+
+    /* SAVED_SEARCH_TYPE_FILTER_TABS_V127 */
+    .saved-search-type-tabs-v127 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 14px 0 18px;
+    }
+
+    .saved-search-type-tab-v127 {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        color: #334155;
+        border-radius: 999px;
+        padding: 9px 12px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .saved-search-type-tab-v127:hover {
+        border-color: #bfdbfe;
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .saved-search-type-tab-v127.is-active {
+        border-color: #2563eb;
+        background: #dbeafe;
+        color: #1e3a8a;
+    }
+
+    .saved-search-type-tab-count-v127 {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.08);
+        padding: 0 8px;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .saved-search-type-empty-v127 {
+        border: 1px solid #dbeafe;
+        background: #eff6ff;
+        border-radius: 16px;
+        padding: 14px 16px;
+        margin: 12px 0 18px;
+        color: #1e3a8a;
+    }
+
+    .saved-search-type-empty-v127 strong {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .saved-search-type-empty-v127 p {
+        margin: 0;
+        color: #334155;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 640px) {
+        .saved-search-type-tabs-v127 {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .saved-search-type-tab-v127 {
+            justify-content: space-between;
+            width: 100%;
+        }
+    }
+
 </style>
 
 <section class="page-section saved-search-page-v78" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
     <div class="saved-search-header-v78">
         <div>
             <h1>Saved Searches</h1>
+        <nav class="saved-search-type-tabs-v127" aria-label="Saved search type filters">
+            {% for tab in saved_search_type_tabs %}
+                <a
+                    class="saved-search-type-tab-v127{% if tab.active %} is-active{% endif %}"
+                    href="{{ tab.url }}"
+                    {% if tab.active %}aria-current="page"{% endif %}
+                >
+                    <span>{{ tab.label }}</span>
+                    <span class="saved-search-type-tab-count-v127">{{ tab.count }}</span>
+                </a>
+            {% endfor %}
+        </nav>
+
+        {% if saved_search_type_empty_title %}
+            <div class="saved-search-type-empty-v127">
+                <strong>{{ saved_search_type_empty_title }}</strong>
+                <p>{{ saved_search_type_empty_message }}</p>
+            </div>
+        {% endif %}
+
             <p class="muted">
                 Return to your saved listing searches and seller store searches.
             </p>
@@ -250,6 +351,10 @@
                 placeholder="Search by name or saved filter"
             >
             <button class="button-link button-primary" type="submit">Search</button>
+            {# SAVED_SEARCH_TYPE_FILTER_TABS_V127_FORM_TYPE_PRESERVE #}
+            {% if saved_search_type_filter and saved_search_type_filter != "all" %}
+                <input type="hidden" name="type" value="{{ saved_search_type_filter }}">
+            {% endif %}
             {% if saved_search_search_query %}
                 <a class="button-link" href="{% url 'listings:saved_search_list' %}">Clear search</a>
             {% endif %}
