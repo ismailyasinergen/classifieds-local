@@ -8,6 +8,7 @@
     /* SAVED_SEARCH_MANAGEMENT_HARDENING_V79 */
     /* SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80 */
     /* SELLER_STORE_SAVED_SEARCH_MANAGEMENT_POLISH_V123 */
+    /* SELLER_STORE_SAVED_SEARCH_EMAIL_ALERT_GUARDRAILS_V124 */
     .saved-search-page-v78 {
         display: grid;
         gap: 18px;
@@ -81,6 +82,17 @@
         border-color: #fecaca;
         background: #fff5f5;
         color: #991b1b;
+    }
+
+    .saved-search-alert-unavailable-v124 {
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #475569;
+        border-radius: 999px;
+        padding: 8px 10px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
     }
 
     .saved-search-grid-v78 {
@@ -305,21 +317,27 @@
                             {{ search.run_action_label }}
                         </a>
 
-                        <form method="post" action="{% url 'listings:saved_search_notifications_toggle' search.pk %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{{ saved_search_current_path }}">
-                            {% if search.email_notifications_enabled %}
-                                <input type="hidden" name="enabled" value="off">
-                                <button class="button-link saved-search-alert-toggle-v80 is-enabled" type="submit">
-                                    Disable email alerts
-                                </button>
-                            {% else %}
-                                <input type="hidden" name="enabled" value="on">
-                                <button class="button-link saved-search-alert-toggle-v80" type="submit">
-                                    Email me when new listings match
-                                </button>
-                            {% endif %}
-                        </form>
+                        {% if search.is_seller_store_directory_search %}
+                            <span class="saved-search-alert-unavailable-v124">
+                                Email alerts are available for listing searches only.
+                            </span>
+                        {% else %}
+                            <form method="post" action="{% url 'listings:saved_search_notifications_toggle' search.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ saved_search_current_path }}">
+                                {% if search.email_notifications_enabled %}
+                                    <input type="hidden" name="enabled" value="off">
+                                    <button class="button-link saved-search-alert-toggle-v80 is-enabled" type="submit">
+                                        Disable email alerts
+                                    </button>
+                                {% else %}
+                                    <input type="hidden" name="enabled" value="on">
+                                    <button class="button-link saved-search-alert-toggle-v80" type="submit">
+                                        Email me when new listings match
+                                    </button>
+                                {% endif %}
+                            </form>
+                        {% endif %}
 
                         <form method="post" action="{% url 'listings:saved_search_delete' search.pk %}">
                             {% csrf_token %}

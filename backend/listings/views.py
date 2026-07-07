@@ -1955,30 +1955,39 @@ def saved_search_list(request):
 @login_required
 @require_POST
 def saved_search_notifications_toggle(request, pk):
-    # SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80
+    # SELLER_STORE_SAVED_SEARCH_EMAIL_ALERT_GUARDRAILS_V124
     from django.urls import reverse
     from django.utils.http import url_has_allowed_host_and_scheme
-
     from .models import SavedSearch
 
     saved_search = get_object_or_404(SavedSearch, pk=pk, user=request.user)
-    enabled = request.POST.get("enabled") == "on"
 
+    next_url = request.POST.get("next") or reverse("listings:saved_search_list")
+    if not url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+    ):
+        next_url = reverse("listings:saved_search_list")
+
+    if saved_search.is_seller_store_directory_search:
+        if saved_search.email_notifications_enabled:
+            saved_search.email_notifications_enabled = False
+            saved_search.save(update_fields=["email_notifications_enabled", "updated_at"])
+
+        messages.info(
+            request,
+            "Email alerts are available for listing searches only.",
+        )
+        return redirect(next_url)
+
+    enabled = request.POST.get("enabled") == "on"
     saved_search.email_notifications_enabled = enabled
     saved_search.save(update_fields=["email_notifications_enabled", "updated_at"])
 
     if enabled:
         messages.success(request, "Email alerts enabled for this saved search.")
     else:
-        messages.success(request, "Email alerts disabled for this saved search.")
-
-    next_url = request.POST.get("next", "").strip()
-    if not url_has_allowed_host_and_scheme(
-        next_url,
-        allowed_hosts={request.get_host()},
-        require_https=request.is_secure(),
-    ):
-        next_url = reverse("listings:saved_search_list")
+        messages.info(request, "Email alerts disabled for this saved search.")
 
     return redirect(next_url)
 
