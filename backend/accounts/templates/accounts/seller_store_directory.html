@@ -642,6 +642,31 @@
         }
     }
 
+
+    /* SELLER_STORE_SAVED_SEARCH_RESULT_COUNT_PREVIEW_V126 */
+    .seller-store-saved-search-count-v126 {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        margin: 0;
+        border: 1px solid #dbeafe;
+        background: #eff6ff;
+        color: #1e3a8a;
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    @media (max-width: 640px) {
+        .seller-store-saved-search-count-v126 {
+            width: 100%;
+            justify-content: center;
+            text-align: center;
+        }
+    }
+
 </style>
 
     <div class="seller-store-directory-shell-v115">
@@ -703,6 +728,8 @@
 
             {% if directory_saved_search_active %}
                 <section class="seller-store-saved-search-cta-v121 seller-store-saved-search-cta-v125" aria-label="Save seller store search">
+                    <p class="seller-store-saved-search-count-v126">This search currently matches {{ directory_saved_search_result_count|default:0 }} seller store{{ directory_saved_search_result_count|default:0|pluralize }}.</p>
+
                     <div class="seller-store-saved-search-copy-v121">
                         <p class="muted" style="margin:0 0 4px;">Saved search shortcut</p>
                         <h2>Save this seller store search</h2>

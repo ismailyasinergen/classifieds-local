@@ -568,10 +568,25 @@ def seller_store_directory(request):
     paginator = Paginator(stores_queryset, 12)
     page_obj = paginator.get_page(request.GET.get("page"))
 
+    # SELLER_STORE_SAVED_SEARCH_RESULT_COUNT_PREVIEW_V126
+    if "page_obj" in locals() and getattr(page_obj, "paginator", None) is not None:
+        directory_saved_search_result_count = page_obj.paginator.count
+    elif "paginator" in locals():
+        directory_saved_search_result_count = paginator.count
+    elif "stores" in locals():
+        directory_saved_search_result_count = stores.count() if hasattr(stores, "count") else len(stores)
+    elif "seller_stores" in locals():
+        directory_saved_search_result_count = seller_stores.count() if hasattr(seller_stores, "count") else len(seller_stores)
+    elif "store_queryset" in locals():
+        directory_saved_search_result_count = store_queryset.count() if hasattr(store_queryset, "count") else len(store_queryset)
+    else:
+        directory_saved_search_result_count = 0
+
     return render(
         request,
         "accounts/seller_store_directory.html",
         {
+            "directory_saved_search_result_count": directory_saved_search_result_count,
             "stores": page_obj.object_list,
             "page_obj": page_obj,
             "is_paginated": page_obj.has_other_pages(),
