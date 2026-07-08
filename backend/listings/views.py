@@ -1911,6 +1911,13 @@ def saved_search_list(request):
     # SAVED_SEARCH_RENAME_VISUAL_FEEDBACK_V136_CONTEXT
     request.renamed_saved_search_id_v136 = request.session.pop("saved_search_renamed_id_v136", None)
 
+    # SAVED_SEARCH_RENAME_ERROR_FEEDBACK_V137_CONTEXT
+    request.saved_search_rename_error_id_v137 = request.session.pop("saved_search_rename_error_id_v137", None)
+    request.saved_search_rename_error_message_v137 = request.session.pop(
+        "saved_search_rename_error_message_v137",
+        None,
+    )
+
     from django.core.paginator import Paginator
     from django.db.models import Q
     from django.shortcuts import render
@@ -2392,6 +2399,9 @@ def saved_search_rename(request, pk):
     # SAVED_SEARCH_RENAME_EDIT_FLOW_V132_NAME_CLEAN
     new_name = " ".join(request.POST.get("name", "").split()).strip()
     if not new_name:
+        # SAVED_SEARCH_RENAME_ERROR_FEEDBACK_V137_SESSION
+        request.session["saved_search_rename_error_id_v137"] = saved_search.pk
+        request.session["saved_search_rename_error_message_v137"] = "Type a new name before saving this saved search."
         messages.error(request, "Saved search name cannot be blank.")
         return redirect(next_url)
 

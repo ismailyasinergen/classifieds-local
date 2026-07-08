@@ -903,6 +903,48 @@
         }
     }
 
+
+    /* SAVED_SEARCH_RENAME_ERROR_FEEDBACK_V137 */
+    .saved-search-rename-error-v137 {
+        display: grid;
+        gap: 4px;
+        margin: 10px 0 12px;
+        padding: 12px 13px;
+        border: 1px solid #fecaca;
+        border-left: 5px solid #dc2626;
+        border-radius: 12px;
+        background: #fef2f2;
+        color: #7f1d1d;
+        box-shadow: 0 8px 18px rgba(220, 38, 38, 0.10);
+    }
+
+    .saved-search-rename-error-title-v137 {
+        font-weight: 900;
+        line-height: 1.25;
+    }
+
+    .saved-search-rename-error-copy-v137 {
+        color: #991b1b;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .saved-search-rename-form-error-v137 {
+        border-color: #fecaca;
+        background: #fff7f7;
+    }
+
+    .saved-search-rename-input-error-v137,
+    .saved-search-rename-input-v135[aria-invalid="true"] {
+        border-color: #dc2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+    }
+
+    .saved-search-rename-input-v135[aria-invalid="true"]:focus-visible {
+        outline: 3px solid rgba(220, 38, 38, 0.24);
+        outline-offset: 2px;
+    }
+
 </style>
 
 <section class="page-section saved-search-page-v78 saved-search-page-v129" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
@@ -960,7 +1002,11 @@
     </div>
 
     <div class="saved-search-management-bar-v79 saved-search-management-bar-v129">
-        <form class="saved-search-search-form-v79 saved-search-search-form-v129" method="get" action="{% url 'listings:saved_search_list' %}">
+        <form class="saved-search-search-form-v79 saved-search-search-form-v129" method="get" action="{% url 'listings:saved_search_list' %}"
+                        {% if request.saved_search_rename_error_id_v137 != search.pk %}hidden{% endif %}
+                    
+                        data-error-marker-v137="SAVED_SEARCH_RENAME_ERROR_FEEDBACK_V137_REOPEN"
+                    >
             <label for="saved-search-q"><strong>Search saved searches</strong></label>
             <input
                 id="saved-search-q"
@@ -1056,7 +1102,8 @@
                             type="button"
                             aria-label="Rename this saved search"
                             data-a11y-marker="SAVED_SEARCH_RENAME_ACCESSIBILITY_POLISH_V135_TOGGLE"
-                            aria-expanded="false"
+                            data-error-marker-v137="SAVED_SEARCH_RENAME_ERROR_FEEDBACK_V137_TOGGLE"
+                            aria-expanded="{% if request.saved_search_rename_error_id_v137 == search.pk %}true{% else %}false{% endif %}"
                             aria-controls="saved-search-rename-form-{{ search.pk }}-v134"
                             data-rename-toggle-v134="saved-search-rename-form-{{ search.pk }}-v134"
                         >
@@ -1083,6 +1130,23 @@
                         >
                             Rename saved search
                         </label>
+                        {% if request.saved_search_rename_error_id_v137 == search.pk %}
+                        <div
+                            id="saved-search-rename-error-{{ search.pk }}-v137"
+                            class="saved-search-rename-error-v137 saved-search-rename-form-error-v137"
+                            role="alert"
+                            aria-live="assertive"
+                            data-marker="SAVED_SEARCH_RENAME_ERROR_FEEDBACK_V137_CARD"
+                        >
+                            <div class="saved-search-rename-error-title-v137">
+                                Rename was not saved
+                            </div>
+                            <div class="saved-search-rename-error-copy-v137">
+                                {{ request.saved_search_rename_error_message_v137|default:"Type a new name before saving this saved search." }}
+                            </div>
+                        </div>
+                        {% endif %}
+
                         <p
                             id="saved-search-rename-helper-{{ search.pk }}-v135"
                             class="saved-search-rename-helper-v133 saved-search-rename-helper-v135"
@@ -1102,8 +1166,10 @@
                                 name="name"
                                 value=""
                                 placeholder="Type a new name"
-                                aria-describedby="saved-search-rename-helper-{{ search.pk }}-v135"
+                                aria-describedby="saved-search-rename-helper-{{ search.pk }}-v135{% if request.saved_search_rename_error_id_v137 == search.pk %} saved-search-rename-error-{{ search.pk }}-v137{% endif %}"
+                                aria-invalid="{% if request.saved_search_rename_error_id_v137 == search.pk %}true{% else %}false{% endif %}"
                                 autocomplete="off"
+                                data-error-marker-v137="SAVED_SEARCH_RENAME_ERROR_FEEDBACK_V137_INPUT"
                                 data-a11y-marker="SAVED_SEARCH_RENAME_ACCESSIBILITY_POLISH_V135_INPUT"
                                 data-marker="SAVED_SEARCH_RENAME_EDIT_FLOW_V132_NO_DUPLICATE_NAME"
                                 maxlength="120"
