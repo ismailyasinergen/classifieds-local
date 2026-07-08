@@ -1435,20 +1435,6 @@ class ListingUpdateView(_ReportOriginalListingUpdateView):
 
 
 # FINAL_LISTING_REPORT_NOTICE_ACTIONS_V1
-def _create_moderation_notice(recipient, title, body, notice_type="report_update", listing=None, listing_report=None):
-    from accounts.models import ModerationNotice
-
-    if not recipient:
-        return None
-
-    return ModerationNotice.objects.create(
-        recipient=recipient,
-        title=title,
-        body=body,
-        notice_type=notice_type,
-        listing=listing,
-        listing_report=listing_report,
-    )
 
 
 @staff_member_required
@@ -1598,6 +1584,7 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from .listing_filter_helpers import apply_listing_filters  # LISTING_FILTER_HELPER_EXTRACTION_V142
+from .listing_moderation_helpers import _create_moderation_notice  # LISTING_MODERATION_HELPER_EXTRACTION_V143
 
 
 @staff_member_required
