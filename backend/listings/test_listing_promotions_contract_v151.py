@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import re
 from decimal import Decimal
-from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -24,7 +23,7 @@ from django.urls import NoReverseMatch, resolve, reverse
 from django.utils import timezone
 
 from categories.models import Category
-from listings import listing_views_split_lane_audit_v150 as split_audit
+from listings import listing_promotion_views
 from listings import views as listing_views
 from listings.models import Listing
 
@@ -191,14 +190,13 @@ class ListingPromotionsContractV151Tests(TestCase):
         self.listing = _create_listing(owner=self.owner, category=self.category)
         self.url = _promotion_url(self.listing)
 
-    def test_v151_listing_promotions_lane_contract_matches_v150_audit(self):
-        report = split_audit.build_report(Path("."))
-        lane = next(lane for lane in report.lane_reports if lane.name == "listing_promotions")
-
-        self.assertEqual(lane.definition_count, 1)
-        self.assertEqual(lane.definitions[0].name, PROMOTION_VIEW_NAME)
-        self.assertEqual(lane.definitions[0].line_count, 20)
-        self.assertEqual(lane.split_readiness, "candidate_for_first_split")
+    def test_v151_listing_promotions_contract_target_is_reexported_after_v152_move(self):
+        self.assertTrue(hasattr(listing_views, PROMOTION_VIEW_NAME))
+        self.assertTrue(hasattr(listing_promotion_views, PROMOTION_VIEW_NAME))
+        self.assertIs(
+            getattr(listing_views, PROMOTION_VIEW_NAME),
+            getattr(listing_promotion_views, PROMOTION_VIEW_NAME),
+        )
 
     def test_v151_promotion_url_name_route_and_callback_are_stable(self):
         match = resolve(self.url)

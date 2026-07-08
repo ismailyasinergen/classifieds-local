@@ -428,28 +428,7 @@ def moderation_queue(request):
 
 
 
-@login_required
-@require_POST
-def listing_feature_priority_update(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
-
-    if not request.user.is_staff:
-        messages.warning(request, "Only staff can change featured priority.")
-        return redirect(listing.get_absolute_url())
-
-    try:
-        priority = int(request.POST.get("featured_priority", 0))
-    except ValueError:
-        priority = 0
-
-    if priority < 0:
-        priority = 0
-
-    listing.featured_priority = priority
-    listing.save(update_fields=["featured_priority"])
-
-    messages.success(request, "Featured priority updated.")
-    return redirect(request.POST.get("next") or listing.get_absolute_url())
+from .listing_promotion_views import listing_feature_priority_update  # V152 re-export
 
 
 
