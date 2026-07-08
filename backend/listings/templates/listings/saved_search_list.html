@@ -858,6 +858,51 @@
         outline-offset: 2px;
     }
 
+
+    /* SAVED_SEARCH_RENAME_VISUAL_FEEDBACK_V136 */
+    .saved-search-rename-feedback-v136 {
+        display: grid;
+        gap: 4px;
+        margin: 10px 0 12px;
+        padding: 12px 13px;
+        border: 1px solid #bbf7d0;
+        border-left: 5px solid #16a34a;
+        border-radius: 12px;
+        background: #f0fdf4;
+        color: #14532d;
+        box-shadow: 0 8px 18px rgba(22, 163, 74, 0.12);
+    }
+
+    .saved-search-rename-feedback-title-v136 {
+        font-weight: 900;
+        line-height: 1.25;
+    }
+
+    .saved-search-rename-feedback-copy-v136 {
+        color: #166534;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .saved-search-rename-feedback-card-v136 {
+        animation: saved-search-rename-feedback-pulse-v136 1.8s ease-out 1;
+    }
+
+    @keyframes saved-search-rename-feedback-pulse-v136 {
+        0% {
+            box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.28);
+        }
+        100% {
+            box-shadow: 0 0 0 12px rgba(22, 163, 74, 0);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .saved-search-rename-feedback-card-v136 {
+            animation: none;
+        }
+    }
+
 </style>
 
 <section class="page-section saved-search-page-v78 saved-search-page-v129" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
@@ -987,6 +1032,21 @@
         <div class="saved-search-grid-v78 saved-search-grid-v129">
             {% for search in saved_searches %}
                 <article class="saved-search-card-v78 saved-search-card-v129">
+                    {% if request.renamed_saved_search_id_v136 == search.pk %}
+                    <div
+                        class="saved-search-rename-feedback-v136 saved-search-rename-feedback-card-v136"
+                        role="status"
+                        aria-live="polite"
+                        data-marker="SAVED_SEARCH_RENAME_VISUAL_FEEDBACK_V136_CARD"
+                    >
+                        <div class="saved-search-rename-feedback-title-v136">
+                            Saved search renamed
+                        </div>
+                        <div class="saved-search-rename-feedback-copy-v136">
+                            This saved search was updated successfully. Use Rename again if you want to make another change.
+                        </div>
+                    </div>
+                    {% endif %}
                     <div
                         class="saved-search-rename-toggle-bar-v134"
                         data-marker="SAVED_SEARCH_RENAME_INLINE_TOGGLE_V134_TOGGLE"
@@ -1013,6 +1073,7 @@
                         aria-label="Rename saved search form"
                         data-rename-form-v134
                         data-rename-form-v135
+                        data-visual-feedback-marker-v136="SAVED_SEARCH_RENAME_VISUAL_FEEDBACK_V136_FORM"
                     >
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.get_full_path }}">

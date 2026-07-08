@@ -1908,6 +1908,9 @@ def saved_search_create(request):
 def saved_search_list(request):
     # SAVED_SEARCH_TYPE_FILTER_TABS_V127
     # SAVED_SEARCH_TAB_COUNT_POLISH_V128
+    # SAVED_SEARCH_RENAME_VISUAL_FEEDBACK_V136_CONTEXT
+    request.renamed_saved_search_id_v136 = request.session.pop("saved_search_renamed_id_v136", None)
+
     from django.core.paginator import Paginator
     from django.db.models import Q
     from django.shortcuts import render
@@ -2398,6 +2401,8 @@ def saved_search_rename(request, pk):
 
     saved_search.name = new_name
     saved_search.save(update_fields=["name"])
+    # SAVED_SEARCH_RENAME_VISUAL_FEEDBACK_V136_SESSION
+    request.session["saved_search_renamed_id_v136"] = saved_search.pk
     messages.success(request, "Saved search name updated.")
     return redirect(next_url)
 
