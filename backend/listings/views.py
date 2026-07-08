@@ -39,8 +39,6 @@ MAX_IMAGE_SIZE_MB = 8
 MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024
 
 
-def default_listing_expiry():
-    return timezone.now() + timedelta(days=30)
 
 
 def active_approved_listings(queryset):
@@ -1585,6 +1583,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from .listing_filter_helpers import apply_listing_filters  # LISTING_FILTER_HELPER_EXTRACTION_V142
 from .listing_moderation_helpers import _create_moderation_notice  # LISTING_MODERATION_HELPER_EXTRACTION_V143
+from .listing_lifecycle_helpers import default_listing_expiry  # DEFAULT_LISTING_EXPIRY_HELPER_EXTRACTION_V145
 
 
 @staff_member_required
