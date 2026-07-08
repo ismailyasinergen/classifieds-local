@@ -46,3 +46,12 @@ The v153 tests verify that:
 ## Next safe step
 
 v154 should add focused contract tests for the `favorites` lane before moving it.
+
+## v154 follow-up
+
+`favorites` is now protected by focused contract tests before extraction.
+
+- Contract test file: `backend/listings/test_listing_favorites_contract_v154.py`
+- Documentation: `docs/listing_favorites_contract_v154.md`
+- Locked view: `listing_favorite_toggle`
+- Next safe extraction checkpoint: v155
