@@ -114,3 +114,16 @@ v150 maps the remaining top-level definitions into split lanes before any behavi
 ## Safe sequencing rule
 
 Before moving a lane into a new module, create or confirm focused tests for that lane and keep URL names, permission behavior, templates, redirects, querystrings, messages, and pagination unchanged.
+
+## v153 follow-up after v152 extraction
+
+`listing_promotions` has now been extracted by v152 and should no longer be treated as the next active split lane.
+
+- Extracted lane: `listing_promotions`
+- Extracted view: `listing_feature_priority_update`
+- Extracted module: `backend/listings/listing_promotion_views.py`
+- Compatibility re-export: `listings.views.listing_feature_priority_update`
+- Follow-up audit: `backend/listings/listing_views_split_lane_followup_audit_v153.py`
+- Recommended next lane after v152: `favorites`
+
+v153 is audit/docs only. It does not move the next lane.
