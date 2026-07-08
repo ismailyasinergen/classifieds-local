@@ -85,50 +85,6 @@ def save_uploaded_listing_images(listing, uploaded_files):
     return saved_count
 
 
-def apply_listing_filters(queryset, request):
-    q = request.GET.get("q", "").strip()
-    location = request.GET.get("location", "").strip()
-    min_price = request.GET.get("min_price", "").strip()
-    max_price = request.GET.get("max_price", "").strip()
-    category_slug = request.GET.get("category", "").strip()
-    sort = request.GET.get("sort", "newest").strip()
-
-    if q:
-        queryset = queryset.filter(
-            Q(title__icontains=q)
-            | Q(description__icontains=q)
-            | Q(location__icontains=q)
-            | Q(category__name__icontains=q)
-        )
-
-    if location:
-        queryset = queryset.filter(location__icontains=location)
-
-    if category_slug:
-        category = Category.objects.filter(slug=category_slug).first()
-        if category:
-            queryset = queryset.filter(category_id__in=category.get_descendant_ids())
-
-    try:
-        if min_price:
-            queryset = queryset.filter(price__gte=Decimal(min_price))
-    except InvalidOperation:
-        pass
-
-    try:
-        if max_price:
-            queryset = queryset.filter(price__lte=Decimal(max_price))
-    except InvalidOperation:
-        pass
-
-    if sort == "price_low":
-        queryset = queryset.order_by("price")
-    elif sort == "price_high":
-        queryset = queryset.order_by("-price")
-    else:
-        queryset = queryset.order_by("-top_listing_priority", "-created_at")
-
-    return queryset
 
 
 class SidebarCategoriesMixin:
@@ -1641,6 +1597,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
+from .listing_filter_helpers import apply_listing_filters  # LISTING_FILTER_HELPER_EXTRACTION_V142
 
 
 @staff_member_required
