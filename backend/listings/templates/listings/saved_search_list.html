@@ -837,6 +837,27 @@
         }
     }
 
+
+    /* SAVED_SEARCH_RENAME_ACCESSIBILITY_POLISH_V135 */
+    .saved-search-rename-sr-v135 {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .saved-search-rename-toggle-v135:focus-visible,
+    .saved-search-rename-cancel-v135:focus-visible,
+    .saved-search-rename-input-v135:focus-visible {
+        outline: 3px solid rgba(37, 99, 235, 0.35);
+        outline-offset: 2px;
+    }
+
 </style>
 
 <section class="page-section saved-search-page-v78 saved-search-page-v129" data-marker="SAVED_SEARCH_FOUNDATION_V77 SAVED_SEARCH_UX_POLISH_V78 SAVED_SEARCH_MANAGEMENT_HARDENING_V79 SAVED_SEARCH_NOTIFICATIONS_FOUNDATION_V80">
@@ -971,8 +992,10 @@
                         data-marker="SAVED_SEARCH_RENAME_INLINE_TOGGLE_V134_TOGGLE"
                     >
                         <button
-                            class="button-link saved-search-rename-toggle-v134"
+                            class="button-link saved-search-rename-toggle-v134 saved-search-rename-toggle-v135"
                             type="button"
+                            aria-label="Rename this saved search"
+                            data-a11y-marker="SAVED_SEARCH_RENAME_ACCESSIBILITY_POLISH_V135_TOGGLE"
                             aria-expanded="false"
                             aria-controls="saved-search-rename-form-{{ search.pk }}-v134"
                             data-rename-toggle-v134="saved-search-rename-form-{{ search.pk }}-v134"
@@ -987,7 +1010,9 @@
                         method="post"
                         action="{% url 'listings:saved_search_rename' search.pk %}"
                         data-marker="SAVED_SEARCH_RENAME_EDIT_FLOW_V132_FORM"
+                        aria-label="Rename saved search form"
                         data-rename-form-v134
+                        data-rename-form-v135
                     >
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -998,19 +1023,27 @@
                             Rename saved search
                         </label>
                         <p
-                            class="saved-search-rename-helper-v133"
+                            id="saved-search-rename-helper-{{ search.pk }}-v135"
+                            class="saved-search-rename-helper-v133 saved-search-rename-helper-v135"
                             data-marker="SAVED_SEARCH_RENAME_UX_POLISH_V133_HELPER"
+                            data-a11y-marker="SAVED_SEARCH_RENAME_ACCESSIBILITY_POLISH_V135_HELPER"
                         >
                             Current name is shown above. Type a new name only when you want to update this saved search.
+                            <span class="saved-search-rename-sr-v135">
+                                Press Escape to cancel renaming and return focus to the Rename button.
+                            </span>
                         </p>
                         <div class="saved-search-rename-row-v132 saved-search-rename-row-v133 saved-search-rename-row-v134">
                             <input
                                 id="saved-search-name-{{ search.pk }}-v132"
-                                class="saved-search-rename-input-v132 saved-search-rename-input-v133"
+                                class="saved-search-rename-input-v132 saved-search-rename-input-v133 saved-search-rename-input-v135"
                                 type="text"
                                 name="name"
                                 value=""
                                 placeholder="Type a new name"
+                                aria-describedby="saved-search-rename-helper-{{ search.pk }}-v135"
+                                autocomplete="off"
+                                data-a11y-marker="SAVED_SEARCH_RENAME_ACCESSIBILITY_POLISH_V135_INPUT"
                                 data-marker="SAVED_SEARCH_RENAME_EDIT_FLOW_V132_NO_DUPLICATE_NAME"
                                 maxlength="120"
                                 required
@@ -1022,8 +1055,10 @@
                                 Save name
                             </button>
                             <button
-                                class="button-link saved-search-rename-cancel-v134"
+                                class="button-link saved-search-rename-cancel-v134 saved-search-rename-cancel-v135"
                                 type="button"
+                                aria-label="Cancel renaming this saved search"
+                                data-a11y-marker="SAVED_SEARCH_RENAME_ACCESSIBILITY_POLISH_V135_CANCEL"
                                 data-marker="SAVED_SEARCH_RENAME_INLINE_TOGGLE_V134_CANCEL"
                                 data-rename-cancel-v134="saved-search-rename-form-{{ search.pk }}-v134"
                             >
@@ -1228,7 +1263,10 @@
 
 </section>
 
-<script data-marker="SAVED_SEARCH_RENAME_INLINE_TOGGLE_V134_SCRIPT">
+<script
+    data-marker="SAVED_SEARCH_RENAME_INLINE_TOGGLE_V134_SCRIPT"
+    data-a11y-marker="SAVED_SEARCH_RENAME_ACCESSIBILITY_POLISH_V135_SCRIPT"
+>
 (function () {
     function getFormFromButton(button, attributeName) {
         var formId = button.getAttribute(attributeName);
@@ -1238,7 +1276,32 @@
         return document.getElementById(formId);
     }
 
-    function setExpanded(button, form, expanded) {
+    function getToggleForForm(form) {
+        if (!form || !form.id) {
+            return null;
+        }
+
+        return document.querySelector(
+            '[data-rename-toggle-v134="' + form.id + '"]'
+        );
+    }
+
+    function focusRenameInput(form) {
+        var input = form.querySelector(".saved-search-rename-input-v132");
+        if (input) {
+            input.focus();
+        }
+    }
+
+    function restoreToggleFocus(button) {
+        if (button) {
+            button.focus();
+        }
+    }
+
+    function setExpanded(button, form, expanded, options) {
+        options = options || {};
+
         if (!button || !form) {
             return;
         }
@@ -1247,12 +1310,17 @@
 
         if (expanded) {
             form.removeAttribute("hidden");
-            var input = form.querySelector(".saved-search-rename-input-v132");
-            if (input) {
-                input.focus();
-            }
+            focusRenameInput(form);
         } else {
+            if (options.resetForm) {
+                form.reset();
+            }
+
             form.setAttribute("hidden", "hidden");
+
+            if (options.restoreFocus) {
+                restoreToggleFocus(button);
+            }
         }
     }
 
@@ -1265,7 +1333,9 @@
             }
 
             var shouldExpand = toggleForm.hasAttribute("hidden");
-            setExpanded(toggleButton, toggleForm, shouldExpand);
+            setExpanded(toggleButton, toggleForm, shouldExpand, {
+                restoreFocus: !shouldExpand
+            });
             return;
         }
 
@@ -1276,11 +1346,29 @@
                 return;
             }
 
-            var linkedToggle = document.querySelector(
-                '[data-rename-toggle-v134="' + cancelForm.id + '"]'
-            );
-            setExpanded(linkedToggle, cancelForm, false);
+            var linkedToggle = getToggleForForm(cancelForm);
+            setExpanded(linkedToggle, cancelForm, false, {
+                resetForm: true,
+                restoreFocus: true
+            });
         }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key !== "Escape") {
+            return;
+        }
+
+        var activeForm = event.target.closest("[data-rename-form-v134]");
+        if (!activeForm || activeForm.hasAttribute("hidden")) {
+            return;
+        }
+
+        var linkedToggle = getToggleForForm(activeForm);
+        setExpanded(linkedToggle, activeForm, false, {
+            resetForm: true,
+            restoreFocus: true
+        });
     });
 })();
 </script>
