@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% load saved_search_state_v138 %} {# SAVED_SEARCH_RENAME_INLINE_STATE_CLEANUP_V138_LOAD #}
 {% block title %}Saved Searches{% endblock %}
 
 {% block content %}
@@ -1003,7 +1004,7 @@
 
     <div class="saved-search-management-bar-v79 saved-search-management-bar-v129">
         <form class="saved-search-search-form-v79 saved-search-search-form-v129" method="get" action="{% url 'listings:saved_search_list' %}"
-                        {% if request.saved_search_rename_error_id_v137 != search.pk %}hidden{% endif %}
+                        {% if not rename_state_v138.has_error %}hidden{% endif %}
                     
                         data-error-marker-v137="SAVED_SEARCH_RENAME_ERROR_FEEDBACK_V137_REOPEN"
                     >
@@ -1077,8 +1078,10 @@
 
         <div class="saved-search-grid-v78 saved-search-grid-v129">
             {% for search in saved_searches %}
+                {% saved_search_rename_state_v138 request search as rename_state_v138 %} {# SAVED_SEARCH_RENAME_INLINE_STATE_CLEANUP_V138_STATE #}
+        <!-- SAVED_SEARCH_RENAME_INLINE_STATE_CLEANUP_V138_RENDERED -->
                 <article class="saved-search-card-v78 saved-search-card-v129">
-                    {% if request.renamed_saved_search_id_v136 == search.pk %}
+                    {% if rename_state_v138.was_renamed %}
                     <div
                         class="saved-search-rename-feedback-v136 saved-search-rename-feedback-card-v136"
                         role="status"
@@ -1103,7 +1106,7 @@
                             aria-label="Rename this saved search"
                             data-a11y-marker="SAVED_SEARCH_RENAME_ACCESSIBILITY_POLISH_V135_TOGGLE"
                             data-error-marker-v137="SAVED_SEARCH_RENAME_ERROR_FEEDBACK_V137_TOGGLE"
-                            aria-expanded="{% if request.saved_search_rename_error_id_v137 == search.pk %}true{% else %}false{% endif %}"
+                            aria-expanded="{{ rename_state_v138.aria_expanded }}"
                             aria-controls="saved-search-rename-form-{{ search.pk }}-v134"
                             data-rename-toggle-v134="saved-search-rename-form-{{ search.pk }}-v134"
                         >
@@ -1130,7 +1133,7 @@
                         >
                             Rename saved search
                         </label>
-                        {% if request.saved_search_rename_error_id_v137 == search.pk %}
+                        {% if rename_state_v138.has_error %}
                         <div
                             id="saved-search-rename-error-{{ search.pk }}-v137"
                             class="saved-search-rename-error-v137 saved-search-rename-form-error-v137"
@@ -1142,7 +1145,7 @@
                                 Rename was not saved
                             </div>
                             <div class="saved-search-rename-error-copy-v137">
-                                {{ request.saved_search_rename_error_message_v137|default:"Type a new name before saving this saved search." }}
+                                {{ rename_state_v138.error_message }}
                             </div>
                         </div>
                         {% endif %}
@@ -1166,8 +1169,8 @@
                                 name="name"
                                 value=""
                                 placeholder="Type a new name"
-                                aria-describedby="saved-search-rename-helper-{{ search.pk }}-v135{% if request.saved_search_rename_error_id_v137 == search.pk %} saved-search-rename-error-{{ search.pk }}-v137{% endif %}"
-                                aria-invalid="{% if request.saved_search_rename_error_id_v137 == search.pk %}true{% else %}false{% endif %}"
+                                aria-describedby="{{ rename_state_v138.input_describedby }}"
+                                aria-invalid="{{ rename_state_v138.aria_invalid }}"
                                 autocomplete="off"
                                 data-error-marker-v137="SAVED_SEARCH_RENAME_ERROR_FEEDBACK_V137_INPUT"
                                 data-a11y-marker="SAVED_SEARCH_RENAME_ACCESSIBILITY_POLISH_V135_INPUT"
