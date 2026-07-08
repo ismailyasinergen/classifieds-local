@@ -43,25 +43,6 @@ MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024
 
 
 
-def validate_uploaded_images(uploaded_files):
-    errors = []
-
-    for uploaded_file in uploaded_files:
-        extension = Path(uploaded_file.name).suffix.lower()
-        content_type = uploaded_file.content_type
-
-        if extension not in ALLOWED_IMAGE_EXTENSIONS:
-            errors.append(f"{uploaded_file.name}: unsupported file extension")
-            continue
-
-        if content_type not in ALLOWED_IMAGE_CONTENT_TYPES:
-            errors.append(f"{uploaded_file.name}: unsupported file type")
-            continue
-
-        if uploaded_file.size > MAX_IMAGE_SIZE_BYTES:
-            errors.append(f"{uploaded_file.name}: file is larger than {MAX_IMAGE_SIZE_MB} MB")
-
-    return errors
 
 
 
@@ -1569,6 +1550,7 @@ from .listing_moderation_helpers import _create_moderation_notice  # LISTING_MOD
 from .listing_lifecycle_helpers import default_listing_expiry  # DEFAULT_LISTING_EXPIRY_HELPER_EXTRACTION_V145
 from .listing_visibility_helpers import active_approved_listings  # ACTIVE_APPROVED_LISTINGS_HELPER_EXTRACTION_V146
 from .listing_image_helpers import save_uploaded_listing_images  # SAVE_UPLOADED_LISTING_IMAGES_HELPER_EXTRACTION_V147
+from .listing_image_helpers import validate_uploaded_images  # VALIDATE_UPLOADED_IMAGES_HELPER_EXTRACTION_V148
 
 
 @staff_member_required

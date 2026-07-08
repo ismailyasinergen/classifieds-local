@@ -100,11 +100,13 @@ class ListingViewHelperExtractionAuditV141Tests(SimpleTestCase):
         self.assertTrue(report.exists)
         self.assertGreater(report.total_lines, 0)
         self.assertGreater(report.top_level_function_count, 0)
-        self.assertGreaterEqual(report.helper_candidate_count, 1)
+        # V148_ALLOW_ZERO_LISTING_VIEW_HELPER_CANDIDATES: after v148 all known low-risk helper candidates may be extracted.
+        self.assertIsInstance(report.helper_candidate_count, int)
+        self.assertGreaterEqual(report.helper_candidate_count, 0)
         # V143_ALLOW_EXHAUSTED_V141_LOW_RISK_CANDIDATES
         # v141 locked the original first-extraction candidates. After v142/v143,
         # those candidates may legitimately be exhausted from active views.py.
         # Keep this test focused on the audit still parsing the real project,
         # not on requiring an unextracted low-risk candidate forever.
-        self.assertGreaterEqual(report.helper_candidate_count, 1)
+        self.assertGreaterEqual(report.helper_candidate_count, 0)
         self.assertGreaterEqual(report.low_risk_candidate_count, 0)
