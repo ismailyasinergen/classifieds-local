@@ -64,17 +64,6 @@ def validate_uploaded_images(uploaded_files):
     return errors
 
 
-def save_uploaded_listing_images(listing, uploaded_files):
-    saved_count = 0
-
-    for uploaded_file in uploaded_files:
-        ListingImage.objects.create(
-            listing=listing,
-            image=uploaded_file,
-        )
-        saved_count += 1
-
-    return saved_count
 
 
 
@@ -1579,6 +1568,7 @@ from .listing_filter_helpers import apply_listing_filters  # LISTING_FILTER_HELP
 from .listing_moderation_helpers import _create_moderation_notice  # LISTING_MODERATION_HELPER_EXTRACTION_V143
 from .listing_lifecycle_helpers import default_listing_expiry  # DEFAULT_LISTING_EXPIRY_HELPER_EXTRACTION_V145
 from .listing_visibility_helpers import active_approved_listings  # ACTIVE_APPROVED_LISTINGS_HELPER_EXTRACTION_V146
+from .listing_image_helpers import save_uploaded_listing_images  # SAVE_UPLOADED_LISTING_IMAGES_HELPER_EXTRACTION_V147
 
 
 @staff_member_required
