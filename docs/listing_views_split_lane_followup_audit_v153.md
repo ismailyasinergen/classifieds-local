@@ -91,3 +91,33 @@ The v159 `uncategorized` extraction keeps `listings.views` compatibility by impo
 ### Repair 8 byte-safe assignment-alias dependency follow-up
 
 The v159 extraction preserves the `_BaseAttributeListingListView` assignment alias and its internal base dependency inside `listing_uncategorized_views.py`. Repair 8 uses byte-safe decoding when reading the original v158 source.
+
+## v160 listing_crud_uploads contract checkpoint
+
+LISTING_CRUD_UPLOADS_CONTRACT_V160
+
+v160 adds focused pre-extraction contracts for the final remaining lane: `listing_crud_uploads`.
+
+Locked v160 state:
+
+- Recommended next lane: `listing_crud_uploads`
+- Remaining candidates: `listing_crud_uploads`
+- Definition occurrences: `7`
+- Audit total lines: `145`
+- Decorator-inclusive source span: `149`
+
+Locked definition occurrences:
+
+- `ListingCreateView` (class), lines 52-84, line count 33
+- `ListingUpdateView` (class), lines 87-126, line count 40
+- `ListingDeleteView` (class), lines 129-143, line count 15
+- `listing_image_delete` (function), lines 148-161, line count 14
+- `listing_feature_days_update` (function), lines 241-261, line count 21
+- `ListingCreateView` (class), lines 1152-1162, line count 11
+- `ListingUpdateView` (class), lines 1166-1176, line count 11
+
+Next safe step: v161 can extract `listing_crud_uploads` into a dedicated module.
+
+### v160 Repair 2 Docker test-path follow-up
+
+The v160 contract test avoids direct reads of repo-root docs during Docker test execution. Host-side script checks still validate `docs/listing_crud_uploads_contract_v160.md`.
