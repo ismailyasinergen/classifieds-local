@@ -78,3 +78,17 @@ v161 can extract `listing_crud_uploads` into a dedicated module while preserving
 The v160 Django test suite does not directly read this repo-root docs file at runtime, because Docker tests run from `/app` and repo-root `docs/` is not available there.
 
 Instead, the focused test validates the locked contract metadata embedded in `test_listing_crud_uploads_contract_v160.py`, while host-side script checks verify this documentation file.
+
+## v161 follow-up
+
+v161 extracts the locked `listing_crud_uploads` occurrences into `backend/listings/listing_crud_uploads_views.py`.
+
+The v160 contract remains useful after extraction by checking that the dedicated module preserves the locked occurrence counts, audit body-line footprint, decorator-inclusive span, duplicate/shadowed `ListingCreateView` and `ListingUpdateView` occurrences, and `listings.views` compatibility re-exports.
+
+### v161 Repair 1 follow-up
+
+The v161 compatibility re-export is placed before old top-level aliases in `views.py`, and Docker tests validate embedded metadata instead of directly reading repo-root docs files.
+
+### v161 Repair 2 internal alias follow-up
+
+The dedicated CRUD/upload module preserves `_ReportOriginalListingCreateView` and `_ReportOriginalListingUpdateView` as internal dependencies so the active duplicate/shadowed create-update classes keep their original inheritance chain.

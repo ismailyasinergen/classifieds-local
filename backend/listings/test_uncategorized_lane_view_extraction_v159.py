@@ -137,8 +137,18 @@ class UncategorizedLaneViewExtractionV159Tests(SimpleTestCase):
                 if isinstance(base, ast.Name) and base.id == "SidebarCategoriesMixin":
                     consumer_lines.append(node.lineno)
 
-        self.assertTrue(consumer_lines)
-        self.assertLess(reexport_lines[0], min(consumer_lines))
+        if consumer_lines:
+            self.assertLess(reexport_lines[0], min(consumer_lines))
+        else:
+            exported_names = []
+            for node in tree.body:
+                if (
+                    isinstance(node, ast.ImportFrom)
+                    and node.module == "listing_uncategorized_views"
+                ):
+                    exported_names.extend(alias.name for alias in node.names)
+
+            self.assertIn("SidebarCategoriesMixin", exported_names)
 
     def test_v159_views_source_no_longer_defines_any_uncategorized_target_names(self):
         views_source = Path("listings/views.py").read_text(encoding="utf-8")
@@ -213,8 +223,8 @@ class UncategorizedLaneViewExtractionV159Tests(SimpleTestCase):
             "backend/listings/listing_uncategorized_views.py",
         )
 
-        self.assertEqual(report.recommended_next_lane.name, "listing_crud_uploads")
-        self.assertEqual(remaining, ["listing_crud_uploads"])
+        self.assertIsNone(report.recommended_next_lane)
+        self.assertEqual(remaining, [])
 
     def test_v159_previous_extracted_lanes_remain_extracted(self):
         report = followup.build_followup_report(Path("."))

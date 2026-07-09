@@ -6,118 +6,76 @@ LISTING_VIEWS_SPLIT_LANE_FOLLOWUP_AUDIT_V153
 
 This audit records extracted split lanes and selects the next safest split lane from the remaining active lanes.
 
-## Extracted lanes
+## Extracted lanes after v161
 
 - `listing_promotions`
-  - Extracted view: `listing_feature_priority_update`
   - Extracted module: `backend/listings/listing_promotion_views.py`
   - Checkpoint: v152
 
 - `favorites`
-  - Extracted view: `listing_favorite_toggle`
   - Extracted module: `backend/listings/listing_favorite_views.py`
   - Checkpoint: v155
 
 - `browse_search_detail`
-  - Extracted view/class: `ListingDetailView`
   - Extracted module: `backend/listings/listing_browse_detail_views.py`
   - Checkpoint: v157
 
 - `uncategorized`
-  - Extracted definitions: `SidebarCategoriesMixin, ListingListView, listing_approve, listing_reject, listing_archive, listing_renew, listing_feature_toggle`
   - Extracted module: `backend/listings/listing_uncategorized_views.py`
   - Checkpoint: v159
-  - V158 audit footprint: `100`
-  - AST body-line footprint: `94`
-  - Decorator-inclusive source span: `104`
-  - Shadowed duplicate target definitions removed from `views.py`: `{"ListingListView": [{"start": 66, "body_start": 66, "end": 84}, {"start": 1595, "body_start": 1595, "end": 1617}]}`
 
-## Recommended next lane after v159
+- `listing_crud_uploads`
+  - Extracted module: `backend/listings/listing_crud_uploads_views.py`
+  - Checkpoint: v161
 
-The next safest remaining lane should be `listing_crud_uploads`.
+## Completed tracked split-lane state
 
-Reason: after `listing_promotions`, `favorites`, `browse_search_detail`, and `uncategorized` are removed from `views.py`, `listing_crud_uploads` is the remaining candidate.
+After v161, all tracked lanes from this split-lane sequence are extracted.
 
-## Verification
+- Remaining candidates: none
+- Recommended next split lane: none
 
-The follow-up tests verify that:
+## v160 contract checkpoint
 
-- `listing_promotions` is recognized as extracted.
-- `favorites` is recognized as extracted.
-- `browse_search_detail` is recognized as extracted.
-- `uncategorized` is recognized as extracted after v159.
-- Extracted lanes are excluded from remaining split candidates.
-- `listing_crud_uploads` is selected as the next safest lane after v159.
-- Docker test runs do not create `backend/docs/` side effects.
+LISTING_CRUD_UPLOADS_CONTRACT_V160
+
+v160 locked the `listing_crud_uploads` occurrence-based pre-extraction shape:
+
+- Definition occurrences: `7`
+- Audit body-line footprint: `145`
+- Decorator-inclusive source span: `149`
+
+## v161 extraction checkpoint
+
+LISTING_CRUD_UPLOADS_VIEW_EXTRACTION_V161
+
+v161 moves those occurrences into `backend/listings/listing_crud_uploads_views.py` and preserves `listings.views` compatibility re-exports.
 
 ## Non-goals
 
-- Do not move the next lane in this audit checkpoint.
 - Do not change URL routes.
 - Do not change templates.
 - Do not change permissions.
 - Do not change models or migrations.
 - Do not remove compatibility re-export paths.
 
-## v158 contract checkpoint
+### v161 Repair 1 import-order follow-up
 
-UNCATEGORIZED_LANE_CONTRACT_V158
+The completed split-lane state depends on importing `listing_crud_uploads_views` exports before existing `views.py` aliases that reference `ListingCreateView` and related names.
 
-v158 added focused tests for the `uncategorized` lane before extraction.
+### v161 Repair 2 internal alias follow-up
 
-Locked v158 audit state:
+The completed split-lane state for `listing_crud_uploads` includes internal report-original aliases in `listing_crud_uploads_views.py` to preserve duplicate/shadowed create-update inheritance.
 
-- Recommended next lane before v159: `uncategorized`
-- Remaining candidates before v159: `uncategorized, listing_crud_uploads`
-- `uncategorized` definition count: `7`
-- `uncategorized` audit footprint: `100`
-- `uncategorized` AST body-line footprint: `94`
-- `uncategorized` decorator-inclusive extraction span: `104`
+### v161 Repair 3 completed split-lane follow-up
 
-## v159 extraction checkpoint
+When all tracked split lanes are extracted, the follow-up audit now returns an empty remaining candidate list and records the recommended next lane as `none` instead of raising an error.
 
-UNCATEGORIZED_LANE_VIEW_EXTRACTION_V159
+### v161 Repair 4 completed split-lane follow-up finalization
 
-v159 moves the `uncategorized` lane into `backend/listings/listing_uncategorized_views.py`.
+The completed-state guard was removed from `build_followup_report()`. When no candidate lanes remain, the report now returns `remaining_candidates = ()` and `recommended_next_lane = None`.
 
-## Next safe step
 
-A future checkpoint should add focused contract tests for the `listing_crud_uploads` lane before moving it.
+### v161 Repair 6 completed-state compatibility alignment
 
-### Repair 5 import-order follow-up
-
-The v159 `uncategorized` extraction keeps `listings.views` compatibility by importing the dedicated module exports before any remaining local view classes consume `SidebarCategoriesMixin`.
-
-### Repair 8 byte-safe assignment-alias dependency follow-up
-
-The v159 extraction preserves the `_BaseAttributeListingListView` assignment alias and its internal base dependency inside `listing_uncategorized_views.py`. Repair 8 uses byte-safe decoding when reading the original v158 source.
-
-## v160 listing_crud_uploads contract checkpoint
-
-LISTING_CRUD_UPLOADS_CONTRACT_V160
-
-v160 adds focused pre-extraction contracts for the final remaining lane: `listing_crud_uploads`.
-
-Locked v160 state:
-
-- Recommended next lane: `listing_crud_uploads`
-- Remaining candidates: `listing_crud_uploads`
-- Definition occurrences: `7`
-- Audit total lines: `145`
-- Decorator-inclusive source span: `149`
-
-Locked definition occurrences:
-
-- `ListingCreateView` (class), lines 52-84, line count 33
-- `ListingUpdateView` (class), lines 87-126, line count 40
-- `ListingDeleteView` (class), lines 129-143, line count 15
-- `listing_image_delete` (function), lines 148-161, line count 14
-- `listing_feature_days_update` (function), lines 241-261, line count 21
-- `ListingCreateView` (class), lines 1152-1162, line count 11
-- `ListingUpdateView` (class), lines 1166-1176, line count 11
-
-Next safe step: v161 can extract `listing_crud_uploads` into a dedicated module.
-
-### v160 Repair 2 Docker test-path follow-up
-
-The v160 contract test avoids direct reads of repo-root docs during Docker test execution. Host-side script checks still validate `docs/listing_crud_uploads_contract_v160.md`.
+The completed follow-up report preserves the historical list shape for `remaining_candidates`. Older compatibility tests now recognize that `listing_crud_uploads` is extracted in v161 and therefore no recommended next lane remains.

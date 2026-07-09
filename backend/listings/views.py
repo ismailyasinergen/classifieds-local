@@ -29,6 +29,14 @@ from .listing_uncategorized_views import (
     listing_feature_toggle,
 )  # V159 re-export
 
+from .listing_crud_uploads_views import (
+    ListingCreateView,
+    ListingUpdateView,
+    ListingDeleteView,
+    listing_image_delete,
+    listing_feature_days_update,
+)  # V161 re-export
+
 
 ALLOWED_IMAGE_CONTENT_TYPES = {
     "image/jpeg",
@@ -47,118 +55,6 @@ ALLOWED_IMAGE_EXTENSIONS = {
 
 MAX_IMAGE_SIZE_MB = 8
 MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024
-
-
-class ListingCreateView(LoginRequiredMixin, SidebarCategoriesMixin, CreateView):
-    model = Listing
-    form_class = ListingForm
-    template_name = "listings/listing_form.html"
-    success_url = reverse_lazy("accounts:my_listings")
-
-    def form_valid(self, form):
-        uploaded_files = self.request.FILES.getlist("images")
-        image_errors = validate_uploaded_images(uploaded_files)
-
-        if image_errors:
-            for error in image_errors:
-                form.add_error(None, error)
-            return self.form_invalid(form)
-
-        form.instance.owner = self.request.user
-        form.instance.status = Listing.Status.PENDING
-        form.instance.expires_at = default_listing_expiry()
-        SellerStore.objects.get_or_create(owner=self.request.user)
-
-        response = super().form_valid(form)
-
-        saved_count = save_uploaded_listing_images(self.object, uploaded_files)
-
-        if saved_count:
-            messages.success(self.request, f"{saved_count} image(s) uploaded.")
-
-        return response
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["page_title"] = "Create Listing"
-        return context
-
-
-class ListingUpdateView(LoginRequiredMixin, UserPassesTestMixin, SidebarCategoriesMixin, UpdateView):
-    model = Listing
-    form_class = ListingForm
-    template_name = "listings/listing_form.html"
-    success_url = reverse_lazy("accounts:my_listings")
-
-    def get_queryset(self):
-        return (
-            Listing.objects
-            .select_related("category", "owner")
-            .prefetch_related("images")
-        )
-
-    def test_func(self):
-        return self.get_object().owner == self.request.user
-
-    def form_valid(self, form):
-        uploaded_files = self.request.FILES.getlist("images")
-        image_errors = validate_uploaded_images(uploaded_files)
-
-        if image_errors:
-            for error in image_errors:
-                form.add_error(None, error)
-            return self.form_invalid(form)
-
-        form.instance.status = Listing.Status.PENDING
-
-        response = super().form_valid(form)
-
-        saved_count = save_uploaded_listing_images(self.object, uploaded_files)
-
-        if saved_count:
-            messages.success(self.request, f"{saved_count} image(s) uploaded.")
-
-        return response
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["page_title"] = "Edit Listing"
-        return context
-
-
-class ListingDeleteView(LoginRequiredMixin, UserPassesTestMixin, SidebarCategoriesMixin, DeleteView):
-    model = Listing
-    template_name = "listings/listing_confirm_delete.html"
-    success_url = reverse_lazy("accounts:my_listings")
-
-    def get_queryset(self):
-        return Listing.objects.select_related("category", "owner")
-
-    def test_func(self):
-        return self.get_object().owner == self.request.user
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["page_title"] = "Delete Listing"
-        return context
-
-
-@login_required
-@require_POST
-def listing_image_delete(request, pk):
-    image = get_object_or_404(
-        ListingImage.objects.select_related("listing", "listing__owner"),
-        pk=pk,
-    )
-
-    if image.listing.owner != request.user:
-        return redirect("accounts:my_listings")
-
-    listing_pk = image.listing.pk
-    image.image.delete(save=False)
-    image.delete()
-
-    return redirect("listings:listing_update", pk=listing_pk)
 
 
 @staff_member_required
@@ -234,31 +130,6 @@ def moderation_queue(request):
 
 
 from .listing_promotion_views import listing_feature_priority_update  # V152 re-export
-
-
-@login_required
-@require_POST
-def listing_feature_days_update(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
-
-    if not request.user.is_staff:
-        messages.warning(request, "Only staff can change featured expiry.")
-        return redirect(listing.get_absolute_url())
-
-    try:
-        days = int(request.POST.get("featured_days", 30))
-    except ValueError:
-        days = 30
-
-    if days < 1:
-        days = 1
-
-    listing.is_featured = True
-    listing.featured_until = timezone.now() + timedelta(days=days)
-    listing.save(update_fields=["is_featured", "featured_until"])
-
-    messages.success(request, f"Featured expiry set for {days} day(s).")
-    return redirect(request.POST.get("next") or listing.get_absolute_url())
 
 
 @login_required
@@ -1149,31 +1020,9 @@ def listing_report_archive_listing(request, pk):
 
 
 _ReportOriginalListingCreateView = ListingCreateView
-class ListingCreateView(_ReportOriginalListingCreateView):
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            profile = getattr(request.user, "profile", None)
-            if profile and profile.is_seller_suspended:
-                messages.warning(
-                    request,
-                    "Your seller account is temporarily suspended. You cannot post listings right now.",
-                )
-                return redirect("accounts:dashboard")
-        return super().dispatch(request, *args, **kwargs)
 
 
 _ReportOriginalListingUpdateView = ListingUpdateView
-class ListingUpdateView(_ReportOriginalListingUpdateView):
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            profile = getattr(request.user, "profile", None)
-            if profile and profile.is_seller_suspended:
-                messages.warning(
-                    request,
-                    "Your seller account is temporarily suspended. You cannot edit listings right now.",
-                )
-                return redirect("accounts:dashboard")
-        return super().dispatch(request, *args, **kwargs)
 
 
 # FINAL_LISTING_REPORT_NOTICE_ACTIONS_V1

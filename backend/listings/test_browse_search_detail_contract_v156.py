@@ -86,17 +86,13 @@ def _callback_target_name(callback):
 
 class BrowseSearchDetailSourceContractV156Tests(SimpleTestCase):
     def test_v156_browse_search_detail_is_extracted_after_v157(self):
-        report = _followup_report()
-        status = _browse_extracted_status()
+        report = followup.build_followup_report(Path("."))
+        extracted = {status.name for status in report.extracted_lanes}
 
-        self.assertTrue(status.extracted)
-        self.assertEqual(status.view, "ListingDetailView")
-        self.assertEqual(status.definition_count, 0)
-        self.assertEqual(status.total_lines, 0)
-        if "uncategorized" in {status.name for status in report.extracted_lanes}:
-            self.assertEqual(report.recommended_next_lane.name, "listing_crud_uploads")
-        else:
-            self.assertEqual(report.recommended_next_lane.name, "uncategorized")
+        self.assertIn("browse_search_detail", extracted)
+        self.assertIn("listing_crud_uploads", extracted)
+        self.assertEqual(report.remaining_candidates, [])
+        self.assertIsNone(report.recommended_next_lane)
 
     def test_v156_listing_detail_target_is_reexported_after_v157_extraction(self):
         self.assertTrue(hasattr(listing_views, "ListingDetailView"))

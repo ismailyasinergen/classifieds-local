@@ -42,6 +42,12 @@ EXTRACTED_LANES_V153 = {
         "checkpoint": "v159",
         "tag": "project-checkpoint-v159-uncategorized-lane-view-extraction",
     },
+    "listing_crud_uploads": {
+        "view": "ListingCreateView, ListingUpdateView, ListingDeleteView, listing_image_delete, listing_feature_days_update",
+        "module": "backend/listings/listing_crud_uploads_views.py",
+        "checkpoint": "v161",
+        "tag": "project-checkpoint-v161-listing-crud-uploads-view-extraction",
+    },
 }
 
 
@@ -68,8 +74,8 @@ class NextSplitLaneCandidateV153:
 @dataclass(frozen=True)
 class SplitLaneFollowupReportV153:
     extracted_lanes: tuple[ExtractedLaneStatusV153, ...]
-    remaining_candidates: tuple[NextSplitLaneCandidateV153, ...]
-    recommended_next_lane: NextSplitLaneCandidateV153
+    remaining_candidates: list[NextSplitLaneCandidateV153]
+    recommended_next_lane: NextSplitLaneCandidateV153 | None
 
 
 def _lane_value(lane, name, default=None):
@@ -156,14 +162,14 @@ def build_followup_report(root: Path | str = ".") -> SplitLaneFollowupReportV153
             + ", ".join(not_extracted)
         )
 
-    if not remaining_candidates:
-        raise ValueError("No remaining candidate_for_first_split lanes found.")
 
     return SplitLaneFollowupReportV153(
-        extracted_lanes=tuple(extracted_statuses),
-        remaining_candidates=tuple(remaining_candidates),
-        recommended_next_lane=remaining_candidates[0],
-    )
+            extracted_lanes=tuple(extracted_statuses),
+            remaining_candidates=remaining_candidates,
+            recommended_next_lane=remaining_candidates[0] if remaining_candidates else None if remaining_candidates else None,
+        )
+
+
 
 
 def write_markdown_report(path: Path | str, report: SplitLaneFollowupReportV153) -> None:
@@ -177,7 +183,7 @@ def write_markdown_report(path: Path | str, report: SplitLaneFollowupReportV153)
         "",
         "## Purpose",
         "",
-        "Record the current split-lane state: extracted lanes are excluded, and the next safest split lane is selected from the remaining active lanes.",
+        "Record the current split-lane state, including extracted lanes and the next safest remaining candidate when one exists.",
         "",
         "## Extracted lanes",
         "",
@@ -201,43 +207,69 @@ def write_markdown_report(path: Path | str, report: SplitLaneFollowupReportV153)
         [
             "## Recommended next split lane",
             "",
-            f"- Lane: `{report.recommended_next_lane.name}`",
-            f"- Definitions: `{report.recommended_next_lane.definition_count}`",
-            f"- Lines: `{report.recommended_next_lane.total_lines}`",
-            f"- Readiness: `{report.recommended_next_lane.readiness}`",
-            f"- Reason: {report.recommended_next_lane.reason}",
-            "",
-            "## Remaining candidate order",
-            "",
         ]
     )
 
-    for candidate in report.remaining_candidates:
-        lines.append(
-            f"- `{candidate.name}` — definitions `{candidate.definition_count}`, lines `{candidate.total_lines}`, readiness `{candidate.readiness}`"
+    if report.recommended_next_lane is None:
+        lines.extend(
+            [
+                "- Lane: `none`",
+                "- Reason: all tracked split lanes have already been extracted.",
+                "",
+                "## Remaining candidate order",
+                "",
+                "- `none` — all tracked split lanes have already been extracted.",
+            ]
         )
+    else:
+        lines.extend(
+            [
+                f"- Lane: `{report.recommended_next_lane.name}`",
+                f"- Definitions: `{report.recommended_next_lane.definition_count}`",
+                f"- Lines: `{report.recommended_next_lane.total_lines}`",
+                f"- Readiness: `{report.recommended_next_lane.readiness}`",
+                f"- Reason: {report.recommended_next_lane.reason}",
+                "",
+                "## Remaining candidate order",
+                "",
+            ]
+        )
+
+        for candidate in report.remaining_candidates:
+            lines.append(
+                f"- `{candidate.name}` — definitions `{candidate.definition_count}`, lines `{candidate.total_lines}`, readiness `{candidate.readiness}`"
+            )
 
     lines.extend(
         [
             "",
             "## Non-goals",
             "",
-            "- Do not move another view in this audit module.",
             "- Do not change URLs, permissions, templates, models, migrations, or runtime behavior.",
             "- Do not remove compatibility re-export paths.",
             "",
             "## Next safe step",
             "",
-            f"The next extraction checkpoint should protect and move the `{report.recommended_next_lane.name}` lane.",
         ]
     )
 
+    if report.recommended_next_lane is None:
+        lines.append(
+            "No further split-lane extraction is currently recommended because all tracked split lanes have already been extracted."
+        )
+    else:
+        lines.append(
+            f"The next extraction checkpoint should protect and move the `{report.recommended_next_lane.name}` lane."
+        )
+
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
 
 
 if __name__ == "__main__":
     report = build_followup_report(Path("."))
     print("LISTING_VIEWS_SPLIT_LANE_FOLLOWUP_AUDIT_V153")
     print("Extracted lanes:", [status.name for status in report.extracted_lanes])
-    print("Recommended next lane:", report.recommended_next_lane.name)
+    print("Recommended next lane:", (report.recommended_next_lane.name if report.recommended_next_lane else "none"))
     print("Remaining candidates:", [candidate.name for candidate in report.remaining_candidates])

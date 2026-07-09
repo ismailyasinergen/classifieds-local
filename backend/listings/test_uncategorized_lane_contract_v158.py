@@ -37,9 +37,10 @@ EXPECTED_UNCATEGORIZED_EXPORTS = [
     "listing_renew",
     "listing_feature_toggle"
 ]
-EXPECTED_EXTRACTED_LANES_AFTER_V159 = [
+EXPECTED_EXTRACTED_LANES_AFTER_V161 = [
     "browse_search_detail",
     "favorites",
+    "listing_crud_uploads",
     "listing_promotions",
     "uncategorized",
 ]
@@ -118,15 +119,15 @@ class UncategorizedLaneContractV158Tests(SimpleTestCase):
         report = _report()
         remaining = [candidate.name for candidate in report.remaining_candidates]
 
-        self.assertEqual(report.recommended_next_lane.name, "listing_crud_uploads")
-        self.assertEqual(remaining, ["listing_crud_uploads"])
+        self.assertIsNone(report.recommended_next_lane)
+        self.assertEqual(remaining, [])
         self.assertNotIn(UNCATEGORIZED_LANE, remaining)
 
     def test_v158_previous_split_lanes_remain_extracted_after_v159(self):
         report = _report()
         extracted = {status.name: status for status in report.extracted_lanes}
 
-        self.assertEqual(sorted(extracted), EXPECTED_EXTRACTED_LANES_AFTER_V159)
+        self.assertEqual(sorted(extracted), EXPECTED_EXTRACTED_LANES_AFTER_V161)
 
         self.assertTrue(extracted["listing_promotions"].extracted)
         self.assertTrue(extracted["favorites"].extracted)
