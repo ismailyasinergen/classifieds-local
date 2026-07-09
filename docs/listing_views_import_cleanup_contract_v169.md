@@ -150,3 +150,6 @@ These are captured for a future cleanup checkpoint. v169 does not remove them.
 ## Next safe step
 
 A later checkpoint may remove only proven non-view facade imports, while preserving route callback identity and `listings.views` compatibility re-exports.
+## v170 follow-up
+
+v170 implemented this contract by removing only proven non-view facade imports from `backend/listings/views.py` while preserving all compatibility `*_views` re-exports and public URL callback identities.

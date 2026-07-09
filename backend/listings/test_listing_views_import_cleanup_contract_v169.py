@@ -496,10 +496,9 @@ class ListingViewsImportCleanupContractV169Tests(SimpleTestCase):
         self.assertEqual(report.total_top_level_definitions, 0)
         self.assertTrue(report.is_facade_only)
 
-    def test_v169_current_import_inventory_is_locked_before_cleanup(self):
+    def test_v169_protected_reexport_inventory_is_stable_after_v170_cleanup(self):
         report = contract.build_report(Path("."))
 
-        self.assertEqual(report.import_records, SNAPSHOT_IMPORT_RECORDS_V169)
         self.assertEqual(
             report.compatibility_view_reexport_modules,
             SNAPSHOT_COMPATIBILITY_VIEW_REEXPORT_MODULES_V169,
@@ -508,10 +507,10 @@ class ListingViewsImportCleanupContractV169Tests(SimpleTestCase):
             report.compatibility_view_reexport_names,
             SNAPSHOT_COMPATIBILITY_VIEW_REEXPORT_NAMES_V169,
         )
-        self.assertEqual(report.non_view_import_modules, SNAPSHOT_NON_VIEW_IMPORT_MODULES_V169)
-        self.assertEqual(report.non_view_import_bound_names, SNAPSHOT_NON_VIEW_IMPORT_BOUND_NAMES_V169)
-        self.assertEqual(report.duplicate_bound_names, SNAPSHOT_DUPLICATE_BOUND_NAMES_V169)
-        self.assertEqual(report.wildcard_import_modules, SNAPSHOT_WILDCARD_IMPORT_MODULES_V169)
+        self.assertEqual(report.non_view_import_modules, ('listing_filter_helpers', 'listing_image_helpers', 'listing_lifecycle_helpers', 'listing_moderation_helpers', 'listing_visibility_helpers'))
+        self.assertEqual(report.non_view_import_bound_names, ('_create_moderation_notice', 'active_approved_listings', 'apply_listing_filters', 'default_listing_expiry', 'save_uploaded_listing_images', 'validate_uploaded_images'))
+        self.assertEqual(report.duplicate_bound_names, ())
+        self.assertEqual(report.wildcard_import_modules, ())
 
     def test_v169_expected_compatibility_reexport_modules_are_present(self):
         report = contract.build_report(Path("."))
