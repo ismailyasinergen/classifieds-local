@@ -65,17 +65,17 @@ class ListingViewsRemainingFacadeSurfaceAuditV175Tests(SimpleTestCase):
         self.assertEqual(report.unexpected_import_modules, ())
         self.assertEqual(report.wildcard_import_modules, ())
 
-    def test_v175_records_zero_candidates_and_all_remaining_names_are_still_dependencies(self):
+    def test_v175_records_only_v177_migrated_name_as_candidate_after_import_migration(self):
         report = audit.build_report(Path("."))
 
         self.assertEqual(report.protected_name_count, 35)
-        self.assertEqual(report.candidate_count, 0)
-        self.assertEqual(report.candidate_names, ())
-        self.assertFalse(report.next_removal_candidate_available)
-        self.assertTrue(report.all_remaining_names_have_facade_dependencies)
+        self.assertEqual(set(report.candidate_names), set(('listing_feature_priority_update',)))
+        self.assertEqual(report.candidate_count, len(('listing_feature_priority_update',)))
+        self.assertTrue(report.next_removal_candidate_available)
+        self.assertFalse(report.all_remaining_names_have_facade_dependencies)
+        self.assertEqual(report.post_v177_migration_candidate_names, ('listing_feature_priority_update',))
+        self.assertTrue(report.only_v177_migrated_names_are_candidates)
         self.assertFalse(report.safe_to_remove_anything_in_v175)
-
-        self.assertEqual(set(report.dependency_names), set(report.protected_names))
 
     def test_v175_dependency_records_only_reference_remaining_protected_names(self):
         report = audit.build_report(Path("."))
@@ -123,9 +123,9 @@ class ListingViewsRemainingFacadeSurfaceAuditV175Tests(SimpleTestCase):
 
         self.assertIn(audit.LISTING_VIEWS_REMAINING_FACADE_SURFACE_AUDIT_MARKER_V175, text)
         self.assertIn("Candidate names without detected facade dependencies", text)
-        self.assertIn("No next removal candidates were detected.", text)
-        self.assertIn("Next removal candidate available: `False`", text)
-        self.assertIn("All remaining names have facade dependencies: `True`", text)
+        self.assertIn("Next removal candidate available: `True`", text)
+        self.assertIn("All remaining names have facade dependencies: `False`", text)
+        self.assertIn("Only v177 migrated names are candidates: `True`", text)
         self.assertIn("Safe to remove anything in v175: `False`", text)
         self.assertIn("v175 is audit-only", text)
         self.assertIn("A later checkpoint may target a candidate only after a dedicated contract freezes it first", text)

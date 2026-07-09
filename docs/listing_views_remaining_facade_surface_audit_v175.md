@@ -7,12 +7,14 @@ LISTING_VIEWS_REMAINING_FACADE_SURFACE_AUDIT_V175
 - Views path: `listings/views.py`
 - Views total lines: `155`
 - Protected remaining facade names: `35`
-- Facade dependency records: `54`
-- Names with detected facade dependencies: `('ListingCreateView', 'ListingDeleteView', 'ListingDetailView', 'ListingListView', 'ListingUpdateView', '_create_moderation_notice', 'active_approved_listings', 'apply_listing_filters', 'default_listing_expiry', 'listing_approve', 'listing_archive', 'listing_favorite_toggle', 'listing_feature_days_update', 'listing_feature_priority_update', 'listing_feature_toggle', 'listing_image_delete', 'listing_reject', 'listing_renew', 'listing_report_archive_listing', 'listing_report_create', 'listing_report_dismiss', 'listing_report_export_csv', 'listing_report_queue', 'listing_report_review', 'listing_report_suspend_listing', 'moderation_queue', 'my_listing_reports', 'save_uploaded_listing_images', 'saved_search_bulk_action', 'saved_search_create', 'saved_search_delete', 'saved_search_list', 'saved_search_notifications_toggle', 'saved_search_rename', 'validate_uploaded_images')`
-- Candidate names without detected facade dependencies: `()`
-- Candidate count: `0`
-- Next removal candidate available: `False`
-- All remaining names have facade dependencies: `True`
+- Facade dependency records: `53`
+- Names with detected facade dependencies: `('ListingCreateView', 'ListingDeleteView', 'ListingDetailView', 'ListingListView', 'ListingUpdateView', '_create_moderation_notice', 'active_approved_listings', 'apply_listing_filters', 'default_listing_expiry', 'listing_approve', 'listing_archive', 'listing_favorite_toggle', 'listing_feature_days_update', 'listing_feature_toggle', 'listing_image_delete', 'listing_reject', 'listing_renew', 'listing_report_archive_listing', 'listing_report_create', 'listing_report_dismiss', 'listing_report_export_csv', 'listing_report_queue', 'listing_report_review', 'listing_report_suspend_listing', 'moderation_queue', 'my_listing_reports', 'save_uploaded_listing_images', 'saved_search_bulk_action', 'saved_search_create', 'saved_search_delete', 'saved_search_list', 'saved_search_notifications_toggle', 'saved_search_rename', 'validate_uploaded_images')`
+- Candidate names without detected facade dependencies: `('listing_feature_priority_update',)`
+- Candidate count: `1`
+- Next removal candidate available: `True`
+- All remaining names have facade dependencies: `False`
+- v177 migrated candidate names: `('listing_feature_priority_update',)`
+- Only v177 migrated names are candidates: `True`
 - v174 targeted removal preserved: `True`
 - Removed-v174 names still present: `()`
 - Removed-v174 names absent: `('SidebarCategoriesMixin', '_safe_reporter_note')`
@@ -22,7 +24,7 @@ LISTING_VIEWS_REMAINING_FACADE_SURFACE_AUDIT_V175
 
 ## Candidate names without detected facade dependencies
 
-No next removal candidates were detected.
+- `listing_feature_priority_update` — `view_reexport` from `listing_promotion_views` — No direct `listings.views` import or `views.<name>` facade attribute usage detected.
 
 ## Facade dependency records
 
@@ -54,7 +56,6 @@ No next removal candidates were detected.
 - `listing_favorite_toggle` — `facade_attribute_usage` — `listings/test_listing_favorite_view_extraction_v155.py:41` — self.assertIs(match.func, listing_views.listing_favorite_toggle)
 - `listing_favorite_toggle` — `direct_from_listings_views_import` — `listings/urls.py:4` — from .views import (
 - `listing_feature_days_update` — `direct_from_listings_views_import` — `listings/urls.py:4` — from .views import (
-- `listing_feature_priority_update` — `direct_from_listings_views_import` — `listings/urls.py:4` — from .views import (
 - `listing_feature_toggle` — `direct_from_listings_views_import` — `listings/urls.py:4` — from .views import (
 - `listing_image_delete` — `direct_from_listings_views_import` — `listings/urls.py:4` — from .views import (
 - `listing_reject` — `direct_from_listings_views_import` — `listings/urls.py:4` — from .views import (
@@ -88,4 +89,5 @@ No next removal candidates were detected.
 - Do not remove helper compatibility re-exports in v175.
 - Do not remove route/view compatibility paths in v175.
 - If candidate count is zero, do not attempt another facade-removal checkpoint yet.
+- After v177, the only candidate should be the intentionally migrated import group.
 - A later checkpoint may target a candidate only after a dedicated contract freezes it first.

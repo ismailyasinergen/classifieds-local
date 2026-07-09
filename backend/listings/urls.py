@@ -15,7 +15,6 @@ from .views import (
     listing_archive,
     listing_favorite_toggle,
     listing_feature_days_update,
-    listing_feature_priority_update,
     listing_feature_toggle,
     listing_image_delete,
     listing_reject,
@@ -30,6 +29,7 @@ from .views import (
     moderation_queue,
     my_listing_reports,
 )
+from listings.listing_promotion_views import listing_feature_priority_update
 
 app_name = "listings"
 

@@ -7,13 +7,15 @@ LISTING_VIEWS_DIRECT_IMPORT_MIGRATION_AUDIT_V176
 - Views path: `listings/views.py`
 - Views total lines: `155`
 - Protected remaining facade names: `35`
-- Migration records: `54`
-- Migration names: `('ListingCreateView', 'ListingDeleteView', 'ListingDetailView', 'ListingListView', 'ListingUpdateView', '_create_moderation_notice', 'active_approved_listings', 'apply_listing_filters', 'default_listing_expiry', 'listing_approve', 'listing_archive', 'listing_favorite_toggle', 'listing_feature_days_update', 'listing_feature_priority_update', 'listing_feature_toggle', 'listing_image_delete', 'listing_reject', 'listing_renew', 'listing_report_archive_listing', 'listing_report_create', 'listing_report_dismiss', 'listing_report_export_csv', 'listing_report_queue', 'listing_report_review', 'listing_report_suspend_listing', 'moderation_queue', 'my_listing_reports', 'save_uploaded_listing_images', 'saved_search_bulk_action', 'saved_search_create', 'saved_search_delete', 'saved_search_list', 'saved_search_notifications_toggle', 'saved_search_rename', 'validate_uploaded_images')`
-- Names without migration records: `()`
-- All remaining names have migration paths: `True`
-- Source modules with migrations: `('listing_browse_detail_views', 'listing_crud_uploads_views', 'listing_favorite_views', 'listing_filter_helpers', 'listing_image_helpers', 'listing_lifecycle_helpers', 'listing_moderation_helpers', 'listing_promotion_views', 'listing_reports_views', 'listing_uncategorized_views', 'listing_visibility_helpers', 'saved_searches_views')`
-- Migration count by source module: `(('listing_browse_detail_views', 6), ('listing_crud_uploads_views', 5), ('listing_favorite_views', 3), ('listing_filter_helpers', 3), ('listing_image_helpers', 6), ('listing_lifecycle_helpers', 3), ('listing_moderation_helpers', 3), ('listing_promotion_views', 1), ('listing_reports_views', 9), ('listing_uncategorized_views', 6), ('listing_visibility_helpers', 3), ('saved_searches_views', 6))`
-- Migration count by usage form: `(('direct_from_listings_views_import', 33), ('facade_attribute_usage', 21))`
+- Migration records: `53`
+- Migration names: `('ListingCreateView', 'ListingDeleteView', 'ListingDetailView', 'ListingListView', 'ListingUpdateView', '_create_moderation_notice', 'active_approved_listings', 'apply_listing_filters', 'default_listing_expiry', 'listing_approve', 'listing_archive', 'listing_favorite_toggle', 'listing_feature_days_update', 'listing_feature_toggle', 'listing_image_delete', 'listing_reject', 'listing_renew', 'listing_report_archive_listing', 'listing_report_create', 'listing_report_dismiss', 'listing_report_export_csv', 'listing_report_queue', 'listing_report_review', 'listing_report_suspend_listing', 'moderation_queue', 'my_listing_reports', 'save_uploaded_listing_images', 'saved_search_bulk_action', 'saved_search_create', 'saved_search_delete', 'saved_search_list', 'saved_search_notifications_toggle', 'saved_search_rename', 'validate_uploaded_images')`
+- Names without migration records: `('listing_feature_priority_update',)`
+- All remaining names have migration paths: `False`
+- Names migrated after v176: `('listing_feature_priority_update',)`
+- All unmigrated names still have migration paths: `True`
+- Source modules with migrations: `('listing_browse_detail_views', 'listing_crud_uploads_views', 'listing_favorite_views', 'listing_filter_helpers', 'listing_image_helpers', 'listing_lifecycle_helpers', 'listing_moderation_helpers', 'listing_reports_views', 'listing_uncategorized_views', 'listing_visibility_helpers', 'saved_searches_views')`
+- Migration count by source module: `(('listing_browse_detail_views', 6), ('listing_crud_uploads_views', 5), ('listing_favorite_views', 3), ('listing_filter_helpers', 3), ('listing_image_helpers', 6), ('listing_lifecycle_helpers', 3), ('listing_moderation_helpers', 3), ('listing_reports_views', 9), ('listing_uncategorized_views', 6), ('listing_visibility_helpers', 3), ('saved_searches_views', 6))`
+- Migration count by usage form: `(('direct_from_listings_views_import', 32), ('facade_attribute_usage', 21))`
 - Manual review records: `0`
 - v174 targeted removal preserved: `True`
 - Removed-v174 names still present: `()`
@@ -58,7 +60,6 @@ LISTING_VIEWS_DIRECT_IMPORT_MIGRATION_AUDIT_V176
 - `listings/urls.py:4` — `listing_archive` — `direct_from_listings_views_import` → `from listings.listing_uncategorized_views import listing_archive` — from .views import (
 - `listings/urls.py:4` — `listing_favorite_toggle` — `direct_from_listings_views_import` → `from listings.listing_favorite_views import listing_favorite_toggle` — from .views import (
 - `listings/urls.py:4` — `listing_feature_days_update` — `direct_from_listings_views_import` → `from listings.listing_crud_uploads_views import listing_feature_days_update` — from .views import (
-- `listings/urls.py:4` — `listing_feature_priority_update` — `direct_from_listings_views_import` → `from listings.listing_promotion_views import listing_feature_priority_update` — from .views import (
 - `listings/urls.py:4` — `listing_feature_toggle` — `direct_from_listings_views_import` → `from listings.listing_uncategorized_views import listing_feature_toggle` — from .views import (
 - `listings/urls.py:4` — `listing_image_delete` — `direct_from_listings_views_import` → `from listings.listing_crud_uploads_views import listing_image_delete` — from .views import (
 - `listings/urls.py:4` — `listing_reject` — `direct_from_listings_views_import` → `from listings.listing_uncategorized_views import listing_reject` — from .views import (
@@ -89,4 +90,5 @@ No manual review records detected.
 - Do not change imports in v176.
 - Do not edit `backend/listings/views.py` in v176.
 - Do not remove any remaining facade re-export in v176.
+- After v177, one small import group has been intentionally migrated.
 - A later checkpoint may migrate one small import group after this audit is reviewed.
