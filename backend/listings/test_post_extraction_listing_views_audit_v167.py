@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from django.test import SimpleTestCase
 from django.urls import get_resolver
@@ -102,10 +103,11 @@ class PostExtractionListingViewsAuditV167Tests(SimpleTestCase):
 
     def test_v167_audit_markdown_documents_no_blind_extraction_next_step(self):
         report = audit.build_report(Path("."))
-        output = Path("docs/post_extraction_listing_views_audit_v167.md")
 
-        audit.write_markdown_report(output, report)
-        text = output.read_text(encoding="utf-8")
+        with TemporaryDirectory() as temp_dir:
+            output = Path(temp_dir) / "post_extraction_listing_views_audit_v167.md"
+            audit.write_markdown_report(output, report)
+            text = output.read_text(encoding="utf-8")
 
         self.assertIn(audit.POST_EXTRACTION_LISTING_VIEWS_AUDIT_MARKER_V167, text)
         self.assertIn("Top-level functions/classes remaining in `views.py`: `0`", text)
