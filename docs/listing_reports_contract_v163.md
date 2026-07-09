@@ -4,15 +4,13 @@ LISTING_REPORTS_CONTRACT_V163
 
 ## Purpose
 
-This checkpoint protects the remaining `listing_reports` lane before any runtime code is moved out of `backend/listings/views.py`.
+This checkpoint protects the `listing_reports` lane before and during extraction from `backend/listings/views.py`.
 
 v162 identified `listing_reports` as the next safest extraction candidate after the CRUD/upload lane was moved in v161.
 
 ## Scope
 
-v163 is a contract checkpoint only.
-
-It records and protects:
+The contract records and protects:
 
 - current `listing_reports` definition counts,
 - duplicate/shadowed report function names,
@@ -20,11 +18,12 @@ It records and protects:
 - existing listing-report URL route aliases,
 - current callback identity through `listings.views`,
 - existing listing report status UX coverage,
-- the v162 audit recommendation that `listing_reports` should be extracted before `saved_searches`.
+- trust-safety report event service wiring,
+- moderation-notice creation paths.
 
 ## Protected report lane functions
 
-The current report lane includes:
+The report lane includes:
 
 - `moderation_queue`
 - `listing_report_create`
@@ -50,13 +49,18 @@ The existing public route names are:
 - `report_suspend_listing` -> `listing_report_suspend_listing`
 - `report_archive_listing` -> `listing_report_archive_listing`
 
+## v164 extraction follow-up
+
+v164 extracts the protected listing report lane into `backend/listings/listing_reports_views.py`.
+
+Compatibility remains available through `listings.views` re-exports, so URL configuration and callers can continue using the existing route aliases and `views.<callback>` references.
+
 ## Non-goals
 
-- Do not move runtime code in v163.
-- Do not create `listing_reports_views.py` in v163.
-- Do not change URLs, permissions, templates, models, migrations, or runtime behavior.
+- Do not change public route names.
+- Do not change templates, permissions, models, migrations, or runtime behavior.
 - Do not remove compatibility access through `listings.views`.
 
-## Next safe step
+## Next safe step after v164
 
-v164 should extract the protected listing report lane into a dedicated module, while preserving route callbacks and compatibility re-exports.
+Prepare a contract checkpoint for the remaining `saved_searches` lane before moving any saved-search runtime code.
