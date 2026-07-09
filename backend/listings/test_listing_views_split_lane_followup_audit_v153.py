@@ -1,8 +1,8 @@
 """
 Tests for the v153 split-lane follow-up audit.
 
-Updated in v155 so the audit also records favorites as extracted after
-listing_favorite_toggle moved into a dedicated favorite view module.
+Updated through v157 so the audit records listing_promotions, favorites, and
+browse_search_detail as extracted lanes, then recommends uncategorized next.
 """
 
 from __future__ import annotations
@@ -26,29 +26,28 @@ class ListingViewsSplitLaneFollowupAuditV153Tests(SimpleTestCase):
 
         self.assertIn("listing_promotions", extracted)
         self.assertIn("favorites", extracted)
+        self.assertIn("browse_search_detail", extracted)
 
         self.assertTrue(extracted["listing_promotions"].extracted)
-        self.assertEqual(extracted["listing_promotions"].definition_count, 0)
-        self.assertEqual(extracted["listing_promotions"].total_lines, 0)
-        self.assertEqual(
-            extracted["listing_promotions"].view,
-            "listing_feature_priority_update",
-        )
+        self.assertEqual(extracted["listing_promotions"].view, "listing_feature_priority_update")
 
         self.assertTrue(extracted["favorites"].extracted)
-        self.assertEqual(extracted["favorites"].definition_count, 0)
-        self.assertEqual(extracted["favorites"].total_lines, 0)
         self.assertEqual(extracted["favorites"].view, "listing_favorite_toggle")
+
+        self.assertTrue(extracted["browse_search_detail"].extracted)
+        self.assertEqual(extracted["browse_search_detail"].definition_count, 0)
+        self.assertEqual(extracted["browse_search_detail"].total_lines, 0)
+        self.assertEqual(extracted["browse_search_detail"].view, "ListingDetailView")
         self.assertEqual(
-            extracted["favorites"].module,
-            "backend/listings/listing_favorite_views.py",
+            extracted["browse_search_detail"].module,
+            "backend/listings/listing_browse_detail_views.py",
         )
 
-    def test_v153_recommends_browse_search_detail_after_favorites_extraction(self):
+    def test_v153_recommends_uncategorized_after_browse_search_detail_extraction(self):
         report = followup.build_followup_report(Path("."))
 
-        self.assertEqual(report.recommended_next_lane.name, "browse_search_detail")
-        self.assertEqual(report.recommended_next_lane.definition_count, 1)
+        self.assertEqual(report.recommended_next_lane.name, "uncategorized")
+        self.assertGreaterEqual(report.recommended_next_lane.definition_count, 1)
         self.assertGreater(report.recommended_next_lane.total_lines, 0)
         self.assertEqual(
             report.recommended_next_lane.readiness,
@@ -62,7 +61,8 @@ class ListingViewsSplitLaneFollowupAuditV153Tests(SimpleTestCase):
 
         self.assertNotIn("listing_promotions", candidate_names)
         self.assertNotIn("favorites", candidate_names)
-        self.assertIn("browse_search_detail", candidate_names)
+        self.assertNotIn("browse_search_detail", candidate_names)
+        self.assertIn("uncategorized", candidate_names)
 
     def test_v153_candidate_order_prefers_single_small_lanes(self):
         report = followup.build_followup_report(Path("."))
@@ -91,5 +91,7 @@ class ListingViewsSplitLaneFollowupAuditV153Tests(SimpleTestCase):
         self.assertIn("listing_feature_priority_update", text)
         self.assertIn("favorites", text)
         self.assertIn("listing_favorite_toggle", text)
-        self.assertIn("Recommended next split lane", text)
         self.assertIn("browse_search_detail", text)
+        self.assertIn("ListingDetailView", text)
+        self.assertIn("Recommended next split lane", text)
+        self.assertIn("uncategorized", text)

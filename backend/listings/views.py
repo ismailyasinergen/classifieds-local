@@ -84,54 +84,6 @@ class ListingListView(SidebarCategoriesMixin, ListView):
         return context
 
 
-class ListingDetailView(SidebarCategoriesMixin, DetailView):
-    model = Listing
-    template_name = "listings/listing_detail.html"
-    context_object_name = "listing"
-
-    def get_queryset(self):
-        queryset = (
-            Listing.objects
-            .select_related("category", "owner", "owner__profile", "owner__seller_store")
-            .prefetch_related("images")
-        )
-
-        if self.request.user.is_staff:
-            return queryset
-
-        if self.request.user.is_authenticated:
-            return queryset.filter(
-                Q(status=Listing.Status.APPROVED)
-                | Q(owner=self.request.user)
-            )
-
-        return queryset.filter(status=Listing.Status.APPROVED).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()))
-
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        seller_store = None
-        try:
-            seller_store = self.object.owner.seller_store
-        except SellerStore.DoesNotExist:
-            seller_store = None
-
-        can_preview_store = (
-            self.request.user.is_authenticated
-            and (self.request.user.is_staff or self.request.user == self.object.owner)
-        )
-
-        if seller_store and (seller_store.is_active or can_preview_store):
-            context["seller_store"] = seller_store
-            context["seller_store_listing_count"] = (
-                Listing.objects
-                .filter(owner=self.object.owner, status=Listing.Status.APPROVED)
-                .filter(Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()))
-                .count()
-            )
-
-        return context
 
 
 class ListingCreateView(LoginRequiredMixin, SidebarCategoriesMixin, CreateView):
@@ -1506,6 +1458,7 @@ from .listing_visibility_helpers import active_approved_listings  # ACTIVE_APPRO
 from .listing_image_helpers import save_uploaded_listing_images  # SAVE_UPLOADED_LISTING_IMAGES_HELPER_EXTRACTION_V147
 from .listing_image_helpers import validate_uploaded_images  # VALIDATE_UPLOADED_IMAGES_HELPER_EXTRACTION_V148
 from .listing_favorite_views import listing_favorite_toggle  # V155 re-export
+from .listing_browse_detail_views import ListingDetailView  # V157 re-export
 
 
 @staff_member_required

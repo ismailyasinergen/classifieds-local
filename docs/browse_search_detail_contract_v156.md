@@ -39,3 +39,9 @@ The v156 tests lock these behaviors:
 ## Next safe step
 
 v157 can extract the `browse_search_detail` target view into a dedicated module while keeping the `listings.views` compatibility re-export and keeping these v156 contracts green.
+
+## v157 follow-up
+
+`ListingDetailView` has been extracted into `backend/listings/listing_browse_detail_views.py`.
+
+The v156 contracts now validate the same behavior through the `listings.views.ListingDetailView` compatibility re-export and the dedicated source module.

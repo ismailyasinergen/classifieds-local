@@ -30,6 +30,12 @@ EXTRACTED_LANES_V153 = {
         "checkpoint": "v155",
         "tag": "project-checkpoint-v155-favorite-view-extraction",
     },
+    "browse_search_detail": {
+        "view": "ListingDetailView",
+        "module": "backend/listings/listing_browse_detail_views.py",
+        "checkpoint": "v157",
+        "tag": "project-checkpoint-v157-listing-detail-view-extraction",
+    },
 }
 
 

@@ -75,4 +75,10 @@ class ListingFavoriteViewExtractionV155Tests(SimpleTestCase):
         self.assertTrue(extracted["favorites"].extracted)
         self.assertEqual(extracted["favorites"].definition_count, 0)
         self.assertEqual(extracted["favorites"].total_lines, 0)
-        self.assertEqual(report.recommended_next_lane.name, "browse_search_detail")
+        # Before v157, favorites extraction made browse_search_detail the next
+        # recommended lane. After v157, browse_search_detail is extracted and
+        # the next recommendation advances to uncategorized.
+        if "browse_search_detail" in extracted:
+            self.assertEqual(report.recommended_next_lane.name, "uncategorized")
+        else:
+            self.assertEqual(report.recommended_next_lane.name, "browse_search_detail")

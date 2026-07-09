@@ -18,21 +18,27 @@ This audit records extracted split lanes and selects the next safest split lane 
   - Extracted module: `backend/listings/listing_favorite_views.py`
   - Checkpoint: v155
 
-## Recommended next lane after v155
+- `browse_search_detail`
+  - Extracted view/class: `ListingDetailView`
+  - Extracted module: `backend/listings/listing_browse_detail_views.py`
+  - Checkpoint: v157
 
-The next safest remaining lane should be `browse_search_detail`.
+## Recommended next lane after v157
 
-Reason: after `listing_promotions` and `favorites` are removed from `views.py`, `browse_search_detail` is the smallest remaining single-definition candidate.
+The next safest remaining lane should be `uncategorized`.
+
+Reason: after `listing_promotions`, `favorites`, and `browse_search_detail` are removed from `views.py`, `uncategorized` is the next smallest remaining candidate.
 
 ## Verification
 
-The v153 follow-up tests verify that:
+The follow-up tests verify that:
 
 - `listing_promotions` is recognized as extracted.
-- `favorites` is recognized as extracted after v155.
+- `favorites` is recognized as extracted.
+- `browse_search_detail` is recognized as extracted after v157.
 - Extracted lanes are excluded from remaining split candidates.
 - Remaining candidates are ordered by smallest definition count, then smallest line count.
-- `browse_search_detail` is selected as the next safest lane after v155.
+- `uncategorized` is selected as the next safest lane after v157.
 - Docker test runs do not create `backend/docs/` side effects.
 
 ## Non-goals
@@ -46,13 +52,4 @@ The v153 follow-up tests verify that:
 
 ## Next safe step
 
-A future checkpoint should add focused contract tests for the `browse_search_detail` lane before moving it.
-
-## v156 follow-up
-
-`browse_search_detail` is now protected by focused contract tests before extraction.
-
-- Contract test file: `backend/listings/test_browse_search_detail_contract_v156.py`
-- Documentation: `docs/browse_search_detail_contract_v156.md`
-- Locked lane: `browse_search_detail`
-- Next safe extraction checkpoint: v157
+A future checkpoint should add focused contract tests for the `uncategorized` lane before moving it.
