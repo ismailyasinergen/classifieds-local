@@ -93,7 +93,10 @@ class BrowseSearchDetailSourceContractV156Tests(SimpleTestCase):
         self.assertEqual(status.view, "ListingDetailView")
         self.assertEqual(status.definition_count, 0)
         self.assertEqual(status.total_lines, 0)
-        self.assertEqual(report.recommended_next_lane.name, "uncategorized")
+        if "uncategorized" in {status.name for status in report.extracted_lanes}:
+            self.assertEqual(report.recommended_next_lane.name, "listing_crud_uploads")
+        else:
+            self.assertEqual(report.recommended_next_lane.name, "uncategorized")
 
     def test_v156_listing_detail_target_is_reexported_after_v157_extraction(self):
         self.assertTrue(hasattr(listing_views, "ListingDetailView"))

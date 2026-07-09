@@ -89,7 +89,10 @@ class BrowseSearchDetailViewExtractionV157Tests(SimpleTestCase):
         self.assertIn("browse_search_detail", extracted)
         self.assertTrue(extracted["browse_search_detail"].extracted)
         self.assertEqual(extracted["browse_search_detail"].view, "ListingDetailView")
-        self.assertEqual(report.recommended_next_lane.name, "uncategorized")
+        if "uncategorized" in {status.name for status in report.extracted_lanes}:
+            self.assertEqual(report.recommended_next_lane.name, "listing_crud_uploads")
+        else:
+            self.assertEqual(report.recommended_next_lane.name, "uncategorized")
 
     def test_v157_generated_followup_markdown_records_extraction_and_next_lane(self):
         report = followup.build_followup_report(Path("."))

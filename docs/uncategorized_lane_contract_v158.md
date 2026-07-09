@@ -44,3 +44,21 @@ The v158 tests verify that:
 ## Next safe step
 
 v159 can extract the `uncategorized` lane into a dedicated module while preserving any required `listings.views` compatibility re-exports.
+
+## v159 follow-up
+
+The `uncategorized` lane has been extracted into `backend/listings/listing_uncategorized_views.py`.
+
+The v158 contracts now validate the same v158 audit footprint (`100` lines) through the dedicated module and the `listings.views` compatibility re-exports. The extracted source preserves decorators, giving a decorator-inclusive source span of `104` lines. The AST body-line footprint is `94` lines.
+
+Repair 4 also removes shadowed duplicate top-level target definitions from `views.py` so compatibility re-exports cannot be shadowed.
+
+After this extraction, the next safest lane is `listing_crud_uploads`.
+
+### Repair 5 import-order follow-up
+
+The v159 compatibility re-export block is placed before early `views.py` classes that still inherit from `SidebarCategoriesMixin`.
+
+### Repair 8 byte-safe assignment-alias dependency follow-up
+
+`_BaseAttributeListingListView` is preserved as an internal assignment alias in `listing_uncategorized_views.py`, together with the earlier `ListingListView` base it points to. The source recovery uses byte-safe UTF-8 decoding for the original v158 file.

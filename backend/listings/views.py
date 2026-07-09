@@ -19,6 +19,16 @@ from categories.models import Category
 from .forms import ListingForm
 from .models import Listing, ListingFavorite, ListingImage
 
+from .listing_uncategorized_views import (
+    SidebarCategoriesMixin,
+    ListingListView,
+    listing_approve,
+    listing_reject,
+    listing_archive,
+    listing_renew,
+    listing_feature_toggle,
+)  # V159 re-export
+
 
 ALLOWED_IMAGE_CONTENT_TYPES = {
     "image/jpeg",
@@ -37,53 +47,6 @@ ALLOWED_IMAGE_EXTENSIONS = {
 
 MAX_IMAGE_SIZE_MB = 8
 MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024
-
-
-
-
-
-
-
-
-
-
-
-
-class SidebarCategoriesMixin:
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["root_categories"] = Category.objects.filter(parent__isnull=True).order_by("name")
-        context["all_categories"] = Category.objects.all().order_by("name")
-        context["search_q"] = self.request.GET.get("q", "")
-        context["search_location"] = self.request.GET.get("location", "")
-        context["search_min_price"] = self.request.GET.get("min_price", "")
-        context["search_max_price"] = self.request.GET.get("max_price", "")
-        context["search_category"] = self.request.GET.get("category", "")
-        context["search_sort"] = self.request.GET.get("sort", "newest")
-        return context
-
-
-class ListingListView(SidebarCategoriesMixin, ListView):
-    model = Listing
-    template_name = "listings/listing_list.html"
-    context_object_name = "listings"
-    paginate_by = 12
-
-    def get_queryset(self):
-        queryset = (
-            Listing.objects
-            .select_related("category", "owner")
-            .prefetch_related("images")
-            .filter(status=Listing.Status.APPROVED).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()))
-        )
-        return apply_listing_filters(queryset, self.request)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["page_title"] = "Latest Listings"
-        return context
-
-
 
 
 class ListingCreateView(LoginRequiredMixin, SidebarCategoriesMixin, CreateView):
@@ -219,90 +182,6 @@ def moderation_queue(request):
 
 
 @staff_member_required
-@require_POST
-def listing_approve(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
-    listing.status = Listing.Status.APPROVED
-    listing.save(update_fields=["status"])
-    return redirect("listings:moderation_queue")
-
-
-@staff_member_required
-@require_POST
-def listing_reject(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
-    listing.status = Listing.Status.REJECTED
-    listing.save(update_fields=["status"])
-    return redirect("listings:moderation_queue")
-
-
-
-
-
-@login_required
-@require_POST
-def listing_archive(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
-
-    if listing.owner != request.user and not request.user.is_staff:
-        messages.warning(request, "You cannot archive this listing.")
-        return redirect("accounts:my_listings")
-
-    listing.status = Listing.Status.ARCHIVED
-    listing.save(update_fields=["status"])
-
-    messages.success(request, "Listing archived.")
-    return redirect("accounts:my_listings")
-
-
-@login_required
-@require_POST
-def listing_renew(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
-
-    if listing.owner != request.user and not request.user.is_staff:
-        messages.warning(request, "You cannot renew this listing.")
-        return redirect("accounts:my_listings")
-
-    listing.status = Listing.Status.PENDING
-    listing.expires_at = default_listing_expiry()
-    listing.save(update_fields=["status", "expires_at"])
-
-    messages.success(request, "Listing renewed and sent for approval.")
-    return redirect("accounts:my_listings")
-
-
-
-@login_required
-@require_POST
-def listing_feature_toggle(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
-
-    if not request.user.is_staff:
-        messages.warning(request, "Only staff can change featured status.")
-        return redirect(listing.get_absolute_url())
-
-    listing.is_featured = not listing.is_featured
-
-    if listing.is_featured and not listing.featured_until:
-        listing.featured_until = timezone.now() + timedelta(days=30)
-
-    if not listing.is_featured:
-        listing.featured_until = None
-        listing.featured_priority = 0
-
-    listing.save(update_fields=["is_featured", "featured_until", "featured_priority"])
-
-    if listing.is_featured:
-        messages.success(request, "Listing marked as featured.")
-    else:
-        messages.success(request, "Listing removed from featured listings.")
-
-    return redirect(request.POST.get("next") or listing.get_absolute_url())
-
-
-
-@staff_member_required
 def moderation_queue(request):
     status_filter = request.GET.get("status", "").strip()
     featured_filter = request.GET.get("featured", "").strip()
@@ -354,9 +233,7 @@ def moderation_queue(request):
     )
 
 
-
 from .listing_promotion_views import listing_feature_priority_update  # V152 re-export
-
 
 
 @login_required
@@ -532,7 +409,6 @@ def listing_report_archive_listing(request, pk):
     return redirect("listings:report_queue")
 
 
-
 @staff_member_required
 def listing_report_queue(request):
     from django.db.models import Q
@@ -601,7 +477,6 @@ def listing_report_queue(request):
             "page_title": "Listing Reports",
         },
     )
-
 
 
 @staff_member_required
@@ -692,7 +567,6 @@ def listing_report_export_csv(request):
         ])
 
     return response
-
 
 
 @login_required
@@ -1591,30 +1465,6 @@ def listing_report_archive_listing(request, pk):
     return redirect("listings:report_queue")
 
 # Attribute-aware browse filters.
-_BaseAttributeListingListView = ListingListView
-class ListingListView(_BaseAttributeListingListView):
-    def get_queryset(self):
-        from .attribute_filters import apply_attribute_filters
-
-        queryset = super().get_queryset()
-        category_slug = self.request.GET.get("category", "").strip()
-        return apply_attribute_filters(queryset, self.request, category_slug)
-
-    def get_context_data(self, **kwargs):
-        from .attribute_filters import get_attribute_filter_context, get_page_querystring
-
-        context = super().get_context_data(**kwargs)
-        category_slug = (
-            context.get("search_category")
-            or self.request.GET.get("category", "").strip()
-        )
-        context.update(get_attribute_filter_context(self.request, category_slug))
-        context["page_querystring"] = get_page_querystring(self.request)
-
-        from .saved_searches import get_saved_search_context
-        context.update(get_saved_search_context(self.request))
-
-        return context
 
 # TRUST_SAFETY_REPORT_EVENT_WIRING_V2
 _TrustSafetyOriginalListingReportReview = listing_report_review

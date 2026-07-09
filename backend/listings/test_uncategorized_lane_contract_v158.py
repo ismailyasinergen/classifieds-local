@@ -1,118 +1,147 @@
 """
 UNCATEGORIZED_LANE_CONTRACT_V158
 
-Focused source/audit contracts for the uncategorized lane before moving it
-out of listings.views in a later checkpoint.
+Focused source/audit contracts for the uncategorized lane.
 
-v158 is intentionally test/docs only.
+v158 locked the lane before extraction. After v159, these contracts remain
+green by validating the dedicated module and the listings.views compatibility
+re-exports.
 """
 
 from __future__ import annotations
 
+import ast
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from django.test import SimpleTestCase
 
+from listings import listing_uncategorized_views
 from listings import listing_views_split_lane_followup_audit_v153 as followup
+from listings import views as listing_views
 
 
 UNCATEGORIZED_LANE_CONTRACT_V158 = True
 UNCATEGORIZED_LANE = "uncategorized"
 EXPECTED_UNCATEGORIZED_DEFINITION_COUNT = 7
-EXPECTED_UNCATEGORIZED_TOTAL_LINES = 100
-EXPECTED_UNCATEGORIZED_READINESS = 'candidate_for_first_split'
-EXPECTED_REMAINING_CANDIDATES = [
-    "uncategorized",
-    "listing_crud_uploads"
+EXPECTED_UNCATEGORIZED_AUDIT_LINES = 100
+EXPECTED_UNCATEGORIZED_AST_BODY_LINES = 94
+EXPECTED_UNCATEGORIZED_SPAN_LINES_WITH_DECORATORS = 104
+EXPECTED_UNCATEGORIZED_READINESS = "candidate_for_first_split"
+EXPECTED_UNCATEGORIZED_EXPORTS = [
+    "SidebarCategoriesMixin",
+    "ListingListView",
+    "listing_approve",
+    "listing_reject",
+    "listing_archive",
+    "listing_renew",
+    "listing_feature_toggle"
 ]
-EXPECTED_EXTRACTED_LANES = ["browse_search_detail", "favorites", "listing_promotions"]
+EXPECTED_EXTRACTED_LANES_AFTER_V159 = [
+    "browse_search_detail",
+    "favorites",
+    "listing_promotions",
+    "uncategorized",
+]
 
 
 def _report():
     return followup.build_followup_report(Path("."))
 
 
-def _remaining_candidate_map(report):
-    return {candidate.name: candidate for candidate in report.remaining_candidates}
+def _definition_ranges(source_path):
+    source = Path(source_path).read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    ranges = {}
 
+    for node in tree.body:
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            continue
 
-def _extracted_lane_map(report):
-    return {status.name: status for status in report.extracted_lanes}
+        body_start = node.lineno
+        decorators = getattr(node, "decorator_list", [])
+        decorated_start = body_start
+        if decorators:
+            decorated_start = min(decorator.lineno for decorator in decorators)
+
+        end_lineno = node.end_lineno or node.lineno
+        ranges.setdefault(node.name, []).append({
+            "ast_body_lines": end_lineno - body_start + 1,
+            "span_lines": end_lineno - decorated_start + 1,
+        })
+
+    return ranges
 
 
 class UncategorizedLaneContractV158Tests(SimpleTestCase):
-    def test_v158_uncategorized_is_current_recommended_next_lane(self):
+    def test_v158_uncategorized_is_extracted_after_v159(self):
         report = _report()
+        extracted = {status.name: status for status in report.extracted_lanes}
 
-        self.assertEqual(report.recommended_next_lane.name, UNCATEGORIZED_LANE)
+        self.assertIn(UNCATEGORIZED_LANE, extracted)
+        self.assertTrue(extracted[UNCATEGORIZED_LANE].extracted)
+        self.assertEqual(extracted[UNCATEGORIZED_LANE].definition_count, 0)
+        self.assertEqual(extracted[UNCATEGORIZED_LANE].total_lines, 0)
         self.assertEqual(
-            getattr(report.recommended_next_lane, "readiness", None),
-            EXPECTED_UNCATEGORIZED_READINESS,
+            extracted[UNCATEGORIZED_LANE].module,
+            "backend/listings/listing_uncategorized_views.py",
         )
 
-    def test_v158_uncategorized_source_footprint_is_locked_before_extraction(self):
+    def test_v158_uncategorized_dedicated_source_preserves_locked_footprint(self):
+        ranges = _definition_ranges("listings/listing_uncategorized_views.py")
+
+        self.assertEqual(set(EXPECTED_UNCATEGORIZED_EXPORTS), set(ranges))
+        self.assertEqual(len(EXPECTED_UNCATEGORIZED_EXPORTS), EXPECTED_UNCATEGORIZED_DEFINITION_COUNT)
+        self.assertEqual(
+            listing_uncategorized_views.UNCATEGORIZED_AUDIT_LINES_V159,
+            EXPECTED_UNCATEGORIZED_AUDIT_LINES,
+        )
+        self.assertEqual(
+            sum(ranges[name][-1]["ast_body_lines"] for name in EXPECTED_UNCATEGORIZED_EXPORTS),
+            EXPECTED_UNCATEGORIZED_AST_BODY_LINES,
+        )
+        self.assertEqual(
+            sum(ranges[name][-1]["span_lines"] for name in EXPECTED_UNCATEGORIZED_EXPORTS),
+            EXPECTED_UNCATEGORIZED_SPAN_LINES_WITH_DECORATORS,
+        )
+
+    def test_v158_listings_views_preserves_uncategorized_compatibility_reexports(self):
+        for name in EXPECTED_UNCATEGORIZED_EXPORTS:
+            self.assertTrue(hasattr(listing_views, name), name)
+            self.assertIs(
+                getattr(listing_views, name),
+                getattr(listing_uncategorized_views, name),
+                name,
+            )
+
+    def test_v158_remaining_candidates_advance_to_listing_crud_uploads_after_v159(self):
         report = _report()
-        candidate = report.recommended_next_lane
+        remaining = [candidate.name for candidate in report.remaining_candidates]
 
-        self.assertEqual(candidate.name, UNCATEGORIZED_LANE)
-        self.assertEqual(candidate.definition_count, EXPECTED_UNCATEGORIZED_DEFINITION_COUNT)
-        self.assertEqual(candidate.total_lines, EXPECTED_UNCATEGORIZED_TOTAL_LINES)
-        self.assertGreater(candidate.definition_count, 0)
-        self.assertGreater(candidate.total_lines, 0)
+        self.assertEqual(report.recommended_next_lane.name, "listing_crud_uploads")
+        self.assertEqual(remaining, ["listing_crud_uploads"])
+        self.assertNotIn(UNCATEGORIZED_LANE, remaining)
 
-    def test_v158_remaining_candidates_are_locked_after_v157(self):
+    def test_v158_previous_split_lanes_remain_extracted_after_v159(self):
         report = _report()
-        candidate_names = [candidate.name for candidate in report.remaining_candidates]
+        extracted = {status.name: status for status in report.extracted_lanes}
 
-        self.assertEqual(candidate_names, EXPECTED_REMAINING_CANDIDATES)
-        self.assertIn(UNCATEGORIZED_LANE, candidate_names)
-        self.assertIn("listing_crud_uploads", candidate_names)
-        self.assertNotIn("browse_search_detail", candidate_names)
-
-    def test_v158_uncategorized_is_first_remaining_candidate_by_sort_order(self):
-        report = _report()
-        candidates = list(report.remaining_candidates)
-
-        self.assertGreaterEqual(len(candidates), 1)
-        self.assertEqual(candidates[0].name, UNCATEGORIZED_LANE)
-        self.assertEqual(candidates[0], report.recommended_next_lane)
-
-        sort_keys = [
-            (candidate.definition_count, candidate.total_lines, candidate.name)
-            for candidate in candidates
-        ]
-        self.assertEqual(sort_keys, sorted(sort_keys))
-
-    def test_v158_previous_split_lanes_remain_extracted(self):
-        report = _report()
-        extracted = _extracted_lane_map(report)
-
-        self.assertEqual(sorted(extracted), EXPECTED_EXTRACTED_LANES)
+        self.assertEqual(sorted(extracted), EXPECTED_EXTRACTED_LANES_AFTER_V159)
 
         self.assertTrue(extracted["listing_promotions"].extracted)
-        self.assertEqual(extracted["listing_promotions"].view, "listing_feature_priority_update")
-
         self.assertTrue(extracted["favorites"].extracted)
-        self.assertEqual(extracted["favorites"].view, "listing_favorite_toggle")
-
         self.assertTrue(extracted["browse_search_detail"].extracted)
-        self.assertEqual(extracted["browse_search_detail"].view, "ListingDetailView")
-        self.assertEqual(
-            extracted["browse_search_detail"].module,
-            "backend/listings/listing_browse_detail_views.py",
-        )
+        self.assertTrue(extracted["uncategorized"].extracted)
 
-    def test_v158_uncategorized_has_not_been_extracted_yet(self):
-        report = _report()
-        remaining = _remaining_candidate_map(report)
+    def test_v158_uncategorized_local_views_definitions_are_removed_after_v159(self):
+        ranges = _definition_ranges("listings/views.py")
 
-        self.assertIn(UNCATEGORIZED_LANE, remaining)
-        self.assertFalse(getattr(remaining[UNCATEGORIZED_LANE], "extracted", False))
-        self.assertFalse(Path("listings/listing_uncategorized_views.py").exists())
-        self.assertFalse(Path("listings/uncategorized_views.py").exists())
+        for name in EXPECTED_UNCATEGORIZED_EXPORTS:
+            self.assertNotIn(name, ranges, name)
 
-    def test_v158_generated_followup_markdown_documents_uncategorized_next_lane(self):
+        self.assertTrue(Path("listings/listing_uncategorized_views.py").exists())
+
+    def test_v158_generated_followup_markdown_documents_listing_crud_uploads_next_lane(self):
         report = _report()
 
         with TemporaryDirectory() as temp_dir:
@@ -121,8 +150,6 @@ class UncategorizedLaneContractV158Tests(SimpleTestCase):
             text = output.read_text(encoding="utf-8")
 
         self.assertIn("LISTING_VIEWS_SPLIT_LANE_FOLLOWUP_AUDIT_V153", text)
-        self.assertIn("Recommended next split lane", text)
-        self.assertIn(UNCATEGORIZED_LANE, text)
+        self.assertIn("uncategorized", text)
         self.assertIn("listing_crud_uploads", text)
-        self.assertIn("browse_search_detail", text)
-        self.assertIn("ListingDetailView", text)
+        self.assertIn("Recommended next split lane", text)

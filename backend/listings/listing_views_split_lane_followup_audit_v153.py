@@ -36,6 +36,12 @@ EXTRACTED_LANES_V153 = {
         "checkpoint": "v157",
         "tag": "project-checkpoint-v157-listing-detail-view-extraction",
     },
+    "uncategorized": {
+        "view": 'SidebarCategoriesMixin, ListingListView, listing_approve, listing_reject, listing_archive, listing_renew, listing_feature_toggle',
+        "module": "backend/listings/listing_uncategorized_views.py",
+        "checkpoint": "v159",
+        "tag": "project-checkpoint-v159-uncategorized-lane-view-extraction",
+    },
 }
 
 
