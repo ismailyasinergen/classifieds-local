@@ -1,9 +1,11 @@
 """
 V153 split-lane follow-up audit after listing promotion view extraction.
 
-This module is intentionally read-only. It does not move views or change runtime
-behavior. It records that the listing_promotions lane has already been extracted
-by v152 and selects the next safest split lane from the remaining active lanes.
+This module is intentionally read-only. It records extracted lanes and selects
+the next safest split lane from the remaining active lanes.
+
+Updated in v155 to record the favorites lane as extracted after
+listing_favorite_toggle moved into listing_favorite_views.py.
 """
 
 from __future__ import annotations
@@ -21,7 +23,13 @@ EXTRACTED_LANES_V153 = {
         "module": "backend/listings/listing_promotion_views.py",
         "checkpoint": "v152",
         "tag": "project-checkpoint-v152-listing-promotion-view-extraction",
-    }
+    },
+    "favorites": {
+        "view": "listing_favorite_toggle",
+        "module": "backend/listings/listing_favorite_views.py",
+        "checkpoint": "v155",
+        "tag": "project-checkpoint-v155-favorite-view-extraction",
+    },
 }
 
 
@@ -64,7 +72,7 @@ def _candidate_reason(lane) -> str:
     if definition_count == 1:
         return (
             f"{name} has one remaining definition and {total_lines} lines, "
-            "making it a low-risk next split candidate after listing_promotions."
+            "making it a low-risk next split candidate after extracted lanes."
         )
 
     return (
@@ -157,7 +165,7 @@ def write_markdown_report(path: Path | str, report: SplitLaneFollowupReportV153)
         "",
         "## Purpose",
         "",
-        "Record the post-v152 split-lane state: `listing_promotions` has already been extracted, and the next safest split lane is selected from the remaining active lanes.",
+        "Record the current split-lane state: extracted lanes are excluded, and the next safest split lane is selected from the remaining active lanes.",
         "",
         "## Extracted lanes",
         "",
@@ -202,13 +210,13 @@ def write_markdown_report(path: Path | str, report: SplitLaneFollowupReportV153)
             "",
             "## Non-goals",
             "",
-            "- Do not move another view in v153.",
+            "- Do not move another view in this audit module.",
             "- Do not change URLs, permissions, templates, models, migrations, or runtime behavior.",
-            "- Do not remove the v152 re-export compatibility path.",
+            "- Do not remove compatibility re-export paths.",
             "",
             "## Next safe step",
             "",
-            f"v154 should add focused contract tests for the `{report.recommended_next_lane.name}` lane before moving it.",
+            f"The next extraction checkpoint should protect and move the `{report.recommended_next_lane.name}` lane.",
         ]
     )
 

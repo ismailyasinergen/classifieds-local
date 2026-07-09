@@ -3,13 +3,15 @@ LISTING_FAVORITES_CONTRACT_V154
 
 Focused behavior contracts for the favorites lane before extracting
 listing_favorite_toggle from listings.views in a later checkpoint.
+
+Updated in v155 to keep the public listings.views re-export contract green
+after the dedicated favorite view module extraction.
 """
 
 from __future__ import annotations
 
 from datetime import timedelta
 from decimal import Decimal
-from pathlib import Path
 from uuid import uuid4
 
 from django.conf import settings
@@ -21,8 +23,8 @@ from django.urls import resolve, reverse
 from django.utils import timezone
 
 from categories.models import Category
+from listings import listing_favorite_views
 from listings import views as listing_views
-from listings import listing_views_split_lane_followup_audit_v153 as followup
 from listings.models import Listing, ListingFavorite
 
 
@@ -153,12 +155,13 @@ class ListingFavoritesContractV154Tests(TestCase):
         listing = listing or self.listing
         return ListingFavorite.objects.filter(user=user, listing=listing).exists()
 
-    def test_v154_favorites_lane_is_next_candidate_from_v153_audit(self):
-        report = followup.build_followup_report(Path("."))
-
-        self.assertEqual(report.recommended_next_lane.name, "favorites")
-        self.assertEqual(report.recommended_next_lane.definition_count, 1)
-        self.assertGreater(report.recommended_next_lane.total_lines, 0)
+    def test_v154_favorite_contract_target_is_reexported_after_v155_move(self):
+        self.assertTrue(hasattr(listing_views, FAVORITE_VIEW_NAME))
+        self.assertTrue(hasattr(listing_favorite_views, FAVORITE_VIEW_NAME))
+        self.assertIs(
+            getattr(listing_views, FAVORITE_VIEW_NAME),
+            getattr(listing_favorite_views, FAVORITE_VIEW_NAME),
+        )
 
     def test_v154_favorite_url_name_route_and_callback_are_stable(self):
         url = self.favorite_url()

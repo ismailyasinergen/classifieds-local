@@ -1,9 +1,8 @@
 """
 Tests for the v153 split-lane follow-up audit.
 
-v153 is documentation/audit-only. It verifies that v152 made
-listing_promotions an extracted lane and that the next safest remaining
-split lane is selected without changing runtime behavior.
+Updated in v155 so the audit also records favorites as extracted after
+listing_favorite_toggle moved into a dedicated favorite view module.
 """
 
 from __future__ import annotations
@@ -20,12 +19,14 @@ LISTING_VIEWS_SPLIT_LANE_FOLLOWUP_AUDIT_TESTS_V153 = True
 
 
 class ListingViewsSplitLaneFollowupAuditV153Tests(SimpleTestCase):
-    def test_v153_report_records_listing_promotions_as_extracted(self):
+    def test_v153_report_records_extracted_lanes(self):
         report = followup.build_followup_report(Path("."))
 
         extracted = {status.name: status for status in report.extracted_lanes}
 
         self.assertIn("listing_promotions", extracted)
+        self.assertIn("favorites", extracted)
+
         self.assertTrue(extracted["listing_promotions"].extracted)
         self.assertEqual(extracted["listing_promotions"].definition_count, 0)
         self.assertEqual(extracted["listing_promotions"].total_lines, 0)
@@ -33,15 +34,20 @@ class ListingViewsSplitLaneFollowupAuditV153Tests(SimpleTestCase):
             extracted["listing_promotions"].view,
             "listing_feature_priority_update",
         )
+
+        self.assertTrue(extracted["favorites"].extracted)
+        self.assertEqual(extracted["favorites"].definition_count, 0)
+        self.assertEqual(extracted["favorites"].total_lines, 0)
+        self.assertEqual(extracted["favorites"].view, "listing_favorite_toggle")
         self.assertEqual(
-            extracted["listing_promotions"].module,
-            "backend/listings/listing_promotion_views.py",
+            extracted["favorites"].module,
+            "backend/listings/listing_favorite_views.py",
         )
 
-    def test_v153_recommends_favorites_as_next_safest_lane(self):
+    def test_v153_recommends_browse_search_detail_after_favorites_extraction(self):
         report = followup.build_followup_report(Path("."))
 
-        self.assertEqual(report.recommended_next_lane.name, "favorites")
+        self.assertEqual(report.recommended_next_lane.name, "browse_search_detail")
         self.assertEqual(report.recommended_next_lane.definition_count, 1)
         self.assertGreater(report.recommended_next_lane.total_lines, 0)
         self.assertEqual(
@@ -55,7 +61,8 @@ class ListingViewsSplitLaneFollowupAuditV153Tests(SimpleTestCase):
         candidate_names = [candidate.name for candidate in report.remaining_candidates]
 
         self.assertNotIn("listing_promotions", candidate_names)
-        self.assertIn("favorites", candidate_names)
+        self.assertNotIn("favorites", candidate_names)
+        self.assertIn("browse_search_detail", candidate_names)
 
     def test_v153_candidate_order_prefers_single_small_lanes(self):
         report = followup.build_followup_report(Path("."))
@@ -82,6 +89,7 @@ class ListingViewsSplitLaneFollowupAuditV153Tests(SimpleTestCase):
         self.assertIn("LISTING_VIEWS_SPLIT_LANE_FOLLOWUP_AUDIT_V153", text)
         self.assertIn("listing_promotions", text)
         self.assertIn("listing_feature_priority_update", text)
-        self.assertIn("Recommended next split lane", text)
         self.assertIn("favorites", text)
-        self.assertIn("v154 should add focused contract tests", text)
+        self.assertIn("listing_favorite_toggle", text)
+        self.assertIn("Recommended next split lane", text)
+        self.assertIn("browse_search_detail", text)

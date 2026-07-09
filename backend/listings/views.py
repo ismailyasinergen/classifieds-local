@@ -284,31 +284,6 @@ def listing_reject(request, pk):
     return redirect("listings:moderation_queue")
 
 
-@login_required
-@require_POST
-def listing_favorite_toggle(request, pk):
-    listing = get_object_or_404(
-        Listing,
-        pk=pk,
-        status=Listing.Status.APPROVED,
-    )
-
-    if listing.owner == request.user:
-        messages.warning(request, "You cannot save your own listing.")
-        return redirect(request.POST.get("next") or listing.get_absolute_url())
-
-    favorite, created = ListingFavorite.objects.get_or_create(
-        user=request.user,
-        listing=listing,
-    )
-
-    if created:
-        messages.success(request, "Listing saved.")
-    else:
-        favorite.delete()
-        messages.success(request, "Listing removed from saved listings.")
-
-    return redirect(request.POST.get("next") or listing.get_absolute_url())
 
 
 
@@ -1530,6 +1505,7 @@ from .listing_lifecycle_helpers import default_listing_expiry  # DEFAULT_LISTING
 from .listing_visibility_helpers import active_approved_listings  # ACTIVE_APPROVED_LISTINGS_HELPER_EXTRACTION_V146
 from .listing_image_helpers import save_uploaded_listing_images  # SAVE_UPLOADED_LISTING_IMAGES_HELPER_EXTRACTION_V147
 from .listing_image_helpers import validate_uploaded_images  # VALIDATE_UPLOADED_IMAGES_HELPER_EXTRACTION_V148
+from .listing_favorite_views import listing_favorite_toggle  # V155 re-export
 
 
 @staff_member_required
@@ -2304,4 +2280,3 @@ def saved_search_rename(request, pk):
     request.session["saved_search_renamed_id_v136"] = saved_search.pk
     messages.success(request, "Saved search name updated.")
     return redirect(next_url)
-
