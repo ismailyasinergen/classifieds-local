@@ -53,3 +53,18 @@ The follow-up tests verify that:
 ## Next safe step
 
 A future checkpoint should add focused contract tests for the `uncategorized` lane before moving it.
+
+## v158 contract checkpoint
+
+UNCATEGORIZED_LANE_CONTRACT_V158
+
+v158 adds focused tests for the `uncategorized` lane before extraction.
+
+Locked v158 audit state:
+
+- Recommended next lane: `uncategorized`
+- Remaining candidates: `uncategorized, listing_crud_uploads`
+- `uncategorized` definition count: `7`
+- `uncategorized` total lines: `100`
+
+v159 can move the `uncategorized` lane after these contracts are green.
