@@ -47,3 +47,12 @@ The v153 follow-up tests verify that:
 ## Next safe step
 
 A future checkpoint should add focused contract tests for the `browse_search_detail` lane before moving it.
+
+## v156 follow-up
+
+`browse_search_detail` is now protected by focused contract tests before extraction.
+
+- Contract test file: `backend/listings/test_browse_search_detail_contract_v156.py`
+- Documentation: `docs/browse_search_detail_contract_v156.md`
+- Locked lane: `browse_search_detail`
+- Next safe extraction checkpoint: v157
