@@ -49,8 +49,14 @@ class ListingViewsImportCleanupV170Tests(SimpleTestCase):
         self.assertTrue(report.has_only_compatibility_reexports)
         self.assertEqual(report.non_compatibility_import_modules, ())
 
-    def test_v170_preserves_v169_protected_view_reexport_surface(self):
+    def test_v170_preserves_v169_protected_view_reexport_surface_after_v174_targeted_removal(self):
         report = cleanup.build_report(Path("."))
+
+        expected_names_after_v174 = tuple(
+            name
+            for name in contract_v169.SNAPSHOT_COMPATIBILITY_VIEW_REEXPORT_NAMES_V169
+            if name not in {"SidebarCategoriesMixin", "_safe_reporter_note"}
+        )
 
         self.assertEqual(
             report.compatibility_view_reexport_modules,
@@ -58,7 +64,7 @@ class ListingViewsImportCleanupV170Tests(SimpleTestCase):
         )
         self.assertEqual(
             report.compatibility_view_reexport_names,
-            contract_v169.SNAPSHOT_COMPATIBILITY_VIEW_REEXPORT_NAMES_V169,
+            expected_names_after_v174,
         )
         self.assertEqual(report.missing_expected_view_reexport_modules, ())
 

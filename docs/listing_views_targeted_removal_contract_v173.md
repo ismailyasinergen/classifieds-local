@@ -16,15 +16,16 @@ v173 does not remove either candidate.
 ## Summary
 
 - Views path: `listings/views.py`
-- Views total lines: `157`
+- Views total lines: `155`
 - Facade-only state: `True`
 - Only approved compatibility re-exports remain: `True`
 - Wildcard imports present: `False`
-- Candidate names present in facade: `('SidebarCategoriesMixin', '_safe_reporter_note')`
-- Candidate names missing from facade: `()`
+- Candidate names present in facade: `()`
+- Candidate names missing from facade: `('SidebarCategoriesMixin', '_safe_reporter_note')`
 - Target facade dependency records: `0`
-- Informational plain target reference records: `41`
+- Informational plain target reference records: `61`
 - Eligible for future targeted removal checkpoint: `True`
+- Targeted removal completed in v174: `True`
 - Safe to remove in v173: `False`
 
 ## Candidate source modules
@@ -52,10 +53,20 @@ No target facade dependency records detected.
 - `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/listing_views_import_cleanup_contract_v169.py:362` — 'SidebarCategoriesMixin',
 - `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/listing_views_import_cleanup_v170.py:37` — 'SidebarCategoriesMixin',
 - `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/listing_views_split_lane_followup_audit_v153.py:40` — "view": 'SidebarCategoriesMixin, ListingListView, listing_approve, listing_reject, listing_archive, listing_renew, listing_feature_toggle',
+- `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/listing_views_targeted_reexport_removal_v174.py:12` — TARGETED_REMOVED_FACADE_REEXPORT_NAMES_V174 = ('SidebarCategoriesMixin', '_safe_reporter_note')
+- `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/listing_views_targeted_reexport_removal_v174.py:14` — TARGETED_REMOVED_FACADE_REEXPORT_SOURCE_MODULES_V174 = (('SidebarCategoriesMixin', 'listing_uncategorized_views'), ('_safe_reporter_note', 'listing_reports_views'))
+- `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/listing_views_targeted_reexport_removal_v174.py:21` — 'SidebarCategoriesMixin',
 - `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_browse_search_detail_view_extraction_v157.py:34` — self.assertIn("SidebarCategoriesMixin", source)
 - `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_listing_views_import_cleanup_contract_v169.py:134` — {'bound_names': ('SidebarCategoriesMixin',
 - `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_listing_views_import_cleanup_contract_v169.py:146` — 'original_names': ('SidebarCategoriesMixin',
 - `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_listing_views_import_cleanup_contract_v169.py:364` — 'SidebarCategoriesMixin',
+- `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_listing_views_import_cleanup_contract_v169.py:505` — if name not in {"SidebarCategoriesMixin", "_safe_reporter_note"}
+- `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_listing_views_import_cleanup_v170.py:58` — if name not in {"SidebarCategoriesMixin", "_safe_reporter_note"}
+- `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_listing_views_targeted_reexport_removal_v174.py:47` — ("SidebarCategoriesMixin", "_safe_reporter_note"),
+- `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_listing_views_targeted_reexport_removal_v174.py:53` — self.assertFalse(hasattr(listing_views, "SidebarCategoriesMixin"))
+- `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_listing_views_targeted_reexport_removal_v174.py:56` — self.assertTrue(hasattr(listing_uncategorized_views, "SidebarCategoriesMixin"))
+- `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_listing_views_targeted_reexport_removal_v174.py:75` — ("SidebarCategoriesMixin", "_safe_reporter_note"),
+- `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_listing_views_targeted_reexport_removal_v174.py:119` — self.assertIn("`SidebarCategoriesMixin` remains defined/exported by `listing_uncategorized_views`", text)
 - `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_uncategorized_lane_contract_v158.py:32` — "SidebarCategoriesMixin",
 - `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_uncategorized_lane_view_extraction_v159.py:23` — "SidebarCategoriesMixin",
 - `SidebarCategoriesMixin` — `informational_plain_target_reference` — `listings/test_uncategorized_lane_view_extraction_v159.py:137` — if isinstance(base, ast.Name) and base.id == "SidebarCategoriesMixin":
@@ -69,6 +80,9 @@ No target facade dependency records detected.
 - `_safe_reporter_note` — `informational_plain_target_reference` — `listings/listing_views_import_cleanup_contract_v169.py:186` — '_safe_reporter_note',
 - `_safe_reporter_note` — `informational_plain_target_reference` — `listings/listing_views_import_cleanup_contract_v169.py:363` — '_safe_reporter_note',
 - `_safe_reporter_note` — `informational_plain_target_reference` — `listings/listing_views_import_cleanup_v170.py:38` — '_safe_reporter_note',
+- `_safe_reporter_note` — `informational_plain_target_reference` — `listings/listing_views_targeted_reexport_removal_v174.py:12` — TARGETED_REMOVED_FACADE_REEXPORT_NAMES_V174 = ('SidebarCategoriesMixin', '_safe_reporter_note')
+- `_safe_reporter_note` — `informational_plain_target_reference` — `listings/listing_views_targeted_reexport_removal_v174.py:14` — TARGETED_REMOVED_FACADE_REEXPORT_SOURCE_MODULES_V174 = (('SidebarCategoriesMixin', 'listing_uncategorized_views'), ('_safe_reporter_note', 'listing_reports_views'))
+- `_safe_reporter_note` — `informational_plain_target_reference` — `listings/listing_views_targeted_reexport_removal_v174.py:23` — '_safe_reporter_note',
 - `_safe_reporter_note` — `informational_plain_target_reference` — `listings/remaining_listing_views_post_v161_audit.py:100` — or item.name == "_safe_reporter_note"
 - `_safe_reporter_note` — `informational_plain_target_reference` — `listings/test_listing_reports_contract_v163.py:27` — "_safe_reporter_note": 1,
 - `_safe_reporter_note` — `informational_plain_target_reference` — `listings/test_listing_reports_contract_v163.py:37` — "_safe_reporter_note": 2,
@@ -79,6 +93,13 @@ No target facade dependency records detected.
 - `_safe_reporter_note` — `informational_plain_target_reference` — `listings/test_listing_views_import_cleanup_contract_v169.py:173` — '_safe_reporter_note',
 - `_safe_reporter_note` — `informational_plain_target_reference` — `listings/test_listing_views_import_cleanup_contract_v169.py:188` — '_safe_reporter_note',
 - `_safe_reporter_note` — `informational_plain_target_reference` — `listings/test_listing_views_import_cleanup_contract_v169.py:365` — '_safe_reporter_note',
+- `_safe_reporter_note` — `informational_plain_target_reference` — `listings/test_listing_views_import_cleanup_contract_v169.py:505` — if name not in {"SidebarCategoriesMixin", "_safe_reporter_note"}
+- `_safe_reporter_note` — `informational_plain_target_reference` — `listings/test_listing_views_import_cleanup_v170.py:58` — if name not in {"SidebarCategoriesMixin", "_safe_reporter_note"}
+- `_safe_reporter_note` — `informational_plain_target_reference` — `listings/test_listing_views_targeted_reexport_removal_v174.py:47` — ("SidebarCategoriesMixin", "_safe_reporter_note"),
+- `_safe_reporter_note` — `informational_plain_target_reference` — `listings/test_listing_views_targeted_reexport_removal_v174.py:54` — self.assertFalse(hasattr(listing_views, "_safe_reporter_note"))
+- `_safe_reporter_note` — `informational_plain_target_reference` — `listings/test_listing_views_targeted_reexport_removal_v174.py:57` — self.assertTrue(hasattr(listing_reports_views, "_safe_reporter_note"))
+- `_safe_reporter_note` — `informational_plain_target_reference` — `listings/test_listing_views_targeted_reexport_removal_v174.py:75` — ("SidebarCategoriesMixin", "_safe_reporter_note"),
+- `_safe_reporter_note` — `informational_plain_target_reference` — `listings/test_listing_views_targeted_reexport_removal_v174.py:120` — self.assertIn("`_safe_reporter_note` remains defined/exported by `listing_reports_views`", text)
 
 ## Guardrails
 
@@ -88,4 +109,5 @@ No target facade dependency records detected.
 - Do not remove helper compatibility re-exports in v173.
 - Do not remove route/view compatibility re-export paths in v173.
 - Do not change URLs, templates, permissions, models, migrations, or behavior.
+- v174 completed the targeted facade removal from `listings.views` only.
 - A later checkpoint may remove only these two names from `listings.views` if this contract remains green.

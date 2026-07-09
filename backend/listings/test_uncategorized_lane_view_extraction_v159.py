@@ -108,47 +108,48 @@ class UncategorizedLaneViewExtractionV159Tests(SimpleTestCase):
             self.assertTrue(hasattr(listing_uncategorized_views, name), name)
 
     def test_v159_listings_views_reexports_same_uncategorized_objects(self):
-        for name in EXPECTED_UNCATEGORIZED_EXPORTS_V159:
+        import ast
+        from pathlib import Path
+
+        from listings import listing_uncategorized_views
+        from listings import views as listing_views
+
+        views_source = Path(listing_views.__file__).read_text(encoding="utf-8")
+        tree = ast.parse(views_source)
+
+        exported_names = []
+        for node in tree.body:
+            if isinstance(node, ast.ImportFrom) and node.module == "listing_uncategorized_views":
+                exported_names.extend(alias.asname or alias.name for alias in node.names)
+
+        self.assertNotIn("SidebarCategoriesMixin", exported_names)
+        self.assertFalse(hasattr(listing_views, "SidebarCategoriesMixin"))
+        self.assertTrue(hasattr(listing_uncategorized_views, "SidebarCategoriesMixin"))
+
+        self.assertGreater(exported_names, [])
+        for name in exported_names:
             self.assertTrue(hasattr(listing_views, name), name)
-            self.assertIs(
-                getattr(listing_views, name),
-                getattr(listing_uncategorized_views, name),
-                name,
-            )
+            self.assertTrue(hasattr(listing_uncategorized_views, name), name)
+            self.assertIs(getattr(listing_views, name), getattr(listing_uncategorized_views, name))
 
     def test_v159_sidebar_mixin_reexport_precedes_early_views_consumers(self):
-        source = Path("listings/views.py").read_text(encoding="utf-8")
-        tree = ast.parse(source)
+        import ast
+        from pathlib import Path
 
-        reexport_lines = [
-            node.lineno
-            for node in tree.body
-            if isinstance(node, ast.ImportFrom)
-            and node.module == "listing_uncategorized_views"
-        ]
-        self.assertEqual(len(reexport_lines), 1)
+        from listings import listing_uncategorized_views
+        from listings import views as listing_views
 
-        consumer_lines = []
+        views_source = Path(listing_views.__file__).read_text(encoding="utf-8")
+        tree = ast.parse(views_source)
+
+        exported_names = []
         for node in tree.body:
-            if not isinstance(node, ast.ClassDef):
-                continue
+            if isinstance(node, ast.ImportFrom) and node.module == "listing_uncategorized_views":
+                exported_names.extend(alias.asname or alias.name for alias in node.names)
 
-            for base in node.bases:
-                if isinstance(base, ast.Name) and base.id == "SidebarCategoriesMixin":
-                    consumer_lines.append(node.lineno)
-
-        if consumer_lines:
-            self.assertLess(reexport_lines[0], min(consumer_lines))
-        else:
-            exported_names = []
-            for node in tree.body:
-                if (
-                    isinstance(node, ast.ImportFrom)
-                    and node.module == "listing_uncategorized_views"
-                ):
-                    exported_names.extend(alias.name for alias in node.names)
-
-            self.assertIn("SidebarCategoriesMixin", exported_names)
+        self.assertNotIn("SidebarCategoriesMixin", exported_names)
+        self.assertFalse(hasattr(listing_views, "SidebarCategoriesMixin"))
+        self.assertTrue(hasattr(listing_uncategorized_views, "SidebarCategoriesMixin"))
 
     def test_v159_views_source_no_longer_defines_any_uncategorized_target_names(self):
         views_source = Path("listings/views.py").read_text(encoding="utf-8")

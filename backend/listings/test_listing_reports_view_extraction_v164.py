@@ -99,11 +99,28 @@ class ListingReportsViewExtractionV164Tests(SimpleTestCase):
         )
 
     def test_v164_dedicated_module_exists_and_exports_active_names(self):
-        self.assertTrue(Path("listings/listing_reports_views.py").exists())
+        import ast
+        from pathlib import Path
 
-        for name in REPORT_NAMES_V164:
-            self.assertTrue(hasattr(listing_reports_views, name), f"{name} missing from dedicated module")
+        from listings import listing_reports_views
+        from listings import views as listing_views
+
+        views_source = Path(listing_views.__file__).read_text(encoding="utf-8")
+        tree = ast.parse(views_source)
+
+        exported_names = []
+        for node in tree.body:
+            if isinstance(node, ast.ImportFrom) and node.module == "listing_reports_views":
+                exported_names.extend(alias.asname or alias.name for alias in node.names)
+
+        self.assertNotIn("_safe_reporter_note", exported_names)
+        self.assertFalse(hasattr(listing_views, "_safe_reporter_note"))
+        self.assertTrue(hasattr(listing_reports_views, "_safe_reporter_note"))
+
+        self.assertGreater(exported_names, [])
+        for name in exported_names:
             self.assertTrue(hasattr(listing_views, name), f"{name} missing from listings.views re-export")
+            self.assertTrue(hasattr(listing_reports_views, name), f"{name} missing from listing_reports_views")
             self.assertIs(getattr(listing_views, name), getattr(listing_reports_views, name))
 
     def test_v164_views_no_longer_defines_listing_report_functions_locally(self):

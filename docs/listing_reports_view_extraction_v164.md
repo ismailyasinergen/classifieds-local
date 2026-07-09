@@ -54,3 +54,9 @@ The extraction preserves:
 ## Next safe step
 
 The v162 audit now recommends `saved_searches` as the next remaining extraction lane.
+
+## v174 follow-up
+
+v174 removed only `SidebarCategoriesMixin` and `_safe_reporter_note` from the `listings.views` compatibility facade after the v173 targeted-removal contract proved zero facade dependency records for those two names.
+
+The source modules still define/export their original objects. All non-target facade compatibility exports remain protected.

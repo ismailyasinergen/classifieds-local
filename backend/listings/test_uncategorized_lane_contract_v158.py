@@ -107,13 +107,29 @@ class UncategorizedLaneContractV158Tests(SimpleTestCase):
         )
 
     def test_v158_listings_views_preserves_uncategorized_compatibility_reexports(self):
-        for name in EXPECTED_UNCATEGORIZED_EXPORTS:
+        import ast
+        from pathlib import Path
+
+        from listings import listing_uncategorized_views
+        from listings import views as listing_views
+
+        views_source = Path(listing_views.__file__).read_text(encoding="utf-8")
+        tree = ast.parse(views_source)
+
+        exported_names = []
+        for node in tree.body:
+            if isinstance(node, ast.ImportFrom) and node.module == "listing_uncategorized_views":
+                exported_names.extend(alias.asname or alias.name for alias in node.names)
+
+        self.assertNotIn("SidebarCategoriesMixin", exported_names)
+        self.assertFalse(hasattr(listing_views, "SidebarCategoriesMixin"))
+        self.assertTrue(hasattr(listing_uncategorized_views, "SidebarCategoriesMixin"))
+
+        self.assertGreater(exported_names, [])
+        for name in exported_names:
             self.assertTrue(hasattr(listing_views, name), name)
-            self.assertIs(
-                getattr(listing_views, name),
-                getattr(listing_uncategorized_views, name),
-                name,
-            )
+            self.assertTrue(hasattr(listing_uncategorized_views, name), name)
+            self.assertIs(getattr(listing_views, name), getattr(listing_uncategorized_views, name))
 
     def test_v158_remaining_candidates_advance_to_listing_crud_uploads_after_v159(self):
         report = _report()

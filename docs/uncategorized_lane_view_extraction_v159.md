@@ -59,3 +59,9 @@ Repair 5 moves the re-export block near the top of `views.py` and adds a regress
 `_BaseAttributeListingListView` is a top-level assignment alias, not a class definition.
 
 Repair 8 reads the original v158 source through byte-safe UTF-8 decoding, then moves that alias and its earlier `ListingListView` base dependency into `listing_uncategorized_views.py` before the active exported `ListingListView`. The active export remains the last `ListingListView` definition in the dedicated module.
+
+## v174 follow-up
+
+v174 removed only `SidebarCategoriesMixin` and `_safe_reporter_note` from the `listings.views` compatibility facade after the v173 targeted-removal contract proved zero facade dependency records for those two names.
+
+The source modules still define/export their original objects. All non-target facade compatibility exports remain protected.

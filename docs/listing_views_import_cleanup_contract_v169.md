@@ -153,3 +153,9 @@ A later checkpoint may remove only proven non-view facade imports, while preserv
 ## v170 follow-up
 
 v170 implemented this contract by removing only proven non-view facade imports from `backend/listings/views.py` while preserving all compatibility `*_views` re-exports and public URL callback identities.
+
+## v174 follow-up
+
+v174 removed only `SidebarCategoriesMixin` and `_safe_reporter_note` from the `listings.views` compatibility facade after the v173 targeted removal contract proved zero facade dependency records for those two names.
+
+All other compatibility `*_views` re-exports and helper compatibility re-exports remain protected.

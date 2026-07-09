@@ -12,6 +12,11 @@ TARGETED_UNUSED_FACADE_REEXPORT_CANDIDATE_NAMES_V173 = (
     "_safe_reporter_note",
 )
 
+TARGETED_UNUSED_FACADE_REEXPORT_SOURCE_MODULES_V173 = (
+    ("SidebarCategoriesMixin", "listing_uncategorized_views"),
+    ("_safe_reporter_note", "listing_reports_views"),
+)
+
 EXPECTED_VIEW_REEXPORT_MODULES_V173 = (
     "listing_browse_detail_views",
     "listing_crud_uploads_views",
@@ -103,7 +108,14 @@ class ListingViewsTargetedRemovalContractReportV173:
             self.is_facade_only
             and self.has_only_approved_reexports
             and self.has_no_wildcard_imports
-            and not self.candidate_names_missing_from_facade
+            and self.has_no_target_facade_dependencies
+        )
+
+    @property
+    def targeted_removal_completed_in_v174(self) -> bool:
+        return (
+            self.candidate_names_missing_from_facade == self.candidate_names
+            and not self.candidate_names_present_in_facade
             and self.has_no_target_facade_dependencies
         )
 
@@ -391,7 +403,7 @@ def build_report(repo_root: Path | str = Path(".")) -> ListingViewsTargetedRemov
         unexpected_import_modules=unexpected_import_modules,
         wildcard_import_modules=wildcard_import_modules,
         candidate_names=TARGETED_UNUSED_FACADE_REEXPORT_CANDIDATE_NAMES_V173,
-        candidate_source_modules=candidate_source_modules,
+        candidate_source_modules=TARGETED_UNUSED_FACADE_REEXPORT_SOURCE_MODULES_V173,
         target_facade_dependency_records=target_facade_dependency_records,
         target_informational_plain_reference_records=target_informational_plain_reference_records,
     )
@@ -431,6 +443,7 @@ def write_markdown_report(path: Path, report: ListingViewsTargetedRemovalContrac
             f"- Target facade dependency records: `{len(report.target_facade_dependency_records)}`",
             f"- Informational plain target reference records: `{len(report.target_informational_plain_reference_records)}`",
             f"- Eligible for future targeted removal checkpoint: `{report.eligible_for_future_targeted_removal_checkpoint}`",
+            f"- Targeted removal completed in v174: `{report.targeted_removal_completed_in_v174}`",
             f"- Safe to remove in v173: `{report.safe_to_remove_in_v173}`",
             "",
             "## Candidate source modules",
@@ -474,6 +487,7 @@ def write_markdown_report(path: Path, report: ListingViewsTargetedRemovalContrac
             "- Do not remove helper compatibility re-exports in v173.",
             "- Do not remove route/view compatibility re-export paths in v173.",
             "- Do not change URLs, templates, permissions, models, migrations, or behavior.",
+            "- v174 completed the targeted facade removal from `listings.views` only.",
             "- A later checkpoint may remove only these two names from `listings.views` if this contract remains green.",
             "",
         ]

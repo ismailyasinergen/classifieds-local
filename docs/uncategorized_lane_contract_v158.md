@@ -62,3 +62,9 @@ The v159 compatibility re-export block is placed before early `views.py` classes
 ### Repair 8 byte-safe assignment-alias dependency follow-up
 
 `_BaseAttributeListingListView` is preserved as an internal assignment alias in `listing_uncategorized_views.py`, together with the earlier `ListingListView` base it points to. The source recovery uses byte-safe UTF-8 decoding for the original v158 file.
+
+## v174 follow-up
+
+v174 removed only `SidebarCategoriesMixin` and `_safe_reporter_note` from the `listings.views` compatibility facade after the v173 targeted-removal contract proved zero facade dependency records for those two names.
+
+The source modules still define/export their original objects. All non-target facade compatibility exports remain protected.

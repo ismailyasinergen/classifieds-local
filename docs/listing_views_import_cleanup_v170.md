@@ -42,3 +42,9 @@ It preserves every compatibility `*_views` re-export module and the legacy helpe
 - No models or migrations were changed.
 - Public URL callbacks that resolve through `listings.views` must still resolve to objects defined outside `listings.views`.
 - Legacy helper compatibility re-exports remain available through `listings.views`.
+
+## v174 follow-up
+
+v174 removed only `SidebarCategoriesMixin` and `_safe_reporter_note` from the `listings.views` compatibility facade after the v173 targeted removal contract proved zero facade dependency records for those two names.
+
+All other compatibility `*_views` re-exports and helper compatibility re-exports remain protected.

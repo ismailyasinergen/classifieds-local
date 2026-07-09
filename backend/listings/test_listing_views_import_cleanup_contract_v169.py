@@ -496,8 +496,14 @@ class ListingViewsImportCleanupContractV169Tests(SimpleTestCase):
         self.assertEqual(report.total_top_level_definitions, 0)
         self.assertTrue(report.is_facade_only)
 
-    def test_v169_protected_reexport_inventory_is_stable_after_v170_cleanup(self):
+    def test_v169_protected_reexport_inventory_is_stable_after_v174_targeted_cleanup(self):
         report = contract.build_report(Path("."))
+
+        expected_names_after_v174 = tuple(
+            name
+            for name in SNAPSHOT_COMPATIBILITY_VIEW_REEXPORT_NAMES_V169
+            if name not in {"SidebarCategoriesMixin", "_safe_reporter_note"}
+        )
 
         self.assertEqual(
             report.compatibility_view_reexport_modules,
@@ -505,10 +511,29 @@ class ListingViewsImportCleanupContractV169Tests(SimpleTestCase):
         )
         self.assertEqual(
             report.compatibility_view_reexport_names,
-            SNAPSHOT_COMPATIBILITY_VIEW_REEXPORT_NAMES_V169,
+            expected_names_after_v174,
         )
-        self.assertEqual(report.non_view_import_modules, ('listing_filter_helpers', 'listing_image_helpers', 'listing_lifecycle_helpers', 'listing_moderation_helpers', 'listing_visibility_helpers'))
-        self.assertEqual(report.non_view_import_bound_names, ('_create_moderation_notice', 'active_approved_listings', 'apply_listing_filters', 'default_listing_expiry', 'save_uploaded_listing_images', 'validate_uploaded_images'))
+        self.assertEqual(
+            report.non_view_import_modules,
+            (
+                "listing_filter_helpers",
+                "listing_image_helpers",
+                "listing_lifecycle_helpers",
+                "listing_moderation_helpers",
+                "listing_visibility_helpers",
+            ),
+        )
+        self.assertEqual(
+            report.non_view_import_bound_names,
+            (
+                "_create_moderation_notice",
+                "active_approved_listings",
+                "apply_listing_filters",
+                "default_listing_expiry",
+                "save_uploaded_listing_images",
+                "validate_uploaded_images",
+            ),
+        )
         self.assertEqual(report.duplicate_bound_names, ())
         self.assertEqual(report.wildcard_import_modules, ())
 
