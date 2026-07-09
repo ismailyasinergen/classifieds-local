@@ -141,7 +141,13 @@ def build_report(start: Path | str) -> RemainingViewsAuditReportV162:
 
     non_empty_lanes = tuple(lane for lane in lanes if lane.definition_count)
     if not non_empty_lanes:
-        raise ValueError("No remaining listing view lanes found.")
+        return RemainingViewsAuditReportV162(
+            views_path=views_path.relative_to(repo_root).as_posix(),
+            total_lines=len(source.splitlines()),
+            total_top_level_definitions=len(definitions),
+            lanes=[],
+            recommended_next_lane=None,
+        )
 
     recommended_next_lane = sorted(
         non_empty_lanes,
@@ -176,11 +182,19 @@ def write_markdown_report(path: Path | str, report: RemainingViewsAuditReportV16
         f"- Views path: `{report.views_path}`",
         f"- Total lines: `{report.total_lines}`",
         f"- Total top-level definitions/classes: `{report.total_top_level_definitions}`",
-        f"- Recommended next lane: `{report.recommended_next_lane.name}`",
+        f"- Recommended next lane: `{report.recommended_next_lane.name if report.recommended_next_lane else 'none'}`",
         "",
         "## Remaining lanes",
         "",
     ]
+
+    if not report.lanes:
+        lines.extend(
+            [
+                "No remaining candidate lanes.",
+                "",
+            ]
+        )
 
     for lane in report.lanes:
         lines.extend(
@@ -204,7 +218,16 @@ def write_markdown_report(path: Path | str, report: RemainingViewsAuditReportV16
         [
             "## Recommendation",
             "",
-            f"Prepare a contract checkpoint for `{report.recommended_next_lane.name}` before moving runtime code.",
+            (
+                f"Prepare a contract checkpoint for `{report.recommended_next_lane.name}` before moving runtime code."
+                if report.recommended_next_lane
+                else "No remaining candidate lanes are left from this audit."
+            ),
+            (
+                ""
+                if report.recommended_next_lane
+                else "Run a fresh post-extraction audit before choosing the next cleanup target."
+            ),
             "",
             "## Non-goals",
             "",

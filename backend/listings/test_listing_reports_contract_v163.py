@@ -103,18 +103,13 @@ class ListingReportsContractV163Tests(SimpleTestCase):
     def test_v163_listing_reports_contract_marker_is_declared(self):
         self.assertEqual(LISTING_REPORTS_CONTRACT_MARKER_V163, "LISTING_REPORTS_CONTRACT_V163")
 
-    def test_v163_v162_audit_records_saved_searches_after_v164(self):
+    def test_v163_v162_audit_records_completed_remaining_views_state_after_v166(self):
         report = remaining_audit.build_report(Path("."))
         lanes = {lane.name: lane for lane in report.lanes}
 
-        self.assertEqual(report.recommended_next_lane.name, "saved_searches")
+        self.assertIsNone(report.recommended_next_lane)
         self.assertNotIn("listing_reports", lanes)
-        self.assertIn("saved_searches", lanes)
-
-        saved_searches = lanes["saved_searches"]
-
-        self.assertEqual(saved_searches.definition_count, 6)
-        self.assertEqual(saved_searches.total_lines, 526)
+        self.assertNotIn("saved_searches", lanes)
 
     def test_v163_listing_reports_definitions_are_extracted_to_dedicated_module(self):
         views_source = _views_source()

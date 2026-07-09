@@ -146,15 +146,13 @@ class ListingReportsViewExtractionV164Tests(SimpleTestCase):
             self.assertIs(reexported_callback, dedicated_callback)
             self.assertIn(reexported_callback, callbacks_by_name[route_name])
 
-    def test_v164_v162_remaining_audit_recommends_saved_searches_next(self):
+    def test_v164_v162_remaining_audit_records_completed_state_after_v166(self):
         report = remaining_audit.build_report(Path("."))
         lanes = {lane.name: lane for lane in report.lanes}
 
         self.assertNotIn("listing_reports", lanes)
-        self.assertIn("saved_searches", lanes)
-        self.assertEqual(report.recommended_next_lane.name, "saved_searches")
-        self.assertEqual(lanes["saved_searches"].definition_count, 6)
-        self.assertEqual(lanes["saved_searches"].total_lines, 526)
+        self.assertNotIn("saved_searches", lanes)
+        self.assertIsNone(report.recommended_next_lane)
 
     def test_v164_report_module_keeps_runtime_safety_terms(self):
         source = Path("listings/listing_reports_views.py").read_text(encoding="utf-8")

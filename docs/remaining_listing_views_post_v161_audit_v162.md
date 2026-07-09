@@ -14,17 +14,16 @@ At the v162 checkpoint:
 - `saved_searches` was the next large remaining lane.
 - `listing_reports` was recommended as the next extraction target.
 
-## v164 follow-up
+## Follow-up extraction history
 
-v164 extracted the protected `listing_reports` lane into `backend/listings/listing_reports_views.py`.
+- v164 extracted the protected `listing_reports` lane into `backend/listings/listing_reports_views.py`.
+- v166 extracted the protected `saved_searches` lane into `backend/listings/saved_searches_views.py`.
 
-After v164, the remaining lane in `backend/listings/views.py` is:
+After v166, there are no remaining candidate lanes in `backend/listings/views.py` for this audit.
 
-- `saved_searches`
+## Next safe step after v166
 
-## Next safe step after v164
-
-Prepare a contract checkpoint for the `saved_searches` lane before moving any saved-search runtime code.
+Run a fresh post-extraction audit to decide whether any smaller cleanup or view split opportunities remain outside the original lane list.
 
 ## Non-goals
 
