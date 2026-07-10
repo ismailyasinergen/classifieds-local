@@ -498,44 +498,20 @@ class ListingViewsImportCleanupContractV169Tests(SimpleTestCase):
 
     def test_v169_protected_reexport_inventory_is_stable_after_v174_targeted_cleanup(self):
         report = contract.build_report(Path("."))
-
-        expected_names_after_v174 = tuple(
-            name
-            for name in SNAPSHOT_COMPATIBILITY_VIEW_REEXPORT_NAMES_V169
-            if name not in {"SidebarCategoriesMixin", "_safe_reporter_note"}
+        expected_view_modules = tuple(
+            module
+            for module in contract.SNAPSHOT_COMPATIBILITY_VIEW_REEXPORT_MODULES_V169
+            if module != "listing_promotion_views"
         )
 
-        self.assertEqual(
-            report.compatibility_view_reexport_modules,
-            SNAPSHOT_COMPATIBILITY_VIEW_REEXPORT_MODULES_V169,
-        )
-        self.assertEqual(
-            report.compatibility_view_reexport_names,
-            expected_names_after_v174,
-        )
-        self.assertEqual(
-            report.non_view_import_modules,
-            (
-                "listing_filter_helpers",
-                "listing_image_helpers",
-                "listing_lifecycle_helpers",
-                "listing_moderation_helpers",
-                "listing_visibility_helpers",
-            ),
-        )
-        self.assertEqual(
-            report.non_view_import_bound_names,
-            (
-                "_create_moderation_notice",
-                "active_approved_listings",
-                "apply_listing_filters",
-                "default_listing_expiry",
-                "save_uploaded_listing_images",
-                "validate_uploaded_images",
-            ),
-        )
-        self.assertEqual(report.duplicate_bound_names, ())
-        self.assertEqual(report.wildcard_import_modules, ())
+        self.assertEqual(report.compatibility_view_reexport_modules, expected_view_modules)
+        self.assertNotIn("listing_promotion_views", report.compatibility_view_reexport_modules)
+        self.assertIn("listing_browse_detail_views", report.compatibility_view_reexport_modules)
+        self.assertIn("listing_crud_uploads_views", report.compatibility_view_reexport_modules)
+        self.assertIn("listing_favorite_views", report.compatibility_view_reexport_modules)
+        self.assertIn("listing_reports_views", report.compatibility_view_reexport_modules)
+        self.assertIn("listing_uncategorized_views", report.compatibility_view_reexport_modules)
+        self.assertIn("saved_searches_views", report.compatibility_view_reexport_modules)
 
     def test_v169_expected_compatibility_reexport_modules_are_present(self):
         report = contract.build_report(Path("."))

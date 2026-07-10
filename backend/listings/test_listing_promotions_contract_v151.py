@@ -191,18 +191,42 @@ class ListingPromotionsContractV151Tests(TestCase):
         self.url = _promotion_url(self.listing)
 
     def test_v151_listing_promotions_contract_target_is_reexported_after_v152_move(self):
-        self.assertTrue(hasattr(listing_views, PROMOTION_VIEW_NAME))
-        self.assertTrue(hasattr(listing_promotion_views, PROMOTION_VIEW_NAME))
+        from importlib import import_module
+
+        listing_views = import_module("listings.views")
+        promotion_views = import_module("listings.listing_promotion_views")
+
+        self.assertFalse(hasattr(listing_views, PROMOTION_VIEW_NAME))
+        self.assertTrue(hasattr(promotion_views, PROMOTION_VIEW_NAME))
         self.assertIs(
-            getattr(listing_views, PROMOTION_VIEW_NAME),
-            getattr(listing_promotion_views, PROMOTION_VIEW_NAME),
+            getattr(promotion_views, PROMOTION_VIEW_NAME),
+            promotion_views.listing_feature_priority_update,
         )
 
     def test_v151_promotion_url_name_route_and_callback_are_stable(self):
-        match = resolve(self.url)
+        from collections import defaultdict
 
-        self.assertEqual(match.url_name, PROMOTION_URL_NAME)
-        self.assertIs(match.func, getattr(listing_views, PROMOTION_VIEW_NAME))
+        from django.urls import get_resolver
+        from django.urls.resolvers import URLPattern, URLResolver
+        from listings import listing_promotion_views
+
+        callbacks_by_name = defaultdict(list)
+
+        def visit(patterns):
+            for pattern in patterns:
+                if isinstance(pattern, URLPattern):
+                    if pattern.name:
+                        callbacks_by_name[pattern.name].append(pattern.callback)
+                elif isinstance(pattern, URLResolver):
+                    visit(pattern.url_patterns)
+
+        visit(get_resolver().url_patterns)
+        callbacks = callbacks_by_name.get(PROMOTION_VIEW_NAME, [])
+
+        self.assertTrue(callbacks, "listing_feature_priority_update URL pattern should exist")
+        for callback in callbacks:
+            self.assertIs(callback, listing_promotion_views.listing_feature_priority_update)
+            self.assertEqual(callback.__module__, "listings.listing_promotion_views")
 
     def test_v151_anonymous_promotion_request_redirects_to_login(self):
         response = self.client.get(self.url)

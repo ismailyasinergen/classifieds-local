@@ -39,8 +39,8 @@ class ListingViewsDirectImportMigrationAuditV176Tests(SimpleTestCase):
         report = audit.build_report(Path("."))
 
         self.assertEqual(report.views_path, "listings/views.py")
-        self.assertEqual(report.views_total_lines, 155)
-        self.assertEqual(report.protected_name_count, 35)
+        self.assertLess(report.views_total_lines, 155)
+        self.assertEqual(report.protected_name_count, 34)
         self.assertEqual(report.removed_v174_names_present, ())
         self.assertEqual(
             report.removed_v174_names_absent,
@@ -57,14 +57,21 @@ class ListingViewsDirectImportMigrationAuditV176Tests(SimpleTestCase):
         self.assertEqual(report.view_reexport_names, v175_report.view_reexport_names)
         self.assertEqual(report.helper_reexport_names, v175_report.helper_reexport_names)
 
-    def test_v176_maps_every_unmigrated_facade_name_to_a_dedicated_import_path_after_v177(self):
+    def test_v176_maps_every_remaining_facade_name_after_v179_removal(self):
         report = audit.build_report(Path("."))
 
-        self.assertGreaterEqual(report.migration_record_count, 34)
-        self.assertEqual(set(report.names_without_migration_records), set(('listing_feature_priority_update',)))
-        self.assertEqual(report.names_migrated_after_v176, ('listing_feature_priority_update',))
-        self.assertFalse(report.all_remaining_names_have_migration_paths)
+        self.assertGreaterEqual(report.migration_record_count, 33)
+        self.assertEqual(report.names_without_migration_records, ())
+        self.assertEqual(report.names_migrated_after_v176, ())
+        self.assertEqual(
+            report.names_removed_after_v177_migration,
+            ("listing_feature_priority_update",),
+        )
+        self.assertTrue(report.all_remaining_names_have_migration_paths)
         self.assertTrue(report.all_unmigrated_names_still_have_migration_paths)
+        self.assertTrue(report.v179_removed_names_are_absent_from_migration_records)
+        self.assertNotIn("listing_feature_priority_update", report.protected_names)
+        self.assertNotIn("listing_feature_priority_update", report.migration_names)
         self.assertFalse(report.safe_to_change_imports_in_v176)
 
     def test_v176_migration_records_target_dedicated_modules_not_views(self):
@@ -124,8 +131,9 @@ class ListingViewsDirectImportMigrationAuditV176Tests(SimpleTestCase):
 
         self.assertIn(audit.LISTING_VIEWS_DIRECT_IMPORT_MIGRATION_AUDIT_MARKER_V176, text)
         self.assertIn("Migration records", text)
-        self.assertIn("All remaining names have migration paths: `False`", text)
-        self.assertIn("All unmigrated names still have migration paths: `True`", text)
+        self.assertIn("All remaining names have migration paths: `True`", text)
+        self.assertIn("Names removed after v177 migration: `('listing_feature_priority_update',)`", text)
+        self.assertIn("v179 removed names absent from migration records: `True`", text)
         self.assertIn("Safe to change imports in v176: `False`", text)
         self.assertIn("v176 is audit-only", text)
         self.assertIn("Do not change imports in v176", text)

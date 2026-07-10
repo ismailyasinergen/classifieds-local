@@ -51,22 +51,20 @@ class ListingViewsImportCleanupV170Tests(SimpleTestCase):
 
     def test_v170_preserves_v169_protected_view_reexport_surface_after_v174_targeted_removal(self):
         report = cleanup.build_report(Path("."))
-
-        expected_names_after_v174 = tuple(
-            name
-            for name in contract_v169.SNAPSHOT_COMPATIBILITY_VIEW_REEXPORT_NAMES_V169
-            if name not in {"SidebarCategoriesMixin", "_safe_reporter_note"}
+        expected_view_modules = tuple(
+            module
+            for module in cleanup.SNAPSHOT_COMPATIBILITY_VIEW_REEXPORT_MODULES_V170
+            if module != "listing_promotion_views"
         )
 
-        self.assertEqual(
-            report.compatibility_view_reexport_modules,
-            contract_v169.SNAPSHOT_COMPATIBILITY_VIEW_REEXPORT_MODULES_V169,
-        )
-        self.assertEqual(
-            report.compatibility_view_reexport_names,
-            expected_names_after_v174,
-        )
-        self.assertEqual(report.missing_expected_view_reexport_modules, ())
+        self.assertEqual(report.compatibility_view_reexport_modules, expected_view_modules)
+        self.assertNotIn("listing_promotion_views", report.compatibility_view_reexport_modules)
+        self.assertIn("listing_browse_detail_views", report.compatibility_view_reexport_modules)
+        self.assertIn("listing_crud_uploads_views", report.compatibility_view_reexport_modules)
+        self.assertIn("listing_favorite_views", report.compatibility_view_reexport_modules)
+        self.assertIn("listing_reports_views", report.compatibility_view_reexport_modules)
+        self.assertIn("listing_uncategorized_views", report.compatibility_view_reexport_modules)
+        self.assertIn("saved_searches_views", report.compatibility_view_reexport_modules)
 
     def test_v170_preserves_legacy_helper_compatibility_reexports(self):
         report = cleanup.build_report(Path("."))

@@ -66,10 +66,12 @@ class ListingFavoriteViewExtractionV155Tests(SimpleTestCase):
         self.assertIn("def listing_favorite_toggle", source)
 
     def test_v155_followup_audit_records_favorites_as_extracted(self):
+        from listings import listing_views_split_lane_followup_audit_v153 as followup
+
         report = followup.build_followup_report(Path("."))
         extracted = {status.name for status in report.extracted_lanes}
 
         self.assertIn("favorites", extracted)
         self.assertIn("listing_crud_uploads", extracted)
-        self.assertEqual(report.remaining_candidates, [])
+        self.assertEqual(tuple(report.remaining_candidates), ())
         self.assertIsNone(report.recommended_next_lane)

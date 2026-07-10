@@ -5,7 +5,7 @@ LISTING_VIEWS_TARGETED_REEXPORT_REMOVAL_V174
 ## Summary
 
 - Views path: `listings/views.py`
-- Views total lines: `155`
+- Views total lines: `154`
 - Removed exactly target pair: `True`
 - Target names present in facade: `()`
 - Target names absent from facade: `('SidebarCategoriesMixin', '_safe_reporter_note')`
@@ -30,5 +30,5 @@ LISTING_VIEWS_TARGETED_REEXPORT_REMOVAL_V174
 
 - No runtime implementation code was moved.
 - No URLs, templates, permissions, models, migrations, or behavior were intentionally changed.
-- Every non-target compatibility re-export remains protected.
+- Every non-target compatibility re-export remains protected except the later v179 targeted removal.
 - Route callback identity through the remaining facade exports remains protected.

@@ -5,14 +5,16 @@ LISTING_VIEWS_DIRECT_IMPORT_MIGRATION_AUDIT_V176
 ## Summary
 
 - Views path: `listings/views.py`
-- Views total lines: `155`
-- Protected remaining facade names: `35`
+- Views total lines: `154`
+- Protected remaining facade names: `34`
 - Migration records: `53`
 - Migration names: `('ListingCreateView', 'ListingDeleteView', 'ListingDetailView', 'ListingListView', 'ListingUpdateView', '_create_moderation_notice', 'active_approved_listings', 'apply_listing_filters', 'default_listing_expiry', 'listing_approve', 'listing_archive', 'listing_favorite_toggle', 'listing_feature_days_update', 'listing_feature_toggle', 'listing_image_delete', 'listing_reject', 'listing_renew', 'listing_report_archive_listing', 'listing_report_create', 'listing_report_dismiss', 'listing_report_export_csv', 'listing_report_queue', 'listing_report_review', 'listing_report_suspend_listing', 'moderation_queue', 'my_listing_reports', 'save_uploaded_listing_images', 'saved_search_bulk_action', 'saved_search_create', 'saved_search_delete', 'saved_search_list', 'saved_search_notifications_toggle', 'saved_search_rename', 'validate_uploaded_images')`
-- Names without migration records: `('listing_feature_priority_update',)`
-- All remaining names have migration paths: `False`
-- Names migrated after v176: `('listing_feature_priority_update',)`
+- Names without migration records: `()`
+- All remaining names have migration paths: `True`
+- Names migrated after v176: `()`
 - All unmigrated names still have migration paths: `True`
+- Names removed after v177 migration: `('listing_feature_priority_update',)`
+- v179 removed names absent from migration records: `True`
 - Source modules with migrations: `('listing_browse_detail_views', 'listing_crud_uploads_views', 'listing_favorite_views', 'listing_filter_helpers', 'listing_image_helpers', 'listing_lifecycle_helpers', 'listing_moderation_helpers', 'listing_reports_views', 'listing_uncategorized_views', 'listing_visibility_helpers', 'saved_searches_views')`
 - Migration count by source module: `(('listing_browse_detail_views', 6), ('listing_crud_uploads_views', 5), ('listing_favorite_views', 3), ('listing_filter_helpers', 3), ('listing_image_helpers', 6), ('listing_lifecycle_helpers', 3), ('listing_moderation_helpers', 3), ('listing_reports_views', 9), ('listing_uncategorized_views', 6), ('listing_visibility_helpers', 3), ('saved_searches_views', 6))`
 - Migration count by usage form: `(('direct_from_listings_views_import', 32), ('facade_attribute_usage', 21))`
@@ -44,12 +46,12 @@ LISTING_VIEWS_DIRECT_IMPORT_MIGRATION_AUDIT_V176
 - `listings/test_listing_views_facade_consolidation_audit_v171.py:72` — `active_approved_listings` — `facade_attribute_usage` → `from listings.listing_visibility_helpers import active_approved_listings` — self.assertIs(listing_views.active_approved_listings, listing_visibility_helpers.active_approved_listings)
 - `listings/test_listing_views_facade_consolidation_audit_v171.py:73` — `save_uploaded_listing_images` — `facade_attribute_usage` → `from listings.listing_image_helpers import save_uploaded_listing_images` — self.assertIs(listing_views.save_uploaded_listing_images, listing_image_helpers.save_uploaded_listing_images)
 - `listings/test_listing_views_facade_consolidation_audit_v171.py:74` — `validate_uploaded_images` — `facade_attribute_usage` → `from listings.listing_image_helpers import validate_uploaded_images` — self.assertIs(listing_views.validate_uploaded_images, listing_image_helpers.validate_uploaded_images)
-- `listings/test_listing_views_import_cleanup_v170.py:75` — `apply_listing_filters` — `facade_attribute_usage` → `from listings.listing_filter_helpers import apply_listing_filters` — self.assertIs(listing_views.apply_listing_filters, listing_filter_helpers.apply_listing_filters)
-- `listings/test_listing_views_import_cleanup_v170.py:77` — `_create_moderation_notice` — `facade_attribute_usage` → `from listings.listing_moderation_helpers import _create_moderation_notice` — listing_views._create_moderation_notice,
-- `listings/test_listing_views_import_cleanup_v170.py:81` — `default_listing_expiry` — `facade_attribute_usage` → `from listings.listing_lifecycle_helpers import default_listing_expiry` — listing_views.default_listing_expiry,
-- `listings/test_listing_views_import_cleanup_v170.py:85` — `active_approved_listings` — `facade_attribute_usage` → `from listings.listing_visibility_helpers import active_approved_listings` — listing_views.active_approved_listings,
-- `listings/test_listing_views_import_cleanup_v170.py:89` — `save_uploaded_listing_images` — `facade_attribute_usage` → `from listings.listing_image_helpers import save_uploaded_listing_images` — listing_views.save_uploaded_listing_images,
-- `listings/test_listing_views_import_cleanup_v170.py:93` — `validate_uploaded_images` — `facade_attribute_usage` → `from listings.listing_image_helpers import validate_uploaded_images` — listing_views.validate_uploaded_images,
+- `listings/test_listing_views_import_cleanup_v170.py:73` — `apply_listing_filters` — `facade_attribute_usage` → `from listings.listing_filter_helpers import apply_listing_filters` — self.assertIs(listing_views.apply_listing_filters, listing_filter_helpers.apply_listing_filters)
+- `listings/test_listing_views_import_cleanup_v170.py:75` — `_create_moderation_notice` — `facade_attribute_usage` → `from listings.listing_moderation_helpers import _create_moderation_notice` — listing_views._create_moderation_notice,
+- `listings/test_listing_views_import_cleanup_v170.py:79` — `default_listing_expiry` — `facade_attribute_usage` → `from listings.listing_lifecycle_helpers import default_listing_expiry` — listing_views.default_listing_expiry,
+- `listings/test_listing_views_import_cleanup_v170.py:83` — `active_approved_listings` — `facade_attribute_usage` → `from listings.listing_visibility_helpers import active_approved_listings` — listing_views.active_approved_listings,
+- `listings/test_listing_views_import_cleanup_v170.py:87` — `save_uploaded_listing_images` — `facade_attribute_usage` → `from listings.listing_image_helpers import save_uploaded_listing_images` — listing_views.save_uploaded_listing_images,
+- `listings/test_listing_views_import_cleanup_v170.py:91` — `validate_uploaded_images` — `facade_attribute_usage` → `from listings.listing_image_helpers import validate_uploaded_images` — listing_views.validate_uploaded_images,
 - `listings/test_listing_visibility_helper_extraction_v146.py:7` — `active_approved_listings` — `direct_from_listings_views_import` → `from listings.listing_visibility_helpers import active_approved_listings` — from listings.views import active_approved_listings as views_active_approved_listings
 - `listings/urls.py:4` — `ListingCreateView` — `direct_from_listings_views_import` → `from listings.listing_crud_uploads_views import ListingCreateView` — from .views import (
 - `listings/urls.py:4` — `ListingDeleteView` — `direct_from_listings_views_import` → `from listings.listing_crud_uploads_views import ListingDeleteView` — from .views import (
@@ -91,4 +93,5 @@ No manual review records detected.
 - Do not edit `backend/listings/views.py` in v176.
 - Do not remove any remaining facade re-export in v176.
 - After v177, one small import group has been intentionally migrated.
+- After v179, that migrated group has been removed from the facade.
 - A later checkpoint may migrate one small import group after this audit is reviewed.

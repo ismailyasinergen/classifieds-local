@@ -40,6 +40,10 @@ class ListingFeaturePriorityReexportRemovalContractReportV178:
     target_migration_record_count_after_v177: int
 
     @property
+    def target_removed_from_facade_by_v179(self) -> bool:
+        return not self.target_still_reexported_by_facade
+
+    @property
     def contract_ready_for_later_removal(self) -> bool:
         return (
             self.target_still_reexported_by_facade
@@ -47,6 +51,15 @@ class ListingFeaturePriorityReexportRemovalContractReportV178:
             and self.target_dependency_cleared_by_v177
             and self.target_is_only_v175_candidate
             and self.target_is_only_v176_missing_migration_name
+            and self.v177_target_group_migrated
+            and self.target_migration_record_count_after_v177 == 0
+        )
+
+    @property
+    def contract_satisfied_by_v179(self) -> bool:
+        return (
+            self.target_removed_from_facade_by_v179
+            and self.target_source_module_defines_name
             and self.v177_target_group_migrated
             and self.target_migration_record_count_after_v177 == 0
         )
@@ -178,6 +191,8 @@ def write_markdown_report(
         f"- v177 safe to remove facade re-export: `{report.v177_safe_to_remove_facade_reexport}`",
         f"- Target migration record count after v177: `{report.target_migration_record_count_after_v177}`",
         f"- Contract ready for later removal: `{report.contract_ready_for_later_removal}`",
+        f"- Target removed from facade by v179: `{report.target_removed_from_facade_by_v179}`",
+        f"- Contract satisfied by v179: `{report.contract_satisfied_by_v179}`",
         f"- Safe to remove in v178: `{report.safe_to_remove_in_v178}`",
         f"- Recommended next checkpoint: `{report.recommended_next_checkpoint}`",
         "",

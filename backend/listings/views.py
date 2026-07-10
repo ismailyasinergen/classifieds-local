@@ -59,7 +59,6 @@ from .listing_reports_views import (
 
 
 
-from .listing_promotion_views import listing_feature_priority_update  # V152 re-export
 
 
 

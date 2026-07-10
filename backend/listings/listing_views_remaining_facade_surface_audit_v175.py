@@ -14,6 +14,8 @@ REMOVED_IN_V174_FACADE_REEXPORT_NAMES = (
 
 MIGRATED_IN_V177_FACADE_DEPENDENCY_NAMES_V175 = ('listing_feature_priority_update',)
 
+REMOVED_IN_V179_FACADE_REEXPORT_NAMES_V175 = ('listing_feature_priority_update',)
+
 EXPECTED_VIEW_REEXPORT_MODULES_V175 = (
     "listing_browse_detail_views",
     "listing_crud_uploads_views",
@@ -126,6 +128,23 @@ class ListingViewsRemainingFacadeSurfaceReportV175:
     @property
     def only_v177_migrated_names_are_candidates(self) -> bool:
         return set(self.candidate_names) == set(MIGRATED_IN_V177_FACADE_DEPENDENCY_NAMES_V175)
+
+    @property
+    def post_v179_removed_reexport_names_absent(self) -> tuple[str, ...]:
+        return tuple(
+            sorted(
+                set(REMOVED_IN_V179_FACADE_REEXPORT_NAMES_V175)
+                - set(self.protected_names)
+            )
+        )
+
+    @property
+    def v179_targeted_removal_is_preserved(self) -> bool:
+        removed = set(REMOVED_IN_V179_FACADE_REEXPORT_NAMES_V175)
+        return (
+            removed.isdisjoint(set(self.protected_names))
+            and removed.isdisjoint(set(self.dependency_names))
+        )
 
     @property
     def safe_to_remove_anything_in_v175(self) -> bool:
@@ -421,6 +440,8 @@ def write_markdown_report(path: Path, report: ListingViewsRemainingFacadeSurface
         f"- All remaining names have facade dependencies: `{report.all_remaining_names_have_facade_dependencies}`",
         f"- v177 migrated candidate names: `{report.post_v177_migration_candidate_names}`",
         f"- Only v177 migrated names are candidates: `{report.only_v177_migrated_names_are_candidates}`",
+        f"- v179 removed re-export names absent: `{report.post_v179_removed_reexport_names_absent}`",
+        f"- v179 targeted removal preserved: `{report.v179_targeted_removal_is_preserved}`",
         f"- v174 targeted removal preserved: `{report.v174_targeted_removal_is_preserved}`",
         f"- Removed-v174 names still present: `{report.removed_v174_names_present}`",
         f"- Removed-v174 names absent: `{report.removed_v174_names_absent}`",
@@ -463,6 +484,7 @@ def write_markdown_report(path: Path, report: ListingViewsRemainingFacadeSurface
             "- Do not remove route/view compatibility paths in v175.",
             "- If candidate count is zero, do not attempt another facade-removal checkpoint yet.",
             "- After v177, the only candidate should be the intentionally migrated import group.",
+            "- After v179, the intentionally migrated import group should be removed from the facade.",
             "- A later checkpoint may target a candidate only after a dedicated contract freezes it first.",
             "",
         ]

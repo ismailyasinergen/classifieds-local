@@ -21,7 +21,6 @@ EXPECTED_VIEW_REEXPORT_MODULES_V173 = (
     "listing_browse_detail_views",
     "listing_crud_uploads_views",
     "listing_favorite_views",
-    "listing_promotion_views",
     "listing_reports_views",
     "listing_uncategorized_views",
     "saved_searches_views",

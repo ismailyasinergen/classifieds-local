@@ -9,16 +9,18 @@ LISTING_FEATURE_PRIORITY_REEXPORT_REMOVAL_CONTRACT_V178
 - Migrated dependency file: `listings/urls.py`
 - Dedicated import now used by migrated dependency: `from listings.listing_promotion_views import listing_feature_priority_update`
 - Views path: `listings/views.py`
-- Views total lines: `155`
-- Target still re-exported by facade: `True`
+- Views total lines: `154`
+- Target still re-exported by facade: `False`
 - Target source module defines name: `True`
-- Target dependency cleared by v177: `True`
-- Target is only v175 candidate: `True`
-- Target is only v176 missing migration name: `True`
+- Target dependency cleared by v177: `False`
+- Target is only v175 candidate: `False`
+- Target is only v176 missing migration name: `False`
 - v177 target group migrated: `True`
 - v177 safe to remove facade re-export: `False`
 - Target migration record count after v177: `0`
-- Contract ready for later removal: `True`
+- Contract ready for later removal: `False`
+- Target removed from facade by v179: `True`
+- Contract satisfied by v179: `True`
 - Safe to remove in v178: `False`
 - Recommended next checkpoint: `v179 may remove only listing_feature_priority_update from the listings.views facade re-export after this contract remains green.`
 

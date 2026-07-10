@@ -47,7 +47,7 @@ class ListingViewsSplitLaneFollowupAuditV153Tests(SimpleTestCase):
     def test_v153_has_no_remaining_candidates_after_v161(self):
         report = followup.build_followup_report(Path("."))
 
-        self.assertEqual(report.remaining_candidates, [])
+        self.assertEqual(tuple(report.remaining_candidates), ())
         self.assertIsNone(report.recommended_next_lane)
 
     def test_v153_remaining_candidates_exclude_all_extracted_lanes_after_v161(self):
@@ -63,7 +63,7 @@ class ListingViewsSplitLaneFollowupAuditV153Tests(SimpleTestCase):
     def test_v153_candidate_order_handles_completed_split_state(self):
         report = followup.build_followup_report(Path("."))
 
-        self.assertEqual(report.remaining_candidates, [])
+        self.assertEqual(tuple(report.remaining_candidates), ())
         self.assertIsNone(report.recommended_next_lane)
 
     def test_v153_markdown_report_documents_completed_split_state_without_project_docs_side_effect(self):

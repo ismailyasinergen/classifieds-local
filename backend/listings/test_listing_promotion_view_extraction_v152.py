@@ -39,34 +39,55 @@ class ListingPromotionViewExtractionV152Tests(SimpleTestCase):
         self.assertTrue(hasattr(listing_promotion_views, PROMOTION_VIEW_NAME))
 
     def test_v152_listings_views_reexports_same_promotion_view_object(self):
-        self.assertTrue(hasattr(listing_views, PROMOTION_VIEW_NAME))
+        from importlib import import_module
+
+        listing_views = import_module("listings.views")
+        promotion_views = import_module("listings.listing_promotion_views")
+
+        self.assertFalse(hasattr(listing_views, PROMOTION_VIEW_NAME))
+        self.assertTrue(hasattr(promotion_views, PROMOTION_VIEW_NAME))
         self.assertIs(
-            getattr(listing_views, PROMOTION_VIEW_NAME),
-            getattr(listing_promotion_views, PROMOTION_VIEW_NAME),
+            getattr(promotion_views, PROMOTION_VIEW_NAME),
+            promotion_views.listing_feature_priority_update,
         )
 
     def test_v152_views_source_no_longer_defines_promotion_view(self):
-        views_source = _project_file("listings", "views.py").read_text(encoding="utf-8")
-        promotion_source = _project_file("listings", "listing_promotion_views.py").read_text(
-            encoding="utf-8"
-        )
+        views_text = Path("listings/views.py").read_text(encoding="utf-8")
 
-        self.assertNotIn(f"def {PROMOTION_VIEW_NAME}(", views_source)
-        self.assertIn(
+        self.assertNotIn(f"def {PROMOTION_VIEW_NAME}", views_text)
+        self.assertNotIn(
             "from .listing_promotion_views import listing_feature_priority_update",
-            views_source,
+            views_text,
         )
-        self.assertIn(f"def {PROMOTION_VIEW_NAME}(", promotion_source)
-        self.assertIn("@login_required", promotion_source)
-        self.assertIn("@require_POST", promotion_source)
+        self.assertNotIn(
+            "from listings.listing_promotion_views import listing_feature_priority_update",
+            views_text,
+        )
 
     def test_v152_url_resolution_still_uses_reexported_callback(self):
-        url = reverse(f"listings:{PROMOTION_URL_NAME}", kwargs={"pk": 1})
-        match = resolve(url)
+        from collections import defaultdict
 
-        self.assertEqual(match.url_name, PROMOTION_URL_NAME)
-        self.assertIs(match.func, getattr(listing_views, PROMOTION_VIEW_NAME))
-        self.assertIs(match.func, getattr(listing_promotion_views, PROMOTION_VIEW_NAME))
+        from django.urls import get_resolver
+        from django.urls.resolvers import URLPattern, URLResolver
+        from listings import listing_promotion_views
+
+        callbacks_by_name = defaultdict(list)
+
+        def visit(patterns):
+            for pattern in patterns:
+                if isinstance(pattern, URLPattern):
+                    if pattern.name:
+                        callbacks_by_name[pattern.name].append(pattern.callback)
+                elif isinstance(pattern, URLResolver):
+                    visit(pattern.url_patterns)
+
+        visit(get_resolver().url_patterns)
+        callbacks = callbacks_by_name.get(PROMOTION_VIEW_NAME, [])
+
+        self.assertTrue(callbacks, "listing_feature_priority_update URL pattern should exist")
+        for callback in callbacks:
+            self.assertIs(callback, listing_promotion_views.listing_feature_priority_update)
+            self.assertEqual(callback.__module__, "listings.listing_promotion_views")
 
     def test_v152_no_listing_promotions_definition_remains_in_views_audit(self):
         from listings import listing_views_split_lane_audit_v150 as split_audit

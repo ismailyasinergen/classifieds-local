@@ -36,13 +36,14 @@ class ListingViewsDirectImportMigrationV177Tests(SimpleTestCase):
             "LISTING_VIEWS_DIRECT_IMPORT_MIGRATION_V177",
         )
 
-    def test_v177_target_group_is_the_single_listing_promotion_views_record(self):
+    def test_v177_target_group_is_migrated_and_removed_by_v179(self):
         report = migration.build_report(Path("."))
 
         self.assertEqual(report.migrated_source_module, "listing_promotion_views")
-        self.assertEqual(report.migrated_names, ('listing_feature_priority_update',))
-        self.assertEqual(report.migrated_relative_path, 'listings/urls.py')
+        self.assertEqual(report.migrated_names, ("listing_feature_priority_update",))
+        self.assertEqual(report.migrated_relative_path, "listings/urls.py")
         self.assertEqual(report.remaining_target_migration_records, 0)
+        self.assertTrue(report.target_removed_from_facade)
         self.assertTrue(report.target_group_migrated)
         self.assertFalse(report.safe_to_remove_facade_reexport_in_v177)
 
@@ -61,27 +62,30 @@ class ListingViewsDirectImportMigrationV177Tests(SimpleTestCase):
             text,
         )
 
-    def test_v177_v176_audit_shows_only_migrated_name_missing_from_facade_records(self):
+    def test_v177_v176_audit_shows_migrated_name_removed_from_facade_after_v179(self):
         report = audit_v176.build_report(Path("."))
 
-        self.assertIn(migration.MIGRATED_NAMES_V177[0], report.names_without_migration_records)
-        self.assertEqual(set(report.names_without_migration_records), set(migration.MIGRATED_NAMES_V177))
-        self.assertFalse(report.all_remaining_names_have_migration_paths)
+        self.assertEqual(report.names_without_migration_records, ())
+        self.assertNotIn(migration.MIGRATED_NAMES_V177[0], report.protected_names)
+        self.assertNotIn(migration.MIGRATED_NAMES_V177[0], report.migration_names)
+        self.assertTrue(report.all_remaining_names_have_migration_paths)
         self.assertFalse(report.safe_to_change_imports_in_v176)
 
-    def test_v177_v175_surface_now_sees_migrated_name_as_candidate_only(self):
+    def test_v177_v175_surface_no_longer_sees_removed_name_as_candidate_after_v179(self):
         report = surface_v175.build_report(Path("."))
 
-        self.assertEqual(set(report.candidate_names), set(migration.MIGRATED_NAMES_V177))
-        self.assertTrue(report.next_removal_candidate_available)
+        self.assertEqual(report.candidate_names, ())
+        self.assertNotIn(migration.MIGRATED_NAMES_V177[0], report.protected_names)
+        self.assertFalse(report.next_removal_candidate_available)
         self.assertFalse(report.safe_to_remove_anything_in_v175)
 
-    def test_v177_does_not_change_views_py_or_remove_facade_reexport(self):
+    def test_v177_source_module_remains_after_v179_facade_reexport_removal(self):
         views_text = migration.resolve_views_file_path(Path(".")).read_text(encoding="utf-8")
+        runtime_facade = listing_views
 
-        self.assertIn(migration.MIGRATED_NAMES_V177[0], views_text)
-        self.assertTrue(hasattr(listing_views, migration.MIGRATED_NAMES_V177[0]))
-        self.assertEqual(migration.build_report(Path(".")).views_total_lines, 155)
+        self.assertNotIn(migration.MIGRATED_NAMES_V177[0], views_text)
+        self.assertFalse(hasattr(runtime_facade, migration.MIGRATED_NAMES_V177[0]))
+        self.assertEqual(migration.build_report(Path(".")).views_total_lines, len(views_text.splitlines()))
 
     def test_v177_route_callback_identity_still_resolves_outside_views(self):
         callbacks_by_name = _callbacks_by_route_name()
@@ -121,6 +125,7 @@ class ListingViewsDirectImportMigrationV177Tests(SimpleTestCase):
             text = output.read_text(encoding="utf-8")
 
         self.assertIn(migration.LISTING_VIEWS_DIRECT_IMPORT_MIGRATION_MARKER_V177, text)
+        self.assertIn("Target removed from facade by v179: `True`", text)
         self.assertIn("Target group migrated: `True`", text)
         self.assertIn("Safe to remove facade re-export in v177: `False`", text)
         self.assertIn("v177 does not edit `backend/listings/views.py`", text)

@@ -10,10 +10,11 @@ LISTING_VIEWS_DIRECT_IMPORT_MIGRATION_V177
 - Original usage form: `direct_from_listings_views_import`
 - Dedicated import: `from listings.listing_promotion_views import listing_feature_priority_update`
 - Views path: `listings/views.py`
-- Views total lines: `155`
+- Views total lines: `154`
 - Remaining target migration records: `0`
-- Names without migration records after v177: `('listing_feature_priority_update',)`
-- v175 candidate names after v177: `('listing_feature_priority_update',)`
+- Names without migration records after v177: `()`
+- v175 candidate names after v177: `()`
+- Target removed from facade by v179: `True`
 - Target group migrated: `True`
 - Safe to remove facade re-export in v177: `False`
 

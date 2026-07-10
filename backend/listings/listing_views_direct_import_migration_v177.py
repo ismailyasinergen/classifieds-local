@@ -11,6 +11,7 @@ LISTING_VIEWS_DIRECT_IMPORT_MIGRATION_MARKER_V177 = "LISTING_VIEWS_DIRECT_IMPORT
 
 MIGRATED_SOURCE_MODULE_V177 = 'listing_promotion_views'
 MIGRATED_NAMES_V177 = ('listing_feature_priority_update',)
+REMOVED_IN_V179_FACADE_REEXPORT_NAMES_V177 = ('listing_feature_priority_update',)
 MIGRATED_RELATIVE_PATH_V177 = 'listings/urls.py'
 MIGRATED_USAGE_FORM_V177 = 'direct_from_listings_views_import'
 def _resolve_app_root_v177(repo_root: Path) -> Path:
@@ -47,14 +48,23 @@ class ListingViewsDirectImportMigrationReportV177:
     remaining_target_migration_records: int
     names_without_migration_records: tuple[str, ...]
     v175_candidate_names: tuple[str, ...]
+    target_removed_from_facade: bool
     v176_safe_to_change_imports: bool
 
     @property
     def target_group_migrated(self) -> bool:
+        missing_or_removed = (
+            set(self.migrated_names).issubset(set(self.names_without_migration_records))
+            or self.target_removed_from_facade
+        )
+        candidate_or_removed = (
+            set(self.migrated_names).issubset(set(self.v175_candidate_names))
+            or self.target_removed_from_facade
+        )
         return (
             self.remaining_target_migration_records == 0
-            and set(self.migrated_names).issubset(set(self.names_without_migration_records))
-            and set(self.migrated_names).issubset(set(self.v175_candidate_names))
+            and missing_or_removed
+            and candidate_or_removed
         )
 
     @property
@@ -86,6 +96,7 @@ def build_report(repo_root: Path | str = Path(".")) -> ListingViewsDirectImportM
         remaining_target_migration_records=len(target_records),
         names_without_migration_records=v176_report.names_without_migration_records,
         v175_candidate_names=v175_report.candidate_names,
+        target_removed_from_facade=set(MIGRATED_NAMES_V177).isdisjoint(set(v176_report.protected_names)),
         v176_safe_to_change_imports=v176_report.safe_to_change_imports_in_v176,
     )
 
@@ -108,6 +119,7 @@ def write_markdown_report(path: Path, report: ListingViewsDirectImportMigrationR
         f"- Remaining target migration records: `{report.remaining_target_migration_records}`",
         f"- Names without migration records after v177: `{report.names_without_migration_records}`",
         f"- v175 candidate names after v177: `{report.v175_candidate_names}`",
+        f"- Target removed from facade by v179: `{report.target_removed_from_facade}`",
         f"- Target group migrated: `{report.target_group_migrated}`",
         f"- Safe to remove facade re-export in v177: `{report.safe_to_remove_facade_reexport_in_v177}`",
         "",

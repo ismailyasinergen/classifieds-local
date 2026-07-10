@@ -83,12 +83,14 @@ class BrowseSearchDetailViewExtractionV157Tests(SimpleTestCase):
         self.assertIn("LISTING_BROWSE_DETAIL_VIEWS_V157", source)
 
     def test_v157_followup_audit_records_browse_search_detail_as_extracted(self):
+        from listings import listing_views_split_lane_followup_audit_v153 as followup
+
         report = followup.build_followup_report(Path("."))
         extracted = {status.name for status in report.extracted_lanes}
 
         self.assertIn("browse_search_detail", extracted)
         self.assertIn("listing_crud_uploads", extracted)
-        self.assertEqual(report.remaining_candidates, [])
+        self.assertEqual(tuple(report.remaining_candidates), ())
         self.assertIsNone(report.recommended_next_lane)
 
     def test_v157_generated_followup_markdown_records_extraction_and_next_lane(self):

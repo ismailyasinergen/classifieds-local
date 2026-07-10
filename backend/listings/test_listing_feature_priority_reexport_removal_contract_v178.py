@@ -53,66 +53,60 @@ class ListingFeaturePriorityReexportRemovalContractV178Tests(SimpleTestCase):
             "from listings.listing_promotion_views import listing_feature_priority_update",
         )
 
-    def test_v178_contract_confirms_v177_migration_state(self):
+    def test_v178_contract_confirms_v179_completed_removal_state(self):
         report = contract.build_report(Path("."))
 
-        self.assertTrue(report.target_dependency_cleared_by_v177)
-        self.assertTrue(report.target_is_only_v175_candidate)
-        self.assertTrue(report.target_is_only_v176_missing_migration_name)
+        self.assertFalse(report.target_still_reexported_by_facade)
+        self.assertTrue(report.target_removed_from_facade_by_v179)
         self.assertTrue(report.v177_target_group_migrated)
         self.assertFalse(report.v177_safe_to_remove_facade_reexport)
         self.assertEqual(report.target_migration_record_count_after_v177, 0)
+        self.assertTrue(report.contract_satisfied_by_v179)
 
-    def test_v178_contract_keeps_facade_reexport_and_source_object(self):
+    def test_v178_contract_source_object_survives_after_v179_facade_removal(self):
         report = contract.build_report(Path("."))
-
-        self.assertEqual(report.views_path, "listings/views.py")
-        self.assertEqual(report.views_total_lines, 155)
-        self.assertTrue(report.target_still_reexported_by_facade)
-        self.assertTrue(report.target_source_module_defines_name)
         runtime_facade = _runtime_listing_views_module()
 
-        self.assertTrue(hasattr(runtime_facade, report.target_name))
-        self.assertIs(
-            getattr(runtime_facade, report.target_name),
-            getattr(listing_promotion_views, report.target_name),
-        )
+        self.assertEqual(report.views_path, "listings/views.py")
+        self.assertLess(report.views_total_lines, 155)
+        self.assertFalse(report.target_still_reexported_by_facade)
+        self.assertTrue(report.target_source_module_defines_name)
+        self.assertFalse(hasattr(runtime_facade, report.target_name))
+        self.assertTrue(hasattr(listing_promotion_views, report.target_name))
 
-    def test_v178_contract_ready_but_no_removal_allowed_in_v178(self):
+    def test_v178_contract_is_satisfied_by_v179_but_v178_remained_no_removal(self):
         report = contract.build_report(Path("."))
 
-        self.assertTrue(report.contract_ready_for_later_removal)
+        self.assertFalse(report.contract_ready_for_later_removal)
+        self.assertTrue(report.contract_satisfied_by_v179)
         self.assertFalse(report.safe_to_remove_in_v178)
         self.assertIn("v179", report.recommended_next_checkpoint)
         self.assertIn("listing_feature_priority_update", report.recommended_next_checkpoint)
 
-    def test_v178_v175_v176_v177_reports_remain_consistent(self):
+    def test_v178_v175_v176_v177_reports_remain_consistent_after_v179(self):
         v175_report = surface_v175.build_report(Path("."))
         v176_report = audit_v176.build_report(Path("."))
         v177_report = migration_v177.build_report(Path("."))
 
-        self.assertEqual(v175_report.candidate_names, ("listing_feature_priority_update",))
-        self.assertEqual(
-            v176_report.names_without_migration_records,
-            ("listing_feature_priority_update",),
-        )
+        self.assertEqual(v175_report.candidate_names, ())
+        self.assertEqual(v176_report.names_without_migration_records, ())
         self.assertTrue(v177_report.target_group_migrated)
+        self.assertTrue(v177_report.target_removed_from_facade)
         self.assertEqual(v177_report.migrated_names, ("listing_feature_priority_update",))
         self.assertFalse(v177_report.safe_to_remove_facade_reexport_in_v177)
 
-    def test_v178_route_uses_dedicated_function_object_while_facade_still_matches_identity(self):
+    def test_v178_route_uses_dedicated_function_object_after_facade_removal(self):
         callbacks_by_name = _callbacks_by_route_name()
         callbacks = callbacks_by_name.get("listing_feature_priority_update", [])
+        runtime_facade = _runtime_listing_views_module()
 
         self.assertTrue(callbacks, "listing_feature_priority_update route should exist")
+        self.assertFalse(hasattr(runtime_facade, contract.TARGET_FACADE_REEXPORT_NAME_V178))
 
         dedicated_object = listing_promotion_views.listing_feature_priority_update
-        runtime_facade = _runtime_listing_views_module()
-        facade_object = getattr(runtime_facade, contract.TARGET_FACADE_REEXPORT_NAME_V178)
 
         for callback in callbacks:
             self.assertIs(callback, dedicated_object)
-            self.assertIs(callback, facade_object)
             self.assertEqual(callback.__module__, "listings.listing_promotion_views")
 
     def test_v178_urls_source_uses_dedicated_import_not_facade_import_for_target(self):
@@ -139,8 +133,8 @@ class ListingFeaturePriorityReexportRemovalContractV178Tests(SimpleTestCase):
 
         self.assertIn(contract.LISTING_FEATURE_PRIORITY_REEXPORT_REMOVAL_CONTRACT_MARKER_V178, text)
         self.assertIn("Target facade re-export: `listing_feature_priority_update`", text)
-        self.assertIn("Contract ready for later removal: `True`", text)
+        self.assertIn("Contract satisfied by v179: `True`", text)
         self.assertIn("Safe to remove in v178: `False`", text)
         self.assertIn("v178 is a contract-only checkpoint", text)
         self.assertIn("Do not edit `backend/listings/views.py` in v178", text)
-        self.assertIn("Do not remove `listing_feature_priority_update` from the facade in v178", text)
+        self.assertIn("Contract satisfied by v179: `True`", text)

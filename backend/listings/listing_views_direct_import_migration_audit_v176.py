@@ -15,6 +15,8 @@ REMOVED_IN_V174_FACADE_REEXPORT_NAMES_V176 = (
 
 MIGRATED_IN_V177_FACADE_DEPENDENCY_NAMES_V176 = ('listing_feature_priority_update',)
 
+REMOVED_IN_V179_FACADE_REEXPORT_NAMES_V176 = ('listing_feature_priority_update',)
+
 EXPECTED_VIEW_REEXPORT_MODULES_V176 = (
     "listing_browse_detail_views",
     "listing_crud_uploads_views",
@@ -125,7 +127,25 @@ class ListingViewsDirectImportMigrationAuditReportV176:
 
     @property
     def all_unmigrated_names_still_have_migration_paths(self) -> bool:
-        return set(self.names_without_migration_records) == set(MIGRATED_IN_V177_FACADE_DEPENDENCY_NAMES_V176)
+        allowed_missing = (
+            set(MIGRATED_IN_V177_FACADE_DEPENDENCY_NAMES_V176)
+            - set(REMOVED_IN_V179_FACADE_REEXPORT_NAMES_V176)
+        )
+        return set(self.names_without_migration_records) == allowed_missing
+
+    @property
+    def names_removed_after_v177_migration(self) -> tuple[str, ...]:
+        return tuple(
+            sorted(
+                set(REMOVED_IN_V179_FACADE_REEXPORT_NAMES_V176)
+                - set(self.protected_names)
+            )
+        )
+
+    @property
+    def v179_removed_names_are_absent_from_migration_records(self) -> bool:
+        removed = set(REMOVED_IN_V179_FACADE_REEXPORT_NAMES_V176)
+        return removed.isdisjoint(set(self.migration_names))
 
     @property
     def is_facade_only(self) -> bool:
@@ -446,6 +466,8 @@ def write_markdown_report(path: Path, report: ListingViewsDirectImportMigrationA
         f"- All remaining names have migration paths: `{report.all_remaining_names_have_migration_paths}`",
         f"- Names migrated after v176: `{report.names_migrated_after_v176}`",
         f"- All unmigrated names still have migration paths: `{report.all_unmigrated_names_still_have_migration_paths}`",
+        f"- Names removed after v177 migration: `{report.names_removed_after_v177_migration}`",
+        f"- v179 removed names absent from migration records: `{report.v179_removed_names_are_absent_from_migration_records}`",
         f"- Source modules with migrations: `{report.source_modules_with_migrations}`",
         f"- Migration count by source module: `{report.migration_count_by_source_module}`",
         f"- Migration count by usage form: `{report.migration_count_by_usage_form}`",
@@ -491,6 +513,7 @@ def write_markdown_report(path: Path, report: ListingViewsDirectImportMigrationA
             "- Do not edit `backend/listings/views.py` in v176.",
             "- Do not remove any remaining facade re-export in v176.",
             "- After v177, one small import group has been intentionally migrated.",
+            "- After v179, that migrated group has been removed from the facade.",
             "- A later checkpoint may migrate one small import group after this audit is reviewed.",
             "",
         ]

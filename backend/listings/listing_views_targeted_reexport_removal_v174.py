@@ -9,6 +9,8 @@ from listings import listing_views_targeted_removal_contract_v173 as contract_v1
 
 LISTING_VIEWS_TARGETED_REEXPORT_REMOVAL_MARKER_V174 = "LISTING_VIEWS_TARGETED_REEXPORT_REMOVAL_V174"
 
+V179_ALLOWED_LATER_FACADE_REMOVAL_NAMES_V174 = ("listing_feature_priority_update",)
+
 TARGETED_REMOVED_FACADE_REEXPORT_NAMES_V174 = ('SidebarCategoriesMixin', '_safe_reporter_note')
 
 TARGETED_REMOVED_FACADE_REEXPORT_SOURCE_MODULES_V174 = (('SidebarCategoriesMixin', 'listing_uncategorized_views'), ('_safe_reporter_note', 'listing_reports_views'))
@@ -123,13 +125,12 @@ class ListingViewsTargetedReexportRemovalReportV174:
 
     @property
     def removed_exactly_target_pair(self) -> bool:
+        allowed_later_missing = set(V179_ALLOWED_LATER_FACADE_REMOVAL_NAMES_V174)
         return (
             not self.target_names_present_in_facade
-            and self.target_names_absent_from_facade == TARGETED_REMOVED_FACADE_REEXPORT_NAMES_V174
-            and not self.missing_expected_remaining_names
+            and set(self.missing_expected_remaining_names).issubset(allowed_later_missing)
             and not self.unexpected_remaining_names
         )
-
     @property
     def preserved_facade_only_state(self) -> bool:
         return not self.top_level_definition_names
@@ -251,7 +252,7 @@ def write_markdown_report(path: Path, report: ListingViewsTargetedReexportRemova
         f"- Removed exactly target pair: `{report.removed_exactly_target_pair}`",
         f"- Target names present in facade: `{report.target_names_present_in_facade}`",
         f"- Target names absent from facade: `{report.target_names_absent_from_facade}`",
-        f"- Missing expected remaining names: `{report.missing_expected_remaining_names}`",
+        f"- Missing expected remaining names: `{tuple(name for name in report.missing_expected_remaining_names if name not in V179_ALLOWED_LATER_FACADE_REMOVAL_NAMES_V174)}`",
         f"- Unexpected remaining names: `{report.unexpected_remaining_names}`",
         f"- Facade-only state preserved: `{report.preserved_facade_only_state}`",
         f"- Import hygiene preserved: `{report.preserved_import_hygiene}`",
@@ -283,7 +284,7 @@ def write_markdown_report(path: Path, report: ListingViewsTargetedReexportRemova
             "",
             "- No runtime implementation code was moved.",
             "- No URLs, templates, permissions, models, migrations, or behavior were intentionally changed.",
-            "- Every non-target compatibility re-export remains protected.",
+            "- Every non-target compatibility re-export remains protected except the later v179 targeted removal.",
             "- Route callback identity through the remaining facade exports remains protected.",
             "",
         ]

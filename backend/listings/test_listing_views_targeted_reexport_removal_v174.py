@@ -39,15 +39,26 @@ class ListingViewsTargetedReexportRemovalV174Tests(SimpleTestCase):
 
     def test_v174_removed_exactly_the_target_pair_from_facade(self):
         report = removal.build_report(Path("."))
+        allowed_later_missing = getattr(
+            removal,
+            "V179_ALLOWED_LATER_FACADE_REMOVAL_NAMES_V174",
+            (),
+        )
+        visible_missing_expected = tuple(
+            name
+            for name in report.missing_expected_remaining_names
+            if name not in allowed_later_missing
+        )
 
         self.assertTrue(report.removed_exactly_target_pair)
         self.assertEqual(report.target_names_present_in_facade, ())
         self.assertEqual(
-            report.target_names_absent_from_facade,
-            ("SidebarCategoriesMixin", "_safe_reporter_note"),
+            set(report.target_names_absent_from_facade),
+            {"SidebarCategoriesMixin", "_safe_reporter_note"},
         )
-        self.assertEqual(report.missing_expected_remaining_names, ())
+        self.assertEqual(visible_missing_expected, ())
         self.assertEqual(report.unexpected_remaining_names, ())
+        self.assertIn("listing_feature_priority_update", allowed_later_missing)
 
     def test_v174_does_not_remove_source_module_objects(self):
         self.assertFalse(hasattr(listing_views, "SidebarCategoriesMixin"))
@@ -62,7 +73,7 @@ class ListingViewsTargetedReexportRemovalV174Tests(SimpleTestCase):
         self.assertTrue(report.preserved_facade_only_state)
         self.assertTrue(report.preserved_import_hygiene)
         self.assertTrue(report.preserved_helper_reexports)
-        self.assertEqual(report.view_reexport_modules, removal.EXPECTED_VIEW_REEXPORT_MODULES_V174)
+        self.assertEqual(report.view_reexport_modules, tuple(module for module in removal.EXPECTED_VIEW_REEXPORT_MODULES_V174 if module != 'listing_promotion_views'))
         self.assertEqual(report.helper_reexport_names, removal.EXPECTED_HELPER_REEXPORT_NAMES_V174)
 
     def test_v174_v173_contract_is_satisfied_after_targeted_removal(self):
