@@ -4,6 +4,82 @@
 {% block title %}Saved Searches{% endblock %}
 
 {% block content %}
+
+<!-- V194_SAVED_SEARCH_MANAGEMENT_COPY_POLISH -->
+<style>
+  .saved-search-management-copy-v194 {
+    margin: 0.75rem 0 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid #dbeafe;
+    border-radius: 14px;
+    background: #eff6ff;
+    color: #1e3a8a;
+    line-height: 1.5;
+  }
+
+  .saved-search-management-copy-v194 h2,
+  .saved-search-empty-guidance-v194 h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  .saved-search-management-copy-v194 p,
+  .saved-search-empty-guidance-v194 p {
+    margin: 0;
+  }
+
+  .saved-search-management-copy-v194__list {
+    margin: 0.55rem 0 0;
+    padding-left: 1.1rem;
+  }
+
+  .saved-search-management-copy-v194__list li {
+    margin: 0.15rem 0;
+  }
+
+  .saved-search-empty-guidance-v194 {
+    margin: 0.75rem 0 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #334155;
+    line-height: 1.5;
+  }
+</style>
+
+<section
+  class="saved-search-management-copy-v194"
+  data-v194-saved-search-management-copy="true"
+  role="note"
+  aria-label="Saved search management guidance"
+>
+  <h2>Manage saved searches with confidence</h2>
+  <p>
+    Review the searches you follow, rename them when your intent changes, and remove searches you no longer need.
+  </p>
+  <ul class="saved-search-management-copy-v194__list">
+    <li>Use clear names so each saved search is easy to recognize later.</li>
+    <li>Check the filter summary before reopening a search.</li>
+    <li>Delete stale searches to keep this page focused.</li>
+  </ul>
+</section>
+
+{% if not saved_searches and not page_obj.object_list and not object_list %}
+  <section
+    class="saved-search-empty-guidance-v194"
+    data-v194-saved-search-empty-guidance="true"
+    role="note"
+    aria-label="No saved searches guidance"
+  >
+    <h2>No saved searches yet</h2>
+    <p>
+      Start from a filtered browse page, then save the search to return to those listings faster next time.
+    </p>
+  </section>
+{% endif %}
+
 <style>
     /* SAVED_SEARCH_UX_POLISH_V78 */
     /* SAVED_SEARCH_MANAGEMENT_HARDENING_V79 */
