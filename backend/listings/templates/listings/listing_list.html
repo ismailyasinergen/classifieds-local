@@ -5,6 +5,43 @@
 {% comment %}V187_CATEGORY_NAVIGATION_PUBLIC_BROWSE_MOUNT{% endcomment %}
 <section class="category-navigation-public-browse-mount-v187" data-v187-category-navigation-public-browse="true">
   {% render_category_navigation_v186 request.GET.category %}
+
+{% if request.GET.category %}
+  <!-- V191_SAVED_SEARCH_CATEGORY_STATE_UX_POLISH -->
+  <style>
+    .saved-search-category-state-v191 {
+      margin: 0.75rem 0 1rem;
+      padding: 0.85rem 1rem;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+
+    .saved-search-category-state-v191__title {
+      margin: 0 0 0.25rem;
+      font-weight: 700;
+    }
+
+    .saved-search-category-state-v191__copy {
+      margin: 0;
+    }
+  </style>
+  <section
+    class="saved-search-category-state-v191"
+    data-v191-saved-search-category-state="true"
+    role="note"
+    aria-label="Category-aware saved search note"
+  >
+    <p class="saved-search-category-state-v191__title">Category-aware saved search</p>
+    <p class="saved-search-category-state-v191__copy">
+      Save this search to keep this category together with your current keywords and sort order.
+    </p>
+  </section>
+{% endif %}
+
 </section>
     <style>
         .browse-hero {
