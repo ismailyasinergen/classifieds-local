@@ -3,6 +3,53 @@
 {% block title %}Seller Stores{% endblock %}
 
 {% block content %}
+
+{% if selected_category or active_category or selected_category_slug or active_category_slug or request.GET.category %}
+  <!-- V192_SELLER_STORE_CATEGORY_UI_POLISH -->
+  <style>
+    .seller-store-category-state-v192 {
+      margin: 0.75rem 0 1rem;
+      padding: 0.85rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      background: #f9fafb;
+      color: #374151;
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+
+    .seller-store-category-state-v192__title {
+      margin: 0 0 0.25rem;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .seller-store-category-state-v192__copy {
+      margin: 0;
+    }
+
+    .seller-store-category-state-v192__hint {
+      margin: 0.35rem 0 0;
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+  </style>
+  <section
+    class="seller-store-category-state-v192"
+    data-v192-seller-store-category-state="true"
+    role="note"
+    aria-label="Seller store category filter note"
+  >
+    <p class="seller-store-category-state-v192__title">Category filter active</p>
+    <p class="seller-store-category-state-v192__copy">
+      Showing seller stores with active listings in this category and related subcategories.
+    </p>
+    <p class="seller-store-category-state-v192__hint">
+      Search, sorting, location, and pagination stay connected to this category filter.
+    </p>
+  </section>
+{% endif %}
+
 <section class="content-card seller-store-directory-v107 seller-store-directory-v109">
     <div class="page-header">
         <div>
