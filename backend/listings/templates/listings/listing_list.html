@@ -1,6 +1,11 @@
 {% extends "base.html" %}
+{% load category_navigation_v186 %}
 
 {% block content %}
+{% comment %}V187_CATEGORY_NAVIGATION_PUBLIC_BROWSE_MOUNT{% endcomment %}
+<section class="category-navigation-public-browse-mount-v187" data-v187-category-navigation-public-browse="true">
+  {% render_category_navigation_v186 request.GET.category %}
+</section>
     <style>
         .browse-hero {
             border: 1px solid #ddd;
