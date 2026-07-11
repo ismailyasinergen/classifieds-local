@@ -1,3 +1,34 @@
+<!-- V193_CATEGORY_NAVIGATION_KEYBOARD_A11Y_DEEPENING -->
+<style>
+  .category-navigation-v193-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .category-navigation-v193-keyboard-ready a {
+    min-height: 2.25rem;
+  }
+
+  .category-navigation-v193-keyboard-ready a:focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 4px;
+    text-decoration-line: underline;
+    text-decoration-thickness: 0.12em;
+  }
+
+  .category-navigation-v193-keyboard-ready [aria-current="page"] {
+    text-decoration-line: underline;
+    text-decoration-thickness: 0.12em;
+    text-underline-offset: 0.2em;
+  }
+</style>
 <!-- V190_CATEGORY_NAVIGATION_VISUAL_ACCESSIBILITY_POLISH -->
 <style>
   .category-navigation-v190-shell {
@@ -60,9 +91,13 @@
     }
   }
 </style>
-<nav class="category-navigation-v186 category-navigation-v190-shell" data-v186-category-navigation="true" aria-label="Browse categories" role="navigation" data-v190-category-navigation="true">
+<nav class="category-navigation-v186 category-navigation-v190-shell category-navigation-v193-keyboard-ready" data-v186-category-navigation="true" aria-label="Browse categories" role="navigation" data-v190-category-navigation="true" aria-labelledby="category-navigation-title-v193" aria-describedby="category-navigation-help-v193" data-v193-category-navigation-keyboard-a11y="true">
+  <p id="category-navigation-help-v193" class="category-navigation-v193-sr-only">
+    Use Tab and Shift+Tab to move through category links. Activate a category to filter listings while preserving safe search and sort state.
+  </p>
+
 <div class="category-navigation-v190-header">
-  <h2 class="category-navigation-v190-title">Browse by category</h2>
+  <h2 class="category-navigation-v190-title" id="category-navigation-title-v193">Browse by category</h2>
   <p class="category-navigation-v190-help">Filter listings by category while keeping your current search and sort choices.</p>
 </div>
 <div class="category-navigation-v190-content">
