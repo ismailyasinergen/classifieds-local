@@ -1,0 +1,34 @@
+<nav class="category-navigation-v186" data-v186-category-navigation="true" aria-label="Category navigation">
+  <p class="category-navigation-v186__marker">V186_CATEGORY_NAVIGATION_LISTING_FILTER_INTEGRATION</p>
+  {% if selected_category %}
+    <p class="category-navigation-v186__selected">Selected category: {{ selected_category.name }}</p>
+    <a class="category-navigation-v186__clear" href="{{ clear_url }}">Clear category</a>
+  {% endif %}
+  <ul class="category-navigation-v186__roots">
+    {% for root in roots %}
+      <li class="category-navigation-v186__item{% if root.is_active_branch %} is-active{% endif %}{% if root.is_selected %} is-selected{% endif %}" data-category-slug="{{ root.slug }}">
+        <a href="{{ root.url }}">{{ root.name }}</a>
+        {% if root.children %}
+          <ul>
+            {% for child in root.children %}
+              <li class="category-navigation-v186__item{% if child.is_active_branch %} is-active{% endif %}{% if child.is_selected %} is-selected{% endif %}" data-category-slug="{{ child.slug }}">
+                <a href="{{ child.url }}">{{ child.name }}</a>
+                {% if child.children %}
+                  <ul>
+                    {% for grandchild in child.children %}
+                      <li class="category-navigation-v186__item{% if grandchild.is_active_branch %} is-active{% endif %}{% if grandchild.is_selected %} is-selected{% endif %}" data-category-slug="{{ grandchild.slug }}">
+                        <a href="{{ grandchild.url }}">{{ grandchild.name }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li class="category-navigation-v186__empty">No categories available yet.</li>
+    {% endfor %}
+  </ul>
+</nav>
