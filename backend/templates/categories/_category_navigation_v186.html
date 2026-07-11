@@ -1,4 +1,72 @@
-<nav class="category-navigation-v186" data-v186-category-navigation="true" aria-label="Category navigation">
+<!-- V190_CATEGORY_NAVIGATION_VISUAL_ACCESSIBILITY_POLISH -->
+<style>
+  .category-navigation-v190-shell {
+    margin: 1rem 0 1.25rem;
+    padding: 1rem;
+    border: 1px solid #d9e2ec;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+
+  .category-navigation-v190-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .category-navigation-v190-title {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.3;
+    font-weight: 700;
+  }
+
+  .category-navigation-v190-help {
+    margin: 0;
+    color: #52616b;
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .category-navigation-v190-content {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .category-navigation-v190-shell a {
+    border-radius: 999px;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+  }
+
+  .category-navigation-v190-shell a:focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 3px;
+  }
+
+  .category-navigation-v190-shell [aria-current="page"],
+  .category-navigation-v190-shell .is-selected,
+  .category-navigation-v190-shell .selected,
+  .category-navigation-v190-shell .active {
+    font-weight: 700;
+  }
+
+  @media (max-width: 640px) {
+    .category-navigation-v190-shell {
+      padding: 0.85rem;
+      border-radius: 12px;
+    }
+  }
+</style>
+<nav class="category-navigation-v186 category-navigation-v190-shell" data-v186-category-navigation="true" aria-label="Browse categories" role="navigation" data-v190-category-navigation="true">
+<div class="category-navigation-v190-header">
+  <h2 class="category-navigation-v190-title">Browse by category</h2>
+  <p class="category-navigation-v190-help">Filter listings by category while keeping your current search and sort choices.</p>
+</div>
+<div class="category-navigation-v190-content">
+
   <p class="category-navigation-v186__marker">V186_CATEGORY_NAVIGATION_LISTING_FILTER_INTEGRATION</p>
   {% if selected_category %}
     <p class="category-navigation-v186__selected">Selected category: {{ selected_category.name }}</p>
@@ -31,4 +99,5 @@
       <li class="category-navigation-v186__empty">No categories available yet.</li>
     {% endfor %}
   </ul>
+</div>
 </nav>
