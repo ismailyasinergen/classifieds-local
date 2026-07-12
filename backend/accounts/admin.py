@@ -338,3 +338,228 @@ class SellerStoreAdmin(_v209_admin.ModelAdmin):
         status = self.v209_profile_status(obj)
         return f"{identity} · {owner} · {status}"
 # V209_SELLER_STORE_ADMIN_UI_POLISH END
+
+# V215_SELLER_STORE_ADMIN_ACTION_IMPLEMENTATION_SAFEGUARDS START
+V215_SELLER_STORE_ADMIN_ACTION_IMPLEMENTATION_SAFEGUARDS = (
+    "V215_SELLER_STORE_ADMIN_ACTION_IMPLEMENTATION_SAFEGUARDS"
+)
+
+V215_SELLER_STORE_REVIEW_EXPORT_ACTION_NAME = (
+    "v215_export_selected_seller_stores_for_review"
+)
+V215_SELLER_STORE_REVIEW_EXPORT_MAX_ROWS = 250
+
+
+def _v215_seller_store_csv_safe(value):
+    text = "" if value is None else str(value)
+    if text[:1] in {"=", "+", "-", "@"}:
+        return "'" + text
+    return text
+
+
+def _v215_seller_store_attr(instance, names, default=""):
+    for name in names:
+        if hasattr(instance, name):
+            value = getattr(instance, name)
+            if callable(value):
+                continue
+            if value is not None:
+                return value
+    return default
+
+
+def _v215_seller_store_owner_label(instance):
+    for name in ("user", "owner", "seller"):
+        related = getattr(instance, name, None)
+        if related is None:
+            continue
+
+        get_username = getattr(related, "get_username", None)
+        if callable(get_username):
+            username = get_username()
+            if username:
+                return username
+
+        email = getattr(related, "email", "")
+        if email:
+            return email
+
+        return related
+
+    return ""
+
+
+def _v215_seller_store_message_user(modeladmin, request, message, *, level_name="info"):
+    if request is None:
+        return
+
+    try:
+        from django.contrib import messages
+
+        level = {
+            "error": messages.ERROR,
+            "warning": messages.WARNING,
+            "success": messages.SUCCESS,
+            "info": messages.INFO,
+        }.get(level_name, messages.INFO)
+
+        modeladmin.message_user(request, message, level=level)
+    except Exception:
+        return
+
+
+def v215_export_selected_seller_stores_for_review(modeladmin, request, queryset):
+    """Export selected SellerStore rows for manual review without mutating them."""
+
+    if request is not None and not modeladmin.has_view_permission(request):
+        _v215_seller_store_message_user(
+            modeladmin,
+            request,
+            "You do not have permission to export seller-store review rows.",
+            level_name="error",
+        )
+        return None
+
+    selected_count = queryset.count()
+
+    if selected_count <= 0:
+        _v215_seller_store_message_user(
+            modeladmin,
+            request,
+            "Select at least one seller store to export for review.",
+            level_name="warning",
+        )
+        return None
+
+    if selected_count > V215_SELLER_STORE_REVIEW_EXPORT_MAX_ROWS:
+        _v215_seller_store_message_user(
+            modeladmin,
+            request,
+            (
+                "Seller-store review export is limited to "
+                f"{V215_SELLER_STORE_REVIEW_EXPORT_MAX_ROWS} rows at a time."
+            ),
+            level_name="error",
+        )
+        return None
+
+    import csv
+
+    from django.http import HttpResponse
+
+    response = HttpResponse(content_type="text/csv; charset=utf-8")
+    response["Content-Disposition"] = (
+        'attachment; filename="seller-store-review-export-v215.csv"'
+    )
+
+    writer = csv.writer(response)
+    writer.writerow(
+        [
+            "id",
+            "store",
+            "owner",
+            "profile_status",
+            "verified",
+            "approved",
+            "created_at",
+            "updated_at",
+        ]
+    )
+
+    for seller_store in queryset.order_by("pk"):
+        writer.writerow(
+            [
+                _v215_seller_store_csv_safe(seller_store.pk),
+                _v215_seller_store_csv_safe(
+                    _v215_seller_store_attr(
+                        seller_store,
+                        ("store_name", "name", "title", "business_name"),
+                    )
+                ),
+                _v215_seller_store_csv_safe(
+                    _v215_seller_store_owner_label(seller_store)
+                ),
+                _v215_seller_store_csv_safe(
+                    _v215_seller_store_attr(
+                        seller_store,
+                        ("profile_status", "status", "state"),
+                    )
+                ),
+                _v215_seller_store_csv_safe(
+                    _v215_seller_store_attr(
+                        seller_store,
+                        ("is_verified", "verified"),
+                    )
+                ),
+                _v215_seller_store_csv_safe(
+                    _v215_seller_store_attr(
+                        seller_store,
+                        ("is_approved", "approved"),
+                    )
+                ),
+                _v215_seller_store_csv_safe(
+                    _v215_seller_store_attr(
+                        seller_store,
+                        ("created_at", "created"),
+                    )
+                ),
+                _v215_seller_store_csv_safe(
+                    _v215_seller_store_attr(
+                        seller_store,
+                        ("updated_at", "updated", "modified_at"),
+                    )
+                ),
+            ]
+        )
+
+    _v215_seller_store_message_user(
+        modeladmin,
+        request,
+        f"Exported {selected_count} seller-store review row(s).",
+        level_name="success",
+    )
+
+    return response
+
+
+v215_export_selected_seller_stores_for_review.short_description = (
+    "Export selected seller stores for review"
+)
+
+
+def _v215_install_seller_store_admin_actions():
+    registered_admin = admin.site._registry.get(SellerStore)
+    if registered_admin is None:
+        return False
+
+    admin_class = registered_admin.__class__
+
+    if getattr(admin_class, "v215_seller_store_admin_action_installed", False):
+        return True
+
+    original_get_actions = admin_class.get_actions
+
+    def _v215_seller_store_get_actions(self, request):
+        action_map = dict(original_get_actions(self, request))
+        action_map.pop("delete_selected", None)
+
+        if request is not None and self.has_view_permission(request):
+            action_map[V215_SELLER_STORE_REVIEW_EXPORT_ACTION_NAME] = (
+                v215_export_selected_seller_stores_for_review,
+                V215_SELLER_STORE_REVIEW_EXPORT_ACTION_NAME,
+                v215_export_selected_seller_stores_for_review.short_description,
+            )
+
+        return action_map
+
+    admin_class.get_actions = _v215_seller_store_get_actions
+    admin_class.v215_seller_store_admin_action_installed = True
+    admin_class.v215_seller_store_admin_action_name = (
+        V215_SELLER_STORE_REVIEW_EXPORT_ACTION_NAME
+    )
+
+    return True
+
+
+_v215_install_seller_store_admin_actions()
+# V215_SELLER_STORE_ADMIN_ACTION_IMPLEMENTATION_SAFEGUARDS END
