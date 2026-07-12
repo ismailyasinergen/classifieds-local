@@ -1,0 +1,71 @@
+{% extends "admin/change_list.html" %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  /* V203_CATEGORY_TAXONOMY_ADMIN_TEMPLATE_GUIDANCE */
+  .category-taxonomy-admin-guidance-v203 {
+    margin: 0 0 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border-color, #d0d7de);
+    border-radius: 8px;
+    background: var(--darkened-bg, #f6f8fa);
+    color: var(--body-fg, #1f2328);
+    line-height: 1.45;
+  }
+
+  .category-taxonomy-admin-guidance-v203__title {
+    margin: 0 0 0.35rem;
+    font-weight: 700;
+  }
+
+  .category-taxonomy-admin-guidance-v203__body {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .category-taxonomy-admin-guidance-v203__body p {
+    margin: 0;
+  }
+
+  .category-taxonomy-admin-guidance-v203__summary {
+    font-weight: 600;
+  }
+
+  .category-taxonomy-admin-guidance-v203__hint {
+    color: var(--body-quiet-color, #6b7280);
+  }
+
+  @media (max-width: 767px) {
+    .category-taxonomy-admin-guidance-v203 {
+      padding: 0.75rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section
+  class="category-taxonomy-admin-guidance-v203"
+  data-v203-category-admin-template-guidance="true"
+  role="note"
+  aria-label="Category taxonomy changelist guidance"
+>
+  <p class="category-taxonomy-admin-guidance-v203__title">
+    Category taxonomy filtering guidance
+  </p>
+  <div class="category-taxonomy-admin-guidance-v203__body">
+    <p>
+      {{ v199_category_filter_guidance|default:"Use search, parent, and status filters to narrow large category taxonomies before editing." }}
+    </p>
+    <p class="category-taxonomy-admin-guidance-v203__summary">
+      Active filter summary:
+      {{ v199_category_filter_summary|default:"No category changelist filters are active." }}
+    </p>
+    <p class="category-taxonomy-admin-guidance-v203__hint">
+      Keep broad taxonomy edits unfiltered, then reapply filters when checking a smaller branch.
+    </p>
+  </div>
+</section>
+{{ block.super }}
+{% endblock %}

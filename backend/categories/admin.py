@@ -263,3 +263,25 @@ def _v199_apply_category_admin_changelist_filtering_polish():
 
 
 _v199_apply_category_admin_changelist_filtering_polish()
+# V203_CATEGORY_TAXONOMY_ADMIN_TEMPLATE_GUIDANCE
+def _v203_apply_category_admin_template_guidance():
+    from django.contrib import admin as _django_admin
+    from .models import Category as _V203Category
+
+    category_admin = _django_admin.site._registry.get(_V203Category)
+
+    if category_admin is None:
+        return
+
+    admin_class = category_admin.__class__
+
+    # Mount a dedicated changelist template that displays v199 extra_context
+    # without changing the v182/v185/v196/v199 field/filter/search contracts.
+    admin_class.change_list_template = "admin/categories/category/change_list.html"
+    admin_class.v203_category_taxonomy_admin_template_guidance = True
+    admin_class.v203_category_admin_template_guidance_path = (
+        "admin/categories/category/change_list.html"
+    )
+
+
+_v203_apply_category_admin_template_guidance()
