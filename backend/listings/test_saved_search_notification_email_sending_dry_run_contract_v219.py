@@ -218,7 +218,15 @@ class SavedSearchNotificationEmailSendingDryRunContractV219Tests(TestCase):
         self.assertIn("sent=0", scheduler_source)
         self.assertIn("last_notification_checked_at", scheduler_source)
         self.assertIn("does not send email", command_source)
-        self.assertNotIn("saved_search_notification_email_renderer", combined_source)
+        if "build_saved_search_notification_scheduler_email_previews" in combined_source:
+            self.assertIn(
+                "V221_SAVED_SEARCH_NOTIFICATION_" "SCHEDULER_EMAIL_DRY_RUN_INTEGRATION",
+                combined_source,
+            )
+            self.assertIn("dry_run", combined_source)
+            self.assertIn("sent=0", combined_source)
+        else:
+            self.assertNotIn("saved_search_notification_email_renderer", combined_source)
 
         forbidden_terms = (
             "send_" + "mail",

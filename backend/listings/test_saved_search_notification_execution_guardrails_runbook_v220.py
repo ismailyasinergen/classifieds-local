@@ -155,8 +155,16 @@ class SavedSearchNotificationExecutionGuardrailsRunbookV220Tests(TestCase):
         )
 
         self.assertIn("render_saved_search_notification_email", renderer_source)
-        self.assertNotIn("saved_search_notification_email_renderer", scheduler_source)
-        self.assertNotIn("saved_search_notification_email_renderer", command_source)
+        if "build_saved_search_notification_scheduler_email_previews" in scheduler_source:
+            self.assertIn(
+                "V221_SAVED_SEARCH_NOTIFICATION_" "SCHEDULER_EMAIL_DRY_RUN_INTEGRATION",
+                scheduler_source + "\n" + command_source,
+            )
+            self.assertIn("dry_run", scheduler_source + "\n" + command_source)
+            self.assertIn("sent=0", command_source)
+        else:
+            self.assertNotIn("saved_search_notification_email_renderer", scheduler_source)
+            self.assertNotIn("saved_search_notification_email_renderer", command_source)
 
     def test_v220_saved_search_model_has_operator_guardrail_fields(self):
         fields = {field.name: field for field in SavedSearch._meta.fields}
