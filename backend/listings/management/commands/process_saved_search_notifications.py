@@ -1,4 +1,8 @@
 from __future__ import annotations
+from listings.saved_search_notification_observability import (
+    build_saved_search_notification_observability_snapshot,
+    format_saved_search_notification_observability_lines,
+)
 from listings.saved_search_notification_email_sender import (
     V222_SAVED_SEARCH_NOTIFICATION_EXPLICIT_SEND_TEST_BACKEND,
     send_saved_search_notification_email_batch,
@@ -23,6 +27,14 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        parser.add_argument(
+            "--notification-observability-report",
+            action="store_true",
+            help=(
+                "Print a read-only saved-search notification observability report. "
+                "No email is delivered and no timestamps are changed."
+            ),
+        )
         parser.add_argument(
             "--execute-email-send",
             action="store_true",
@@ -55,6 +67,14 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        if options.get("notification_observability_report"):
+            snapshot = build_saved_search_notification_observability_snapshot(
+                limit=options.get("limit"),
+            )
+            for line in format_saved_search_notification_observability_lines(snapshot):
+                self.stdout.write(line)
+            return
+
         if options.get("execute_email_send"):
             result = send_saved_search_notification_email_batch(
                 limit=options.get("limit"),
