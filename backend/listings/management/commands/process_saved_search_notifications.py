@@ -1,4 +1,8 @@
 from __future__ import annotations
+from listings.saved_search_notification_audit import (
+    build_saved_search_notification_rollback_plan,
+    format_saved_search_notification_rollback_plan_lines,
+)
 from listings.saved_search_notification_observability import (
     build_saved_search_notification_observability_snapshot,
     format_saved_search_notification_observability_lines,
@@ -27,6 +31,14 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        parser.add_argument(
+            "--notification-rollback-report",
+            action="store_true",
+            help=(
+                "Print a read-only saved-search notification rollback report. "
+                "No timestamps are changed."
+            ),
+        )
         parser.add_argument(
             "--notification-observability-report",
             action="store_true",
@@ -67,6 +79,14 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        if options.get("notification_rollback_report"):
+            rollback_plan = build_saved_search_notification_rollback_plan(
+                limit=options.get("limit"),
+            )
+            for line in format_saved_search_notification_rollback_plan_lines(rollback_plan):
+                self.stdout.write(line)
+            return
+
         if options.get("notification_observability_report"):
             snapshot = build_saved_search_notification_observability_snapshot(
                 limit=options.get("limit"),
