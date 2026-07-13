@@ -1,4 +1,8 @@
 from __future__ import annotations
+from listings.saved_search_notification_email_sender import (
+    V222_SAVED_SEARCH_NOTIFICATION_EXPLICIT_SEND_TEST_BACKEND,
+    send_saved_search_notification_email_batch,
+)
 from listings.saved_search_notification_scheduler import (
     V221_SAVED_SEARCH_NOTIFICATION_SCHEDULER_EMAIL_DRY_RUN_INTEGRATION,
     build_saved_search_notification_scheduler_email_previews,
@@ -19,6 +23,14 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        parser.add_argument(
+            "--execute-email-send",
+            action="store_true",
+            help=(
+                "Explicitly deliver saved-search notification emails. "
+                "Requires the Django locmem test email backend."
+            ),
+        )
         parser.add_argument(
             "--render-email-previews",
             action="store_true",
@@ -43,6 +55,33 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        if options.get("execute_email_send"):
+            result = send_saved_search_notification_email_batch(
+                limit=options.get("limit"),
+                execute_send=True,
+                require_test_email_backend=True,
+            )
+            self.stdout.write(
+                (
+                    f"{V222_SAVED_SEARCH_NOTIFICATION_EXPLICIT_SEND_TEST_BACKEND} "
+                    f"execute_send=True delivery_enabled=True "
+                    f"attempted={result['attempted_count']} "
+                    f"delivered={result['delivered_count']} "
+                    f"email_backend={result['email_backend']}"
+                )
+            )
+            for item in result["results"]:
+                self.stdout.write(
+                    (
+                        "EXECUTE SEND email delivery "
+                        f"saved_search_id={item['saved_search_id']} "
+                        f"recipient={item['recipient_email']} "
+                        f"delivered={item['delivered_count']} "
+                        f"subject={item['subject']}"
+                    )
+                )
+            return
+
         if options.get("render_email_previews"):
             previews = build_saved_search_notification_scheduler_email_previews(
                 limit=options.get("limit"),

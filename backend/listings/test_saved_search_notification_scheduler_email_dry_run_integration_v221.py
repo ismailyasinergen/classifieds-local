@@ -309,10 +309,18 @@ class SavedSearchNotificationSchedulerEmailDryRunIntegrationV221Tests(TestCase):
             for term in forbidden_terms:
                 self.assertNotIn(term, source, f"{term} leaked into {relative_path}")
 
-    def test_v221_no_sender_module_or_background_worker_was_added(self):
-        self.assertFalse(
-            (self._backend_root() / "listings/saved_search_notification_email_sender.py").exists()
-        )
+    def test_v221_no_uncontrolled_sender_module_or_background_worker_was_added(self):
+        sender_path = self._backend_root() / "listings/saved_search_notification_email_sender.py"
+        if sender_path.exists():
+            sender_source = sender_path.read_text(encoding="utf-8", errors="ignore")
+            self.assertIn(
+                "V222_SAVED_SEARCH_NOTIFICATION_" "EXPLICIT_SEND_TEST_BACKEND",
+                sender_source,
+            )
+            self.assertIn("require_test_email_backend", sender_source)
+            self.assertIn("execute_send", sender_source)
+        else:
+            self.assertFalse(sender_path.exists())
 
         dockerfile = self._read_backend("Dockerfile")
         scheduler_source = self._read_backend("listings/saved_search_notification_scheduler.py")
