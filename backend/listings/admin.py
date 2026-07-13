@@ -217,3 +217,161 @@ class SavedSearchAdmin(admin.ModelAdmin):
             "Send failures are isolated per saved search; failed sends do not update timestamps. "
             "See <code>SAVED_SEARCH_NOTIFICATIONS.md</code> for the runbook."
         )
+
+# V226_SAVED_SEARCH_NOTIFICATION_ADMIN_UX_SURFACING
+# Admin-only saved-search notification visibility. This block intentionally adds
+# no delivery action, no rollback action, no scheduler wiring, and no model change.
+# It also preserves the legacy Email alerts preference column and preference-only
+# enable/disable actions expected by existing admin smoke tests.
+from django.contrib import admin as saved_search_notification_admin_site
+from django.contrib.admin.sites import NotRegistered as SavedSearchNotificationAdminNotRegistered
+
+from .models import SavedSearch as SavedSearchNotificationAdminModel
+
+
+V226_SAVED_SEARCH_NOTIFICATION_ADMIN_UX_SURFACING = (
+    "V226_SAVED_SEARCH_NOTIFICATION_ADMIN_UX_SURFACING"
+)
+
+
+try:
+    saved_search_notification_admin_site.site.unregister(SavedSearchNotificationAdminModel)
+except SavedSearchNotificationAdminNotRegistered:
+    pass
+
+
+@saved_search_notification_admin_site.register(SavedSearchNotificationAdminModel)
+class SavedSearchNotificationAdmin(saved_search_notification_admin_site.ModelAdmin):
+    list_display = (
+        "saved_search_label",
+        "owner_display",
+        "notification_status",
+        "notification_preference",
+        "recipient_email",
+        "last_checked_display",
+        "last_sent_display",
+    )
+    list_filter = ("email_notifications_enabled",)
+    search_fields = ("name", "querystring", "user__username", "user__email")
+    readonly_fields = (
+        "notification_status",
+        "notification_preference",
+        "recipient_email",
+        "delivery_readiness",
+        "last_checked_display",
+        "last_sent_display",
+    )
+    list_select_related = ("user",)
+    date_hierarchy = "created_at"
+    ordering = ("user__username", "name", "pk")
+    actions = (
+        "enable_saved_search_email_notifications",
+        "disable_saved_search_email_notifications",
+    )
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.select_related("user")
+
+    @saved_search_notification_admin_site.display(description="Saved search")
+    def saved_search_label(self, obj):
+        if obj is None:
+            return ""
+        name = str(getattr(obj, "name", "") or "").strip()
+        if name:
+            return name
+        querystring = str(getattr(obj, "querystring", "") or "").strip()
+        if querystring:
+            return querystring
+        return f"Saved search #{getattr(obj, 'pk', '')}"
+
+    @saved_search_notification_admin_site.display(description="Owner", ordering="user__username")
+    def owner_display(self, obj):
+        if obj is None:
+            return ""
+        user = getattr(obj, "user", None)
+        username = str(getattr(user, "username", "") or "").strip()
+        return username or f"User #{getattr(obj, 'user_id', '')}"
+
+    @saved_search_notification_admin_site.display(
+        description="Notification status",
+        ordering="email_notifications_enabled",
+    )
+    def notification_status(self, obj):
+        if obj is None:
+            return ""
+        status = "Enabled" if getattr(obj, "email_notifications_enabled", False) else "Disabled"
+        checked_at = getattr(obj, "last_notification_checked_at", None)
+        if checked_at is None:
+            return f"{status}, never checked"
+        return f"{status}, checked {checked_at}"
+
+    @saved_search_notification_admin_site.display(
+        description="Email alerts",
+        boolean=True,
+        ordering="email_notifications_enabled",
+    )
+    def notification_preference(self, obj):
+        if obj is None:
+            return False
+        return bool(getattr(obj, "email_notifications_enabled", False))
+
+    @saved_search_notification_admin_site.display(description="Recipient email", ordering="user__email")
+    def recipient_email(self, obj):
+        if obj is None:
+            return ""
+        user = getattr(obj, "user", None)
+        email = str(getattr(user, "email", "") or "").strip()
+        return email or "Missing recipient email"
+
+    @saved_search_notification_admin_site.display(description="Delivery readiness")
+    def delivery_readiness(self, obj):
+        if obj is None:
+            return ""
+        if not getattr(obj, "email_notifications_enabled", False):
+            return "Not ready: notifications disabled"
+        user = getattr(obj, "user", None)
+        email = str(getattr(user, "email", "") or "").strip()
+        if not email:
+            return "Not ready: missing recipient email"
+        return "Ready for guarded notification flow"
+
+    @saved_search_notification_admin_site.display(
+        description="Last checked",
+        ordering="last_notification_checked_at",
+    )
+    def last_checked_display(self, obj):
+        if obj is None:
+            return ""
+        return getattr(obj, "last_notification_checked_at", None) or "Never checked"
+
+    @saved_search_notification_admin_site.display(
+        description="Last sent",
+        ordering="last_notification_sent_at",
+    )
+    def last_sent_display(self, obj):
+        if obj is None:
+            return ""
+        return getattr(obj, "last_notification_sent_at", None) or "Never sent"
+
+    @saved_search_notification_admin_site.action(
+        description="Enable email notifications for selected saved searches"
+    )
+    def enable_saved_search_email_notifications(self, request, queryset):
+        updated = queryset.update(email_notifications_enabled=True)
+        if request is not None:
+            self.message_user(
+                request,
+                f"Enabled email notifications for {updated} saved search(es).",
+            )
+
+    @saved_search_notification_admin_site.action(
+        description="Disable email notifications for selected saved searches"
+    )
+    def disable_saved_search_email_notifications(self, request, queryset):
+        updated = queryset.update(email_notifications_enabled=False)
+        if request is not None:
+            self.message_user(
+                request,
+                f"Disabled email notifications for {updated} saved search(es).",
+            )
