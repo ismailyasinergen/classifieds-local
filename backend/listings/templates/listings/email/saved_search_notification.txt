@@ -1,0 +1,13 @@
+Hello {{ recipient_username }},
+
+{{ match_count }} new {{ match_label }} matched your saved search "{{ saved_search_name }}".
+
+{% if matching_listings %}Top matches:
+{% for listing in matching_listings %}- {{ listing.title }}{% if listing.price %} — {{ listing.price }}{% endif %}{% if listing.url %}: {{ listing.url }}{% endif %}
+{% endfor %}
+{% endif %}Manage this alert:
+{{ manage_url }}
+
+{{ unsubscribe_guidance }}
+
+This message was rendered by the notification template system. Delivery is handled separately.
