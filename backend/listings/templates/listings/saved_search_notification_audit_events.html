@@ -1,15 +1,9 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1"
-    >
-    <title>Saved-search notification audit</title>
+{% extends "base.html" %}
+{# V239_SAVED_SEARCH_NOTIFICATION_PERSISTENT_AUDIT_OPERATOR_SHARED_SHELL_INTEGRATION #}
 
-    <style>
-        :root {
+{% block content %}
+<style>
+        .saved-search-audit-page{
             color-scheme: light;
             font-family:
                 Inter,
@@ -39,39 +33,39 @@
             --shadow: 0 8px 24px rgba(27, 39, 63, 0.08);
         }
 
-        * {
+        .saved-search-audit-page *{
             box-sizing: border-box;
         }
 
-        html {
+        .saved-search-audit-page{
             scroll-behavior: smooth;
         }
 
-        body {
+        .saved-search-audit-page{
             margin: 0;
             background: var(--page-background);
             color: var(--text-primary);
             line-height: 1.5;
         }
 
-        a {
+        .saved-search-audit-page a{
             color: var(--accent);
         }
 
-        a:hover {
+        .saved-search-audit-page a:hover{
             color: var(--accent-hover);
         }
 
-        a:focus-visible,
-        button:focus-visible,
-        input:focus-visible,
-        select:focus-visible,
-        summary:focus-visible {
+        .saved-search-audit-page a:focus-visible,
+.saved-search-audit-page button:focus-visible,
+.saved-search-audit-page input:focus-visible,
+.saved-search-audit-page select:focus-visible,
+.saved-search-audit-page summary:focus-visible{
             outline: 3px solid var(--focus);
             outline-offset: 3px;
         }
 
-        .skip-link {
+        .saved-search-audit-page .skip-link{
             position: fixed;
             z-index: 1000;
             top: 8px;
@@ -83,11 +77,11 @@
             transform: translateY(-180%);
         }
 
-        .skip-link:focus {
+        .saved-search-audit-page .skip-link:focus{
             transform: translateY(0);
         }
 
-        .visually-hidden {
+        .saved-search-audit-page .visually-hidden{
             position: absolute !important;
             width: 1px !important;
             height: 1px !important;
@@ -99,20 +93,20 @@
             border: 0 !important;
         }
 
-        main {
+        .saved-search-audit-page{
             max-width: 1600px;
             margin: 0 auto;
             padding: 28px;
         }
 
-        h1,
-        h2,
-        h3 {
+        .saved-search-audit-page h1,
+.saved-search-audit-page h2,
+.saved-search-audit-page h3{
             margin-top: 0;
             line-height: 1.2;
         }
 
-        .page-header {
+        .saved-search-audit-page .page-header{
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
@@ -121,13 +115,13 @@
             margin-bottom: 18px;
         }
 
-        .page-header p {
+        .saved-search-audit-page .page-header p{
             max-width: 760px;
             margin: 8px 0 0;
             color: var(--text-secondary);
         }
 
-        .read-only-badge {
+        .saved-search-audit-page .read-only-badge{
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -139,40 +133,40 @@
             font-weight: 750;
         }
 
-        .panel,
-        .event-card,
-        .empty-state,
-        .read-only-note {
+        .saved-search-audit-page .panel,
+.saved-search-audit-page .event-card,
+.saved-search-audit-page .empty-state,
+.saved-search-audit-page .read-only-note{
             border: 1px solid var(--border);
             border-radius: 14px;
             background: var(--panel-background);
             box-shadow: var(--shadow);
         }
 
-        .read-only-note {
+        .saved-search-audit-page .read-only-note{
             padding: 14px 16px;
             margin-bottom: 18px;
         }
 
-        .panel {
+        .saved-search-audit-page .panel{
             padding: 20px;
             margin-bottom: 20px;
         }
 
-        .filter-help,
-        .field-help,
-        .export-note,
-        .summary-note {
+        .saved-search-audit-page .filter-help,
+.saved-search-audit-page .field-help,
+.saved-search-audit-page .export-note,
+.saved-search-audit-page .summary-note{
             color: var(--text-secondary);
             font-size: 0.92rem;
         }
 
-        .filter-groups {
+        .saved-search-audit-page .filter-groups{
             display: grid;
             gap: 18px;
         }
 
-        fieldset {
+        .saved-search-audit-page fieldset{
             min-width: 0;
             margin: 0;
             padding: 16px;
@@ -180,28 +174,28 @@
             border-radius: 12px;
         }
 
-        legend {
+        .saved-search-audit-page legend{
             padding: 0 8px;
             font-weight: 800;
         }
 
-        .filters {
+        .saved-search-audit-page .filters{
             display: grid;
             grid-template-columns:
                 repeat(auto-fit, minmax(230px, 1fr));
             gap: 14px;
         }
 
-        label {
+        .saved-search-audit-page label{
             display: grid;
             gap: 6px;
             font-weight: 700;
         }
 
-        input,
-        select,
-        button,
-        .button-link {
+        .saved-search-audit-page input,
+.saved-search-audit-page select,
+.saved-search-audit-page button,
+.saved-search-audit-page .button-link{
             min-height: 42px;
             box-sizing: border-box;
             border-radius: 9px;
@@ -211,14 +205,14 @@
             font: inherit;
         }
 
-        input,
-        select {
+        .saved-search-audit-page input,
+.saved-search-audit-page select{
             width: 100%;
             padding: 9px 11px;
         }
 
-        button,
-        .button-link {
+        .saved-search-audit-page button,
+.saved-search-audit-page .button-link{
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -229,39 +223,39 @@
             font-weight: 750;
         }
 
-        button[type="submit"] {
+        .saved-search-audit-page button[type="submit"]{
             border-color: var(--accent);
             background: var(--accent);
             color: #ffffff;
         }
 
-        button[type="submit"]:hover {
+        .saved-search-audit-page button[type="submit"]:hover{
             background: var(--accent-hover);
         }
 
-        .button-link.secondary {
+        .saved-search-audit-page .button-link.secondary{
             background: #ffffff;
         }
 
-        .button-link.export {
+        .saved-search-audit-page .button-link.export{
             border-color: var(--accent);
             background: var(--accent-soft);
         }
 
-        .actions {
+        .saved-search-audit-page .actions{
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 16px;
         }
 
-        .active-filter-panel {
+        .saved-search-audit-page .active-filter-panel{
             margin-top: 18px;
             padding-top: 16px;
             border-top: 1px solid var(--border);
         }
 
-        .active-filter-heading {
+        .saved-search-audit-page .active-filter-heading{
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
@@ -269,12 +263,12 @@
             align-items: center;
         }
 
-        .active-filter-heading h3 {
+        .saved-search-audit-page .active-filter-heading h3{
             margin-bottom: 0;
             font-size: 1rem;
         }
 
-        .filter-chip-list {
+        .saved-search-audit-page .filter-chip-list{
             display: flex;
             flex-wrap: wrap;
             gap: 9px;
@@ -283,7 +277,7 @@
             list-style: none;
         }
 
-        .filter-chip {
+        .saved-search-audit-page .filter-chip{
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -294,11 +288,11 @@
             background: var(--accent-soft);
         }
 
-        .filter-chip-value {
+        .saved-search-audit-page .filter-chip-value{
             overflow-wrap: anywhere;
         }
 
-        .filter-chip-remove {
+        .saved-search-audit-page .filter-chip-remove{
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -309,7 +303,7 @@
             font-weight: 900;
         }
 
-        .results-toolbar {
+        .saved-search-audit-page .results-toolbar{
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
@@ -318,25 +312,25 @@
             margin-bottom: 14px;
         }
 
-        .results-toolbar h2 {
+        .saved-search-audit-page .results-toolbar h2{
             margin-bottom: 4px;
         }
 
-        .result-summary {
+        .saved-search-audit-page .result-summary{
             margin: 0;
             color: var(--text-secondary);
         }
 
-        .event-list {
+        .saved-search-audit-page .event-list{
             display: grid;
             gap: 14px;
         }
 
-        .event-card {
+        .saved-search-audit-page .event-card{
             padding: 18px;
         }
 
-        .event-heading {
+        .saved-search-audit-page .event-heading{
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
@@ -345,17 +339,17 @@
             margin-bottom: 14px;
         }
 
-        .event-heading h3 {
+        .saved-search-audit-page .event-heading h3{
             margin-bottom: 6px;
             font-size: 1.05rem;
         }
 
-        .event-id {
+        .saved-search-audit-page .event-id{
             color: var(--text-secondary);
             font-size: 0.85rem;
         }
 
-        .outcome {
+        .saved-search-audit-page .outcome{
             display: inline-block;
             padding: 4px 9px;
             border-radius: 999px;
@@ -364,35 +358,35 @@
             font-weight: 750;
         }
 
-        .outcome-succeeded {
+        .saved-search-audit-page .outcome-succeeded{
             background: var(--success-soft);
             color: var(--success-text);
         }
 
-        .outcome-failed {
+        .saved-search-audit-page .outcome-failed{
             background: var(--danger-soft);
             color: var(--danger-text);
         }
 
-        .outcome-pending,
-        .outcome-skipped {
+        .saved-search-audit-page .outcome-pending,
+.saved-search-audit-page .outcome-skipped{
             background: var(--warning-soft);
             color: var(--warning-text);
         }
 
-        .summary-grid,
-        .detail-grid {
+        .saved-search-audit-page .summary-grid,
+.saved-search-audit-page .detail-grid{
             display: grid;
             grid-template-columns:
                 repeat(auto-fit, minmax(230px, 1fr));
             gap: 12px 18px;
         }
 
-        .field {
+        .saved-search-audit-page .field{
             min-width: 0;
         }
 
-        .field-name {
+        .saved-search-audit-page .field-name{
             display: block;
             margin-bottom: 3px;
             color: var(--text-secondary);
@@ -400,21 +394,21 @@
             font-weight: 750;
         }
 
-        .field-value,
-        code,
-        pre {
+        .saved-search-audit-page .field-value,
+.saved-search-audit-page code,
+.saved-search-audit-page pre{
             overflow-wrap: anywhere;
             word-break: break-word;
         }
 
-        .fingerprint-tools {
+        .saved-search-audit-page .fingerprint-tools{
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             gap: 8px;
         }
 
-        .copy-button {
+        .saved-search-audit-page .copy-button{
             min-height: 34px;
             padding: 5px 9px;
             border-color: var(--border);
@@ -422,19 +416,19 @@
             font-size: 0.84rem;
         }
 
-        details {
+        .saved-search-audit-page details{
             margin-top: 16px;
             border-top: 1px solid var(--border);
             padding-top: 13px;
         }
 
-        summary {
+        .saved-search-audit-page summary{
             width: fit-content;
             cursor: pointer;
             font-weight: 800;
         }
 
-        pre {
+        .saved-search-audit-page pre{
             max-height: 320px;
             overflow: auto;
             margin: 10px 0 0;
@@ -444,7 +438,7 @@
             white-space: pre-wrap;
         }
 
-        .pagination {
+        .saved-search-audit-page .pagination{
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -453,22 +447,22 @@
             padding: 14px 0;
         }
 
-        .page-position {
+        .saved-search-audit-page .page-position{
             font-weight: 750;
         }
 
-        .empty-state {
+        .saved-search-audit-page .empty-state{
             padding: 28px;
             text-align: center;
         }
 
-        .empty-state p {
+        .saved-search-audit-page .empty-state p{
             margin: 8px auto 0;
             max-width: 620px;
             color: var(--text-secondary);
         }
 
-        .copy-status {
+        .saved-search-audit-page .copy-status{
             position: fixed;
             z-index: 999;
             right: 16px;
@@ -481,42 +475,42 @@
             box-shadow: var(--shadow);
         }
 
-        .copy-status:empty {
+        .saved-search-audit-page .copy-status:empty{
             display: none;
         }
 
-        @media (max-width: 720px) {
-            main {
+        @media (max-width: 720px){
+            .saved-search-audit-page{
                 padding: 14px;
             }
 
-            .page-header,
-            .event-heading,
-            .results-toolbar,
-            .pagination {
+            .saved-search-audit-page .page-header,
+.saved-search-audit-page .event-heading,
+.saved-search-audit-page .results-toolbar,
+.saved-search-audit-page .pagination{
                 align-items: stretch;
                 flex-direction: column;
             }
 
-            .actions > * {
+            .saved-search-audit-page .actions > *{
                 width: 100%;
             }
 
-            fieldset,
-            .panel,
-            .event-card {
+            .saved-search-audit-page fieldset,
+.saved-search-audit-page .panel,
+.saved-search-audit-page .event-card{
                 padding: 14px;
             }
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            html {
+        @media (prefers-reduced-motion: reduce){
+            .saved-search-audit-page{
                 scroll-behavior: auto;
             }
 
-            *,
-            *::before,
-            *::after {
+            .saved-search-audit-page *,
+.saved-search-audit-page *::before,
+.saved-search-audit-page *::after{
                 scroll-behavior: auto !important;
                 transition-duration: 0.01ms !important;
                 animation-duration: 0.01ms !important;
@@ -524,24 +518,22 @@
             }
         }
 
-        @media (forced-colors: active) {
-            .read-only-badge,
-            .filter-chip,
-            .outcome,
-            .button-link {
+        @media (forced-colors: active){
+            .saved-search-audit-page .read-only-badge,
+.saved-search-audit-page .filter-chip,
+.saved-search-audit-page .outcome,
+.saved-search-audit-page .button-link{
                 border: 1px solid ButtonText;
             }
         }
     </style>
-</head>
 
-<body>
-<a class="skip-link" href="#audit-events">
+<div id="main-content" class="saved-search-audit-page"><a class="skip-link" href="#audit-events">
     Skip to audit events
 </a>
 
-<main id="main-content">
-    <header class="page-header">
+
+    <div data-v239-region="page-header" class="page-header">
         <div>
             <h1>Saved-search notification audit</h1>
 
@@ -556,7 +548,7 @@
             <span aria-hidden="true">✓</span>
             Read-only staff interface
         </span>
-    </header>
+    </div>
 
     <div class="read-only-note" role="note">
         This page cannot send email, retry delivery, modify notification
@@ -978,7 +970,7 @@
                         class="event-card"
                         aria-labelledby="event-heading-{{ forloop.counter }}"
                     >
-                        <header class="event-heading">
+                        <div class="event-heading">
                             <div>
                                 <h3 id="event-heading-{{ forloop.counter }}">
                                     {{ event.event_type }}
@@ -1003,7 +995,7 @@
                                     Event {{ event.event_id }}
                                 </div>
                             </div>
-                        </header>
+                        </div>
 
                         <div class="summary-grid">
                             <div class="field">
@@ -1275,7 +1267,7 @@
             </div>
         {% endif %}
     </section>
-</main>
+
 
 <div
     id="copy-status"
@@ -1284,6 +1276,7 @@
     aria-live="polite"
     aria-atomic="true"
 ></div>
+</div>
 
 <script>
 (function () {
@@ -1365,5 +1358,4 @@
     });
 }());
 </script>
-</body>
-</html>
+{% endblock %}
