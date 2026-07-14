@@ -1252,6 +1252,8 @@
                         <a href="{{ nav_action_log_url }}">Action Log</a>
                         <a href="{{ nav_event_log_url }}">Event Log</a>
                         <a href="{{ nav_audit_url }}">Audit Tracking</a>
+                        {# V237_SAVED_SEARCH_NOTIFICATION_PERSISTENT_AUDIT_OPERATOR_NAVIGATION_INTEGRATION #}
+                        <a href="{% url 'listings:saved-search-notification-audit-events' %}" aria-label="Inspect saved-search notification audit events"{% if request.resolver_match.namespace == 'listings' and request.resolver_match.url_name == 'saved-search-notification-audit-events' %} class="active" aria-current="page"{% endif %}>Notification audit</a>
                     </div>
                 </details>
             </div>
