@@ -7,6 +7,7 @@
         content="width=device-width, initial-scale=1"
     >
     <title>Saved-search notification audit</title>
+
     <style>
         :root {
             color-scheme: light;
@@ -18,32 +19,134 @@
                 BlinkMacSystemFont,
                 "Segoe UI",
                 sans-serif;
+
+            --page-background: #f3f5f8;
+            --panel-background: #ffffff;
+            --text-primary: #172033;
+            --text-secondary: #526079;
+            --border: #ccd4e2;
+            --border-strong: #8d9bb3;
+            --accent: #174ea6;
+            --accent-hover: #0f3b82;
+            --accent-soft: #eaf1fc;
+            --success-soft: #e8f6ed;
+            --success-text: #176236;
+            --warning-soft: #fff3d6;
+            --warning-text: #765200;
+            --danger-soft: #fdebec;
+            --danger-text: #8b1f28;
+            --focus: #ffbf47;
+            --shadow: 0 8px 24px rgba(27, 39, 63, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
             margin: 0;
-            background: #f5f6f8;
-            color: #172033;
+            background: var(--page-background);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        a {
+            color: var(--accent);
+        }
+
+        a:hover {
+            color: var(--accent-hover);
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        summary:focus-visible {
+            outline: 3px solid var(--focus);
+            outline-offset: 3px;
+        }
+
+        .skip-link {
+            position: fixed;
+            z-index: 1000;
+            top: 8px;
+            left: 8px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: var(--text-primary);
+            color: #ffffff;
+            transform: translateY(-180%);
+        }
+
+        .skip-link:focus {
+            transform: translateY(0);
+        }
+
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
         }
 
         main {
             max-width: 1600px;
             margin: 0 auto;
-            padding: 24px;
+            padding: 28px;
         }
 
         h1,
-        h2 {
+        h2,
+        h3 {
             margin-top: 0;
+            line-height: 1.2;
         }
 
-        .read-only-note,
+        .page-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .page-header p {
+            max-width: 760px;
+            margin: 8px 0 0;
+            color: var(--text-secondary);
+        }
+
+        .read-only-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border: 1px solid #9fc6ae;
+            border-radius: 999px;
+            background: var(--success-soft);
+            color: var(--success-text);
+            font-weight: 750;
+        }
+
         .panel,
         .event-card,
-        .empty-state {
-            border: 1px solid #d9deea;
-            border-radius: 12px;
-            background: #fff;
+        .empty-state,
+        .read-only-note {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--panel-background);
+            box-shadow: var(--shadow);
         }
 
         .read-only-note {
@@ -52,32 +155,58 @@
         }
 
         .panel {
-            padding: 18px;
+            padding: 20px;
             margin-bottom: 20px;
+        }
+
+        .filter-help,
+        .field-help,
+        .export-note,
+        .summary-note {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+        }
+
+        .filter-groups {
+            display: grid;
+            gap: 18px;
+        }
+
+        fieldset {
+            min-width: 0;
+            margin: 0;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        legend {
+            padding: 0 8px;
+            font-weight: 800;
         }
 
         .filters {
             display: grid;
             grid-template-columns:
-                repeat(auto-fit, minmax(220px, 1fr));
+                repeat(auto-fit, minmax(230px, 1fr));
             gap: 14px;
         }
 
         label {
             display: grid;
             gap: 6px;
-            font-weight: 650;
+            font-weight: 700;
         }
 
         input,
         select,
         button,
         .button-link {
-            min-height: 40px;
+            min-height: 42px;
             box-sizing: border-box;
-            border-radius: 8px;
-            border: 1px solid #b9c2d4;
-            background: #fff;
+            border-radius: 9px;
+            border: 1px solid var(--border-strong);
+            background: #ffffff;
             color: inherit;
             font: inherit;
         }
@@ -85,7 +214,7 @@
         input,
         select {
             width: 100%;
-            padding: 8px 10px;
+            padding: 9px 11px;
         }
 
         button,
@@ -93,10 +222,30 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 8px 14px;
+            gap: 7px;
+            padding: 9px 15px;
             cursor: pointer;
             text-decoration: none;
-            font-weight: 700;
+            font-weight: 750;
+        }
+
+        button[type="submit"] {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: #ffffff;
+        }
+
+        button[type="submit"]:hover {
+            background: var(--accent-hover);
+        }
+
+        .button-link.secondary {
+            background: #ffffff;
+        }
+
+        .button-link.export {
+            border-color: var(--accent);
+            background: var(--accent-soft);
         }
 
         .actions {
@@ -106,41 +255,137 @@
             margin-top: 16px;
         }
 
+        .active-filter-panel {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .active-filter-heading {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .active-filter-heading h3 {
+            margin-bottom: 0;
+            font-size: 1rem;
+        }
+
+        .filter-chip-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin: 12px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 100%;
+            padding: 7px 9px 7px 11px;
+            border: 1px solid #b8c9e7;
+            border-radius: 999px;
+            background: var(--accent-soft);
+        }
+
+        .filter-chip-value {
+            overflow-wrap: anywhere;
+        }
+
+        .filter-chip-remove {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 900;
+        }
+
+        .results-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .results-toolbar h2 {
+            margin-bottom: 4px;
+        }
+
+        .result-summary {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+
         .event-list {
             display: grid;
             gap: 14px;
         }
 
         .event-card {
-            padding: 16px;
+            padding: 18px;
         }
 
         .event-heading {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 12px;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 14px;
         }
 
-        .event-type {
-            font-weight: 800;
+        .event-heading h3 {
+            margin-bottom: 6px;
+            font-size: 1.05rem;
+        }
+
+        .event-id {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
         }
 
         .outcome {
             display: inline-block;
-            padding: 3px 8px;
+            padding: 4px 9px;
             border-radius: 999px;
             background: #edf1f7;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
+            font-weight: 750;
+        }
+
+        .outcome-succeeded {
+            background: var(--success-soft);
+            color: var(--success-text);
+        }
+
+        .outcome-failed {
+            background: var(--danger-soft);
+            color: var(--danger-text);
+        }
+
+        .outcome-pending,
+        .outcome-skipped {
+            background: var(--warning-soft);
+            color: var(--warning-text);
         }
 
         .summary-grid,
         .detail-grid {
             display: grid;
             grid-template-columns:
-                repeat(auto-fit, minmax(220px, 1fr));
-            gap: 10px 18px;
+                repeat(auto-fit, minmax(230px, 1fr));
+            gap: 12px 18px;
         }
 
         .field {
@@ -150,9 +395,9 @@
         .field-name {
             display: block;
             margin-bottom: 3px;
-            color: #5b6578;
-            font-size: 0.85rem;
-            font-weight: 700;
+            color: var(--text-secondary);
+            font-size: 0.84rem;
+            font-weight: 750;
         }
 
         .field-value,
@@ -162,15 +407,31 @@
             word-break: break-word;
         }
 
+        .fingerprint-tools {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-button {
+            min-height: 34px;
+            padding: 5px 9px;
+            border-color: var(--border);
+            background: #ffffff;
+            font-size: 0.84rem;
+        }
+
         details {
-            margin-top: 14px;
-            border-top: 1px solid #e2e6ef;
-            padding-top: 12px;
+            margin-top: 16px;
+            border-top: 1px solid var(--border);
+            padding-top: 13px;
         }
 
         summary {
+            width: fit-content;
             cursor: pointer;
-            font-weight: 750;
+            font-weight: 800;
         }
 
         pre {
@@ -178,7 +439,7 @@
             overflow: auto;
             margin: 10px 0 0;
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 9px;
             background: #f1f3f7;
             white-space: pre-wrap;
         }
@@ -189,281 +450,565 @@
             align-items: center;
             gap: 12px;
             margin-top: 20px;
+            padding: 14px 0;
+        }
+
+        .page-position {
+            font-weight: 750;
         }
 
         .empty-state {
-            padding: 24px;
+            padding: 28px;
             text-align: center;
         }
 
-        @media (max-width: 700px) {
+        .empty-state p {
+            margin: 8px auto 0;
+            max-width: 620px;
+            color: var(--text-secondary);
+        }
+
+        .copy-status {
+            position: fixed;
+            z-index: 999;
+            right: 16px;
+            bottom: 16px;
+            max-width: 360px;
+            padding: 11px 14px;
+            border-radius: 9px;
+            background: var(--text-primary);
+            color: #ffffff;
+            box-shadow: var(--shadow);
+        }
+
+        .copy-status:empty {
+            display: none;
+        }
+
+        @media (max-width: 720px) {
             main {
                 padding: 14px;
             }
 
+            .page-header,
+            .event-heading,
+            .results-toolbar,
             .pagination {
                 align-items: stretch;
                 flex-direction: column;
             }
+
+            .actions > * {
+                width: 100%;
+            }
+
+            fieldset,
+            .panel,
+            .event-card {
+                padding: 14px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+
+        @media (forced-colors: active) {
+            .read-only-badge,
+            .filter-chip,
+            .outcome,
+            .button-link {
+                border: 1px solid ButtonText;
+            }
         }
     </style>
 </head>
+
 <body>
-<main>
-    <h1>Saved-search notification audit</h1>
+<a class="skip-link" href="#audit-events">
+    Skip to audit events
+</a>
+
+<main id="main-content">
+    <header class="page-header">
+        <div>
+            <h1>Saved-search notification audit</h1>
+
+            <p>
+                Inspect append-only notification audit evidence using
+                validated filters, bounded pagination, and privacy-minimized
+                metadata.
+            </p>
+        </div>
+
+        <span class="read-only-badge">
+            <span aria-hidden="true">✓</span>
+            Read-only staff interface
+        </span>
+    </header>
 
     <div class="read-only-note" role="note">
-        <strong>Read-only staff interface.</strong>
-        This page cannot send email, retry delivery, modify timestamps,
-        or execute rollback.
+        This page cannot send email, retry delivery, modify notification
+        timestamps, or execute rollback. All displayed metadata is sanitized
+        again during read.
     </div>
 
-    <section class="panel" aria-labelledby="audit-filters-heading">
-        <h2 id="audit-filters-heading">Filters</h2>
+    <section
+        class="panel"
+        aria-labelledby="audit-filters-heading"
+    >
+        <h2 id="audit-filters-heading">Filter audit events</h2>
 
-        <form method="get" action="{{ operator_path }}">
-            <div class="filters">
-                <label>
-                    Event ID
-                    <input
-                        type="text"
-                        name="event_id"
-                        value="{{ filter_values.event_id }}"
-                    >
-                </label>
+        <p id="filter-help" class="filter-help">
+            Filters use exact matching. UUID and timestamp values must be
+            complete and valid. Invalid filters fail closed with HTTP 400.
+        </p>
 
-                <label>
-                    Saved-search ID
-                    <input
-                        type="number"
-                        min="1"
-                        name="saved_search_id"
-                        value="{{ filter_values.saved_search_id }}"
-                    >
-                </label>
+        <form method="get"
+            action="{{ operator_path }}"
+            aria-describedby="filter-help"
+        >
+            <div class="filter-groups">
+                <fieldset>
+                    <legend>Event identity</legend>
 
-                <label>
-                    Owner ID snapshot
-                    <input
-                        type="text"
-                        maxlength="64"
-                        name="owner_id_snapshot"
-                        value="{{ filter_values.owner_id_snapshot }}"
-                    >
-                </label>
+                    <div class="filters">
+                        <label for="filter-event-id">
+                            Event ID
+                            <input
+                                id="filter-event-id"
+                                type="text"
+                                name="event_id"
+                                inputmode="text"
+                                autocomplete="off"
+                                value="{{ filter_values.event_id }}"
+                            >
+                        </label>
 
-                <label>
-                    Event type
-                    <select name="event_type">
-                        <option value="">All event types</option>
-                        {% for value, label in event_type_choices %}
-                            <option
-                                value="{{ value }}"
-                                {% if filter_values.event_type == value %}selected{% endif %}
-                            >{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
+                        <label for="filter-saved-search-id">
+                            Saved-search ID
+                            <input
+                                id="filter-saved-search-id"
+                                type="number"
+                                min="1"
+                                name="saved_search_id"
+                                inputmode="numeric"
+                                value="{{ filter_values.saved_search_id }}"
+                            >
+                        </label>
 
-                <label>
-                    Outcome
-                    <select name="outcome">
-                        <option value="">All outcomes</option>
-                        {% for value, label in outcome_choices %}
-                            <option
-                                value="{{ value }}"
-                                {% if filter_values.outcome == value %}selected{% endif %}
-                            >{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
+                        <label for="filter-owner-id">
+                            Owner ID snapshot
+                            <input
+                                id="filter-owner-id"
+                                type="text"
+                                maxlength="64"
+                                name="owner_id_snapshot"
+                                autocomplete="off"
+                                value="{{ filter_values.owner_id_snapshot }}"
+                            >
+                        </label>
+                    </div>
+                </fieldset>
 
-                <label>
-                    Actor type
-                    <select name="actor_type">
-                        <option value="">All actor types</option>
-                        {% for value, label in actor_type_choices %}
-                            <option
-                                value="{{ value }}"
-                                {% if filter_values.actor_type == value %}selected{% endif %}
-                            >{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
+                <fieldset>
+                    <legend>Classification</legend>
 
-                <label>
-                    Source
-                    <input
-                        type="text"
-                        maxlength="128"
-                        name="source"
-                        value="{{ filter_values.source }}"
-                    >
-                </label>
+                    <div class="filters">
+                        <label for="filter-event-type">
+                            Event type
+                            <select
+                                id="filter-event-type"
+                                name="event_type"
+                            >
+                                <option value="">All event types</option>
 
-                <label>
-                    Reason code
-                    <input
-                        type="text"
-                        maxlength="96"
-                        name="reason_code"
-                        value="{{ filter_values.reason_code }}"
-                    >
-                </label>
+                                {% for value, label in event_type_choices %}
+                                    <option
+                                        value="{{ value }}"
+                                        {% if filter_values.event_type == value %}selected{% endif %}
+                                    >
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </label>
 
-                <label>
-                    Batch ID
-                    <input
-                        type="text"
-                        name="batch_id"
-                        value="{{ filter_values.batch_id }}"
-                    >
-                </label>
+                        <label for="filter-outcome">
+                            Outcome
+                            <select
+                                id="filter-outcome"
+                                name="outcome"
+                            >
+                                <option value="">All outcomes</option>
 
-                <label>
-                    Correlation ID
-                    <input
-                        type="text"
-                        name="correlation_id"
-                        value="{{ filter_values.correlation_id }}"
-                    >
-                </label>
+                                {% for value, label in outcome_choices %}
+                                    <option
+                                        value="{{ value }}"
+                                        {% if filter_values.outcome == value %}selected{% endif %}
+                                    >
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </label>
 
-                <label>
-                    Delivery-attempt ID
-                    <input
-                        type="text"
-                        name="delivery_attempt_id"
-                        value="{{ filter_values.delivery_attempt_id }}"
-                    >
-                </label>
+                        <label for="filter-actor-type">
+                            Actor type
+                            <select
+                                id="filter-actor-type"
+                                name="actor_type"
+                            >
+                                <option value="">All actor types</option>
 
-                <label>
-                    Idempotency key
-                    <input
-                        type="text"
-                        maxlength="128"
-                        name="idempotency_key"
-                        value="{{ filter_values.idempotency_key }}"
-                    >
-                </label>
+                                {% for value, label in actor_type_choices %}
+                                    <option
+                                        value="{{ value }}"
+                                        {% if filter_values.actor_type == value %}selected{% endif %}
+                                    >
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </label>
 
-                <label>
-                    Notification fingerprint
-                    <input
-                        type="text"
-                        maxlength="64"
-                        name="notification_fingerprint"
-                        value="{{ filter_values.notification_fingerprint }}"
-                    >
-                </label>
+                        <label for="filter-source">
+                            Source
+                            <input
+                                id="filter-source"
+                                type="text"
+                                maxlength="128"
+                                name="source"
+                                autocomplete="off"
+                                value="{{ filter_values.source }}"
+                            >
+                        </label>
 
-                <label>
-                    Rollback linkage
-                    <select name="rollback_linked">
-                        <option value="">All events</option>
-                        <option
-                            value="true"
-                            {% if filter_values.rollback_linked == "true" %}selected{% endif %}
-                        >Linked rollback events</option>
-                        <option
-                            value="false"
-                            {% if filter_values.rollback_linked == "false" %}selected{% endif %}
-                        >Events without rollback links</option>
-                    </select>
-                </label>
+                        <label for="filter-reason-code">
+                            Reason code
+                            <input
+                                id="filter-reason-code"
+                                type="text"
+                                maxlength="96"
+                                name="reason_code"
+                                autocomplete="off"
+                                value="{{ filter_values.reason_code }}"
+                            >
+                        </label>
 
-                <label>
-                    Occurred from
-                    <input
-                        type="text"
-                        name="occurred_from"
-                        placeholder="2026-07-14T00:00:00+00:00"
-                        value="{{ filter_values.occurred_from }}"
-                    >
-                </label>
+                        <label for="filter-rollback-linked">
+                            Rollback linkage
+                            <select
+                                id="filter-rollback-linked"
+                                name="rollback_linked"
+                            >
+                                <option value="">All events</option>
 
-                <label>
-                    Occurred to
-                    <input
-                        type="text"
-                        name="occurred_to"
-                        placeholder="2026-07-14T23:59:59+00:00"
-                        value="{{ filter_values.occurred_to }}"
-                    >
-                </label>
+                                <option
+                                    value="true"
+                                    {% if filter_values.rollback_linked == "true" %}selected{% endif %}
+                                >
+                                    Linked rollback events
+                                </option>
 
-                <label>
-                    Page size
-                    <select name="page_size">
-                        <option
-                            value="25"
-                            {% if filter_values.page_size == "25" %}selected{% endif %}
-                        >25</option>
-                        <option
-                            value="50"
-                            {% if not filter_values.page_size or filter_values.page_size == "50" %}selected{% endif %}
-                        >50</option>
-                        <option
-                            value="100"
-                            {% if filter_values.page_size == "100" %}selected{% endif %}
-                        >100</option>
-                    </select>
-                </label>
+                                <option
+                                    value="false"
+                                    {% if filter_values.rollback_linked == "false" %}selected{% endif %}
+                                >
+                                    Events without rollback links
+                                </option>
+                            </select>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Correlation identifiers</legend>
+
+                    <div class="filters">
+                        <label for="filter-batch-id">
+                            Batch ID
+                            <input
+                                id="filter-batch-id"
+                                type="text"
+                                name="batch_id"
+                                autocomplete="off"
+                                value="{{ filter_values.batch_id }}"
+                            >
+                        </label>
+
+                        <label for="filter-correlation-id">
+                            Correlation ID
+                            <input
+                                id="filter-correlation-id"
+                                type="text"
+                                name="correlation_id"
+                                autocomplete="off"
+                                value="{{ filter_values.correlation_id }}"
+                            >
+                        </label>
+
+                        <label for="filter-attempt-id">
+                            Delivery-attempt ID
+                            <input
+                                id="filter-attempt-id"
+                                type="text"
+                                name="delivery_attempt_id"
+                                autocomplete="off"
+                                value="{{ filter_values.delivery_attempt_id }}"
+                            >
+                        </label>
+
+                        <label for="filter-idempotency-key">
+                            Idempotency key
+                            <input
+                                id="filter-idempotency-key"
+                                type="text"
+                                maxlength="128"
+                                name="idempotency_key"
+                                autocomplete="off"
+                                value="{{ filter_values.idempotency_key }}"
+                            >
+                        </label>
+
+                        <label for="filter-fingerprint">
+                            Notification fingerprint
+                            <input
+                                id="filter-fingerprint"
+                                type="text"
+                                maxlength="64"
+                                name="notification_fingerprint"
+                                autocomplete="off"
+                                value="{{ filter_values.notification_fingerprint }}"
+                            >
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Date range and page size</legend>
+
+                    <div class="filters">
+                        <label for="filter-occurred-from">
+                            Occurred from
+                            <input
+                                id="filter-occurred-from"
+                                type="text"
+                                name="occurred_from"
+                                autocomplete="off"
+                                placeholder="2026-07-14T00:00:00+00:00"
+                                aria-describedby="occurred-date-help"
+                                value="{{ filter_values.occurred_from }}"
+                            >
+                        </label>
+
+                        <label for="filter-occurred-to">
+                            Occurred to
+                            <input
+                                id="filter-occurred-to"
+                                type="text"
+                                name="occurred_to"
+                                autocomplete="off"
+                                placeholder="2026-07-14T23:59:59+00:00"
+                                aria-describedby="occurred-date-help"
+                                value="{{ filter_values.occurred_to }}"
+                            >
+                        </label>
+
+                        <label for="filter-page-size">
+                            Results per page
+                            <select
+                                id="filter-page-size"
+                                name="page_size"
+                            >
+                                <option
+                                    value="25"
+                                    {% if filter_values.page_size == "25" %}selected{% endif %}
+                                >
+                                    25
+                                </option>
+
+                                <option
+                                    value="50"
+                                    {% if not filter_values.page_size or filter_values.page_size == "50" %}selected{% endif %}
+                                >
+                                    50
+                                </option>
+
+                                <option
+                                    value="100"
+                                    {% if filter_values.page_size == "100" %}selected{% endif %}
+                                >
+                                    100
+                                </option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <p id="occurred-date-help" class="field-help">
+                        Date filters require timezone-aware ISO-8601 values.
+                    </p>
+                </fieldset>
             </div>
 
             <div class="actions">
-                <button type="submit">Apply filters</button>
+                <button type="submit">
+                    Apply filters
+                </button>
 
-                <a class="button-link" href="{{ operator_path }}">
-                    Clear filters
+                <a
+                    class="button-link secondary"
+                    href="{{ clear_filters_url }}"
+                >
+                    Clear all filters
                 </a>
 
                 <a
-                    class="button-link"
-                    href="{{ operator_path }}{% if csv_query %}?{{ csv_query }}{% endif %}"
+                    class="button-link export"
+                    href="{{ csv_url }}"
+                    aria-describedby="csv-export-help"
                 >
                     Download bounded CSV
                 </a>
             </div>
+
+            <p id="csv-export-help" class="export-note">
+                CSV export uses the same filters and ordering.
+                It is limited to {{ csv_result_limit }} events.
+                {% if csv_will_be_truncated %}
+                    The current result set exceeds that limit.
+                {% endif %}
+            </p>
+
+            <div
+                class="active-filter-panel"
+                aria-labelledby="active-filters-heading"
+            >
+                <div class="active-filter-heading">
+                    <h3 id="active-filters-heading">
+                        Active filters
+                        {% if has_active_filters %}
+                            ({{ active_filter_count }})
+                        {% endif %}
+                    </h3>
+
+                    {% if has_active_filters %}
+                        <a href="{{ clear_filters_url }}">
+                            Remove all
+                        </a>
+                    {% endif %}
+                </div>
+
+                {% if has_active_filters %}
+                    <ul class="filter-chip-list">
+                        {% for active_filter in active_filters %}
+                            <li class="filter-chip">
+                                <span class="filter-chip-value">
+                                    <strong>{{ active_filter.label }}:</strong>
+                                    {{ active_filter.value }}
+                                </span>
+
+                                <a
+                                    class="filter-chip-remove"
+                                    href="{{ active_filter.remove_url }}"
+                                    aria-label="Remove {{ active_filter.label }} filter: {{ active_filter.value }}"
+                                    title="Remove this filter"
+                                >
+                                    <span aria-hidden="true">×</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="summary-note">
+                        No filters are active. Newest audit events are shown
+                        first.
+                    </p>
+                {% endif %}
+            </div>
         </form>
     </section>
 
-    <section aria-labelledby="audit-events-heading">
-        <h2 id="audit-events-heading">
-            Events
-            <small>({{ page_result.total_count }})</small>
-        </h2>
+    <section
+        id="audit-events"
+        aria-labelledby="audit-events-heading"
+        tabindex="-1"
+    >
+        <div class="results-toolbar">
+            <div>
+                <h2 id="audit-events-heading">
+                    Audit events
+                </h2>
+
+                <p
+                    class="result-summary"
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                >
+                    {{ result_summary }}
+                </p>
+            </div>
+
+            {% if has_active_filters %}
+                <a
+                    class="button-link secondary"
+                    href="{{ clear_filters_url }}"
+                >
+                    Show all events
+                </a>
+            {% endif %}
+        </div>
 
         {% if events %}
             <div class="event-list">
                 {% for event in events %}
-                    <article class="event-card">
-                        <div class="event-heading">
+                    <article
+                        class="event-card"
+                        aria-labelledby="event-heading-{{ forloop.counter }}"
+                    >
+                        <header class="event-heading">
                             <div>
-                                <div class="event-type">
+                                <h3 id="event-heading-{{ forloop.counter }}">
                                     {{ event.event_type }}
-                                </div>
-                                <span class="outcome">
+                                </h3>
+
+                                <span
+                                    class="outcome outcome-{{ event.outcome|slugify }}"
+                                >
+                                    <span class="visually-hidden">
+                                        Outcome:
+                                    </span>
                                     {{ event.outcome }}
                                 </span>
                             </div>
 
-                            <time datetime="{{ event.occurred_at }}">
-                                {{ event.occurred_at }}
-                            </time>
-                        </div>
+                            <div>
+                                <time datetime="{{ event.occurred_at }}">
+                                    {{ event.occurred_at }}
+                                </time>
+
+                                <div class="event-id">
+                                    Event {{ event.event_id }}
+                                </div>
+                            </div>
+                        </header>
 
                         <div class="summary-grid">
                             <div class="field">
-                                <span class="field-name">Event ID</span>
-                                <code class="field-value">
-                                    {{ event.event_id }}
-                                </code>
-                            </div>
-
-                            <div class="field">
                                 <span class="field-name">Saved search</span>
+
                                 <span class="field-value">
                                     #{{ event.saved_search_id }}
                                     — {{ event.saved_search_label }}
@@ -471,7 +1016,10 @@
                             </div>
 
                             <div class="field">
-                                <span class="field-name">Owner ID snapshot</span>
+                                <span class="field-name">
+                                    Owner ID snapshot
+                                </span>
+
                                 <code class="field-value">
                                     {{ event.owner_id_snapshot|default:"—" }}
                                 </code>
@@ -479,6 +1027,7 @@
 
                             <div class="field">
                                 <span class="field-name">Reason code</span>
+
                                 <code class="field-value">
                                     {{ event.reason_code|default:"—" }}
                                 </code>
@@ -486,6 +1035,7 @@
 
                             <div class="field">
                                 <span class="field-name">Source</span>
+
                                 <code class="field-value">
                                     {{ event.source|default:"—" }}
                                 </code>
@@ -493,42 +1043,67 @@
 
                             <div class="field">
                                 <span class="field-name">Actor type</span>
+
                                 <span class="field-value">
                                     {{ event.actor_type|default:"—" }}
                                 </span>
                             </div>
 
                             <div class="field">
-                                <span class="field-name">Correlation ID</span>
+                                <span class="field-name">
+                                    Correlation ID
+                                </span>
+
                                 <code class="field-value">
                                     {{ event.correlation_id }}
                                 </code>
                             </div>
 
                             <div class="field">
-                                <span class="field-name">Delivery-attempt ID</span>
+                                <span class="field-name">
+                                    Delivery-attempt ID
+                                </span>
+
                                 <code class="field-value">
                                     {{ event.delivery_attempt_id|default:"—" }}
                                 </code>
                             </div>
 
                             <div class="field">
-                                <span class="field-name">Fingerprint</span>
-                                <code
-                                    class="field-value"
-                                    title="{{ event.notification_fingerprint }}"
-                                    data-copy-value="{{ event.notification_fingerprint }}"
-                                >
-                                    {{ event.notification_fingerprint_short|default:"—" }}
-                                </code>
+                                <span class="field-name">
+                                    Notification fingerprint
+                                </span>
+
+                                <div class="fingerprint-tools">
+                                    <code
+                                        class="field-value"
+                                        title="{{ event.notification_fingerprint }}"
+                                    >
+                                        {{ event.notification_fingerprint_short|default:"—" }}
+                                    </code>
+
+                                    {% if event.notification_fingerprint %}
+                                        <button
+                                            type="button"
+                                            class="copy-button"
+                                            data-copy-value="{{ event.notification_fingerprint }}"
+                                            aria-label="Copy full notification fingerprint for event {{ event.event_id }}"
+                                        >
+                                            Copy full value
+                                        </button>
+                                    {% endif %}
+                                </div>
                             </div>
 
                             <div class="field">
-                                <span class="field-name">Rollback target</span>
+                                <span class="field-name">
+                                    Rollback target
+                                </span>
 
                                 {% if event.rollback_of_id %}
                                     <a
                                         href="{{ operator_path }}?event_id={{ event.rollback_of_id|urlencode }}"
+                                        aria-label="Open rollback target event {{ event.rollback_of_id }}"
                                     >
                                         {{ event.rollback_of_id }}
                                     </a>
@@ -539,11 +1114,17 @@
                         </div>
 
                         <details>
-                            <summary>Technical details</summary>
+                            <summary>
+                                Technical details
+                                <span class="visually-hidden">
+                                    for event {{ event.event_id }}
+                                </span>
+                            </summary>
 
                             <div class="detail-grid">
                                 <div class="field">
                                     <span class="field-name">Created</span>
+
                                     <span class="field-value">
                                         {{ event.created_at|default:"—" }}
                                     </span>
@@ -551,56 +1132,81 @@
 
                                 <div class="field">
                                     <span class="field-name">Batch ID</span>
+
                                     <code class="field-value">
                                         {{ event.batch_id|default:"—" }}
                                     </code>
                                 </div>
 
                                 <div class="field">
-                                    <span class="field-name">Idempotency key</span>
+                                    <span class="field-name">
+                                        Idempotency key
+                                    </span>
+
                                     <code class="field-value">
                                         {{ event.idempotency_key }}
                                     </code>
                                 </div>
 
                                 <div class="field">
-                                    <span class="field-name">Actor identifier</span>
+                                    <span class="field-name">
+                                        Actor identifier
+                                    </span>
+
                                     <code class="field-value">
                                         {{ event.actor_identifier|default:"—" }}
                                     </code>
                                 </div>
 
                                 <div class="field">
-                                    <span class="field-name">Checked before</span>
+                                    <span class="field-name">
+                                        Checked before
+                                    </span>
+
                                     <span class="field-value">
                                         {{ event.checked_at_before|default:"—" }}
                                     </span>
                                 </div>
 
                                 <div class="field">
-                                    <span class="field-name">Checked after</span>
+                                    <span class="field-name">
+                                        Checked after
+                                    </span>
+
                                     <span class="field-value">
                                         {{ event.checked_at_after|default:"—" }}
                                     </span>
                                 </div>
 
                                 <div class="field">
-                                    <span class="field-name">Sent before</span>
+                                    <span class="field-name">
+                                        Sent before
+                                    </span>
+
                                     <span class="field-value">
                                         {{ event.sent_at_before|default:"—" }}
                                     </span>
                                 </div>
 
                                 <div class="field">
-                                    <span class="field-name">Sent after</span>
+                                    <span class="field-name">
+                                        Sent after
+                                    </span>
+
                                     <span class="field-value">
                                         {{ event.sent_at_after|default:"—" }}
                                     </span>
                                 </div>
                             </div>
 
-                            <span class="field-name">Sanitized metadata</span>
-                            <pre>{{ event.metadata_json }}</pre>
+                            <span class="field-name">
+                                Sanitized metadata
+                            </span>
+
+                            <pre
+                                tabindex="0"
+                                aria-label="Sanitized metadata for event {{ event.event_id }}"
+                            >{{ event.metadata_json }}</pre>
                         </details>
                     </article>
                 {% endfor %}
@@ -610,7 +1216,10 @@
                 class="pagination"
                 aria-label="Audit event pagination"
             >
-                <div>
+                <div
+                    class="page-position"
+                    aria-current="page"
+                >
                     Page {{ page_result.number }}
                     of {{ page_result.total_pages }}
                 </div>
@@ -618,8 +1227,10 @@
                 <div class="actions">
                     {% if page_result.has_previous %}
                         <a
-                            class="button-link"
-                            href="{{ operator_path }}?{% if pagination_query %}{{ pagination_query }}&amp;{% endif %}page={{ page_result.previous_page_number }}"
+                            class="button-link secondary"
+                            href="{{ previous_page_url }}"
+                            rel="prev"
+                            aria-label="Go to previous audit event page"
                         >
                             Previous
                         </a>
@@ -627,8 +1238,10 @@
 
                     {% if page_result.has_next %}
                         <a
-                            class="button-link"
-                            href="{{ operator_path }}?{% if pagination_query %}{{ pagination_query }}&amp;{% endif %}page={{ page_result.next_page_number }}"
+                            class="button-link secondary"
+                            href="{{ next_page_url }}"
+                            rel="next"
+                            aria-label="Go to next audit event page"
                         >
                             Next
                         </a>
@@ -636,11 +1249,121 @@
                 </div>
             </nav>
         {% else %}
-            <div class="empty-state">
-                No persistent audit events match the selected filters.
+            <div
+                class="empty-state"
+                role="status"
+                aria-live="polite"
+            >
+                <h3>No matching audit events</h3>
+
+                <p>
+                    No persistent audit events match the selected filters.
+                    Remove one or more filters or return to the complete event
+                    list.
+                </p>
+
+                {% if has_active_filters %}
+                    <div class="actions">
+                        <a
+                            class="button-link secondary"
+                            href="{{ clear_filters_url }}"
+                        >
+                            Clear all filters
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         {% endif %}
     </section>
 </main>
+
+<div
+    id="copy-status"
+    class="copy-status"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+></div>
+
+<script>
+(function () {
+    "use strict";
+
+    var statusNode = document.getElementById("copy-status");
+
+    function announce(message) {
+        statusNode.textContent = message;
+
+        window.setTimeout(function () {
+            statusNode.textContent = "";
+        }, 3000);
+    }
+
+    function fallbackCopy(value) {
+        var textarea = document.createElement("textarea");
+
+        textarea.value = value;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        var copied = document.execCommand("copy");
+
+        document.body.removeChild(textarea);
+
+        return copied;
+    }
+
+    document.addEventListener("click", function (event) {
+        var button = event.target.closest("[data-copy-value]");
+
+        if (!button) {
+            return;
+        }
+
+        var value = button.getAttribute("data-copy-value");
+
+        if (!value) {
+            announce("No fingerprint value is available.");
+            return;
+        }
+
+        if (
+            navigator.clipboard
+            && navigator.clipboard.writeText
+        ) {
+            navigator.clipboard.writeText(value).then(
+                function () {
+                    announce(
+                        "Notification fingerprint copied."
+                    );
+                },
+                function () {
+                    if (fallbackCopy(value)) {
+                        announce(
+                            "Notification fingerprint copied."
+                        );
+                    } else {
+                        announce(
+                            "Fingerprint could not be copied."
+                        );
+                    }
+                }
+            );
+
+            return;
+        }
+
+        if (fallbackCopy(value)) {
+            announce("Notification fingerprint copied.");
+        } else {
+            announce("Fingerprint could not be copied.");
+        }
+    });
+}());
+</script>
 </body>
 </html>
