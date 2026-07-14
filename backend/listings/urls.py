@@ -74,3 +74,22 @@ urlpatterns = [
     path("saved-searches/bulk/", listing_views_v130.saved_search_bulk_action, name="saved_search_bulk_action"),
     path("saved-searches/<int:pk>/rename/", listing_views_v130.saved_search_rename, name="saved_search_rename"),
 ]
+
+from .saved_search_notification_audit_operator_views import (
+    SavedSearchNotificationAuditEventListView,
+)
+
+
+V234_SAVED_SEARCH_NOTIFICATION_PERSISTENT_AUDIT_OPERATOR_URL = (
+    "V234_SAVED_SEARCH_NOTIFICATION_PERSISTENT_AUDIT_OPERATOR_URL"
+)
+
+
+urlpatterns.insert(
+    0,
+    path(
+        "staff/saved-search-notification-audit/",
+        SavedSearchNotificationAuditEventListView.as_view(),
+        name="saved-search-notification-audit-events",
+    ),
+)
