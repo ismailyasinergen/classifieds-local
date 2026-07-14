@@ -570,9 +570,23 @@ class SavedSearchNotificationAuditPersistenceModelMigrationV229Tests(
             )
         )
 
-        self.assertFalse(
-            persistence_module.exists(),
+        v230_test_path = (
+            self._backend_root()
+            / "listings"
+            / (
+                "test_saved_search_notification_audit_"
+                "persistence_write_service_v230.py"
+            )
         )
+
+        if v230_test_path.exists():
+            self.assertTrue(
+                persistence_module.is_file(),
+            )
+        else:
+            self.assertFalse(
+                persistence_module.exists(),
+            )
 
     def test_v229_migration_contract_is_exact(self):
         loader = MigrationLoader(

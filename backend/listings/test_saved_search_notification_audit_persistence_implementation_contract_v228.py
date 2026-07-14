@@ -583,6 +583,15 @@ class SavedSearchNotificationAuditPersistenceImplementationContractV228Tests(
             )
         )
 
+        v230_test_path = (
+            self._backend_root()
+            / "listings"
+            / (
+                "test_saved_search_notification_audit_"
+                "persistence_write_service_v230.py"
+            )
+        )
+
         migration_path = (
             self._backend_root()
             / EXPECTED_MIGRATION
@@ -610,9 +619,14 @@ class SavedSearchNotificationAuditPersistenceImplementationContractV228Tests(
                 migration_path.exists(),
             )
 
-        self.assertFalse(
-            persistence_module.exists(),
-        )
+        if v230_test_path.exists():
+            self.assertTrue(
+                persistence_module.is_file(),
+            )
+        else:
+            self.assertFalse(
+                persistence_module.exists(),
+            )
 
     def test_v228_preserves_v227_design_and_existing_runtime_surfaces(self):
         required_paths = (
