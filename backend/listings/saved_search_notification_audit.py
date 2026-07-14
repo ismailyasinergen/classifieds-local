@@ -241,3 +241,267 @@ def rollback_saved_search_notification_sent_timestamp(
     )
 
     return rollback_result
+
+# V232 persistent audit integration for rollback preview and apply.
+from django.db import transaction as _v232_transaction
+
+from .saved_search_notification_audit_runtime import (
+    SavedSearchNotificationAuditRuntimeContext,
+    find_latest_saved_search_notification_sent_event,
+    record_saved_search_notification_runtime_event,
+)
+
+
+V232_SAVED_SEARCH_NOTIFICATION_AUDIT_RUNTIME_ROLLBACK_INTEGRATION = (
+    "V232_SAVED_SEARCH_NOTIFICATION_AUDIT_RUNTIME_ROLLBACK_INTEGRATION"
+)
+
+_v232_original_build_saved_search_notification_rollback_plan = (
+    build_saved_search_notification_rollback_plan
+)
+
+_v232_original_rollback_saved_search_notification_sent_timestamp = (
+    rollback_saved_search_notification_sent_timestamp
+)
+
+
+def _v232_rollback_runtime_context(
+    runtime_context,
+    *,
+    source,
+    mode,
+    create_batch=False,
+    operator="",
+):
+    if runtime_context is None:
+        runtime_context = (
+            SavedSearchNotificationAuditRuntimeContext.create(
+                actor_type="operator",
+                actor_identifier=str(
+                    operator
+                    or "saved-search-rollback"
+                ),
+                source=source,
+                mode=mode,
+                create_batch=create_batch,
+            )
+        )
+
+    return runtime_context.for_surface(
+        source=source,
+        mode=mode,
+    )
+
+
+def build_saved_search_notification_rollback_plan(
+    *,
+    saved_searches=None,
+    owner=None,
+    limit=50,
+    runtime_context=None,
+    record_persistent_audit=False,
+) -> dict[str, Any]:
+    plan = (
+        _v232_original_build_saved_search_notification_rollback_plan(
+            saved_searches=saved_searches,
+            owner=owner,
+            limit=limit,
+        )
+    )
+
+    if not record_persistent_audit:
+        return plan
+
+    rollback_context = _v232_rollback_runtime_context(
+        runtime_context,
+        source="saved_search.rollback.preview",
+        mode="rollback_preview",
+        create_batch=True,
+    )
+
+    persistent_preview_count = 0
+
+    for item in plan["rollback_candidates"]:
+        saved_search = (
+            SavedSearch
+            .objects
+            .select_related("user")
+            .get(pk=item["saved_search_id"])
+        )
+
+        rollback_target = (
+            find_latest_saved_search_notification_sent_event(
+                saved_search
+            )
+        )
+
+        if rollback_target is None:
+            item["persistent_audit_status"] = (
+                "missing_sent_timestamp_event"
+            )
+            continue
+
+        preview_write = (
+            record_saved_search_notification_runtime_event(
+                saved_search=saved_search,
+                context=rollback_context,
+                event_type="rollback_previewed",
+                notification_fingerprint=(
+                    rollback_target
+                    .notification_fingerprint
+                ),
+                operation_sequence=(
+                    "rollback:"
+                    f"{rollback_target.pk}:"
+                    "previewed"
+                ),
+                rollback_of=rollback_target,
+                metadata={
+                    "mode": "rollback_preview",
+                    "preview_count": 1,
+                },
+            )
+        )
+
+        item["persistent_audit_status"] = "recorded"
+        item["persistent_audit_event_id"] = str(
+            preview_write.event.pk
+        )
+        item["rollback_of_event_id"] = str(
+            rollback_target.pk
+        )
+
+        persistent_preview_count += 1
+
+    plan["persistent_audit_enabled"] = True
+    plan["persistent_preview_count"] = (
+        persistent_preview_count
+    )
+    plan["audit_correlation_id"] = str(
+        rollback_context.correlation_id
+    )
+    plan["audit_batch_id"] = (
+        str(rollback_context.batch_id)
+        if rollback_context.batch_id is not None
+        else None
+    )
+
+    return plan
+
+
+def rollback_saved_search_notification_sent_timestamp(
+    saved_search,
+    *,
+    previous_sent_at=None,
+    execute_rollback=False,
+    operator: str = "",
+    reason: str = "",
+    runtime_context=None,
+    rollback_of=None,
+    notification_fingerprint=None,
+) -> dict[str, Any]:
+    if not execute_rollback:
+        return (
+            _v232_original_rollback_saved_search_notification_sent_timestamp(
+                saved_search,
+                previous_sent_at=previous_sent_at,
+                execute_rollback=False,
+                operator=operator,
+                reason=reason,
+            )
+        )
+
+    rollback_target = (
+        rollback_of
+        or find_latest_saved_search_notification_sent_event(
+            saved_search
+        )
+    )
+
+    if rollback_target is None:
+        return (
+            _v232_original_rollback_saved_search_notification_sent_timestamp(
+                saved_search,
+                previous_sent_at=previous_sent_at,
+                execute_rollback=True,
+                operator=operator,
+                reason=reason,
+            )
+        )
+
+    rollback_context = _v232_rollback_runtime_context(
+        runtime_context,
+        source="saved_search.rollback.apply",
+        mode="execute_rollback",
+        operator=operator,
+    )
+
+    fingerprint = (
+        notification_fingerprint
+        or rollback_target.notification_fingerprint
+    )
+
+    before_sent_at = getattr(
+        saved_search,
+        "last_notification_sent_at",
+        None,
+    )
+
+    try:
+        with _v232_transaction.atomic():
+            rollback_result = (
+                _v232_original_rollback_saved_search_notification_sent_timestamp(
+                    saved_search,
+                    previous_sent_at=previous_sent_at,
+                    execute_rollback=True,
+                    operator=operator,
+                    reason=reason,
+                )
+            )
+
+            rollback_write = (
+                record_saved_search_notification_runtime_event(
+                    saved_search=saved_search,
+                    context=rollback_context,
+                    event_type="rollback_applied",
+                    notification_fingerprint=fingerprint,
+                    operation_sequence=(
+                        "rollback:"
+                        f"{rollback_target.pk}:"
+                        "applied"
+                    ),
+                    reason_code="explicit_rollback",
+                    rollback_of=rollback_target,
+                    sent_at_before=before_sent_at,
+                    sent_at_after=previous_sent_at,
+                    metadata={
+                        "mode": "execute_rollback",
+                        "timestamp_changed": (
+                            before_sent_at
+                            != previous_sent_at
+                        ),
+                    },
+                )
+            )
+    except Exception:
+        setattr(
+            saved_search,
+            "last_notification_sent_at",
+            before_sent_at,
+        )
+        raise
+
+    rollback_result["persistent_audit_event_id"] = str(
+        rollback_write.event.pk
+    )
+    rollback_result["rollback_of_event_id"] = str(
+        rollback_target.pk
+    )
+    rollback_result["audit_correlation_id"] = str(
+        rollback_context.correlation_id
+    )
+    rollback_result["notification_fingerprint"] = (
+        fingerprint
+    )
+
+    return rollback_result

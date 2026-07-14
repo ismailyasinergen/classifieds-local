@@ -771,13 +771,16 @@ class SavedSearchNotificationAuditRuntimeIntegrationContractV231Tests(
             / PROPOSED_RUNTIME_ADAPTER
         )
 
-        self.assertFalse(
-            adapter_path.exists(),
+        v232_test_path = (
+            self._backend_root()
+            / "listings"
+            / (
+                "test_saved_search_notification_audit_"
+                "runtime_integration_v232.py"
+            )
         )
 
-        forbidden_runtime_terms = (
-            "V231_SAVED_SEARCH_NOTIFICATION_AUDIT_"
-            "RUNTIME_INTEGRATION_CONTRACT",
+        direct_persistence_terms = (
             (
                 "from .saved_search_notification_audit_"
                 "persistence import"
@@ -789,18 +792,64 @@ class SavedSearchNotificationAuditRuntimeIntegrationContractV231Tests(
             "record_saved_search_notification_audit_event(",
         )
 
-        for relative_path in RUNTIME_INTEGRATION_TARGETS:
-            source = self._read_backend(relative_path)
+        if v232_test_path.exists():
+            self.assertTrue(
+                adapter_path.is_file(),
+            )
 
-            for forbidden in forbidden_runtime_terms:
+            adapter_source = adapter_path.read_text(
+                encoding="utf-8",
+                errors="strict",
+            )
+
+            self.assertIn(
+                "record_saved_search_notification_audit_event",
+                adapter_source,
+            )
+
+            for relative_path in RUNTIME_INTEGRATION_TARGETS:
+                source = self._read_backend(relative_path)
+
                 with self.subTest(
                     relative_path=relative_path,
-                    forbidden=forbidden,
                 ):
-                    self.assertNotIn(
-                        forbidden,
+                    self.assertIn(
+                        "saved_search_notification_audit_runtime",
                         source,
                     )
+
+                for forbidden in direct_persistence_terms:
+                    with self.subTest(
+                        relative_path=relative_path,
+                        forbidden=forbidden,
+                    ):
+                        self.assertNotIn(
+                            forbidden,
+                            source,
+                        )
+        else:
+            self.assertFalse(
+                adapter_path.exists(),
+            )
+
+            forbidden_runtime_terms = (
+                "V231_SAVED_SEARCH_NOTIFICATION_AUDIT_"
+                "RUNTIME_INTEGRATION_CONTRACT",
+                *direct_persistence_terms,
+            )
+
+            for relative_path in RUNTIME_INTEGRATION_TARGETS:
+                source = self._read_backend(relative_path)
+
+                for forbidden in forbidden_runtime_terms:
+                    with self.subTest(
+                        relative_path=relative_path,
+                        forbidden=forbidden,
+                    ):
+                        self.assertNotIn(
+                            forbidden,
+                            source,
+                        )
 
     def test_v231_adds_no_model_migration_or_editable_admin(self):
         self.assertFalse(

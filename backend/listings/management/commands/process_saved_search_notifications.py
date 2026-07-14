@@ -1,4 +1,10 @@
 from __future__ import annotations
+
+from listings.saved_search_notification_audit_runtime import (
+    SavedSearchNotificationAuditRuntimeContext,
+    V232_SAVED_SEARCH_NOTIFICATION_AUDIT_RUNTIME_INTEGRATION,
+)
+
 from listings.saved_search_notification_audit import (
     build_saved_search_notification_rollback_plan,
     format_saved_search_notification_rollback_plan_lines,
@@ -79,9 +85,23 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        audit_runtime_context = (
+            SavedSearchNotificationAuditRuntimeContext.create(
+                actor_type="management_command",
+                actor_identifier=(
+                    "process_saved_search_notifications"
+                ),
+                source="saved_search.command.process",
+                mode="management_command",
+                create_batch=True,
+            )
+        )
+
         if options.get("notification_rollback_report"):
             rollback_plan = build_saved_search_notification_rollback_plan(
                 limit=options.get("limit"),
+                runtime_context=audit_runtime_context,
+                record_persistent_audit=True,
             )
             for line in format_saved_search_notification_rollback_plan_lines(rollback_plan):
                 self.stdout.write(line)
@@ -100,6 +120,7 @@ class Command(BaseCommand):
                 limit=options.get("limit"),
                 execute_send=True,
                 require_test_email_backend=True,
+                runtime_context=audit_runtime_context,
             )
             self.stdout.write(
                 (
@@ -125,6 +146,7 @@ class Command(BaseCommand):
         if options.get("render_email_previews"):
             previews = build_saved_search_notification_scheduler_email_previews(
                 limit=options.get("limit"),
+                runtime_context=audit_runtime_context,
             )
             self.stdout.write(
                 (
@@ -164,3 +186,5 @@ class Command(BaseCommand):
                 )
             )
         )
+
+V232_SAVED_SEARCH_NOTIFICATION_AUDIT_RUNTIME_COMMAND_INTEGRATION = V232_SAVED_SEARCH_NOTIFICATION_AUDIT_RUNTIME_INTEGRATION

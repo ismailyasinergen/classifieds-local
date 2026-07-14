@@ -143,3 +143,96 @@ def render_saved_search_notification_email(
         html_body=html_body,
         context=context,
     )
+
+# V232 saved-search notification audit runtime renderer integration.
+from .saved_search_notification_audit_runtime import (
+    SavedSearchNotificationAuditRuntimeContext,
+    build_saved_search_notification_fingerprint,
+    record_saved_search_notification_runtime_event,
+)
+
+
+V232_SAVED_SEARCH_NOTIFICATION_AUDIT_RUNTIME_RENDERER_INTEGRATION = (
+    "V232_SAVED_SEARCH_NOTIFICATION_AUDIT_RUNTIME_RENDERER_INTEGRATION"
+)
+
+_v232_original_render_saved_search_notification_email = (
+    render_saved_search_notification_email
+)
+
+
+def render_saved_search_notification_email(
+    saved_search: Any,
+    *,
+    match_count: int,
+    matching_listings: Iterable[Any] | None = None,
+    site_url: str = "",
+    manage_path: str | None = None,
+    audit_runtime_context: (
+        SavedSearchNotificationAuditRuntimeContext | None
+    ) = None,
+    notification_fingerprint: str | None = None,
+    audit_operation_sequence: str | None = None,
+    audit_metadata: dict[str, Any] | None = None,
+) -> SavedSearchNotificationEmailRenderResult:
+    listing_items = list(matching_listings or ())
+
+    rendered = (
+        _v232_original_render_saved_search_notification_email(
+            saved_search,
+            match_count=match_count,
+            matching_listings=listing_items,
+            site_url=site_url,
+            manage_path=manage_path,
+        )
+    )
+
+    if audit_runtime_context is not None:
+        renderer_context = audit_runtime_context.for_surface(
+            source="saved_search.renderer.preview",
+            mode="dry_run",
+        )
+
+        fingerprint = (
+            notification_fingerprint
+            or build_saved_search_notification_fingerprint(
+                saved_search,
+                checked_at_before=getattr(
+                    saved_search,
+                    "last_notification_checked_at",
+                    None,
+                ),
+                matching_listings=listing_items,
+            )
+        )
+
+        metadata = {
+            "mode": "dry_run",
+            "match_count": int(
+                rendered.context["match_count"]
+            ),
+            "rendered_item_count": len(
+                rendered.context["matching_listings"]
+            ),
+        }
+
+        if audit_metadata:
+            metadata.update(audit_metadata)
+
+        record_saved_search_notification_runtime_event(
+            saved_search=saved_search,
+            context=renderer_context,
+            event_type="dry_run_rendered",
+            notification_fingerprint=fingerprint,
+            operation_sequence=(
+                audit_operation_sequence
+                or (
+                    "render:"
+                    f"{saved_search.pk}:"
+                    "dry_run_rendered"
+                )
+            ),
+            metadata=metadata,
+        )
+
+    return rendered
