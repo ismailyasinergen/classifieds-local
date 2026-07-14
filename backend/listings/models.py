@@ -1,7 +1,9 @@
+import uuid
 from decimal import Decimal
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ValidationError as AuditValidationError
 from django.db import models
 from django.urls import reverse
 
@@ -370,3 +372,303 @@ class ListingReport(models.Model):
 
     def __str__(self):
         return f"Report for {self.listing.title}"
+
+# V229_SAVED_SEARCH_NOTIFICATION_AUDIT_PERSISTENCE_MODEL_MIGRATION
+V229_SAVED_SEARCH_NOTIFICATION_AUDIT_PERSISTENCE_MODEL_MIGRATION = (
+    "V229_SAVED_SEARCH_NOTIFICATION_AUDIT_PERSISTENCE_MODEL_MIGRATION"
+)
+
+
+class SavedSearchNotificationAuditEventQuerySet(models.QuerySet):
+    immutable_error_message = (
+        "Saved-search notification audit events are append-only."
+    )
+
+    def update(self, **kwargs):
+        raise AuditValidationError(self.immutable_error_message)
+
+    def delete(self):
+        raise AuditValidationError(self.immutable_error_message)
+
+    def bulk_update(self, objs, fields, batch_size=None):
+        raise AuditValidationError(self.immutable_error_message)
+
+
+class SavedSearchNotificationAuditEvent(models.Model):
+    class EventType(models.TextChoices):
+        EVALUATION_STARTED = (
+            "evaluation_started",
+            "Evaluation started",
+        )
+        SKIPPED_NOTIFICATIONS_DISABLED = (
+            "skipped_notifications_disabled",
+            "Skipped: notifications disabled",
+        )
+        SKIPPED_MISSING_RECIPIENT = (
+            "skipped_missing_recipient",
+            "Skipped: missing recipient",
+        )
+        DRY_RUN_RENDERED = (
+            "dry_run_rendered",
+            "Dry-run rendered",
+        )
+        DELIVERY_ATTEMPTED = (
+            "delivery_attempted",
+            "Delivery attempted",
+        )
+        DELIVERY_SUCCEEDED = (
+            "delivery_succeeded",
+            "Delivery succeeded",
+        )
+        DELIVERY_FAILED = (
+            "delivery_failed",
+            "Delivery failed",
+        )
+        SENT_TIMESTAMP_RECORDED = (
+            "sent_timestamp_recorded",
+            "Sent timestamp recorded",
+        )
+        ROLLBACK_PREVIEWED = (
+            "rollback_previewed",
+            "Rollback previewed",
+        )
+        ROLLBACK_APPLIED = (
+            "rollback_applied",
+            "Rollback applied",
+        )
+
+    class Outcome(models.TextChoices):
+        PENDING = "pending", "Pending"
+        SKIPPED = "skipped", "Skipped"
+        SUCCEEDED = "succeeded", "Succeeded"
+        FAILED = "failed", "Failed"
+        ROLLED_BACK = "rolled_back", "Rolled back"
+
+    class ActorType(models.TextChoices):
+        SYSTEM = "system", "System"
+        SCHEDULER = "scheduler", "Scheduler"
+        OPERATOR = "operator", "Operator"
+        MANAGEMENT_COMMAND = (
+            "management_command",
+            "Management command",
+        )
+        TEST_BACKEND = "test_backend", "Test backend"
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+
+    saved_search = models.ForeignKey(
+        SavedSearch,
+        on_delete=models.PROTECT,
+        related_name="notification_audit_events",
+    )
+
+    owner_id_snapshot = models.CharField(
+        max_length=64,
+    )
+
+    event_type = models.CharField(
+        max_length=64,
+        choices=EventType.choices,
+    )
+
+    outcome = models.CharField(
+        max_length=32,
+        choices=Outcome.choices,
+    )
+
+    reason_code = models.CharField(
+        max_length=96,
+        blank=True,
+    )
+
+    occurred_at = models.DateTimeField()
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    batch_id = models.UUIDField(
+        null=True,
+        blank=True,
+    )
+
+    correlation_id = models.UUIDField()
+
+    delivery_attempt_id = models.UUIDField(
+        null=True,
+        blank=True,
+    )
+
+    idempotency_key = models.CharField(
+        max_length=128,
+        unique=True,
+    )
+
+    notification_fingerprint = models.CharField(
+        max_length=64,
+    )
+
+    rollback_of = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="rollback_events",
+    )
+
+    actor_type = models.CharField(
+        max_length=32,
+        choices=ActorType.choices,
+    )
+
+    actor_identifier = models.CharField(
+        max_length=128,
+        blank=True,
+    )
+
+    source = models.CharField(
+        max_length=128,
+    )
+
+    checked_at_before = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    checked_at_after = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    sent_at_before = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    sent_at_after = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    metadata = models.JSONField(
+        default=dict,
+        blank=True,
+    )
+
+    objects = SavedSearchNotificationAuditEventQuerySet.as_manager()
+
+    class Meta:
+        db_table = "listings_savedsearchnotificationauditevent"
+        ordering = (
+            "-occurred_at",
+            "-created_at",
+        )
+        get_latest_by = "occurred_at"
+
+        indexes = [
+            models.Index(
+                fields=(
+                    "saved_search",
+                    "occurred_at",
+                ),
+                name="ssna_saved_occ_idx",
+            ),
+            models.Index(
+                fields=(
+                    "event_type",
+                    "occurred_at",
+                ),
+                name="ssna_event_occ_idx",
+            ),
+            models.Index(
+                fields=(
+                    "outcome",
+                    "occurred_at",
+                ),
+                name="ssna_outcome_occ_idx",
+            ),
+            models.Index(
+                fields=("batch_id",),
+                name="ssna_batch_idx",
+            ),
+            models.Index(
+                fields=("correlation_id",),
+                name="ssna_corr_idx",
+            ),
+            models.Index(
+                fields=("delivery_attempt_id",),
+                name="ssna_attempt_idx",
+            ),
+            models.Index(
+                fields=("notification_fingerprint",),
+                name="ssna_fingerprint_idx",
+            ),
+            models.Index(
+                fields=("rollback_of",),
+                name="ssna_rollback_idx",
+            ),
+        ]
+
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    ~models.Q(
+                        event_type__in=(
+                            "rollback_previewed",
+                            "rollback_applied",
+                        )
+                    )
+                    | models.Q(
+                        rollback_of__isnull=False,
+                    )
+                ),
+                name="ssna_rollback_link_required",
+            ),
+            models.CheckConstraint(
+                condition=(
+                    ~models.Q(
+                        event_type__in=(
+                            "delivery_attempted",
+                            "delivery_succeeded",
+                            "delivery_failed",
+                        )
+                    )
+                    | models.Q(
+                        delivery_attempt_id__isnull=False,
+                    )
+                ),
+                name="ssna_delivery_attempt_required",
+            ),
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise AuditValidationError(
+                "Saved-search notification audit events "
+                "cannot be updated."
+            )
+
+        if kwargs.get("force_update"):
+            raise AuditValidationError(
+                "Saved-search notification audit events "
+                "cannot be force-updated."
+            )
+
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise AuditValidationError(
+            "Saved-search notification audit events "
+            "cannot be deleted."
+        )
+
+    def __str__(self):
+        return (
+            f"{self.event_type}:"
+            f"{self.outcome}:"
+            f"{self.pk}"
+        )

@@ -574,25 +574,44 @@ class SavedSearchNotificationAuditPersistenceImplementationContractV228Tests(
             for model in apps.get_app_config("listings").get_models()
         }
 
-        self.assertNotIn(
-            PROPOSED_MODEL,
-            registered_models,
+        v229_test_path = (
+            self._backend_root()
+            / "listings"
+            / (
+                "test_saved_search_notification_audit_"
+                "persistence_model_migration_v229.py"
+            )
         )
 
-        self.assertNotIn(
-            f"class {PROPOSED_MODEL}",
-            self._read_backend("listings/models.py"),
+        migration_path = (
+            self._backend_root()
+            / EXPECTED_MIGRATION
         )
+
+        persistence_module = (
+            self._backend_root()
+            / EXPECTED_PERSISTENCE_MODULE
+        )
+
+        if v229_test_path.exists():
+            self.assertIn(
+                PROPOSED_MODEL,
+                registered_models,
+            )
+            self.assertTrue(
+                migration_path.is_file(),
+            )
+        else:
+            self.assertNotIn(
+                PROPOSED_MODEL,
+                registered_models,
+            )
+            self.assertFalse(
+                migration_path.exists(),
+            )
 
         self.assertFalse(
-            (self._backend_root() / EXPECTED_MIGRATION).exists(),
-        )
-
-        self.assertFalse(
-            (
-                self._backend_root()
-                / EXPECTED_PERSISTENCE_MODULE
-            ).exists(),
+            persistence_module.exists(),
         )
 
     def test_v228_preserves_v227_design_and_existing_runtime_surfaces(self):

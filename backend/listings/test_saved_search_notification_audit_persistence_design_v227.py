@@ -251,30 +251,74 @@ class SavedSearchNotificationAuditPersistenceDesignV227Tests(SimpleTestCase):
             for model in apps.get_app_config("listings").get_models()
         }
 
-        self.assertNotIn(
-            PROPOSED_AUDIT_MODEL,
-            registered_model_names,
-        )
-
         models_source = self._read_backend("listings/models.py")
 
-        self.assertNotIn(
-            f"class {PROPOSED_AUDIT_MODEL}",
-            models_source,
+        migrations_directory = (
+            self._backend_root()
+            / "listings"
+            / "migrations"
         )
 
-        migrations_directory = self._backend_root() / "listings" / "migrations"
+        v229_test_path = (
+            self._backend_root()
+            / "listings"
+            / (
+                "test_saved_search_notification_audit_"
+                "persistence_model_migration_v229.py"
+            )
+        )
 
-        for migration_path in migrations_directory.glob("*.py"):
-            with self.subTest(migration=migration_path.name):
-                migration_source = migration_path.read_text(
-                    encoding="utf-8",
-                    errors="ignore",
-                )
-                self.assertNotIn(
-                    PROPOSED_AUDIT_MODEL,
-                    migration_source,
-                )
+        v229_migration_path = (
+            migrations_directory
+            / "0016_savedsearchnotificationauditevent.py"
+        )
+
+        if v229_test_path.exists():
+            self.assertIn(
+                PROPOSED_AUDIT_MODEL,
+                registered_model_names,
+            )
+
+            self.assertIn(
+                f"class {PROPOSED_AUDIT_MODEL}",
+                models_source,
+            )
+
+            self.assertTrue(
+                v229_migration_path.is_file(),
+            )
+
+            migration_source = v229_migration_path.read_text(
+                encoding="utf-8",
+                errors="ignore",
+            )
+
+            self.assertIn(
+                PROPOSED_AUDIT_MODEL,
+                migration_source,
+            )
+        else:
+            self.assertNotIn(
+                PROPOSED_AUDIT_MODEL,
+                registered_model_names,
+            )
+
+            self.assertNotIn(
+                f"class {PROPOSED_AUDIT_MODEL}",
+                models_source,
+            )
+
+            for migration_path in migrations_directory.glob("*.py"):
+                with self.subTest(migration=migration_path.name):
+                    migration_source = migration_path.read_text(
+                        encoding="utf-8",
+                        errors="ignore",
+                    )
+
+                    self.assertNotIn(
+                        PROPOSED_AUDIT_MODEL,
+                        migration_source,
+                    )
 
     def test_v227_marker_does_not_leak_into_runtime_or_configuration(self):
         runtime_paths = (
