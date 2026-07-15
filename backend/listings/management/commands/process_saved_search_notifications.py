@@ -30,6 +30,20 @@ from listings.saved_search_notification_scheduler import (
 )
 
 
+from django.contrib.auth import (
+    get_user_model as _v242_get_user_model,
+)
+from django.core.management.base import (
+    CommandError as _V242CommandError,
+)
+
+from listings.saved_search_notification_email_sender import (
+    V242_SAVED_SEARCH_NOTIFICATION_PRODUCTION_DELIVERY_IMPLEMENTATION,
+    send_saved_search_notification_email_production_batch,
+)
+
+V242_LEGACY_LIMIT_DEFAULT = None
+
 class Command(BaseCommand):
     help = (
         "Run the local saved-search notification scheduler spike. "
@@ -37,6 +51,19 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        parser.add_argument(
+            "--execute-production-send",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--confirm-production-delivery",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--owner-id",
+            type=int,
+            default=None,
+        )
         parser.add_argument(
             "--notification-rollback-report",
             action="store_true",
@@ -85,6 +112,116 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        execute_production_send = bool(
+            options.get("execute_production_send")
+        )
+        confirm_production_delivery = bool(
+            options.get("confirm_production_delivery")
+        )
+
+        production_requested = (
+            execute_production_send
+            or confirm_production_delivery
+        )
+
+        if production_requested:
+            if not (
+                execute_production_send
+                and confirm_production_delivery
+            ):
+                raise _V242CommandError(
+                    "Production delivery requires both "
+                    "--execute-production-send and "
+                    "--confirm-production-delivery."
+                )
+
+            owner_id = options.get("owner_id")
+            production_limit = options.get("limit")
+
+            if (
+                isinstance(owner_id, bool)
+                or owner_id is None
+                or int(owner_id) <= 0
+            ):
+                raise _V242CommandError(
+                    "Production delivery requires a positive "
+                    "--owner-id."
+                )
+
+            if (
+                isinstance(production_limit, bool)
+                or production_limit is None
+            ):
+                raise _V242CommandError(
+                    "Production delivery requires an explicit "
+                    "--limit between 1 and 25."
+                )
+
+            try:
+                production_limit = int(
+                    production_limit
+                )
+            except (TypeError, ValueError):
+                raise _V242CommandError(
+                    "Production limit must be an integer."
+                )
+
+            if not 1 <= production_limit <= 25:
+                raise _V242CommandError(
+                    "Production limit must be between 1 and 25."
+                )
+
+            owner = (
+                _v242_get_user_model()
+                .objects
+                .filter(pk=owner_id)
+                .first()
+            )
+
+            if owner is None:
+                raise _V242CommandError(
+                    "Production delivery owner was not found."
+                )
+
+            result = (
+                send_saved_search_notification_email_production_batch(
+                    owner=owner,
+                    limit=production_limit,
+                    execute_production_send=True,
+                    confirm_production_delivery=True,
+                )
+            )
+
+            self.stdout.write(
+                (
+                    f"{V242_SAVED_SEARCH_NOTIFICATION_PRODUCTION_DELIVERY_IMPLEMENTATION} "
+                    f"attempted={result['attempted_count']} "
+                    f"succeeded={result['succeeded_count']} "
+                    f"failed={result['failed_count']} "
+                    f"refused={result['refused_count']} "
+                    f"skipped={result['skipped_count']} "
+                    f"delivered={result['delivered_count']}"
+                )
+            )
+
+            if result["configuration_refused"]:
+                raise _V242CommandError(
+                    "Production delivery was refused by policy."
+                )
+
+            if result["failed_count"]:
+                raise _V242CommandError(
+                    "Production delivery completed with "
+                    "isolated item failures."
+                )
+
+            return
+
+        if options.get("limit") is None:
+            options["limit"] = (
+                V242_LEGACY_LIMIT_DEFAULT
+            )
+
         audit_runtime_context = (
             SavedSearchNotificationAuditRuntimeContext.create(
                 actor_type="management_command",

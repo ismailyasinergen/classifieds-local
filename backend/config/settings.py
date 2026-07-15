@@ -239,3 +239,36 @@ AUTHENTICATION_BACKENDS = [
     "accounts.auth_backends.EmailOrUsernameBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
+
+# V242 saved-search notification production-delivery feature gate.
+V242_SAVED_SEARCH_NOTIFICATION_PRODUCTION_DELIVERY_IMPLEMENTATION = (
+    "V242_SAVED_SEARCH_NOTIFICATION_PRODUCTION_DELIVERY_IMPLEMENTATION"
+)
+
+
+def _saved_search_production_delivery_env_bool_v242(
+    name,
+    *,
+    default=False,
+):
+    import os as _v242_os
+
+    raw_value = _v242_os.environ.get(name)
+
+    if raw_value is None:
+        return bool(default)
+
+    return raw_value.strip().casefold() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
+SAVED_SEARCH_PRODUCTION_DELIVERY_ENABLED = (
+    _saved_search_production_delivery_env_bool_v242(
+        "SAVED_SEARCH_PRODUCTION_DELIVERY_ENABLED",
+        default=False,
+    )
+)

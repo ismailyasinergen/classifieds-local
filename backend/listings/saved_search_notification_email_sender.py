@@ -725,3 +725,505 @@ def send_saved_search_notification_email_batch(
             else None
         ),
     }
+
+# V242 production delivery wrapper.
+import uuid as _v242_uuid
+
+from django.conf import settings as _v242_settings
+
+from .saved_search_notifications import (
+    build_saved_search_match_preview as _v242_build_match_preview,
+)
+
+
+V242_SAVED_SEARCH_NOTIFICATION_PRODUCTION_DELIVERY_IMPLEMENTATION = (
+    "V242_SAVED_SEARCH_NOTIFICATION_PRODUCTION_DELIVERY_IMPLEMENTATION"
+)
+
+V242_PRODUCTION_DELIVERY_BATCH_MAX = 25
+
+V242_REJECTED_EMAIL_BACKEND_FRAGMENTS = (
+    "django.core.mail.backends.locmem.",
+    "django.core.mail.backends.dummy.",
+    "django.core.mail.backends.console.",
+    "django.core.mail.backends.filebased.",
+)
+
+
+class SavedSearchNotificationProductionDeliveryRefused(
+    SavedSearchNotificationEmailDeliveryBlocked
+):
+    pass
+
+
+def get_saved_search_notification_production_backend_path():
+    return str(
+        getattr(
+            _v242_settings,
+            "EMAIL_BACKEND",
+            "",
+        )
+        or ""
+    ).strip()
+
+
+def _v242_runtime_context(
+    runtime_context=None,
+    *,
+    create_batch=False,
+):
+    if runtime_context is None:
+        runtime_context = (
+            SavedSearchNotificationAuditRuntimeContext.create(
+                actor_type="management_command",
+                actor_identifier=(
+                    "process_saved_search_notifications"
+                ),
+                source="saved_search.sender.production",
+                mode="production_delivery",
+                create_batch=create_batch,
+            )
+        )
+
+    return runtime_context.for_surface(
+        source="saved_search.sender.production",
+        mode="production_delivery",
+    )
+
+
+def _v242_configuration_reason(
+    *,
+    execute_production_send,
+    confirm_production_delivery,
+):
+    backend_path = (
+        get_saved_search_notification_production_backend_path()
+    )
+
+    if not (
+        execute_production_send
+        and confirm_production_delivery
+    ):
+        return (
+            "production_confirmation_required",
+            backend_path,
+        )
+
+    if not bool(
+        getattr(
+            _v242_settings,
+            "SAVED_SEARCH_PRODUCTION_DELIVERY_ENABLED",
+            False,
+        )
+    ):
+        return (
+            "production_delivery_disabled",
+            backend_path,
+        )
+
+    folded_backend = backend_path.casefold()
+
+    if (
+        not backend_path
+        or any(
+            fragment in folded_backend
+            for fragment in (
+                V242_REJECTED_EMAIL_BACKEND_FRAGMENTS
+            )
+        )
+    ):
+        return (
+            "nonproduction_delivery_backend",
+            backend_path,
+        )
+
+    return "", backend_path
+
+
+def _v242_record_refusal(
+    saved_search,
+    *,
+    reason_code,
+    backend_path,
+    runtime_context=None,
+):
+    context = _v242_runtime_context(
+        runtime_context,
+    )
+
+    attempt_id = _v242_uuid.uuid4()
+
+    fingerprint = (
+        build_saved_search_notification_fingerprint(
+            saved_search,
+            checked_at_before=getattr(
+                saved_search,
+                "last_notification_checked_at",
+                None,
+            ),
+            matching_listings=(),
+        )
+    )
+
+    return record_saved_search_notification_runtime_event(
+        saved_search=saved_search,
+        context=context,
+        event_type="delivery_failed",
+        notification_fingerprint=fingerprint,
+        operation_sequence=(
+            f"production:{saved_search.pk}:"
+            f"{attempt_id}:refused"
+        ),
+        reason_code=reason_code,
+        delivery_attempt_id=attempt_id,
+        metadata={
+            "mode": "production_delivery",
+            "match_count": 0,
+            "backend_kind": (
+                backend_path
+                or "unconfigured"
+            ),
+            "error_code": (
+                "ProductionDeliveryRefused"
+            ),
+        },
+    )
+
+
+def send_saved_search_notification_email_production(
+    saved_search,
+    *,
+    match_count=0,
+    matching_listings=None,
+    site_url="",
+    manage_path=None,
+    execute_production_send=False,
+    confirm_production_delivery=False,
+    runtime_context=None,
+    delivery_attempt_id=None,
+):
+    reason_code, backend_path = (
+        _v242_configuration_reason(
+            execute_production_send=(
+                execute_production_send
+            ),
+            confirm_production_delivery=(
+                confirm_production_delivery
+            ),
+        )
+    )
+
+    production_context = _v242_runtime_context(
+        runtime_context,
+    )
+
+    if reason_code:
+        _v242_record_refusal(
+            saved_search,
+            reason_code=reason_code,
+            backend_path=backend_path,
+            runtime_context=production_context,
+        )
+
+        raise (
+            SavedSearchNotificationProductionDeliveryRefused(
+                "Production delivery was refused by policy."
+            )
+        )
+
+    return send_saved_search_notification_email(
+        saved_search,
+        match_count=match_count,
+        matching_listings=matching_listings,
+        site_url=site_url,
+        manage_path=manage_path,
+        execute_send=True,
+        require_test_email_backend=False,
+        runtime_context=production_context,
+        delivery_attempt_id=(
+            delivery_attempt_id
+            or _v242_uuid.uuid4()
+        ),
+    )
+
+
+def _v242_validate_limit(limit):
+    if isinstance(limit, bool):
+        raise (
+            SavedSearchNotificationProductionDeliveryRefused(
+                "Production limit must be an integer."
+            )
+        )
+
+    try:
+        normalized = int(limit)
+    except (TypeError, ValueError):
+        raise (
+            SavedSearchNotificationProductionDeliveryRefused(
+                "Production delivery requires an explicit limit."
+            )
+        )
+
+    if not 1 <= normalized <= V242_PRODUCTION_DELIVERY_BATCH_MAX:
+        raise (
+            SavedSearchNotificationProductionDeliveryRefused(
+                "Production limit must be between 1 and 25."
+            )
+        )
+
+    return normalized
+
+
+def _v242_preview_value(
+    preview,
+    key,
+    default,
+):
+    if isinstance(preview, dict):
+        return preview.get(
+            key,
+            default,
+        )
+
+    return getattr(
+        preview,
+        key,
+        default,
+    )
+
+
+def send_saved_search_notification_email_production_batch(
+    *,
+    owner,
+    limit,
+    site_url="",
+    manage_path=None,
+    execute_production_send=False,
+    confirm_production_delivery=False,
+    runtime_context=None,
+):
+    if (
+        owner is None
+        or getattr(
+            owner,
+            "pk",
+            None,
+        ) is None
+    ):
+        raise (
+            SavedSearchNotificationProductionDeliveryRefused(
+                "Production delivery requires one persisted owner."
+            )
+        )
+
+    bounded_limit = _v242_validate_limit(
+        limit
+    )
+
+    production_context = _v242_runtime_context(
+        runtime_context,
+        create_batch=True,
+    )
+
+    reason_code, backend_path = (
+        _v242_configuration_reason(
+            execute_production_send=(
+                execute_production_send
+            ),
+            confirm_production_delivery=(
+                confirm_production_delivery
+            ),
+        )
+    )
+
+    if reason_code:
+        candidates = list(
+            SavedSearch.objects
+            .filter(
+                user=owner,
+                email_notifications_enabled=True,
+            )
+            .order_by("pk")[:bounded_limit]
+        )
+
+        for saved_search in candidates:
+            _v242_record_refusal(
+                saved_search,
+                reason_code=reason_code,
+                backend_path=backend_path,
+                runtime_context=production_context,
+            )
+
+        return {
+            "marker": (
+                V242_SAVED_SEARCH_NOTIFICATION_PRODUCTION_DELIVERY_IMPLEMENTATION
+            ),
+            "configuration_refused": True,
+            "reason_code": reason_code,
+            "attempted_count": 0,
+            "succeeded_count": 0,
+            "failed_count": 0,
+            "refused_count": len(
+                candidates
+            ),
+            "skipped_count": 0,
+            "delivered_count": 0,
+            "items": [
+                {
+                    "saved_search_id": (
+                        saved_search.pk
+                    ),
+                    "outcome": "refused",
+                    "error_code": (
+                        "ProductionDeliveryRefused"
+                    ),
+                }
+                for saved_search in candidates
+            ],
+        }
+
+    candidates = _candidate_saved_searches(
+        owner=owner,
+        limit=bounded_limit,
+    )
+
+    seen_ids = set()
+    items = []
+
+    attempted_count = 0
+    succeeded_count = 0
+    failed_count = 0
+    skipped_count = 0
+    delivered_count = 0
+
+    for saved_search in candidates:
+        if saved_search.pk in seen_ids:
+            continue
+
+        seen_ids.add(
+            saved_search.pk
+        )
+
+        preview = _v242_build_match_preview(
+            saved_search,
+            limit=10,
+        )
+
+        match_count = int(
+            _v242_preview_value(
+                preview,
+                "match_count",
+                0,
+            )
+            or 0
+        )
+
+        matching_listings = list(
+            _v242_preview_value(
+                preview,
+                "listings",
+                (),
+            )
+            or ()
+        )
+
+        if match_count <= 0:
+            skipped_count += 1
+
+            items.append(
+                {
+                    "saved_search_id": (
+                        saved_search.pk
+                    ),
+                    "outcome": "skipped",
+                    "error_code": "",
+                }
+            )
+
+            continue
+
+        attempted_count += 1
+
+        try:
+            result = (
+                send_saved_search_notification_email_production(
+                    saved_search,
+                    match_count=match_count,
+                    matching_listings=matching_listings,
+                    site_url=site_url,
+                    manage_path=manage_path,
+                    execute_production_send=True,
+                    confirm_production_delivery=True,
+                    runtime_context=production_context,
+                    delivery_attempt_id=(
+                        _v242_uuid.uuid4()
+                    ),
+                )
+            )
+        except Exception as exc:
+            failed_count += 1
+
+            items.append(
+                {
+                    "saved_search_id": (
+                        saved_search.pk
+                    ),
+                    "outcome": "failed",
+                    "error_code": (
+                        type(exc).__name__
+                    ),
+                }
+            )
+
+            continue
+
+        delivered = int(
+            result.get(
+                "delivered_count",
+                0,
+            )
+            or 0
+        )
+
+        if delivered <= 0:
+            failed_count += 1
+
+            items.append(
+                {
+                    "saved_search_id": (
+                        saved_search.pk
+                    ),
+                    "outcome": "failed",
+                    "error_code": "ZeroDelivery",
+                }
+            )
+
+            continue
+
+        succeeded_count += 1
+        delivered_count += delivered
+
+        items.append(
+            {
+                "saved_search_id": (
+                    saved_search.pk
+                ),
+                "outcome": "succeeded",
+                "error_code": "",
+            }
+        )
+
+    return {
+        "marker": (
+            V242_SAVED_SEARCH_NOTIFICATION_PRODUCTION_DELIVERY_IMPLEMENTATION
+        ),
+        "configuration_refused": False,
+        "reason_code": "",
+        "attempted_count": attempted_count,
+        "succeeded_count": succeeded_count,
+        "failed_count": failed_count,
+        "refused_count": 0,
+        "skipped_count": skipped_count,
+        "delivered_count": delivered_count,
+        "items": items,
+    }
