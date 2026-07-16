@@ -868,6 +868,32 @@
             display: block;
         }
 
+
+        /* RELATED_LISTINGS_RECOMMENDATIONS_V271 */
+        .related-listings-v271 {
+            margin-top: 24px;
+        }
+
+        .related-listings-v271 .page-header {
+            align-items: flex-end;
+            gap: 16px;
+        }
+
+        .related-listings-copy-v271 {
+            max-width: 680px;
+            margin-bottom: 0;
+        }
+
+        .related-listings-grid-v271 {
+            margin-top: 16px;
+        }
+
+        @media (max-width: 720px) {
+            .related-listings-v271 .page-header {
+                align-items: flex-start;
+            }
+        }
+
 </style>
 
     <p class="classified-back-link">
@@ -1502,5 +1528,42 @@
             showImage(0);
         })();
     </script>
+
+
+{% if related_listings %}
+    <section
+        class="content-card related-listings-v271"
+        aria-labelledby="related-listings-title-v271"
+        data-marker="RELATED_LISTINGS_RECOMMENDATIONS_V271"
+    >
+        <div class="page-header">
+            <div>
+                <p class="muted">Keep exploring</p>
+                <h2 id="related-listings-title-v271">Similar listings</h2>
+                <p class="muted related-listings-copy-v271">
+                    More active listings from the same category, ranked by location match and marketplace priority.
+                </p>
+            </div>
+
+            <div class="header-actions">
+                <a
+                    class="button-link"
+                    href="{% url 'categories:category_detail' listing.category.slug %}"
+                >
+                    View all in {{ listing.category.name }}
+                </a>
+            </div>
+        </div>
+
+        <div
+            class="listing-grid related-listings-grid-v271"
+            aria-label="Similar listings"
+        >
+            {% for related_listing in related_listings %}
+                {% include "listings/_listing_card.html" with listing=related_listing show_owner_controls=False show_moderation_controls=False %}
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
 
 {% endblock %}

@@ -31,6 +31,10 @@ from .listing_visibility_helpers import active_approved_listings  # ACTIVE_APPRO
 from .listing_image_helpers import save_uploaded_listing_images  # SAVE_UPLOADED_LISTING_IMAGES_HELPER_EXTRACTION_V147
 from .listing_image_helpers import validate_uploaded_images  # VALIDATE_UPLOADED_IMAGES_HELPER_EXTRACTION_V148
 from .listing_favorite_views import listing_favorite_toggle  # V155 re-export
+from .listing_recommendations import (
+    RELATED_LISTINGS_DEFAULT_LIMIT_V271,
+    get_related_listings_v271,
+)
 
 
 LISTING_BROWSE_DETAIL_VIEWS_V157 = True
@@ -50,7 +54,33 @@ class SidebarCategoriesMixin:
         return context
 
 
-class ListingDetailView(SidebarCategoriesMixin, DetailView):
+
+# RELATED_LISTINGS_RECOMMENDATIONS_V271
+class RelatedListingsContextMixinV271:
+    related_listings_limit_v271 = (
+        RELATED_LISTINGS_DEFAULT_LIMIT_V271
+    )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(
+            **kwargs
+        )
+        context["related_listings"] = (
+            get_related_listings_v271(
+                getattr(
+                    self,
+                    "object",
+                    None,
+                ),
+                limit=(
+                    self.related_listings_limit_v271
+                ),
+            )
+        )
+        return context
+
+
+class ListingDetailView(RelatedListingsContextMixinV271, SidebarCategoriesMixin, DetailView):
     model = Listing
     template_name = "listings/listing_detail.html"
     context_object_name = "listing"
