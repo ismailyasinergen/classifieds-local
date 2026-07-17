@@ -1,3 +1,5 @@
+{% load listing_comparison_v274 %}
+{% comment %}LISTING_COMPARISON_V274{% endcomment %}
 <article class="listing-card listing-card-polish-v64">
     {% if listing.owner.profile.is_verified_seller or listing.top_listing_until or listing.is_featured %}
         <div class="promotion-badges" aria-label="Listing badges">
@@ -93,7 +95,53 @@
             </form>
         {% endif %}
 
-        {% if show_status %}
+                  {% comparison_eligible_v274 listing as comparison_eligible %}
+          {% if comparison_eligible %}
+              {% comparison_selected_v274 request listing as comparison_selected %}
+              {% comparison_count_v274 request as comparison_count %}
+
+              <form
+                  class="listing-card-action listing-comparison-action-v274"
+                  method="post"
+                  action="{% url 'listings:listing_compare_toggle' listing.pk %}"
+                  style="margin-top:8px;"
+              >
+                  {% csrf_token %}
+                  <input
+                      type="hidden"
+                      name="next"
+                      value="{{ request.path }}"
+                  >
+
+                  {% if comparison_selected %}
+                      <button
+                          class="listing-save-button is-saved"
+                          type="submit"
+                      >
+                          Remove from compare
+                      </button>
+                  {% else %}
+                      <button
+                          class="listing-save-button"
+                          type="submit"
+                      >
+                          Add to compare
+                      </button>
+                  {% endif %}
+              </form>
+
+              {% if comparison_count %}
+                  <a
+                      class="listing-comparison-link-v274"
+                      href="{% url 'listings:listing_compare' %}"
+                      style="display:inline-block; margin-top:7px; font-weight:700;"
+                  >
+                      Compare selected ({{ comparison_count }})
+                  </a>
+              {% endif %}
+          {% endif %}
+
+{% if show_status %}
             <p>
                 Status:
                 <strong>{{ listing.get_status_display }}</strong>

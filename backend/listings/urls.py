@@ -30,11 +30,32 @@ from .views import (
     my_listing_reports,
 )
 from listings.listing_promotion_views import listing_feature_priority_update
+from .listing_comparison_views_v274 import (
+    listing_comparison_clear_v274,
+    listing_comparison_toggle_v274,
+    listing_comparison_view_v274,
+)
 
 app_name = "listings"
 
 urlpatterns = [
     path("listings/", ListingListView.as_view(), name="listing_list"),
+    # LISTING_COMPARISON_V274
+    path(
+        "listings/compare/clear/",
+        listing_comparison_clear_v274,
+        name="listing_compare_clear",
+    ),
+    path(
+        "listings/compare/",
+        listing_comparison_view_v274,
+        name="listing_compare",
+    ),
+    path(
+        "listings/<int:pk>/compare/",
+        listing_comparison_toggle_v274,
+        name="listing_compare_toggle",
+    ),
     # SAVED_SEARCH_FOUNDATION_V77
     path("listings/saved-searches/", saved_search_list, name="saved_search_list"),
     path("listings/saved-searches/create/", saved_search_create, name="saved_search_create"),

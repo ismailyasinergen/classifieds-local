@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load listing_comparison_v274 %}
+{% comment %}LISTING_COMPARISON_V274{% endcomment %}
 
 {% block content %}
     <style>
@@ -1016,6 +1018,51 @@
         <section class="classified-info-panel" aria-label="Listing details">
             <div class="classified-price-box">
                 <div class="classified-price">{{ listing.price }} TL</div>
+
+                {% comparison_eligible_v274 listing as comparison_eligible %}
+                {% if comparison_eligible %}
+                    {% comparison_selected_v274 request listing as comparison_selected %}
+                    {% comparison_count_v274 request as comparison_count %}
+
+                    <div
+                        class="listing-comparison-detail-v274"
+                        style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:10px;"
+                    >
+                        <form
+                            method="post"
+                            action="{% url 'listings:listing_compare_toggle' listing.pk %}"
+                        >
+                            {% csrf_token %}
+                            <input
+                                type="hidden"
+                                name="next"
+                                value="{{ request.path }}"
+                            >
+
+                            {% if comparison_selected %}
+                                <button type="submit">
+                                    Remove from compare
+                                </button>
+                            {% else %}
+                                <button
+                                    class="button-primary"
+                                    type="submit"
+                                >
+                                    Add to compare
+                                </button>
+                            {% endif %}
+                        </form>
+
+                        {% if comparison_count %}
+                            <a
+                                class="button-link"
+                                href="{% url 'listings:listing_compare' %}"
+                            >
+                                Compare selected ({{ comparison_count }})
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
             </div>
 
             {% if listing.category.slug == "homes-for-sale" or listing.category.slug == "homes-for-rent" %}

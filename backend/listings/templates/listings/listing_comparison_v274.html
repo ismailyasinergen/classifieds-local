@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% comment %}LISTING_COMPARISON_V274{% endcomment %}
+<style>
+  .listing-comparison-shell-v274 {
+    display: grid;
+    gap: 16px;
+  }
+
+  .listing-comparison-header-v274 {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .listing-comparison-header-v274 h1 {
+    margin: 0 0 6px;
+  }
+
+  .listing-comparison-actions-v274 {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .listing-comparison-status-v274 {
+    padding: 11px 13px;
+    border: 1px solid #c9d9ee;
+    border-radius: 10px;
+    background: #f4f8fd;
+  }
+
+  .listing-comparison-table-wrap-v274 {
+    overflow-x: auto;
+    border: 1px solid #d9e2ec;
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  .listing-comparison-table-v274 {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .listing-comparison-table-v274 th,
+  .listing-comparison-table-v274 td {
+    padding: 12px;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+
+  .listing-comparison-table-v274 tr:last-child th,
+  .listing-comparison-table-v274 tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .listing-comparison-table-v274 th:last-child,
+  .listing-comparison-table-v274 td:last-child {
+    border-right: 0;
+  }
+
+  .listing-comparison-feature-v274 {
+    width: 150px;
+    background: #f8fafc;
+    color: #344054;
+    font-weight: 850;
+  }
+
+  .listing-comparison-listing-header-v274 {
+    min-width: 190px;
+    background: #fffdf3;
+  }
+
+  .listing-comparison-listing-header-v274 h2 {
+    margin: 9px 0 6px;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .listing-comparison-image-v274,
+  .listing-comparison-placeholder-v274 {
+    display: block;
+    width: 100%;
+    height: 130px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #eef1f4;
+    object-fit: cover;
+  }
+
+  .listing-comparison-placeholder-v274 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #667085;
+  }
+
+  .listing-comparison-price-v274 {
+    color: #111827;
+    font-size: 18px;
+    font-weight: 900;
+  }
+
+  .listing-comparison-remove-v274 {
+    margin-top: 9px;
+  }
+
+  .listing-comparison-empty-v274 {
+    padding: 32px 20px;
+    border: 1px dashed #b8c7db;
+    border-radius: 12px;
+    background: #fff;
+    text-align: center;
+  }
+
+  @media (max-width: 700px) {
+    .listing-comparison-table-wrap-v274 {
+      margin-inline: -4px;
+    }
+
+    .listing-comparison-table-v274 {
+      min-width: 650px;
+    }
+  }
+</style>
+
+<section
+  class="listing-comparison-shell-v274"
+  data-listing-comparison-v274="true"
+  aria-labelledby="listing-comparison-title-v274"
+>
+  <header class="content-card listing-comparison-header-v274">
+    <div>
+      <h1 id="listing-comparison-title-v274">Compare listings</h1>
+      <p class="muted">
+        Compare up to four active listings side by side.
+        Your selection is stored only in this browser session.
+      </p>
+    </div>
+
+    <div class="listing-comparison-actions-v274">
+      <a
+        class="button-link"
+        href="{% url 'listings:listing_list' %}"
+      >
+        Browse listings
+      </a>
+
+      {% if comparison_count %}
+        <form
+          method="post"
+          action="{% url 'listings:listing_compare_clear' %}"
+        >
+          {% csrf_token %}
+          <input
+            type="hidden"
+            name="next"
+            value="{% url 'listings:listing_compare' %}"
+          >
+          <button type="submit">Clear comparison</button>
+        </form>
+      {% endif %}
+    </div>
+  </header>
+
+  {% if comparison_count %}
+    <div
+      class="listing-comparison-status-v274"
+      role="status"
+    >
+      <strong>
+        {{ comparison_count }} of {{ comparison_max_items }} listings selected.
+      </strong>
+
+      {% if comparison_ready %}
+        Review their main details and category-specific features below.
+      {% else %}
+        Add at least one more listing for a useful comparison.
+      {% endif %}
+    </div>
+
+    <div class="listing-comparison-table-wrap-v274">
+      <table
+        class="listing-comparison-table-v274"
+        aria-label="Selected listing comparison"
+      >
+        <thead>
+          <tr>
+            <th
+              class="listing-comparison-feature-v274"
+              scope="col"
+            >
+              Feature
+            </th>
+
+            {% for listing in comparison_listings %}
+              <th
+                class="listing-comparison-listing-header-v274"
+                scope="col"
+              >
+                {% with first_image=listing.images.first %}
+                  {% if first_image %}
+                    <img
+                      class="listing-comparison-image-v274"
+                      src="{{ first_image.image.url }}"
+                      alt="{{ listing.title }}"
+                    >
+                  {% else %}
+                    <div class="listing-comparison-placeholder-v274">
+                      No image
+                    </div>
+                  {% endif %}
+                {% endwith %}
+
+                <h2>
+                  <a href="{{ listing.get_absolute_url }}">
+                    {{ listing.title }}
+                  </a>
+                </h2>
+
+                <form
+                  class="listing-comparison-remove-v274"
+                  method="post"
+                  action="{% url 'listings:listing_compare_toggle' listing.pk %}"
+                >
+                  {% csrf_token %}
+                  <input
+                    type="hidden"
+                    name="next"
+                    value="{% url 'listings:listing_compare' %}"
+                  >
+                  <button type="submit">Remove</button>
+                </form>
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <th
+              class="listing-comparison-feature-v274"
+              scope="row"
+            >
+              Price
+            </th>
+            {% for listing in comparison_listings %}
+              <td class="listing-comparison-price-v274">
+                {{ listing.price }} TL
+              </td>
+            {% endfor %}
+          </tr>
+
+          <tr>
+            <th
+              class="listing-comparison-feature-v274"
+              scope="row"
+            >
+              Location
+            </th>
+            {% for listing in comparison_listings %}
+              <td>{{ listing.location|default:"—" }}</td>
+            {% endfor %}
+          </tr>
+
+          <tr>
+            <th
+              class="listing-comparison-feature-v274"
+              scope="row"
+            >
+              Category
+            </th>
+            {% for listing in comparison_listings %}
+              <td>
+                <a
+                  href="{% url 'listings:listing_list' %}?category={{ listing.category.slug|urlencode }}"
+                >
+                  {{ listing.category.name }}
+                </a>
+              </td>
+            {% endfor %}
+          </tr>
+
+          <tr>
+            <th
+              class="listing-comparison-feature-v274"
+              scope="row"
+            >
+              Seller
+            </th>
+            {% for listing in comparison_listings %}
+              <td>
+                {% with store=listing.public_seller_store %}
+                  {% if store %}
+                    {{ store.display_name }}
+                  {% else %}
+                    {{ listing.owner.username }}
+                  {% endif %}
+                {% endwith %}
+              </td>
+            {% endfor %}
+          </tr>
+
+          <tr>
+            <th
+              class="listing-comparison-feature-v274"
+              scope="row"
+            >
+              Posted
+            </th>
+            {% for listing in comparison_listings %}
+              <td>{{ listing.created_at|date:"M d, Y H:i" }}</td>
+            {% endfor %}
+          </tr>
+
+          <tr>
+            <th
+              class="listing-comparison-feature-v274"
+              scope="row"
+            >
+              Marketplace status
+            </th>
+            {% for listing in comparison_listings %}
+              <td>
+                {% if listing.top_listing_until %}
+                  Top listing
+                {% elif listing.is_featured %}
+                  Featured
+                {% else %}
+                  Standard listing
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+
+          {% for row in comparison_attribute_rows %}
+            <tr>
+              <th
+                class="listing-comparison-feature-v274"
+                scope="row"
+              >
+                {{ row.label }}
+              </th>
+
+              {% for value in row.values %}
+                <td>{{ value }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="listing-comparison-empty-v274">
+      <h2>No listings selected yet</h2>
+      <p class="muted">
+        Use “Add to compare” on listing cards or listing detail pages.
+      </p>
+      <a
+        class="button-link button-primary"
+        href="{% url 'listings:listing_list' %}"
+      >
+        Browse listings
+      </a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
