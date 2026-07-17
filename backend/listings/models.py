@@ -1,11 +1,12 @@
 import uuid
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError as AuditValidationError
-from django.db import models
+from django.db import models, router, transaction
 from django.urls import reverse
+from django.utils import timezone
 
 from categories.models import Category
 
@@ -97,6 +98,97 @@ class Listing(models.Model):
         "accepts_exchange": {True: "Yes", False: "No", "true": "Yes", "false": "No"},
     }
 
+    # LISTING_PRICE_HISTORY_V275
+    def save(self, *args, **kwargs):
+        """
+        Persist Listing normally and atomically record price transitions.
+
+        A single baseline row represents the initial price. Subsequent rows
+        are created only when the persisted price actually changes.
+        """
+        update_fields = kwargs.get("update_fields")
+
+        if (
+            update_fields is not None
+            and "price" not in set(update_fields)
+        ):
+            return super().save(*args, **kwargs)
+
+        price_field = self._meta.get_field("price")
+        current_price = price_field.to_python(self.price)
+        self.price = current_price
+
+        using = (
+            kwargs.get("using")
+            or router.db_for_write(
+                type(self),
+                instance=self,
+            )
+        )
+
+        kwargs["using"] = using
+        is_new = self._state.adding
+        previous_price = None
+
+        with transaction.atomic(using=using):
+            if not is_new and self.pk:
+                previous_price = (
+                    type(self)
+                    .objects
+                    .using(using)
+                    .select_for_update()
+                    .filter(pk=self.pk)
+                    .values_list("price", flat=True)
+                    .first()
+                )
+
+            result = super().save(
+                *args,
+                **kwargs,
+            )
+
+            baseline_price = (
+                current_price
+                if previous_price is None
+                else previous_price
+            )
+
+            (
+                ListingPriceHistory
+                .objects
+                .using(using)
+                .get_or_create(
+                    listing_id=self.pk,
+                    previous_price=None,
+                    defaults={
+                        "new_price": baseline_price,
+                        "changed_at": (
+                            self.created_at
+                            or timezone.now()
+                        ),
+                    },
+                )
+            )
+
+            if (
+                previous_price is not None
+                and previous_price != current_price
+            ):
+                (
+                    ListingPriceHistory
+                    .objects
+                    .using(using)
+                    .create(
+                        listing_id=self.pk,
+                        previous_price=previous_price,
+                        new_price=current_price,
+                        changed_at=timezone.now(),
+                    )
+                )
+
+        return result
+
+
     def get_absolute_url(self):
         return reverse("listings:listing_detail", kwargs={"pk": self.pk})
 
@@ -124,6 +216,112 @@ class Listing(models.Model):
             return None
 
         return store
+
+
+# LISTING_PRICE_HISTORY_V275
+class ListingPriceHistory(models.Model):
+    listing = models.ForeignKey(
+        Listing,
+        on_delete=models.CASCADE,
+        related_name="price_history",
+    )
+    previous_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    new_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+    )
+    changed_at = models.DateTimeField(
+        default=timezone.now,
+        editable=False,
+    )
+
+    class Meta:
+        ordering = [
+            "-changed_at",
+            "-pk",
+        ]
+        indexes = [
+            models.Index(
+                fields=[
+                    "listing",
+                    "-changed_at",
+                ],
+                name="lst_price_hist_lc_idx",
+            ),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["listing"],
+                condition=models.Q(
+                    previous_price__isnull=True,
+                ),
+                name="lst_price_hist_base_uniq",
+            ),
+        ]
+
+    def __str__(self):
+        if self.is_baseline:
+            return (
+                f"{self.listing}: initial price "
+                f"{self.new_price}"
+            )
+
+        return (
+            f"{self.listing}: "
+            f"{self.previous_price} → {self.new_price}"
+        )
+
+    @property
+    def is_baseline(self):
+        return self.previous_price is None
+
+    @property
+    def is_price_drop(self):
+        return (
+            self.previous_price is not None
+            and self.new_price < self.previous_price
+        )
+
+    @property
+    def is_price_increase(self):
+        return (
+            self.previous_price is not None
+            and self.new_price > self.previous_price
+        )
+
+    @property
+    def change_amount(self):
+        if self.previous_price is None:
+            return None
+
+        return abs(
+            self.new_price
+            - self.previous_price
+        )
+
+    @property
+    def change_percentage(self):
+        if (
+            self.previous_price is None
+            or self.previous_price == 0
+        ):
+            return None
+
+        percentage = (
+            self.change_amount
+            / abs(self.previous_price)
+            * Decimal("100")
+        )
+
+        return percentage.quantize(
+            Decimal("0.1"),
+            rounding=ROUND_HALF_UP,
+        )
 
 
 class ListingImage(models.Model):
