@@ -894,6 +894,21 @@
             }
         }
 
+
+        /* RECENTLY_VIEWED_LISTINGS_V272 */
+        .recently-viewed-listings-v272 {
+            margin-top: 24px;
+        }
+
+        .recently-viewed-copy-v272 {
+            max-width: 680px;
+            margin-bottom: 0;
+        }
+
+        .recently-viewed-grid-v272 {
+            margin-top: 16px;
+        }
+
 </style>
 
     <p class="classified-back-link">
@@ -1561,6 +1576,34 @@
         >
             {% for related_listing in related_listings %}
                 {% include "listings/_listing_card.html" with listing=related_listing show_owner_controls=False show_moderation_controls=False %}
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+
+
+{% if recently_viewed_listings %}
+    <section
+        class="content-card recently-viewed-listings-v272"
+        aria-labelledby="recently-viewed-title-v272"
+        data-marker="RECENTLY_VIEWED_LISTINGS_V272"
+    >
+        <div class="page-header">
+            <div>
+                <p class="muted">Pick up where you left off</p>
+                <h2 id="recently-viewed-title-v272">Recently viewed</h2>
+                <p class="muted recently-viewed-copy-v272">
+                    Return to active listings you opened earlier in this browser session.
+                </p>
+            </div>
+        </div>
+
+        <div
+            class="listing-grid recently-viewed-grid-v272"
+            aria-label="Recently viewed listings"
+        >
+            {% for recently_viewed_listing in recently_viewed_listings %}
+                {% include "listings/_listing_card.html" with listing=recently_viewed_listing show_owner_controls=False show_moderation_controls=False %}
             {% endfor %}
         </div>
     </section>

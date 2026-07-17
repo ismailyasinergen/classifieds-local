@@ -36,6 +36,12 @@ from .listing_recommendations import (
     get_related_listings_v271,
 )
 
+from .listing_recently_viewed import (
+    RECENTLY_VIEWED_DISPLAY_LIMIT_V272,
+    get_recently_viewed_listings_v272,
+    record_recently_viewed_listing_v272,
+)
+
 
 LISTING_BROWSE_DETAIL_VIEWS_V157 = True
 
@@ -53,6 +59,42 @@ class SidebarCategoriesMixin:
         context["search_sort"] = self.request.GET.get("sort", "newest")
         return context
 
+
+
+
+# RECENTLY_VIEWED_LISTINGS_V272
+class RecentlyViewedListingsContextMixinV272:
+    recently_viewed_limit_v272 = (
+        RECENTLY_VIEWED_DISPLAY_LIMIT_V272
+    )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(
+            **kwargs
+        )
+
+        listing = getattr(
+            self,
+            "object",
+            None,
+        )
+
+        context["recently_viewed_listings"] = (
+            get_recently_viewed_listings_v272(
+                self.request,
+                current_listing=listing,
+                limit=(
+                    self.recently_viewed_limit_v272
+                ),
+            )
+        )
+
+        record_recently_viewed_listing_v272(
+            self.request,
+            listing,
+        )
+
+        return context
 
 
 # RELATED_LISTINGS_RECOMMENDATIONS_V271
@@ -80,7 +122,7 @@ class RelatedListingsContextMixinV271:
         return context
 
 
-class ListingDetailView(RelatedListingsContextMixinV271, SidebarCategoriesMixin, DetailView):
+class ListingDetailView(RecentlyViewedListingsContextMixinV272, RelatedListingsContextMixinV271, SidebarCategoriesMixin, DetailView):
     model = Listing
     template_name = "listings/listing_detail.html"
     context_object_name = "listing"
