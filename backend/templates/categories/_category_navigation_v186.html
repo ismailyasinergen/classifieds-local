@@ -1,4 +1,6 @@
 <!-- V193_CATEGORY_NAVIGATION_KEYBOARD_A11Y_DEEPENING -->
+<!-- V190_CATEGORY_NAVIGATION_VISUAL_ACCESSIBILITY_POLISH -->
+<!-- PUBLIC_BROWSE_CATEGORY_NAVIGATION_UX_REPAIR_V273 -->
 <style>
   .category-navigation-v193-sr-only {
     position: absolute;
@@ -12,127 +14,358 @@
     border: 0;
   }
 
-  .category-navigation-v193-keyboard-ready a {
-    min-height: 2.25rem;
+  .category-navigation-v186__marker {
+    display: none !important;
   }
 
-  .category-navigation-v193-keyboard-ready a:focus-visible {
-    outline: 3px solid #1d4ed8;
-    outline-offset: 4px;
-    text-decoration-line: underline;
-    text-decoration-thickness: 0.12em;
-  }
-
-  .category-navigation-v193-keyboard-ready [aria-current="page"] {
-    text-decoration-line: underline;
-    text-decoration-thickness: 0.12em;
-    text-underline-offset: 0.2em;
-  }
-</style>
-<!-- V190_CATEGORY_NAVIGATION_VISUAL_ACCESSIBILITY_POLISH -->
-<style>
   .category-navigation-v190-shell {
-    margin: 1rem 0 1.25rem;
-    padding: 1rem;
+    margin: 0 0 1rem;
     border: 1px solid #d9e2ec;
     border-radius: 14px;
     background: #ffffff;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+  }
+
+  .category-navigation-v273-disclosure > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.9rem 1rem;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  }
+
+  .category-navigation-v273-disclosure > summary::-webkit-details-marker,
+  .category-navigation-v273-root > summary::-webkit-details-marker,
+  .category-navigation-v273-branch > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .category-navigation-v273-disclosure > summary::after {
+    content: "Show categories";
+    float: right;
+    margin-top: -2.25rem;
+    color: #175cd3;
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .category-navigation-v273-disclosure[open] > summary::after {
+    content: "Hide categories";
   }
 
   .category-navigation-v190-header {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 0.2rem;
-    margin-bottom: 0.85rem;
+    padding-right: 8rem;
   }
 
   .category-navigation-v190-title {
     margin: 0;
+    color: #111827;
     font-size: 1rem;
     line-height: 1.3;
-    font-weight: 700;
+    font-weight: 800;
   }
 
   .category-navigation-v190-help {
     margin: 0;
     color: #52616b;
-    font-size: 0.92rem;
-    line-height: 1.45;
+    font-size: 0.9rem;
+    line-height: 1.4;
   }
 
   .category-navigation-v190-content {
     display: grid;
-    gap: 0.65rem;
+    gap: 0.8rem;
+    padding: 0.9rem 1rem 1rem;
+    border-top: 1px solid #e5e7eb;
   }
 
-  .category-navigation-v190-shell a {
+  .category-navigation-v186__selected {
+    margin: 0;
+    color: #344054;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .category-navigation-v186__clear {
+    justify-self: start;
+    display: inline-flex;
+    padding: 0.45rem 0.7rem;
+    border: 1px solid #f4b4ad;
     border-radius: 999px;
+    background: #fff5f4;
+    color: #b42318;
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .category-navigation-v186__roots,
+  .category-navigation-v273-children {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .category-navigation-v186__roots {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .category-navigation-v273-root,
+  .category-navigation-v273-leaf {
+    min-width: 0;
+    border: 1px solid #e5eaf0;
+    border-radius: 10px;
+    background: #fbfdff;
+  }
+
+  .category-navigation-v273-root.is-active,
+  .category-navigation-v273-leaf.is-selected {
+    border-color: #84adff;
+    background: #f0f6ff;
+  }
+
+  .category-navigation-v273-root > summary,
+  .category-navigation-v273-branch > summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 0.65rem 0.75rem;
+    color: #1d2939;
+    font-weight: 800;
+  }
+
+  .category-navigation-v273-root > summary::before,
+  .category-navigation-v273-branch > summary::before {
+    content: "›";
+    display: inline-block;
+    width: 1rem;
+    color: #667085;
+    transition: transform 0.15s ease;
+  }
+
+  .category-navigation-v273-root[open] > summary::before,
+  .category-navigation-v273-branch[open] > summary::before {
+    transform: rotate(90deg);
+  }
+
+  .category-navigation-v273-select-link,
+  .category-navigation-v273-leaf > a {
+    display: block;
+    min-height: 2.25rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    color: #1264a3;
     text-decoration-thickness: 0.08em;
     text-underline-offset: 0.18em;
   }
 
-  .category-navigation-v190-shell a:focus-visible {
-    outline: 3px solid #1d4ed8;
-    outline-offset: 3px;
-  }
-
-  .category-navigation-v190-shell [aria-current="page"],
-  .category-navigation-v190-shell .is-selected,
-  .category-navigation-v190-shell .selected,
-  .category-navigation-v190-shell .active {
+  .category-navigation-v273-select-link {
+    margin: 0 0.65rem 0.45rem;
+    border: 1px solid #d6e4ff;
+    background: #ffffff;
+    font-size: 0.84rem;
     font-weight: 700;
   }
 
-  @media (max-width: 640px) {
-    .category-navigation-v190-shell {
-      padding: 0.85rem;
-      border-radius: 12px;
+  .category-navigation-v273-children {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0 0.65rem 0.65rem;
+  }
+
+  .category-navigation-v273-branch,
+  .category-navigation-v273-child-leaf {
+    border-left: 3px solid #d6e4ff;
+    background: #ffffff;
+    border-radius: 8px;
+  }
+
+  .category-navigation-v273-child-leaf > a {
+    display: block;
+    padding: 0.55rem 0.7rem;
+    color: #1264a3;
+  }
+
+  .category-navigation-v193-keyboard-ready a:focus-visible,
+  .category-navigation-v193-keyboard-ready summary:focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 3px;
+    text-decoration-line: underline;
+    text-decoration-thickness: 0.12em;
+  }
+
+  .category-navigation-v193-keyboard-ready [aria-current="page"],
+  .category-navigation-v193-keyboard-ready .is-selected > a {
+    font-weight: 900;
+    color: #0b4a8b;
+  }
+
+  .category-navigation-v186__empty {
+    color: #667085;
+    padding: 0.75rem;
+  }
+
+  @media (max-width: 760px) {
+    .category-navigation-v186__roots {
+      grid-template-columns: 1fr;
+    }
+
+    .category-navigation-v190-header {
+      padding-right: 0;
+    }
+
+    .category-navigation-v273-disclosure > summary::after {
+      position: static;
+      float: none;
+      display: block;
+      margin-top: 0.35rem;
     }
   }
 </style>
-<nav class="category-navigation-v186 category-navigation-v190-shell category-navigation-v193-keyboard-ready" data-v186-category-navigation="true" aria-label="Browse categories" role="navigation" data-v190-category-navigation="true" aria-labelledby="category-navigation-title-v193" aria-describedby="category-navigation-help-v193" data-v193-category-navigation-keyboard-a11y="true">
-  <p id="category-navigation-help-v193" class="category-navigation-v193-sr-only">
-    Use Tab and Shift+Tab to move through category links. Activate a category to filter listings while preserving safe search and sort state.
+
+<nav
+  class="category-navigation-v186 category-navigation-v190-shell category-navigation-v193-keyboard-ready"
+  data-v186-category-navigation="true"
+  data-v190-category-navigation="true"
+  data-v193-category-navigation-keyboard-a11y="true"
+  data-v273-public-browse-category-navigation="true"
+  aria-label="Browse categories"
+  role="navigation"
+  aria-labelledby="category-navigation-title-v193"
+  aria-describedby="category-navigation-help-v193"
+>
+  <p
+    id="category-navigation-help-v193"
+    class="category-navigation-v193-sr-only"
+  >
+    Use Tab and Shift+Tab to move through category links. Activate a category
+    to filter listings while preserving safe search and sort state.
   </p>
 
-<div class="category-navigation-v190-header">
-  <h2 class="category-navigation-v190-title" id="category-navigation-title-v193">Browse by category</h2>
-  <p class="category-navigation-v190-help">Filter listings by category while keeping your current search and sort choices.</p>
-</div>
-<div class="category-navigation-v190-content">
-
   <p class="category-navigation-v186__marker">V186_CATEGORY_NAVIGATION_LISTING_FILTER_INTEGRATION</p>
-  {% if selected_category %}
-    <p class="category-navigation-v186__selected">Selected category: {{ selected_category.name }}</p>
-    <a class="category-navigation-v186__clear" href="{{ clear_url }}">Clear category</a>
-  {% endif %}
-  <ul class="category-navigation-v186__roots">
-    {% for root in roots %}
-      <li class="category-navigation-v186__item{% if root.is_active_branch %} is-active{% endif %}{% if root.is_selected %} is-selected{% endif %}" data-category-slug="{{ root.slug }}">
-        <a href="{{ root.url }}">{{ root.name }}</a>
-        {% if root.children %}
-          <ul>
-            {% for child in root.children %}
-              <li class="category-navigation-v186__item{% if child.is_active_branch %} is-active{% endif %}{% if child.is_selected %} is-selected{% endif %}" data-category-slug="{{ child.slug }}">
-                <a href="{{ child.url }}">{{ child.name }}</a>
-                {% if child.children %}
-                  <ul>
-                    {% for grandchild in child.children %}
-                      <li class="category-navigation-v186__item{% if grandchild.is_active_branch %} is-active{% endif %}{% if grandchild.is_selected %} is-selected{% endif %}" data-category-slug="{{ grandchild.slug }}">
-                        <a href="{{ grandchild.url }}">{{ grandchild.name }}</a>
-                      </li>
-                    {% endfor %}
-                  </ul>
-                {% endif %}
-              </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </li>
-    {% empty %}
-      <li class="category-navigation-v186__empty">No categories available yet.</li>
-    {% endfor %}
-  </ul>
-</div>
+
+  <details
+    class="category-navigation-v273-disclosure"
+    {% if selected_category %}open{% endif %}
+  >
+    <summary>
+      <div class="category-navigation-v190-header">
+        <h2
+          class="category-navigation-v190-title"
+          id="category-navigation-title-v193"
+        >
+          Browse by category
+        </h2>
+        <p class="category-navigation-v190-help">
+          {% if selected_category %}
+            Current category: {{ selected_category.name }}
+          {% else %}
+            Open the category browser only when you need to narrow the results.
+          {% endif %}
+        </p>
+      </div>
+    </summary>
+
+    <div class="category-navigation-v190-content">
+      {% if selected_category %}
+        <p class="category-navigation-v186__selected">
+          Selected category: {{ selected_category.name }}
+        </p>
+        <a
+          class="category-navigation-v186__clear"
+          href="{{ clear_url }}"
+        >
+          Clear category
+        </a>
+      {% endif %}
+
+      <ul class="category-navigation-v186__roots">
+        {% for root in roots %}
+          <li
+            class="category-navigation-v186__item category-navigation-v273-{% if root.children %}root{% else %}leaf{% endif %}{% if root.is_active_branch %} is-active{% endif %}{% if root.is_selected %} is-selected{% endif %}"
+            data-category-slug="{{ root.slug }}"
+          >
+            {% if root.children %}
+              <details
+                class="category-navigation-v273-root{% if root.is_active_branch %} is-active{% endif %}{% if root.is_selected %} is-selected{% endif %}"
+                {% if root.is_active_branch %}open{% endif %}
+              >
+                <summary>{{ root.name }}</summary>
+
+                <a
+                  class="category-navigation-v273-select-link"
+                  href="{{ root.url }}"
+                  {% if root.is_selected %}aria-current="page"{% endif %}
+                >
+                  View all in {{ root.name }}
+                </a>
+
+                <ul class="category-navigation-v273-children">
+                  {% for child in root.children %}
+                    <li
+                      class="category-navigation-v186__item category-navigation-v273-{% if child.children %}branch{% else %}child-leaf{% endif %}{% if child.is_active_branch %} is-active{% endif %}{% if child.is_selected %} is-selected{% endif %}"
+                      data-category-slug="{{ child.slug }}"
+                    >
+                      {% if child.children %}
+                        <details
+                          class="category-navigation-v273-branch{% if child.is_active_branch %} is-active{% endif %}{% if child.is_selected %} is-selected{% endif %}"
+                          {% if child.is_active_branch %}open{% endif %}
+                        >
+                          <summary>{{ child.name }}</summary>
+
+                          <a
+                            class="category-navigation-v273-select-link"
+                            href="{{ child.url }}"
+                            {% if child.is_selected %}aria-current="page"{% endif %}
+                          >
+                            View all in {{ child.name }}
+                          </a>
+
+                          <ul class="category-navigation-v273-children">
+                            {% for grandchild in child.children %}
+                              <li
+                                class="category-navigation-v186__item category-navigation-v273-child-leaf{% if grandchild.is_active_branch %} is-active{% endif %}{% if grandchild.is_selected %} is-selected{% endif %}"
+                                data-category-slug="{{ grandchild.slug }}"
+                              >
+                                <a
+                                  href="{{ grandchild.url }}"
+                                  {% if grandchild.is_selected %}aria-current="page"{% endif %}
+                                >
+                                  {{ grandchild.name }}
+                                </a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        </details>
+                      {% else %}
+                        <a
+                          href="{{ child.url }}"
+                          {% if child.is_selected %}aria-current="page"{% endif %}
+                        >
+                          {{ child.name }}
+                        </a>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              </details>
+            {% else %}
+              <a
+                href="{{ root.url }}"
+                {% if root.is_selected %}aria-current="page"{% endif %}
+              >
+                {{ root.name }}
+              </a>
+            {% endif %}
+          </li>
+        {% empty %}
+          <li class="category-navigation-v186__empty">
+            No categories available yet.
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </details>
 </nav>

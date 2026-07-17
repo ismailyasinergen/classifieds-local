@@ -2,8 +2,37 @@
 {% load category_navigation_v186 %}
 
 {% block content %}
+{% comment %}PUBLIC_BROWSE_CATEGORY_NAVIGATION_UX_REPAIR_V273{% endcomment %}
+<style>
+  /*
+   * The public browse page owns its compact category disclosure.
+   * Hide the global expanded category sidebar on this page so visitors
+   * do not receive two category trees.
+   */
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .layout > .sidebar {
+    display: none;
+  }
+
+  .layout > .content {
+    min-width: 0;
+  }
+
+  .category-navigation-public-browse-mount-v187 {
+    margin-bottom: 0.75rem;
+  }
+
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
 {% comment %}V187_CATEGORY_NAVIGATION_PUBLIC_BROWSE_MOUNT{% endcomment %}
-<section class="category-navigation-public-browse-mount-v187" data-v187-category-navigation-public-browse="true">
+<section class="category-navigation-public-browse-mount-v187 public-browse-category-navigation-v273" data-v187-category-navigation-public-browse="true" data-v273-public-browse-category-navigation="true">
   {% render_category_navigation_v186 request.GET.category %}
 
 {% if request.GET.category %}
