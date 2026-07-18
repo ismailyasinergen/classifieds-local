@@ -2,6 +2,7 @@
 {% comment %}LISTING_COMPARISON_V274{% endcomment %}
 {% load listing_price_drop_discovery_v276 %}
 {% comment %}V276_LISTING_CARD_PRICE_DROP_DISCOVERY{% endcomment %}
+{% comment %}V277_LISTING_CARD_PRICE_DROP_UX_ACCESSIBILITY_POLISH{% endcomment %}
 <article class="listing-card listing-card-polish-v64">
     {% if listing.owner.profile.is_verified_seller or listing.top_listing_until or listing.is_featured %}
         <div class="promotion-badges" aria-label="Listing badges">
@@ -44,35 +45,64 @@
 
             {% if listing_price_drop_v276 %}
                 <div
-                    class="listing-card-price-drop-summary-v276"
+                    class="listing-card-price-drop-summary-v276 listing-card-price-drop-summary-v277"
                     data-price-drop-card-v276="true"
-                    aria-label="Price reduction"
+                    data-price-drop-card-v277="true"
+                    role="group"
+                    aria-label="Price dropped from {{ listing_price_drop_v276.previous_price }} TL to {{ listing_price_drop_v276.current_price }} TL"
                     style="display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-bottom:5px;"
                 >
                     <span
-                        class="listing-badge listing-price-drop-badge-v276"
+                        class="listing-badge listing-price-drop-badge-v276 listing-price-drop-badge-v277"
+                        data-price-drop-badge-v277="true"
+                        title="This listing's current price is lower than its previous price."
                         style="background:#d9f7e5; border-color:#9ed9b5; color:#146c38;"
                     >
                         Price dropped
                     </span>
 
                     <del
-                        class="listing-card-previous-price-v276 muted"
-                        aria-label="Previous price"
+                        class="listing-card-previous-price-v276 listing-card-previous-price-v277 muted"
+                        aria-label="Previous price {{ listing_price_drop_v276.previous_price }} TL"
+                        data-previous-price-v277="{{ listing_price_drop_v276.previous_price }}"
+                        title="Previous price"
                     >
                         {{ listing_price_drop_v276.previous_price }} TL
                     </del>
                 </div>
             {% endif %}
 
-            <div class="price">{{ listing.price }} TL</div>
+            <div
+                class="price{% if listing_price_drop_v276 %} listing-card-current-price-v277{% endif %}"
+                {% if listing_price_drop_v276 %}
+                    aria-label="Current price {{ listing.price }} TL"
+                    data-current-price-v277="{{ listing.price }}"
+                {% endif %}
+            >
+                {% if listing_price_drop_v276 %}
+                    <span
+                        class="listing-card-current-price-label-v277"
+                        aria-hidden="true"
+                        style="font-size:0.72em; font-weight:700; margin-right:4px; color:#146c38;"
+                    >
+                        Now
+                    </span>
+                {% endif %}
+                {{ listing.price }} TL
+            </div>
 
             {% if listing_price_drop_v276 %}
                 <div
-                    class="listing-card-saving-v276"
+                    class="listing-card-saving-v276 listing-card-saving-v277"
+                    data-saving-amount-v277="{{ listing_price_drop_v276.saving_amount }}"
+                    data-price-drop-saving-copy-v276="Save {{ listing_price_drop_v276.saving_amount }} TL"
+                    {% if listing_price_drop_v276.has_percentage %}
+                        data-saving-percentage-v277="{{ listing_price_drop_v276.saving_percentage }}"
+                    {% endif %}
+                    aria-label="You save {{ listing_price_drop_v276.saving_amount }} TL{% if listing_price_drop_v276.has_percentage %}, {{ listing_price_drop_v276.saving_percentage }} percent{% endif %}"
                     style="margin-top:4px; font-size:0.9rem; font-weight:700; color:#146c38;"
                 >
-                    Save {{ listing_price_drop_v276.saving_amount }} TL{% if listing_price_drop_v276.has_percentage %} ({{ listing_price_drop_v276.saving_percentage }}%){% endif %}
+                    You save {{ listing_price_drop_v276.saving_amount }} TL{% if listing_price_drop_v276.has_percentage %} ({{ listing_price_drop_v276.saving_percentage }}%){% endif %}
                 </div>
             {% endif %}
         </div>
