@@ -1441,6 +1441,31 @@
                         {% endif %}
                     </form>
                 {% endif %}
+
+                {% if listing_price_alert_available_v285 %}
+                    <form
+                        method="post"
+                        action="{% url 'listings:listing_price_alert_toggle_v285' listing.pk %}"
+                        aria-describedby="listing-price-alert-help-v285"
+                    >
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button
+                            class="seller-secondary-action"
+                            type="submit"
+                            aria-pressed="{% if listing_price_alert_active_v285 %}true{% else %}false{% endif %}"
+                        >
+                            {% if listing_price_alert_active_v285 %}
+                                Stop price alert
+                            {% else %}
+                                Alert me to price drops
+                            {% endif %}
+                        </button>
+                        <span id="listing-price-alert-help-v285" class="muted">
+                            Email me after this listing records a lower current price.
+                        </span>
+                    </form>
+                {% endif %}
             </div>
 
             <div class="seller-safety-box">

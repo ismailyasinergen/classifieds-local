@@ -752,12 +752,6 @@ class ListingCardPriceDropDiscoveryV276Tests(
             )
         )
 
-        self.assertFalse(
-            list(
-                migration_root.glob("0019*")
-            )
-        )
-
         self.assertEqual(
             len(
                 list(

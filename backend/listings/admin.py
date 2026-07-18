@@ -3,7 +3,14 @@ from django.utils.html import format_html
 from django.utils import timezone
 from datetime import timedelta
 
-from .models import Listing, ListingFavorite, ListingImage, ListingReport, SavedSearch
+from .models import (
+    Listing,
+    ListingFavorite,
+    ListingImage,
+    ListingPriceAlert,
+    ListingReport,
+    SavedSearch,
+)
 
 
 class ListingImageInline(admin.TabularInline):
@@ -93,6 +100,21 @@ class ListingFavoriteAdmin(admin.ModelAdmin):
     list_display = ["user", "listing", "created_at"]
     search_fields = ["user__username", "listing__title"]
     list_filter = ["created_at"]
+
+
+@admin.register(ListingPriceAlert)
+class ListingPriceAlertAdmin(admin.ModelAdmin):
+    list_display = [
+        "user",
+        "listing",
+        "baseline_price",
+        "last_notified_price",
+        "last_notification_sent_at",
+        "created_at",
+    ]
+    search_fields = ["user__username", "user__email", "listing__title"]
+    list_filter = ["created_at", "last_notification_sent_at"]
+    readonly_fields = ["created_at", "updated_at"]
 
 
 

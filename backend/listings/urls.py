@@ -35,6 +35,7 @@ from .listing_comparison_views_v274 import (
     listing_comparison_toggle_v274,
     listing_comparison_view_v274,
 )
+from .listing_price_alerts_v285 import listing_price_alert_toggle_v285
 
 app_name = "listings"
 
@@ -86,6 +87,11 @@ urlpatterns = [
     path("listings/<int:pk>/archive/", listing_archive, name="listing_archive"),
     path("listings/<int:pk>/renew/", listing_renew, name="listing_renew"),
     path("listings/<int:pk>/favorite/", listing_favorite_toggle, name="listing_favorite_toggle"),
+    path(
+        "listings/<int:pk>/price-alert/",
+        listing_price_alert_toggle_v285,
+        name="listing_price_alert_toggle_v285",
+    ),
     path("listings/<int:pk>/feature/", listing_feature_toggle, name="listing_feature_toggle"),
     path("listings/<int:pk>/feature-priority/", listing_feature_priority_update, name="listing_feature_priority_update"),
     path("listings/<int:pk>/feature-days/", listing_feature_days_update, name="listing_feature_days_update"),

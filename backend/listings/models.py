@@ -362,6 +362,54 @@ class ListingFavorite(models.Model):
         return f"{self.user.username} saved {self.listing.title}"
 
 
+# LISTING_SPECIFIC_PRICE_ALERTS_V285
+class ListingPriceAlert(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="listing_price_alerts",
+    )
+    listing = models.ForeignKey(
+        Listing,
+        on_delete=models.CASCADE,
+        related_name="price_alerts",
+    )
+    baseline_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+    )
+    last_notified_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    last_notification_sent_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "listing"],
+                name="lst_alert_user_listing_uniq",
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=["user", "-created_at"],
+                name="lst_alert_user_created_idx",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username}: price alert for {self.listing.title}"
+
+
 
 
 
