@@ -528,6 +528,26 @@ class NotificationDeliveryEvent(models.Model):
         return f"{self.notification_type}:{self.status}:{self.event_key[:12]}"
 
 
+# NOTIFICATION_DELIVERY_PREFERENCES_V288
+class NotificationDeliveryPreference(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notification_delivery_preference",
+    )
+    listing_price_alert_email_enabled = models.BooleanField(default=True)
+    saved_search_new_listing_email_enabled = models.BooleanField(default=True)
+    saved_search_price_drop_email_enabled = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["user_id"]
+
+    def __str__(self):
+        return f"Notification preferences for {self.user}"
+
+
 
 
 

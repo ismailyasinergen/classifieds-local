@@ -10,6 +10,7 @@ from .models import (
     ListingPriceAlert,
     ListingReport,
     NotificationDeliveryEvent,
+    NotificationDeliveryPreference,
     SavedSearch,
 )
 
@@ -149,6 +150,36 @@ class NotificationDeliveryEventAdmin(admin.ModelAdmin):
         "price_transition",
     ]
     readonly_fields = [field.name for field in NotificationDeliveryEvent._meta.fields]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(NotificationDeliveryPreference)
+class NotificationDeliveryPreferenceAdmin(admin.ModelAdmin):
+    list_display = [
+        "user",
+        "listing_price_alert_email_enabled",
+        "saved_search_new_listing_email_enabled",
+        "saved_search_price_drop_email_enabled",
+        "updated_at",
+    ]
+    list_filter = [
+        "listing_price_alert_email_enabled",
+        "saved_search_new_listing_email_enabled",
+        "saved_search_price_drop_email_enabled",
+    ]
+    search_fields = ["user__username", "user__email"]
+    list_select_related = ["user"]
+    readonly_fields = [
+        field.name for field in NotificationDeliveryPreference._meta.fields
+    ]
 
     def has_add_permission(self, request):
         return False

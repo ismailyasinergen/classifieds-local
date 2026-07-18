@@ -12,6 +12,12 @@
         </a>
     </p>
 
+    <p>
+        <a class="button-link" href="{% url 'accounts:notification_delivery_preferences_v288' %}">
+            Manage Notification Preferences
+        </a>
+    </p>
+
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}

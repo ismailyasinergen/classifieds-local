@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Notification preferences</h1>
+            <p class="muted">
+                Choose which marketplace emails you receive. Individual saved
+                searches must also have email notifications enabled.
+            </p>
+        </div>
+    </div>
+
+    <form method="post" aria-describedby="notification-preference-help-v288">
+        {% csrf_token %}
+        <p id="notification-preference-help-v288" class="muted">
+            Turning off a category suppresses current events and avoids sending
+            an old backlog if you enable it again later.
+        </p>
+
+        {% for field in form %}
+            <div style="margin-bottom:16px;">
+                <label for="{{ field.id_for_label }}">
+                    {{ field }}
+                    <strong>{{ field.label }}</strong>
+                </label>
+                {% if field.help_text %}
+                    <div id="{{ field.auto_id }}_helptext" class="muted">
+                        {{ field.help_text }}
+                    </div>
+                {% endif %}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+
+        <button class="button-primary" type="submit">Save preferences</button>
+    </form>
+{% endblock %}

@@ -20,6 +20,12 @@ from listings.notification_delivery_deduplication_v287 import (
     mark_notification_events_skipped_v287,
     saved_search_includes_price_drops_v287,
 )
+from listings.notification_delivery_preferences_v288 import (
+    apply_notification_preferences_v288,
+    load_notification_preference_map_v288,
+    notification_type_enabled_for_user_v288,
+)
+from listings.models import NotificationDeliveryEvent
 
 
 V222_SAVED_SEARCH_NOTIFICATION_EXPLICIT_SEND_TEST_BACKEND = (
@@ -263,6 +269,29 @@ def _v232_sender_runtime_context(
     )
 
 
+def _record_preference_suppression_v288(
+    saved_search,
+    *,
+    sender_context,
+    fingerprint,
+):
+    return record_saved_search_notification_runtime_event(
+        saved_search=saved_search,
+        context=sender_context,
+        event_type="skipped_notifications_disabled",
+        notification_fingerprint=fingerprint,
+        operation_sequence=(
+            f"delivery:{saved_search.pk}:"
+            f"{fingerprint}:preference_disabled"
+        ),
+        reason_code="global_preference_disabled",
+        metadata={
+            "mode": "execute_send",
+            "skip_reason": "global_preference_disabled",
+        },
+    )
+
+
 def send_saved_search_notification_email(
     saved_search,
     *,
@@ -274,6 +303,7 @@ def send_saved_search_notification_email(
     require_test_email_backend=True,
     runtime_context=None,
     delivery_attempt_id=None,
+    notification_preference_map_v288=None,
 ) -> dict[str, Any]:
     if not execute_send:
         raise SavedSearchNotificationEmailDeliveryBlocked(
@@ -334,23 +364,38 @@ def send_saved_search_notification_email(
             "Saved search email notifications are disabled."
         )
 
+    includes_price_drops = saved_search_includes_price_drops_v287(saved_search)
+    notification_type = (
+        NotificationDeliveryEvent.NotificationType.SAVED_SEARCH_PRICE_DROP
+        if includes_price_drops
+        else NotificationDeliveryEvent.NotificationType.SAVED_SEARCH_NEW_LISTING
+    )
+    preference_map = (
+        notification_preference_map_v288
+        if notification_preference_map_v288 is not None
+        else load_notification_preference_map_v288([saved_search.user_id])
+    )
+
     # The legacy explicit-send test backend also accepts render-ready mapping
     # objects without database identities. Durable event deduplication is only
     # possible for real listing model instances; production matcher previews
     # always provide those instances.
-    if listing_items and all(
+    database_listing_items = bool(listing_items) and all(
         getattr(listing, "pk", None) is not None
         for listing in listing_items
-    ):
+    )
+    if database_listing_items:
         event_preview = SimpleNamespace(
             saved_search=saved_search,
             listings=listing_items,
-            includes_price_drops=(
-                saved_search_includes_price_drops_v287(saved_search)
-            ),
+            includes_price_drops=includes_price_drops,
+        )
+        preference_decision = apply_notification_preferences_v288(
+            build_saved_search_event_specs_v287(event_preview),
+            preference_map=preference_map,
         )
         event_claim = claim_notification_events_v287(
-            build_saved_search_event_specs_v287(event_preview)
+            preference_decision.allowed_specs
         )
         claimed_listing_ids = claimed_listing_ids_v287(event_claim)
         listing_items = [
@@ -361,6 +406,15 @@ def send_saved_search_notification_email(
         match_count = len(listing_items)
 
         if not listing_items:
+            preference_suppressed = len(
+                preference_decision.suppressed_specs
+            )
+            if preference_suppressed:
+                _record_preference_suppression_v288(
+                    saved_search,
+                    sender_context=sender_context,
+                    fingerprint=fingerprint,
+                )
             return {
                 "marker": V222_SAVED_SEARCH_NOTIFICATION_EXPLICIT_SEND_TEST_BACKEND,
                 "mode": "execute_send",
@@ -378,7 +432,34 @@ def send_saved_search_notification_email(
                     + len(event_claim.busy_keys)
                     + len(event_claim.exhausted_keys)
                 ),
+                "preference_suppressed": preference_suppressed,
             }
+    elif not notification_type_enabled_for_user_v288(
+        saved_search.user_id,
+        notification_type,
+        preference_map=preference_map,
+    ):
+        preference_suppressed = len(listing_items) or 1
+        _record_preference_suppression_v288(
+            saved_search,
+            sender_context=sender_context,
+            fingerprint=fingerprint,
+        )
+        return {
+            "marker": V222_SAVED_SEARCH_NOTIFICATION_EXPLICIT_SEND_TEST_BACKEND,
+            "mode": "execute_send",
+            "execute_send": True,
+            "delivery_enabled": False,
+            "test_email_backend_required": bool(require_test_email_backend),
+            "email_backend": backend_path,
+            "saved_search_id": saved_search.pk,
+            "recipient_email": "",
+            "subject": "",
+            "match_count": 0,
+            "delivered_count": 0,
+            "duplicates_suppressed": 0,
+            "preference_suppressed": preference_suppressed,
+        }
 
     rendered = render_saved_search_notification_email(
         saved_search,
@@ -755,6 +836,9 @@ def send_saved_search_notification_email_batch(
         owner=owner,
         limit=limit,
     )
+    notification_preference_map_v288 = load_notification_preference_map_v288(
+        saved_search.user_id for saved_search in candidates
+    )
 
     results = []
 
@@ -769,6 +853,9 @@ def send_saved_search_notification_email_batch(
                 execute_send=True,
                 require_test_email_backend=False,
                 runtime_context=batch_context,
+                notification_preference_map_v288=(
+                    notification_preference_map_v288
+                ),
             )
         )
 
@@ -790,6 +877,10 @@ def send_saved_search_notification_email_batch(
         "email_backend": backend_path,
         "attempted_count": len(results),
         "delivered_count": delivered_count,
+        "preference_suppressed_count": sum(
+            int(result.get("preference_suppressed", 0) or 0)
+            for result in results
+        ),
         "results": results,
         "audit_correlation_id": str(
             batch_context.correlation_id
@@ -976,6 +1067,7 @@ def send_saved_search_notification_email_production(
     confirm_production_delivery=False,
     runtime_context=None,
     delivery_attempt_id=None,
+    notification_preference_map_v288=None,
 ):
     reason_code, backend_path = (
         _v242_configuration_reason(
@@ -1018,6 +1110,9 @@ def send_saved_search_notification_email_production(
         delivery_attempt_id=(
             delivery_attempt_id
             or _v242_uuid.uuid4()
+        ),
+        notification_preference_map_v288=(
+            notification_preference_map_v288
         ),
     )
 
@@ -1161,6 +1256,9 @@ def send_saved_search_notification_email_production_batch(
         owner=owner,
         limit=bounded_limit,
     )
+    notification_preference_map_v288 = load_notification_preference_map_v288(
+        saved_search.user_id for saved_search in candidates
+    )
 
     seen_ids = set()
     items = []
@@ -1233,6 +1331,9 @@ def send_saved_search_notification_email_production_batch(
                     delivery_attempt_id=(
                         _v242_uuid.uuid4()
                     ),
+                    notification_preference_map_v288=(
+                        notification_preference_map_v288
+                    ),
                 )
             )
         except Exception as exc:
@@ -1259,6 +1360,17 @@ def send_saved_search_notification_email_production_batch(
             )
             or 0
         )
+
+        if int(result.get("preference_suppressed", 0) or 0):
+            skipped_count += 1
+            items.append(
+                {
+                    "saved_search_id": saved_search.pk,
+                    "outcome": "preference_suppressed",
+                    "error_code": "",
+                }
+            )
+            continue
 
         if delivered <= 0:
             failed_count += 1

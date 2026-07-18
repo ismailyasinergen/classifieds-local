@@ -27,6 +27,10 @@ from listings.notification_delivery_deduplication_v287 import (
     mark_notification_events_sent_v287,
     mark_notification_events_skipped_v287,
 )
+from listings.notification_delivery_preferences_v288 import (
+    apply_notification_preferences_v288,
+    load_notification_preference_map_v288,
+)
 
 
 class Command(BaseCommand):
@@ -139,10 +143,14 @@ Safety notes:
         send_failures = 0
         claimed_events = 0
         duplicates_suppressed = 0
+        preference_suppressed = 0
         failed_saved_search_ids = []
         should_send = options["send"]
         should_mark_checked = options["mark_checked"]
         site_base_url = options.get("site_base_url") or None
+        preference_map = load_notification_preference_map_v288(
+            preview.saved_search.user_id for preview in previews
+        )
 
         self.stdout.write(f"Mode: {'SEND' if should_send else 'DRY RUN'}")
         self.stdout.write(f"Limit per search: {limit_per_search} listing(s).")
@@ -189,8 +197,16 @@ Safety notes:
             event_claim = None
             if should_send:
                 specs = build_saved_search_event_specs_v287(preview)
-                event_claim = claim_notification_events_v287(
+                preference_decision = apply_notification_preferences_v288(
                     specs,
+                    preference_map=preference_map,
+                    now=checked_at,
+                )
+                preference_suppressed += len(
+                    preference_decision.suppressed_specs
+                )
+                event_claim = claim_notification_events_v287(
+                    preference_decision.allowed_specs,
                     now=checked_at,
                 )
                 claimed_events += len(event_claim.claimed_keys)
@@ -206,9 +222,14 @@ Safety notes:
                     if listing.pk in claimed_listing_ids
                 ]
                 if not claimed_listings:
-                    self.stdout.write(
-                        "  Delivery suppressed: no unclaimed logical events."
-                    )
+                    if preference_decision.suppressed_specs:
+                        self.stdout.write(
+                            "  Delivery suppressed by notification preferences."
+                        )
+                    else:
+                        self.stdout.write(
+                            "  Delivery suppressed: no unclaimed logical events."
+                        )
                     if not event_claim.busy_keys and not event_claim.exhausted_keys:
                         mark_saved_search_checked(
                             saved_search,
@@ -294,10 +315,11 @@ Safety notes:
                     f"{total_matches} total match(es), {sent_emails} email(s) sent, "
                     f"{send_failures} email failure(s), "
                     f"{skipped_zero_matches} zero-match search(es) skipped, "
-                    f"{skipped_no_recipient} no-recipient search(es) skipped, "
-                    f"{claimed_events} event(s) claimed, "
-                    f"{duplicates_suppressed} duplicate(s) suppressed."
-                )
+            f"{skipped_no_recipient} no-recipient search(es) skipped, "
+            f"{claimed_events} event(s) claimed, "
+            f"{duplicates_suppressed} duplicate(s) suppressed, "
+            f"{preference_suppressed} preference-suppressed."
+        )
             )
             if failed_saved_search_ids:
                 self.stdout.write(

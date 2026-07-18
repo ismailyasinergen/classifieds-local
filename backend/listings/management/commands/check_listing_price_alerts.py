@@ -16,6 +16,9 @@ from listings.notification_delivery_deduplication_v287 import (
     mark_notification_events_skipped_v287,
     subset_notification_claim_v287,
 )
+from listings.notification_delivery_preferences_v288 import (
+    apply_notification_preferences_v288,
+)
 
 
 class Command(BaseCommand):
@@ -59,7 +62,14 @@ class Command(BaseCommand):
             return
 
         specs = build_listing_price_alert_event_specs_v287(preview.alerts)
-        claim = claim_notification_events_v287(specs, now=sent_at)
+        preference_decision = apply_notification_preferences_v288(
+            specs,
+            now=sent_at,
+        )
+        claim = claim_notification_events_v287(
+            preference_decision.allowed_specs,
+            now=sent_at,
+        )
         spec_by_alert_id = {
             spec.listing_price_alert_id: spec
             for spec in claim.claimed_specs
@@ -135,11 +145,13 @@ class Command(BaseCommand):
             + len(claim.busy_keys)
             + len(claim.exhausted_keys)
         )
+        preference_suppressed = len(preference_decision.suppressed_specs)
         self.stdout.write(
             self.style.SUCCESS(
                 f"Processed {len(preview.alerts)} candidate(s): "
                 f"{len(claim.claimed_keys)} claimed, {sent} sent, "
                 f"{skipped} skipped, {failed} failed, "
-                f"{duplicates} duplicates suppressed."
+                f"{duplicates} duplicates suppressed, "
+                f"{preference_suppressed} preference-suppressed."
             )
         )
