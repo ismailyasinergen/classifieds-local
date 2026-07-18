@@ -4,6 +4,10 @@ RECENT_PRICE_DROP_SORT_V279
 Shared public listing ordering with recent price-drop support.
 """
 
+from .listing_biggest_price_drop_sort_v281 import (
+    BIGGEST_PRICE_DROP_SORT_VALUE_V281,
+    apply_biggest_price_drop_sort_v281,
+)
 from .listing_price_drop_period_filter_v280 import (
     PRICE_DROP_CHANGED_AT_ANNOTATION_V280,
     annotate_current_price_drop_time_v280,
@@ -37,6 +41,12 @@ def apply_public_listing_sort_v279(
         "sort",
         "newest",
     ).strip()
+
+    if sort_value == BIGGEST_PRICE_DROP_SORT_VALUE_V281:
+        return apply_biggest_price_drop_sort_v281(
+            queryset,
+            request,
+        )
 
     queryset = apply_price_drop_period_filter_v280(
         queryset,

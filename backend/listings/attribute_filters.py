@@ -1,5 +1,9 @@
 from urllib.parse import urlencode
 
+from .listing_biggest_price_drop_sort_v281 import (
+    BIGGEST_PRICE_DROP_SORT_LABEL_V281,
+    BIGGEST_PRICE_DROP_SORT_VALUE_V281,
+)
 from .listing_price_drop_period_filter_v280 import (
     PRICE_DROP_PERIOD_PARAM_V280,
     get_price_drop_period_label_v280,
@@ -263,6 +267,10 @@ def _format_sort_filter_value(sort_value):
         "price_high": "Price high to low",
         # RECENT_PRICE_DROP_SORT_V279
         "recent_price_drop": "Recently reduced",
+        # BIGGEST_PRICE_DROP_SORT_V281
+        BIGGEST_PRICE_DROP_SORT_VALUE_V281: (
+            BIGGEST_PRICE_DROP_SORT_LABEL_V281
+        ),
         "newest": "Newest",
     }
     return labels.get(sort_value, sort_value)

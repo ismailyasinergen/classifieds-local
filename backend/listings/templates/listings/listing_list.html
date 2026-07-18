@@ -994,6 +994,7 @@
                         <option value="price_low" {% if search_sort == "price_low" %}selected{% endif %}>Price low to high</option>
                         <option value="price_high" {% if search_sort == "price_high" %}selected{% endif %}>Price high to low</option>
                         <option value="recent_price_drop" {% if search_sort == "recent_price_drop" %}selected{% endif %}>Recently reduced</option>
+                        <option value="biggest_price_drop" {% if search_sort == "biggest_price_drop" %}selected{% endif %}>Biggest discount</option>
                     </select>
                 </label>
                 <!-- PRICE_DROP_PUBLIC_BROWSE_FILTER_V278_CONTROL -->
@@ -1007,7 +1008,7 @@
                         type="checkbox"
                         name="price_drops"
                         value="1"
-                        {% if request.GET.price_drops == "1" or search_sort == "recent_price_drop" or search_price_drop_period %}checked{% endif %}
+                        {% if request.GET.price_drops == "1" or search_sort == "recent_price_drop" or search_sort == "biggest_price_drop" or search_price_drop_period %}checked{% endif %}
                     >
                     <span class="browse-price-drop-filter-copy-v278">
                         <strong>Price drops only</strong>

@@ -3,6 +3,10 @@ from django.http import QueryDict
 from django.urls import reverse
 from django.utils.http import urlencode
 
+from .listing_biggest_price_drop_sort_v281 import (
+    BIGGEST_PRICE_DROP_SORT_LABEL_V281,
+    BIGGEST_PRICE_DROP_SORT_VALUE_V281,
+)
 from .listing_price_drop_period_filter_v280 import (
     PRICE_DROP_PERIOD_LABELS_V280,
     PRICE_DROP_PERIOD_PARAM_V280,
@@ -188,6 +192,10 @@ SORT_LABELS_V78 = {
     "price_high": "Price high to low",
     # RECENT_PRICE_DROP_SORT_V279
     "recent_price_drop": "Recently reduced",
+    # BIGGEST_PRICE_DROP_SORT_V281
+    BIGGEST_PRICE_DROP_SORT_VALUE_V281: (
+        BIGGEST_PRICE_DROP_SORT_LABEL_V281
+    ),
     "name_az": "Name A-Z",
     "newest_store": "Newest stores",
     "verified_first": "Verified first",
