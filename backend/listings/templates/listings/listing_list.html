@@ -1008,7 +1008,7 @@
                         type="checkbox"
                         name="price_drops"
                         value="1"
-                        {% if request.GET.price_drops == "1" or search_sort == "recent_price_drop" or search_sort == "biggest_price_drop" or search_price_drop_period %}checked{% endif %}
+                        {% if request.GET.price_drops == "1" or search_sort == "recent_price_drop" or search_sort == "biggest_price_drop" or search_price_drop_period or search_min_price_drop_amount or search_min_price_drop_percent %}checked{% endif %}
                     >
                     <span class="browse-price-drop-filter-copy-v278">
                         <strong>Price drops only</strong>
@@ -1028,6 +1028,31 @@
                         <option value="7d" {% if search_price_drop_period == "7d" %}selected{% endif %}>Last 7 days</option>
                         <option value="30d" {% if search_price_drop_period == "30d" %}selected{% endif %}>Last 30 days</option>
                     </select>
+                </label>
+
+                <!-- MINIMUM_PRICE_DROP_FILTERS_V282_CONTROLS -->
+                <label>
+                    Minimum drop amount
+                    <input
+                        type="number"
+                        name="min_price_drop_amount"
+                        inputmode="decimal"
+                        min="0.01"
+                        step="0.01"
+                        value="{{ search_min_price_drop_amount }}"
+                    >
+                </label>
+
+                <label>
+                    Minimum discount
+                    <input
+                        type="number"
+                        name="min_price_drop_percent"
+                        inputmode="decimal"
+                        min="0.0000000001"
+                        step="any"
+                        value="{{ search_min_price_drop_percent }}"
+                    >
                 </label>
 
                 <div class="attribute-filter-panel category-filter-sidebar-v74" id="attribute-filter-panel" data-filter-category="{{ attribute_filter_category_slug }}" {% if not attribute_filter_fields %}hidden{% endif %}>

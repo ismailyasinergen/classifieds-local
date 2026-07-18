@@ -12,6 +12,15 @@ from .listing_price_drop_period_filter_v280 import (
     PRICE_DROP_PERIOD_PARAM_V280,
     normalize_price_drop_period_value_v280,
 )
+from .listing_price_drop_threshold_filter_v282 import (
+    MIN_PRICE_DROP_AMOUNT_LABEL_V282,
+    MIN_PRICE_DROP_AMOUNT_PARAM_V282,
+    MIN_PRICE_DROP_PERCENT_LABEL_V282,
+    MIN_PRICE_DROP_PERCENT_PARAM_V282,
+    format_price_drop_threshold_v282,
+    normalize_min_price_drop_amount_v282,
+    normalize_min_price_drop_percent_v282,
+)
 
 
 SAVED_SEARCH_ALLOWED_KEYS = {
@@ -25,6 +34,9 @@ SAVED_SEARCH_ALLOWED_KEYS = {
     "price_drops",
     # PRICE_DROP_PERIOD_FILTER_V280
     PRICE_DROP_PERIOD_PARAM_V280,
+    # MINIMUM_PRICE_DROP_FILTERS_V282
+    MIN_PRICE_DROP_AMOUNT_PARAM_V282,
+    MIN_PRICE_DROP_PERCENT_PARAM_V282,
     # SELLER_STORE_SAVED_SEARCH_CREATE_INTEGRATION_V122
     "min_listings",
     "verified_only",
@@ -57,6 +69,10 @@ def clean_saved_search_querydict(data):
                 value = normalize_price_drop_period_value_v280(
                     value
                 )
+            elif key == MIN_PRICE_DROP_AMOUNT_PARAM_V282:
+                value = normalize_min_price_drop_amount_v282(value)
+            elif key == MIN_PRICE_DROP_PERCENT_PARAM_V282:
+                value = normalize_min_price_drop_percent_v282(value)
             if value:
                 cleaned_values.append(value)
 
@@ -353,6 +369,42 @@ def summarize_saved_search_params(query_params):
                 ],
                 "param": PRICE_DROP_PERIOD_PARAM_V280,
                 "kind": "price_drop_period",
+            }
+        )
+
+    min_price_drop_amount = normalize_min_price_drop_amount_v282(
+        params.get(MIN_PRICE_DROP_AMOUNT_PARAM_V282)
+    )
+    if min_price_drop_amount:
+        summaries.append(
+            {
+                "label": MIN_PRICE_DROP_AMOUNT_LABEL_V282,
+                "value": (
+                    format_price_drop_threshold_v282(
+                        min_price_drop_amount
+                    )
+                    + " TL"
+                ),
+                "param": MIN_PRICE_DROP_AMOUNT_PARAM_V282,
+                "kind": "min_price_drop_amount",
+            }
+        )
+
+    min_price_drop_percent = normalize_min_price_drop_percent_v282(
+        params.get(MIN_PRICE_DROP_PERCENT_PARAM_V282)
+    )
+    if min_price_drop_percent:
+        summaries.append(
+            {
+                "label": MIN_PRICE_DROP_PERCENT_LABEL_V282,
+                "value": (
+                    format_price_drop_threshold_v282(
+                        min_price_drop_percent
+                    )
+                    + "%"
+                ),
+                "param": MIN_PRICE_DROP_PERCENT_PARAM_V282,
+                "kind": "min_price_drop_percent",
             }
         )
 

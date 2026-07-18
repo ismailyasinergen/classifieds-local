@@ -9,6 +9,15 @@ from .listing_price_drop_period_filter_v280 import (
     get_price_drop_period_label_v280,
     get_price_drop_period_value_v280,
 )
+from .listing_price_drop_threshold_filter_v282 import (
+    MIN_PRICE_DROP_AMOUNT_LABEL_V282,
+    MIN_PRICE_DROP_AMOUNT_PARAM_V282,
+    MIN_PRICE_DROP_PERCENT_LABEL_V282,
+    MIN_PRICE_DROP_PERCENT_PARAM_V282,
+    format_price_drop_threshold_v282,
+    get_min_price_drop_amount_value_v282,
+    get_min_price_drop_percent_value_v282,
+)
 
 
 ATTRIBUTE_FILTERS_BY_CATEGORY = {
@@ -344,6 +353,39 @@ def _build_active_filter_chips(request, fields):
             PRICE_DROP_PERIOD_PARAM_V280,
         )
 
+    # MINIMUM_PRICE_DROP_FILTERS_V282
+    min_price_drop_amount = get_min_price_drop_amount_value_v282(
+        request
+    )
+    if min_price_drop_amount:
+        add_chip(
+            MIN_PRICE_DROP_AMOUNT_LABEL_V282,
+            (
+                format_price_drop_threshold_v282(
+                    min_price_drop_amount
+                )
+                + " TL"
+            ),
+            [MIN_PRICE_DROP_AMOUNT_PARAM_V282],
+            MIN_PRICE_DROP_AMOUNT_PARAM_V282,
+        )
+
+    min_price_drop_percent = get_min_price_drop_percent_value_v282(
+        request
+    )
+    if min_price_drop_percent:
+        add_chip(
+            MIN_PRICE_DROP_PERCENT_LABEL_V282,
+            (
+                format_price_drop_threshold_v282(
+                    min_price_drop_percent
+                )
+                + "%"
+            ),
+            [MIN_PRICE_DROP_PERCENT_PARAM_V282],
+            MIN_PRICE_DROP_PERCENT_PARAM_V282,
+        )
+
     sort_value = request.GET.get("sort", "newest").strip() or "newest"
     if sort_value != "newest":
         add_chip("Sort", _format_sort_filter_value(sort_value), ["sort"], "sort")
@@ -396,6 +438,12 @@ def get_attribute_filter_context(request, category_slug):
         "active_filter_chips": _build_active_filter_chips(request, fields),
         "active_filter_clear_all_url": request.path,
         "search_price_drop_period": get_price_drop_period_value_v280(request),
+        "search_min_price_drop_amount": (
+            get_min_price_drop_amount_value_v282(request)
+        ),
+        "search_min_price_drop_percent": (
+            get_min_price_drop_percent_value_v282(request)
+        ),
     }
 
 

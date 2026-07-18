@@ -95,6 +95,14 @@ def apply_biggest_price_drop_sort_v281(
     )
     queryset = annotate_biggest_price_drop_values_v281(queryset)
 
+    return order_biggest_price_drop_v281(queryset)
+
+
+def order_biggest_price_drop_v281(
+    queryset: QuerySet,
+) -> QuerySet:
+    """Apply the exact v281 deterministic metric ordering."""
+
     return queryset.order_by(
         f"-{PRICE_DROP_DISCOUNT_PERCENTAGE_ANNOTATION_V281}",
         f"-{PRICE_DROP_DISCOUNT_AMOUNT_ANNOTATION_V281}",
