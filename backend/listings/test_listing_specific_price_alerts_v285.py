@@ -139,7 +139,10 @@ class ListingSpecificPriceAlertsV285Tests(TestCase):
         response = self.client.get(detail_url)
         self.assertContains(response, "Stop price alert")
         self.assertContains(response, 'aria-pressed="true"')
-        self.assertNotContains(response, str(self.buyer.pk))
+        self.assertNotContains(response, "data-listing-price-alert-user-id")
+        self.assertNotContains(response, 'name="listing_price_alert_user_id"')
+        self.assertNotContains(response, 'name="listing_price_alert_recipient_id"')
+        self.assertNotIn("listing_price_alert", response.context)
 
         self.client.logout()
         response = self.client.get(detail_url)
