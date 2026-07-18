@@ -1,5 +1,7 @@
 {% load listing_comparison_v274 %}
 {% comment %}LISTING_COMPARISON_V274{% endcomment %}
+{% load listing_price_drop_discovery_v276 %}
+{% comment %}V276_LISTING_CARD_PRICE_DROP_DISCOVERY{% endcomment %}
 <article class="listing-card listing-card-polish-v64">
     {% if listing.owner.profile.is_verified_seller or listing.top_listing_until or listing.is_featured %}
         <div class="promotion-badges" aria-label="Listing badges">
@@ -37,7 +39,42 @@
         </h2>
 
         <div class="listing-card-price-row">
+            <!-- LISTING_CARD_PRICE_DROP_DISCOVERY_V276 -->
+            {% listing_card_price_drop_v276 listing as listing_price_drop_v276 %}
+
+            {% if listing_price_drop_v276 %}
+                <div
+                    class="listing-card-price-drop-summary-v276"
+                    data-price-drop-card-v276="true"
+                    aria-label="Price reduction"
+                    style="display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-bottom:5px;"
+                >
+                    <span
+                        class="listing-badge listing-price-drop-badge-v276"
+                        style="background:#d9f7e5; border-color:#9ed9b5; color:#146c38;"
+                    >
+                        Price dropped
+                    </span>
+
+                    <del
+                        class="listing-card-previous-price-v276 muted"
+                        aria-label="Previous price"
+                    >
+                        {{ listing_price_drop_v276.previous_price }} TL
+                    </del>
+                </div>
+            {% endif %}
+
             <div class="price">{{ listing.price }} TL</div>
+
+            {% if listing_price_drop_v276 %}
+                <div
+                    class="listing-card-saving-v276"
+                    style="margin-top:4px; font-size:0.9rem; font-weight:700; color:#146c38;"
+                >
+                    Save {{ listing_price_drop_v276.saving_amount }} TL{% if listing_price_drop_v276.has_percentage %} ({{ listing_price_drop_v276.saving_percentage }}%){% endif %}
+                </div>
+            {% endif %}
         </div>
 
         <div class="listing-card-meta">
