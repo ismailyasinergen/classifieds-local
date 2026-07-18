@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Seller pricing</h1>
+            <p class="muted">
+                Review current asking prices and the latest recorded price change for your listings.
+            </p>
+        </div>
+        <a class="button-link button-primary" href="{% url 'listings:listing_create' %}">+ Post listing</a>
+    </div>
+
+    <section aria-labelledby="pricing-summary-v290" style="margin-bottom:22px;">
+        <h2 id="pricing-summary-v290">Listing summary</h2>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px;">
+            <div class="content-card"><strong>Total</strong><br>{{ pricing_summary_v290.total }}</div>
+            <div class="content-card"><strong>Approved</strong><br>{{ pricing_summary_v290.approved }}</div>
+            <div class="content-card"><strong>Pending</strong><br>{{ pricing_summary_v290.pending }}</div>
+            <div class="content-card"><strong>Archived</strong><br>{{ pricing_summary_v290.archived }}</div>
+        </div>
+    </section>
+
+    <form method="get" aria-label="Seller pricing filters" style="display:flex; flex-wrap:wrap; gap:12px; align-items:end; margin-bottom:20px;">
+        <div>
+            <label for="pricing-status-v290">Listing status</label>
+            <select id="pricing-status-v290" name="status">
+                <option value="">All statuses</option>
+                {% for value, label in status_options_v290 %}
+                    <option value="{{ value }}"{% if status_filter_v290 == value %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="pricing-sort-v290">Sort by</label>
+            <select id="pricing-sort-v290" name="sort">
+                {% for value, label in sort_options_v290 %}
+                    <option value="{{ value }}"{% if sort_value_v290 == value %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit">Apply</button>
+        <a class="button-link" href="{% url 'accounts:seller_pricing_dashboard_v290' %}">Clear</a>
+    </form>
+
+    {% if pricing_entries_v290 %}
+        <div style="overflow-x:auto;">
+            <table data-seller-pricing-dashboard-v290="true" style="width:100%; border-collapse:collapse;">
+                <caption>Pricing history summary for your listings</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Listing</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Initial price</th>
+                        <th scope="col">Current price</th>
+                        <th scope="col">Latest recorded change</th>
+                        <th scope="col">Changed</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in pricing_entries_v290 %}
+                        <tr data-pricing-listing-v290="true">
+                            <th scope="row">
+                                {{ entry.listing.title }}
+                                <div class="muted">{{ entry.listing.category.name }}</div>
+                            </th>
+                            <td>{{ entry.listing.get_status_display }}</td>
+                            <td>
+                                {% if entry.initial_price is not None %}
+                                    {{ entry.initial_price }} TL
+                                {% else %}
+                                    Unavailable
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ entry.listing.price }} TL</strong>
+                                {% if entry.history_matches_current_price %}
+                                    <div class="muted">Matches latest recorded change</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if entry.has_price_change %}
+                                    <strong>{{ entry.direction_label }}</strong><br>
+                                    <span aria-label="Previous price {{ entry.previous_price }} TL to recorded price {{ entry.transition_price }} TL">
+                                        {{ entry.previous_price }} TL → {{ entry.transition_price }} TL
+                                    </span><br>
+                                    <span>
+                                        Change: {{ entry.absolute_change }} TL{% if entry.percentage_display %} ({{ entry.percentage_display }}%){% else %} · Percentage unavailable{% endif %}
+                                    </span>
+                                {% else %}
+                                    No price changes
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if entry.changed_at %}
+                                    <time datetime="{{ entry.changed_at|date:'c' }}">{{ entry.changed_at|date:"M j, Y H:i" }}</time>
+                                {% else %}
+                                    Never
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'listings:listing_update' entry.listing.pk %}">Edit price</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+            <nav class="pagination" aria-label="Seller pricing pages">
+                {% if page_obj.has_previous %}
+                    <a rel="prev" href="?status={{ status_filter_v290|urlencode }}&amp;sort={{ sort_value_v290|urlencode }}&amp;page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+                <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a rel="next" href="?status={{ status_filter_v290|urlencode }}&amp;sort={{ sort_value_v290|urlencode }}&amp;page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% else %}
+        <section aria-labelledby="pricing-empty-v290" class="content-card">
+            <h2 id="pricing-empty-v290">No listings found</h2>
+            {% if status_filter_v290 %}
+                <p>No listings match this status. Clear the filter to review all of your listings.</p>
+                <a class="button-link" href="{% url 'accounts:seller_pricing_dashboard_v290' %}">Clear filter</a>
+            {% else %}
+                <p>Create your first listing to start tracking its recorded price changes.</p>
+                <a class="button-link button-primary" href="{% url 'listings:listing_create' %}">Post listing</a>
+            {% endif %}
+        </section>
+    {% endif %}
+{% endblock %}
