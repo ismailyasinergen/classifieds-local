@@ -175,7 +175,8 @@ class ListingCardPriceDropUxPolishV277Tests(TestCase):
             response,
             (
                 'aria-label="Price dropped from '
-                '1000.00 TL to 900.00 TL"'
+                '1000.00 TL to 900.00 TL. '
+                'You save 100.00 TL (10 percent)."'
             ),
         )
 
@@ -186,7 +187,7 @@ class ListingCardPriceDropUxPolishV277Tests(TestCase):
 
         self.assertContains(
             response,
-            "You save 100.00 TL (10.00%)",
+            "You save 100.00 TL (10%)",
         )
 
         self.assertContains(
@@ -328,10 +329,8 @@ class ListingCardPriceDropUxPolishV277Tests(TestCase):
 
         self.assertIn(
             (
-                'aria-label="Price dropped from '
-                "{{ listing_price_drop_v276.previous_price }} "
-                "TL to "
-                "{{ listing_price_drop_v276.current_price }} TL"
+                'aria-label="{{ '
+                "listing_price_drop_v276.accessible_explanation }}"
                 '"'
             ),
             source,

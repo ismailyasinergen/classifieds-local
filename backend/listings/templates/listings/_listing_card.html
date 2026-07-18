@@ -1,8 +1,10 @@
 {% load listing_comparison_v274 %}
 {% comment %}LISTING_COMPARISON_V274{% endcomment %}
 {% load listing_price_drop_discovery_v276 %}
+{% load listing_card_discount_presentation_v284 %}
 {% comment %}V276_LISTING_CARD_PRICE_DROP_DISCOVERY{% endcomment %}
 {% comment %}V277_LISTING_CARD_PRICE_DROP_UX_ACCESSIBILITY_POLISH{% endcomment %}
+{% comment %}ENHANCED_LISTING_CARD_DISCOUNT_V284{% endcomment %}
 <article class="listing-card listing-card-polish-v64">
     {% if listing.owner.profile.is_verified_seller or listing.top_listing_until or listing.is_featured %}
         <div class="promotion-badges" aria-label="Listing badges">
@@ -41,15 +43,17 @@
 
         <div class="listing-card-price-row">
             <!-- LISTING_CARD_PRICE_DROP_DISCOVERY_V276 -->
-            {% listing_card_price_drop_v276 listing as listing_price_drop_v276 %}
+            {% listing_card_price_drop_v276 listing as listing_price_drop_discovery_v276 %}
+            {% listing_card_discount_presentation_v284 listing_price_drop_discovery_v276 as listing_price_drop_v276 %}
 
             {% if listing_price_drop_v276 %}
                 <div
                     class="listing-card-price-drop-summary-v276 listing-card-price-drop-summary-v277"
                     data-price-drop-card-v276="true"
                     data-price-drop-card-v277="true"
+                    data-price-drop-card-v284="true"
                     role="group"
-                    aria-label="Price dropped from {{ listing_price_drop_v276.previous_price }} TL to {{ listing_price_drop_v276.current_price }} TL"
+                    aria-label="{{ listing_price_drop_v276.accessible_explanation }}"
                     style="display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-bottom:5px;"
                 >
                     <span
@@ -98,11 +102,12 @@
                     data-price-drop-saving-copy-v276="Save {{ listing_price_drop_v276.saving_amount }} TL"
                     {% if listing_price_drop_v276.has_percentage %}
                         data-saving-percentage-v277="{{ listing_price_drop_v276.saving_percentage }}"
+                        data-saving-percentage-v284="{{ listing_price_drop_v276.saving_percentage_display }}"
                     {% endif %}
-                    aria-label="You save {{ listing_price_drop_v276.saving_amount }} TL{% if listing_price_drop_v276.has_percentage %}, {{ listing_price_drop_v276.saving_percentage }} percent{% endif %}"
+                    aria-label="You save {{ listing_price_drop_v276.saving_amount }} TL{% if listing_price_drop_v276.has_percentage %}, {{ listing_price_drop_v276.saving_percentage_display }} percent{% endif %}"
                     style="margin-top:4px; font-size:0.9rem; font-weight:700; color:#146c38;"
                 >
-                    You save {{ listing_price_drop_v276.saving_amount }} TL{% if listing_price_drop_v276.has_percentage %} ({{ listing_price_drop_v276.saving_percentage }}%){% endif %}
+                    You save {{ listing_price_drop_v276.saving_amount }} TL{% if listing_price_drop_v276.has_percentage %} ({{ listing_price_drop_v276.saving_percentage_display }}%){% endif %}
                 </div>
             {% endif %}
         </div>
