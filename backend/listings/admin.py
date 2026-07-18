@@ -9,6 +9,7 @@ from .models import (
     ListingImage,
     ListingPriceAlert,
     ListingReport,
+    NotificationDeliveryEvent,
     SavedSearch,
 )
 
@@ -115,6 +116,48 @@ class ListingPriceAlertAdmin(admin.ModelAdmin):
     search_fields = ["user__username", "user__email", "listing__title"]
     list_filter = ["created_at", "last_notification_sent_at"]
     readonly_fields = ["created_at", "updated_at"]
+
+
+@admin.register(NotificationDeliveryEvent)
+class NotificationDeliveryEventAdmin(admin.ModelAdmin):
+    list_display = [
+        "notification_type",
+        "status",
+        "recipient",
+        "listing",
+        "attempt_count",
+        "created_at",
+        "sent_at",
+    ]
+    list_filter = [
+        "notification_type",
+        "status",
+        "created_at",
+        "sent_at",
+    ]
+    search_fields = [
+        "event_key",
+        "recipient__username",
+        "listing__title",
+        "saved_search__name",
+    ]
+    list_select_related = [
+        "recipient",
+        "listing",
+        "listing_price_alert",
+        "saved_search",
+        "price_transition",
+    ]
+    readonly_fields = [field.name for field in NotificationDeliveryEvent._meta.fields]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 

@@ -5,6 +5,7 @@
 # SAVED_SEARCH_NOTIFICATION_OBSERVABILITY_V85
 # SAVED_SEARCH_NOTIFICATION_OPERATOR_UX_V87
 from argparse import RawDescriptionHelpFormatter
+from dataclasses import replace
 from datetime import timedelta
 
 from django.core.management.base import BaseCommand, CommandError
@@ -17,6 +18,14 @@ from listings.saved_search_notifications import (
     mark_saved_search_checked,
     mark_saved_search_sent,
     send_saved_search_match_email,
+)
+from listings.notification_delivery_deduplication_v287 import (
+    build_saved_search_event_specs_v287,
+    claim_notification_events_v287,
+    claimed_listing_ids_v287,
+    mark_notification_events_failed_v287,
+    mark_notification_events_sent_v287,
+    mark_notification_events_skipped_v287,
 )
 
 
@@ -128,6 +137,8 @@ Safety notes:
         skipped_zero_matches = 0
         skipped_no_recipient = 0
         send_failures = 0
+        claimed_events = 0
+        duplicates_suppressed = 0
         failed_saved_search_ids = []
         should_send = options["send"]
         should_mark_checked = options["mark_checked"]
@@ -153,8 +164,11 @@ Safety notes:
         for preview in previews:
             saved_search = preview.saved_search
             total_matches += preview.match_count
+            recipient_marker = (
+                "" if saved_search.user.email else " for (no email)"
+            )
             self.stdout.write(
-                f"Saved search #{saved_search.pk} for {saved_search.user.email or '(no email)'}: "
+                f"Saved search #{saved_search.pk}{recipient_marker}: "
                 f"{preview.match_count} "
                 f"{'new or newly reduced' if preview.includes_price_drops else 'new'} "
                 "matching approved listing(s)."
@@ -171,29 +185,74 @@ Safety notes:
                     self.stdout.write("  --mark-checked skipped because there were no matches.")
                 continue
 
+            delivery_preview = preview
+            event_claim = None
+            if should_send:
+                specs = build_saved_search_event_specs_v287(preview)
+                event_claim = claim_notification_events_v287(
+                    specs,
+                    now=checked_at,
+                )
+                claimed_events += len(event_claim.claimed_keys)
+                duplicates_suppressed += (
+                    len(event_claim.duplicate_keys)
+                    + len(event_claim.busy_keys)
+                    + len(event_claim.exhausted_keys)
+                )
+                claimed_listing_ids = claimed_listing_ids_v287(event_claim)
+                claimed_listings = [
+                    listing
+                    for listing in preview.listings
+                    if listing.pk in claimed_listing_ids
+                ]
+                if not claimed_listings:
+                    self.stdout.write(
+                        "  Delivery suppressed: no unclaimed logical events."
+                    )
+                    if not event_claim.busy_keys and not event_claim.exhausted_keys:
+                        mark_saved_search_checked(
+                            saved_search,
+                            checked_at=checked_at,
+                        )
+                    continue
+                delivery_preview = replace(
+                    preview,
+                    match_count=len(claimed_listings),
+                    listings=claimed_listings,
+                )
+
             recipient_email = get_saved_search_recipient_email(saved_search)
             if not recipient_email:
                 skipped_no_recipient += 1
+                if event_claim is not None:
+                    mark_notification_events_skipped_v287(
+                        event_claim,
+                        reason="missing_recipient",
+                    )
                 self.stdout.write("  Email skipped: saved search user has no email address.")
                 if should_mark_checked and not should_send:
                     self.stdout.write("  --mark-checked skipped because no email recipient is available.")
                 continue
 
             message = build_saved_search_email_message(
-                preview,
+                delivery_preview,
                 site_base_url=site_base_url,
             )
             self.stdout.write(f"  Email subject: {message.subject}")
-            self.stdout.write(f"  Email to: {', '.join(message.to)}")
+            self.stdout.write("  Email recipient: configured account address.")
 
             if should_send:
                 try:
                     sent_count = send_saved_search_match_email(
-                        preview,
+                        delivery_preview,
                         site_base_url=site_base_url,
                     )
                 except Exception as exc:
                     send_failures += 1
+                    mark_notification_events_failed_v287(
+                        event_claim,
+                        error_category=exc.__class__.__name__,
+                    )
                     failed_saved_search_ids.append(saved_search.pk)
                     self.stdout.write(
                         self.style.ERROR(
@@ -207,9 +266,17 @@ Safety notes:
                 sent_emails += sent_count
 
                 if sent_count:
+                    mark_notification_events_sent_v287(
+                        event_claim,
+                        sent_at=checked_at,
+                    )
                     mark_saved_search_sent(saved_search, sent_at=checked_at, mark_checked=True)
                     self.stdout.write("  Email sent and notification timestamps updated.")
                 else:
+                    mark_notification_events_failed_v287(
+                        event_claim,
+                        error_category="ZeroDelivery",
+                    )
                     self.stdout.write("  Email send returned 0; timestamps were not updated.")
             else:
                 dry_run_email_candidates += 1
@@ -227,7 +294,9 @@ Safety notes:
                     f"{total_matches} total match(es), {sent_emails} email(s) sent, "
                     f"{send_failures} email failure(s), "
                     f"{skipped_zero_matches} zero-match search(es) skipped, "
-                    f"{skipped_no_recipient} no-recipient search(es) skipped."
+                    f"{skipped_no_recipient} no-recipient search(es) skipped, "
+                    f"{claimed_events} event(s) claimed, "
+                    f"{duplicates_suppressed} duplicate(s) suppressed."
                 )
             )
             if failed_saved_search_ids:

@@ -410,6 +410,124 @@ class ListingPriceAlert(models.Model):
         return f"{self.user.username}: price alert for {self.listing.title}"
 
 
+# NOTIFICATION_DELIVERY_DEDUPLICATION_V287
+class NotificationDeliveryEvent(models.Model):
+    class NotificationType(models.TextChoices):
+        LISTING_PRICE_DROP = "listing_price_drop", "Listing price drop"
+        SAVED_SEARCH_NEW_LISTING = (
+            "saved_search_new_listing",
+            "Saved-search new listing",
+        )
+        SAVED_SEARCH_PRICE_DROP = (
+            "saved_search_price_drop",
+            "Saved-search price drop",
+        )
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        PROCESSING = "processing", "Processing"
+        SENT = "sent", "Sent"
+        FAILED = "failed", "Failed"
+        SKIPPED = "skipped", "Skipped"
+
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="notification_delivery_events",
+    )
+    listing = models.ForeignKey(
+        Listing,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="notification_delivery_events",
+    )
+    listing_price_alert = models.ForeignKey(
+        ListingPriceAlert,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="delivery_events",
+    )
+    saved_search = models.ForeignKey(
+        "SavedSearch",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="delivery_events",
+    )
+    price_transition = models.ForeignKey(
+        ListingPriceHistory,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="notification_delivery_events",
+    )
+    notification_type = models.CharField(
+        max_length=40,
+        choices=NotificationType.choices,
+    )
+    channel = models.CharField(max_length=16, default="email")
+    event_key = models.CharField(max_length=64, unique=True)
+    target_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+    transition_changed_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(
+        max_length=16,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+    attempt_count = models.PositiveSmallIntegerField(default=0)
+    claim_token = models.UUIDField(null=True, blank=True, editable=False)
+    processing_started_at = models.DateTimeField(null=True, blank=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    last_error_category = models.CharField(max_length=64, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]
+        indexes = [
+            models.Index(
+                fields=["notification_type", "status", "-created_at"],
+                name="notif_type_status_created_idx",
+            ),
+            models.Index(
+                fields=["recipient", "-created_at"],
+                name="notif_recipient_created_idx",
+            ),
+            models.Index(
+                fields=["saved_search", "status"],
+                name="notif_search_status_idx",
+            ),
+            models.Index(
+                fields=["listing_price_alert", "status"],
+                name="notif_alert_status_idx",
+            ),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    ~models.Q(status="processing")
+                    | (
+                        models.Q(claim_token__isnull=False)
+                        & models.Q(processing_started_at__isnull=False)
+                    )
+                ),
+                name="notif_processing_claim_required",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.notification_type}:{self.status}:{self.event_key[:12]}"
+
+
 
 
 

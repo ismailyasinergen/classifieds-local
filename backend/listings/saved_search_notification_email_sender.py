@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from types import SimpleNamespace
 from typing import Any
 
 from django.conf import settings
@@ -9,6 +10,15 @@ from django.utils import timezone
 from listings.models import SavedSearch
 from listings.saved_search_notification_email_renderer import (
     render_saved_search_notification_email,
+)
+from listings.notification_delivery_deduplication_v287 import (
+    build_saved_search_event_specs_v287,
+    claim_notification_events_v287,
+    claimed_listing_ids_v287,
+    mark_notification_events_failed_v287,
+    mark_notification_events_sent_v287,
+    mark_notification_events_skipped_v287,
+    saved_search_includes_price_drops_v287,
 )
 
 
@@ -286,6 +296,7 @@ def send_saved_search_notification_email(
     )
 
     listing_items = list(matching_listings or ())
+    event_claim = None
 
     fingerprint = build_saved_search_notification_fingerprint(
         saved_search,
@@ -323,6 +334,52 @@ def send_saved_search_notification_email(
             "Saved search email notifications are disabled."
         )
 
+    # The legacy explicit-send test backend also accepts render-ready mapping
+    # objects without database identities. Durable event deduplication is only
+    # possible for real listing model instances; production matcher previews
+    # always provide those instances.
+    if listing_items and all(
+        getattr(listing, "pk", None) is not None
+        for listing in listing_items
+    ):
+        event_preview = SimpleNamespace(
+            saved_search=saved_search,
+            listings=listing_items,
+            includes_price_drops=(
+                saved_search_includes_price_drops_v287(saved_search)
+            ),
+        )
+        event_claim = claim_notification_events_v287(
+            build_saved_search_event_specs_v287(event_preview)
+        )
+        claimed_listing_ids = claimed_listing_ids_v287(event_claim)
+        listing_items = [
+            listing
+            for listing in listing_items
+            if listing.pk in claimed_listing_ids
+        ]
+        match_count = len(listing_items)
+
+        if not listing_items:
+            return {
+                "marker": V222_SAVED_SEARCH_NOTIFICATION_EXPLICIT_SEND_TEST_BACKEND,
+                "mode": "execute_send",
+                "execute_send": True,
+                "delivery_enabled": True,
+                "test_email_backend_required": bool(require_test_email_backend),
+                "email_backend": backend_path,
+                "saved_search_id": saved_search.pk,
+                "recipient_email": "",
+                "subject": "",
+                "match_count": 0,
+                "delivered_count": 0,
+                "duplicates_suppressed": (
+                    len(event_claim.duplicate_keys)
+                    + len(event_claim.busy_keys)
+                    + len(event_claim.exhausted_keys)
+                ),
+            }
+
     rendered = render_saved_search_notification_email(
         saved_search,
         match_count=match_count,
@@ -334,6 +391,11 @@ def send_saved_search_notification_email(
     recipient_email = rendered.context["recipient_email"]
 
     if not recipient_email:
+        if event_claim is not None:
+            mark_notification_events_skipped_v287(
+                event_claim,
+                reason="missing_recipient",
+            )
         record_saved_search_notification_runtime_event(
             saved_search=saved_search,
             context=sender_context,
@@ -419,6 +481,11 @@ def send_saved_search_notification_email(
             or 0
         )
     except Exception as exc:
+        if event_claim is not None:
+            mark_notification_events_failed_v287(
+                event_claim,
+                error_category=exc.__class__.__name__,
+            )
         record_saved_search_notification_runtime_event(
             saved_search=saved_search,
             context=sender_context,
@@ -445,6 +512,11 @@ def send_saved_search_notification_email(
         raise
 
     if delivered_count <= 0:
+        if event_claim is not None:
+            mark_notification_events_failed_v287(
+                event_claim,
+                error_category="ZeroDelivery",
+            )
         failed_write = (
             record_saved_search_notification_runtime_event(
                 saved_search=saved_search,
@@ -519,6 +591,9 @@ def send_saved_search_notification_email(
                 failed_write.event.pk
             ),
         }
+
+    if event_claim is not None:
+        mark_notification_events_sent_v287(event_claim)
 
     succeeded_write = (
         record_saved_search_notification_runtime_event(

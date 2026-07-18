@@ -7,6 +7,15 @@ from listings.listing_price_alerts_v285 import (
     mark_listing_price_alert_sent_v285,
     send_listing_price_alert_v285,
 )
+from listings.models import ListingPriceAlert
+from listings.notification_delivery_deduplication_v287 import (
+    build_listing_price_alert_event_specs_v287,
+    claim_notification_events_v287,
+    mark_notification_events_failed_v287,
+    mark_notification_events_sent_v287,
+    mark_notification_events_skipped_v287,
+    subset_notification_claim_v287,
+)
 
 
 class Command(BaseCommand):
@@ -40,6 +49,27 @@ class Command(BaseCommand):
             f"processing at most {limit}."
         )
 
+        if not options["send"]:
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Processed {len(preview.alerts)} candidate(s): 0 claimed, "
+                    "0 sent, 0 skipped, 0 failed, 0 duplicates suppressed."
+                )
+            )
+            return
+
+        specs = build_listing_price_alert_event_specs_v287(preview.alerts)
+        claim = claim_notification_events_v287(specs, now=sent_at)
+        spec_by_alert_id = {
+            spec.listing_price_alert_id: spec
+            for spec in claim.claimed_specs
+        }
+        active_alert_ids = set(
+            ListingPriceAlert.objects.filter(
+                pk__in=spec_by_alert_id,
+            ).values_list("pk", flat=True)
+        )
+
         sent = 0
         skipped = 0
         failed = 0
@@ -48,10 +78,27 @@ class Command(BaseCommand):
                 f"- Alert #{alert.pk}: listing #{alert.listing_id} at "
                 f"{alert.listing.price} TL"
             )
-            if not options["send"]:
+            spec = spec_by_alert_id.get(alert.pk)
+            if spec is None:
+                continue
+            item_claim = subset_notification_claim_v287(
+                claim,
+                [spec.event_key],
+            )
+            if alert.pk not in active_alert_ids:
+                skipped += 1
+                mark_notification_events_skipped_v287(
+                    item_claim,
+                    reason="subscription_removed",
+                )
+                self.stdout.write("  Skipped: subscription is no longer active.")
                 continue
             if not str(alert.user.email or "").strip():
                 skipped += 1
+                mark_notification_events_skipped_v287(
+                    item_claim,
+                    reason="missing_recipient",
+                )
                 self.stdout.write("  Skipped: subscriber has no email address.")
                 continue
             try:
@@ -61,17 +108,38 @@ class Command(BaseCommand):
                 )
             except Exception as exc:
                 failed += 1
+                mark_notification_events_failed_v287(
+                    item_claim,
+                    error_category=exc.__class__.__name__,
+                )
                 self.stderr.write(
                     f"  Delivery failed: {exc.__class__.__name__}: {exc}"
                 )
                 continue
             if delivered:
+                mark_notification_events_sent_v287(
+                    item_claim,
+                    sent_at=sent_at,
+                )
                 mark_listing_price_alert_sent_v285(alert, sent_at=sent_at)
                 sent += delivered
+            else:
+                failed += 1
+                mark_notification_events_failed_v287(
+                    item_claim,
+                    error_category="ZeroDelivery",
+                )
 
+        duplicates = (
+            len(claim.duplicate_keys)
+            + len(claim.busy_keys)
+            + len(claim.exhausted_keys)
+        )
         self.stdout.write(
             self.style.SUCCESS(
                 f"Processed {len(preview.alerts)} candidate(s): "
-                f"{sent} sent, {skipped} skipped, {failed} failed."
+                f"{len(claim.claimed_keys)} claimed, {sent} sent, "
+                f"{skipped} skipped, {failed} failed, "
+                f"{duplicates} duplicates suppressed."
             )
         )
