@@ -296,6 +296,11 @@
                             {% if field.help_text %}
                                 <span class="muted">{{ field.help_text }}</span>
                             {% endif %}
+                            {% if field.name == "price" and object.pk %}
+                                <a href="{% url 'listings:listing_price_change_confirmation_v291' object.pk %}">
+                                    Change price
+                                </a>
+                            {% endif %}
                             {{ field.errors }}
                         </p>
                     {% endif %}

@@ -75,7 +75,13 @@ class SellerPricingDashboardV290Tests(TestCase):
 
         self.assertContains(response, own.title)
         self.assertContains(response, "Pending approval")
-        self.assertContains(response, reverse("listings:listing_update", args=[own.pk]))
+        self.assertContains(
+            response,
+            reverse(
+                "listings:listing_price_change_confirmation_v291",
+                args=[own.pk],
+            ),
+        )
         self.assertNotContains(response, other.title)
         self.assertNotContains(response, "987.65 TL")
 

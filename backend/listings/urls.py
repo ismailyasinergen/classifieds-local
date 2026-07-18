@@ -40,6 +40,9 @@ from .listing_price_alert_management_v289 import (
     listing_price_alert_management_v289,
     listing_price_alert_remove_v289,
 )
+from .listing_price_change_confirmation_v291 import (
+    listing_price_change_confirmation_v291,
+)
 
 app_name = "listings"
 
@@ -95,6 +98,11 @@ urlpatterns = [
 
     path("listings/<int:pk>/", ListingDetailView.as_view(), name="listing_detail"),
     path("listings/<int:pk>/edit/", ListingUpdateView.as_view(), name="listing_update"),
+    path(
+        "listings/<int:pk>/price/",
+        listing_price_change_confirmation_v291,
+        name="listing_price_change_confirmation_v291",
+    ),
     path("listings/<int:pk>/delete/", ListingDeleteView.as_view(), name="listing_delete"),
     path("listings/<int:pk>/approve/", listing_approve, name="listing_approve"),
     path("listings/<int:pk>/reject/", listing_reject, name="listing_reject"),

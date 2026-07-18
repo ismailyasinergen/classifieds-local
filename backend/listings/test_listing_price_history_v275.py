@@ -316,7 +316,7 @@ class ListingPriceHistoryV275Tests(TestCase):
             "Price dropped",
         )
 
-    def test_seller_update_flow_records_price_change(self):
+    def test_general_seller_update_cannot_bypass_price_confirmation(self):
         self.client.force_login(
             self.user
         )
@@ -344,25 +344,13 @@ class ListingPriceHistoryV275Tests(TestCase):
 
         self.listing.refresh_from_db()
 
-        self.assertEqual(
-            self.listing.price,
-            Decimal("70.00"),
-        )
+        self.assertEqual(self.listing.price, Decimal("100.00"))
         self.assertEqual(
             self.listing.status,
             Listing.Status.PENDING,
         )
 
-        latest = self.history()[0]
-
-        self.assertEqual(
-            latest.previous_price,
-            Decimal("100.00"),
-        )
-        self.assertEqual(
-            latest.new_price,
-            Decimal("70.00"),
-        )
+        self.assertEqual(len(self.history()), 1)
 
     def test_zero_previous_price_does_not_divide_by_zero(self):
         zero_listing = Listing.objects.create(

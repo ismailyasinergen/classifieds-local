@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Change listing price</h1>
+            <p class="muted">{{ listing.title }}</p>
+        </div>
+        <a class="button-link" href="{% url 'accounts:seller_pricing_dashboard_v290' %}">Back to seller pricing</a>
+    </div>
+
+    {% if confirmation_error_v291 %}
+        <div role="alert" class="content-card">
+            <strong>Price not changed</strong>
+            <p>{{ confirmation_error_v291 }}</p>
+        </div>
+    {% endif %}
+
+    {% if summary_v291 %}
+        <section class="content-card" aria-labelledby="price-review-heading-v291">
+            <h2 id="price-review-heading-v291">Confirm price change</h2>
+            <dl>
+                <dt>Current price</dt>
+                <dd>{{ summary_v291.current_price }} TL</dd>
+                <dt>New price</dt>
+                <dd><strong>{{ summary_v291.proposed_price }} TL</strong></dd>
+                <dt>Direction</dt>
+                <dd>{{ summary_v291.direction_label }}</dd>
+                <dt>Absolute change</dt>
+                <dd>{{ summary_v291.absolute_change }} TL</dd>
+                <dt>Percentage change</dt>
+                <dd>
+                    {% if summary_v291.percentage_display %}
+                        {{ summary_v291.percentage_display }}%
+                    {% else %}
+                        Percentage unavailable
+                    {% endif %}
+                </dd>
+            </dl>
+            <p>
+                Confirming records one price-history transition and submits the listing for approval.
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="confirmation_token" value="{{ confirmation_token_v291 }}">
+                <button class="button-primary" type="submit">Confirm price change</button>
+                <a class="button-link" href="{% url 'listings:listing_price_change_confirmation_v291' listing.pk %}">Cancel</a>
+            </form>
+        </section>
+    {% else %}
+        <section class="content-card" aria-labelledby="price-proposal-heading-v291">
+            <h2 id="price-proposal-heading-v291">Review a new price</h2>
+            <p>Current price: <strong>{{ listing.price }} TL</strong></p>
+            <form method="post">
+                {% csrf_token %}
+                {{ form_v291.non_field_errors }}
+                <p>
+                    {{ form_v291.proposed_price.label_tag }}
+                    {{ form_v291.proposed_price }}
+                    {{ form_v291.proposed_price.errors }}
+                </p>
+                <button class="button-primary" type="submit">Review price change</button>
+            </form>
+        </section>
+    {% endif %}
+{% endblock %}

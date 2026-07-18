@@ -32,6 +32,12 @@ class ListingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        if self.instance and self.instance.pk:
+            self.fields["price"].disabled = True
+            self.fields["price"].help_text = (
+                "Price changes require a separate review and confirmation."
+            )
+
         self.base_field_names = list(BASE_LISTING_FIELDS)
         self.attribute_field_names = []
         self.category_schema_by_id = get_category_schema_by_id()
