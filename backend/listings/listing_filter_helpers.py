@@ -17,6 +17,10 @@ from decimal import Decimal, InvalidOperation
 from django.db.models import Q
 from categories.models import Category
 
+from .listing_price_drop_filter_v278 import (
+    apply_price_drop_filter_v278,
+)
+
 
 def apply_listing_filters(queryset, request):
     q = request.GET.get("q", "").strip()
@@ -53,6 +57,12 @@ def apply_listing_filters(queryset, request):
             queryset = queryset.filter(price__lte=Decimal(max_price))
     except InvalidOperation:
         pass
+
+    # PRICE_DROP_PUBLIC_BROWSE_FILTER_V278
+    queryset = apply_price_drop_filter_v278(
+        queryset,
+        request,
+    )
 
     if sort == "price_low":
         queryset = queryset.order_by("price")

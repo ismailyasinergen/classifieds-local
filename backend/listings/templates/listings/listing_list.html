@@ -118,6 +118,38 @@
             background: #fff;
         }
 
+        /* PRICE_DROP_PUBLIC_BROWSE_FILTER_V278 */
+        .browse-price-drop-filter-v278 {
+            grid-column: span 2;
+            display: flex;
+            flex-direction: row !important;
+            align-items: flex-start;
+            gap: 10px !important;
+            border: 1px solid #a7d8b9;
+            border-radius: 10px;
+            background: #f0fbf4;
+            color: #14532d;
+            padding: 10px 12px;
+            cursor: pointer;
+        }
+
+        .browse-price-drop-filter-v278 input[type="checkbox"] {
+            width: auto;
+            flex: 0 0 auto;
+            margin: 3px 0 0;
+        }
+
+        .browse-price-drop-filter-copy-v278 {
+            display: grid;
+            gap: 2px;
+            line-height: 1.35;
+        }
+
+        .browse-price-drop-filter-copy-v278 small {
+            color: #3f6f50;
+            font-weight: 500;
+        }
+
         .browse-search-grid .browse-wide-field {
             grid-column: span 2;
         }
@@ -918,6 +950,7 @@
             {% endif %}
         </div>
 
+        {% comment %}PRICE_DROP_PUBLIC_BROWSE_FILTER_V278{% endcomment %}
         <form method="get">
             <div class="browse-search-grid">
                 <label class="browse-wide-field">
@@ -962,6 +995,28 @@
                         <option value="price_high" {% if search_sort == "price_high" %}selected{% endif %}>Price high to low</option>
                     </select>
                 </label>
+                <!-- PRICE_DROP_PUBLIC_BROWSE_FILTER_V278_CONTROL -->
+                <label
+                    class="browse-price-drop-filter-v278"
+                    for="price-drops-only-v278"
+                    data-v278-price-drop-filter="true"
+                >
+                    <input
+                        id="price-drops-only-v278"
+                        type="checkbox"
+                        name="price_drops"
+                        value="1"
+                        {% if request.GET.price_drops == "1" %}checked{% endif %}
+                    >
+                    <span class="browse-price-drop-filter-copy-v278">
+                        <strong>Price drops only</strong>
+                        <small>
+                            Show listings whose latest price change is still
+                            the current reduced price.
+                        </small>
+                    </span>
+                </label>
+
                 <div class="attribute-filter-panel category-filter-sidebar-v74" id="attribute-filter-panel" data-filter-category="{{ attribute_filter_category_slug }}" {% if not attribute_filter_fields %}hidden{% endif %}>
                     <div class="category-filter-heading-v74">
                         <div class="category-filter-title-v74">

@@ -11,6 +11,8 @@ SAVED_SEARCH_ALLOWED_KEYS = {
     "max_price",
     "category",
     "sort",
+    # PRICE_DROP_PUBLIC_BROWSE_FILTER_V278
+    "price_drops",
     # SELLER_STORE_SAVED_SEARCH_CREATE_INTEGRATION_V122
     "min_listings",
     "verified_only",

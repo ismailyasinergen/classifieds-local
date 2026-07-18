@@ -300,6 +300,24 @@ def _build_active_filter_chips(request, fields):
     add_chip("Min price", request.GET.get("min_price", "").strip() + " TL" if request.GET.get("min_price", "").strip() else "", ["min_price"], "min_price")
     add_chip("Max price", request.GET.get("max_price", "").strip() + " TL" if request.GET.get("max_price", "").strip() else "", ["max_price"], "max_price")
 
+    # PRICE_DROP_PUBLIC_BROWSE_FILTER_V278
+    price_drops_value = (
+        request.GET
+        .get(
+            "price_drops",
+            "",
+        )
+        .strip()
+    )
+
+    if price_drops_value == "1":
+        add_chip(
+            "Price",
+            "Price drops only",
+            ["price_drops"],
+            "price_drops",
+        )
+
     sort_value = request.GET.get("sort", "newest").strip() or "newest"
     if sort_value != "newest":
         add_chip("Sort", _format_sort_filter_value(sort_value), ["sort"], "sort")
