@@ -102,7 +102,9 @@ reflect current evidence rather than a generic wishlist.
   `--keepdb`, and prove all worker schemas update without losing non-test data.
 - **Status:** Still open. The v287-v288 non-`keepdb` parallel attempt discovered
   all 2,495 tests but stopped at the existing base test database prompt; the
-  safe migrated serial `--keepdb` suite passed.
+  safe migrated serial `--keepdb` suite passed. The first v290 focused run
+  reproduced the same noninteractive prompt without deleting a database; the
+  serial `--keepdb` full suite then passed all 2,528 tests.
 
 ## R007 — Integrate provider delivery and bounce outcomes (P1)
 
@@ -205,3 +207,26 @@ reflect current evidence rather than a generic wishlist.
   and the complete 2,511-test regression suite.
 - **Status:** Implemented in repair R003; anonymous and private-state privacy
   assertions remain intact.
+
+## R012 — Instrument seller engagement before performance analytics (P2)
+
+- **Category:** Product analytics, privacy, database
+- **Evidence:** Listings have price history, favorites, alerts, and messages,
+  but the repository has no canonical listing-impression, detail-view, contact,
+  or conversion event model. v290 therefore reports only owned asking-price and
+  price-history facts.
+- **Affected systems:** Seller pricing dashboard, listing detail, analytics, and
+  future seller recommendations.
+- **User / business value:** Enables evidence-based pricing guidance without
+  presenting inferred or misleading performance claims.
+- **Technical value:** Establishes explicit event definitions, deduplication,
+  retention, and query boundaries before analytics data proliferates.
+- **Risk if ignored:** Future dashboards may label favorites or messages as
+  views/conversions, or collect behavioral data without a privacy contract.
+- **Effort / implementation risk:** Medium to large / medium.
+- **Dependencies / recommended order:** Product metric definitions, consent and
+  retention policy, bot filtering, and representative query-volume estimates.
+- **Validation:** Event-definition contracts, authorization and privacy tests,
+  bot/replay deduplication, retention boundaries, and dashboard query plans.
+- **Status:** Deferred. Do not add engagement or conversion claims until the
+  product and privacy policies above are defined.
