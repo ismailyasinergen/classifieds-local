@@ -153,13 +153,7 @@ class ListingDetailView(RecentlyViewedListingsContextMixinV272, RelatedListingsC
 
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(
-            get_listing_price_alert_context_v285(
-                self.request,
-                self.object,
-            )
-        )
+        context = {**super().get_context_data(**kwargs), **get_listing_price_alert_context_v285(self.request, self.object)}
 
         seller_store = None
         try:
