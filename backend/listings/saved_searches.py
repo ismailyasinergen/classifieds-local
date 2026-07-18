@@ -3,6 +3,12 @@ from django.http import QueryDict
 from django.urls import reverse
 from django.utils.http import urlencode
 
+from .listing_price_drop_period_filter_v280 import (
+    PRICE_DROP_PERIOD_LABELS_V280,
+    PRICE_DROP_PERIOD_PARAM_V280,
+    normalize_price_drop_period_value_v280,
+)
+
 
 SAVED_SEARCH_ALLOWED_KEYS = {
     "q",
@@ -13,6 +19,8 @@ SAVED_SEARCH_ALLOWED_KEYS = {
     "sort",
     # PRICE_DROP_PUBLIC_BROWSE_FILTER_V278
     "price_drops",
+    # PRICE_DROP_PERIOD_FILTER_V280
+    PRICE_DROP_PERIOD_PARAM_V280,
     # SELLER_STORE_SAVED_SEARCH_CREATE_INTEGRATION_V122
     "min_listings",
     "verified_only",
@@ -41,6 +49,10 @@ def clean_saved_search_querydict(data):
         cleaned_values = []
         for value in values:
             value = _clean_value(value)
+            if key == PRICE_DROP_PERIOD_PARAM_V280:
+                value = normalize_price_drop_period_value_v280(
+                    value
+                )
             if value:
                 cleaned_values.append(value)
 
@@ -318,6 +330,21 @@ def summarize_saved_search_params(query_params):
                 "value": SORT_LABELS_V78.get(sort, _format_value_v78(sort)),
                 "param": "sort",
                 "kind": "sort",
+            }
+        )
+
+    price_drop_period = normalize_price_drop_period_value_v280(
+        params.get(PRICE_DROP_PERIOD_PARAM_V280)
+    )
+    if price_drop_period:
+        summaries.append(
+            {
+                "label": "Price drop period",
+                "value": PRICE_DROP_PERIOD_LABELS_V280[
+                    price_drop_period
+                ],
+                "param": PRICE_DROP_PERIOD_PARAM_V280,
+                "kind": "price_drop_period",
             }
         )
 

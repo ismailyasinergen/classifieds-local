@@ -1007,7 +1007,7 @@
                         type="checkbox"
                         name="price_drops"
                         value="1"
-                        {% if request.GET.price_drops == "1" or search_sort == "recent_price_drop" %}checked{% endif %}
+                        {% if request.GET.price_drops == "1" or search_sort == "recent_price_drop" or search_price_drop_period %}checked{% endif %}
                     >
                     <span class="browse-price-drop-filter-copy-v278">
                         <strong>Price drops only</strong>
@@ -1016,6 +1016,17 @@
                             the current reduced price.
                         </small>
                     </span>
+                </label>
+
+                <!-- PRICE_DROP_PERIOD_FILTER_V280_CONTROL -->
+                <label>
+                    Price drop period
+                    <select name="price_drop_period">
+                        <option value="" {% if not search_price_drop_period %}selected{% endif %}>Any time</option>
+                        <option value="24h" {% if search_price_drop_period == "24h" %}selected{% endif %}>Last 24 hours</option>
+                        <option value="7d" {% if search_price_drop_period == "7d" %}selected{% endif %}>Last 7 days</option>
+                        <option value="30d" {% if search_price_drop_period == "30d" %}selected{% endif %}>Last 30 days</option>
+                    </select>
                 </label>
 
                 <div class="attribute-filter-panel category-filter-sidebar-v74" id="attribute-filter-panel" data-filter-category="{{ attribute_filter_category_slug }}" {% if not attribute_filter_fields %}hidden{% endif %}>

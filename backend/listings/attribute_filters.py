@@ -1,5 +1,11 @@
 from urllib.parse import urlencode
 
+from .listing_price_drop_period_filter_v280 import (
+    PRICE_DROP_PERIOD_PARAM_V280,
+    get_price_drop_period_label_v280,
+    get_price_drop_period_value_v280,
+)
+
 
 ATTRIBUTE_FILTERS_BY_CATEGORY = {
     "cars": [
@@ -320,6 +326,16 @@ def _build_active_filter_chips(request, fields):
             "price_drops",
         )
 
+    # PRICE_DROP_PERIOD_FILTER_V280
+    price_drop_period = get_price_drop_period_value_v280(request)
+    if price_drop_period:
+        add_chip(
+            "Price drop period",
+            get_price_drop_period_label_v280(price_drop_period),
+            [PRICE_DROP_PERIOD_PARAM_V280],
+            PRICE_DROP_PERIOD_PARAM_V280,
+        )
+
     sort_value = request.GET.get("sort", "newest").strip() or "newest"
     if sort_value != "newest":
         add_chip("Sort", _format_sort_filter_value(sort_value), ["sort"], "sort")
@@ -371,6 +387,7 @@ def get_attribute_filter_context(request, category_slug):
         "attribute_filter_specs_by_category": get_attribute_filter_specs_by_category(),
         "active_filter_chips": _build_active_filter_chips(request, fields),
         "active_filter_clear_all_url": request.path,
+        "search_price_drop_period": get_price_drop_period_value_v280(request),
     }
 
 
