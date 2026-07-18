@@ -11,6 +11,10 @@ from django.utils import timezone
 from categories.models import Category
 from .attribute_filters import apply_attribute_filters
 from .models import Listing, SavedSearch
+from .saved_search_price_drop_notifications_v286 import (
+    apply_saved_search_activity_window_v286,
+    saved_search_watches_price_drops_v286,
+)
 
 
 @dataclass
@@ -19,6 +23,7 @@ class SavedSearchMatchPreview:
     checked_since: object
     match_count: int
     listings: list
+    includes_price_drops: bool = False
 
 
 class _SavedSearchFilterRequest:
@@ -117,18 +122,24 @@ def get_saved_search_matching_queryset(saved_search, now=None):
         Listing.objects
         .filter(status=Listing.Status.APPROVED)
         .filter(Q(expires_at__isnull=True) | Q(expires_at__gt=now))
-        .filter(created_at__gt=checked_since)
     )
 
     queryset, category_slug = _apply_saved_search_base_filters(queryset, querydict)
 
     request = _SavedSearchFilterRequest(querydict)
     queryset = apply_attribute_filters(queryset, request, category_slug)
+    queryset, _includes_price_drops = apply_saved_search_activity_window_v286(
+        queryset,
+        request,
+        checked_since=checked_since,
+    )
 
-    return queryset.distinct().order_by("-created_at")
+    return queryset.distinct()
 
 
 def build_saved_search_match_preview(saved_search, limit=10, now=None):
+    querydict = _querydict_from_saved_search(saved_search)
+    request = _SavedSearchFilterRequest(querydict)
     queryset = get_saved_search_matching_queryset(saved_search, now=now)
     checked_since = saved_search.last_notification_checked_at or saved_search.created_at
 
@@ -137,6 +148,7 @@ def build_saved_search_match_preview(saved_search, limit=10, now=None):
         checked_since=checked_since,
         match_count=queryset.count(),
         listings=list(queryset[:limit]),
+        includes_price_drops=saved_search_watches_price_drops_v286(request),
     )
 
 
@@ -236,8 +248,13 @@ def build_saved_search_email_message(preview, from_email=None, site_base_url=Non
 
     saved_search_name = _saved_search_display_name(saved_search)
 
+    match_description = (
+        "new or newly reduced listing"
+        if preview.includes_price_drops
+        else "new listing"
+    )
     subject = (
-        f"{preview.match_count} new listing"
+        f"{preview.match_count} {match_description}"
         f"{'' if preview.match_count == 1 else 's'} for {saved_search_name}"
     )
 
@@ -245,7 +262,7 @@ def build_saved_search_email_message(preview, from_email=None, site_base_url=Non
         "Hi,",
         "",
         (
-            f"We found {preview.match_count} new listing"
+            f"We found {preview.match_count} {match_description}"
             f"{'' if preview.match_count == 1 else 's'} matching your saved search:"
         ),
         f"{saved_search_name}",

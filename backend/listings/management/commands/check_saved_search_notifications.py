@@ -155,7 +155,9 @@ Safety notes:
             total_matches += preview.match_count
             self.stdout.write(
                 f"Saved search #{saved_search.pk} for {saved_search.user.email or '(no email)'}: "
-                f"{preview.match_count} new matching approved listing(s)."
+                f"{preview.match_count} "
+                f"{'new or newly reduced' if preview.includes_price_drops else 'new'} "
+                "matching approved listing(s)."
             )
             self.stdout.write(f"  Checked since: {preview.checked_since}")
 
