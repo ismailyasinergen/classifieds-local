@@ -41,6 +41,9 @@ from .listing_recently_viewed import (
     get_recently_viewed_listings_v272,
     record_recently_viewed_listing_v272,
 )
+from .listing_public_price_history_v283 import (
+    PublicPriceHistoryContextMixinV283,
+)
 
 
 LISTING_BROWSE_DETAIL_VIEWS_V157 = True
@@ -122,7 +125,7 @@ class RelatedListingsContextMixinV271:
         return context
 
 
-class ListingDetailView(RecentlyViewedListingsContextMixinV272, RelatedListingsContextMixinV271, SidebarCategoriesMixin, DetailView):
+class ListingDetailView(RecentlyViewedListingsContextMixinV272, RelatedListingsContextMixinV271, PublicPriceHistoryContextMixinV283, SidebarCategoriesMixin, DetailView):
     model = Listing
     template_name = "listings/listing_detail.html"
     context_object_name = "listing"

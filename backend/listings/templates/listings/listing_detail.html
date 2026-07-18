@@ -2,6 +2,7 @@
 {% load listing_comparison_v274 %}
 {% load listing_price_history_v275 %}
 {% comment %}LISTING_PRICE_HISTORY_V275{% endcomment %}
+{% comment %}PUBLIC_LISTING_PRICE_HISTORY_TIMELINE_V283{% endcomment %}
 {% comment %}LISTING_COMPARISON_V274{% endcomment %}
 
 {% block content %}
@@ -170,6 +171,26 @@
 
         .price-history-change-v275 {
             font-weight: 600;
+        }
+
+        .price-history-values-v283,
+        .price-history-metrics-v283 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        .price-history-current-v283 {
+            display: inline-block;
+            margin-top: 5px;
+            border-radius: 999px;
+            padding: 2px 7px;
+            background: #eef3f8;
+            color: #31465a;
+            font-size: 0.82rem;
+            font-weight: 700;
         }
 
         .price-history-drop-v275 {
@@ -878,7 +899,7 @@
             }
         }
 
-    
+
         .seller-store-card-v105 {
             margin-top: 14px;
             padding: 14px;
@@ -1708,13 +1729,15 @@
 
 
 {% if price_history_v275.has_changes %}
+{% if public_price_history_v283 %}
     <section
         class="price-history-section-v275"
         data-marker="LISTING_PRICE_HISTORY_V275"
-        aria-labelledby="price-history-title-v275"
+        data-version="PUBLIC_LISTING_PRICE_HISTORY_TIMELINE_V283"
+        aria-labelledby="price-history-title-v283"
     >
         <h2
-            id="price-history-title-v275"
+            id="price-history-title-v283"
             class="price-history-heading-v275"
         >
             Price history
@@ -1724,47 +1747,46 @@
             class="price-history-list-v275"
             aria-label="Listing price changes"
         >
-            {% for event in price_history_v275.entries %}
+            {% for entry in public_price_history_v283 %}
                 <li class="price-history-item-v275">
                     <time
                         class="price-history-date-v275"
-                        datetime="{{ event.changed_at|date:'c' }}"
+                        datetime="{{ entry.changed_at|date:'c' }}"
                     >
-                        {{ event.changed_at|date:"M j, Y H:i" }}
+                        {{ entry.changed_at|date:"M j, Y H:i" }}
                     </time>
 
                     <div class="price-history-change-v275">
-                        {% if event.is_baseline %}
-                            Initial price:
-                            {{ event.new_price }} TL
-                        {% elif event.is_price_drop %}
-                            <span class="price-history-drop-v275">
-                                Price decreased:
-                                {{ event.previous_price }} TL
-                                →
-                                {{ event.new_price }} TL
-                            </span>
+                        <span class="{% if entry.direction == 'reduction' %}price-history-drop-v275{% else %}price-history-increase-v275{% endif %}">
+                            {{ entry.direction_label }}:
+                        </span>
 
-                            {% if event.change_percentage %}
-                                · {{ event.change_percentage }}%
-                            {% endif %}
-                        {% elif event.is_price_increase %}
-                            <span class="price-history-increase-v275">
-                                Price increased:
-                                {{ event.previous_price }} TL
-                                →
-                                {{ event.new_price }} TL
-                            </span>
+                        <div class="price-history-values-v283">
+                            <span>Previous price: {{ entry.previous_price }} TL</span>
+                            <span aria-hidden="true">&rarr;</span>
+                            <span>New price: {{ entry.new_price }} TL</span>
+                        </div>
 
-                            {% if event.change_percentage %}
-                                · {{ event.change_percentage }}%
+                        <div class="price-history-metrics-v283">
+                            <span>{{ entry.amount_label }}: {{ entry.absolute_change }} TL</span>
+                            {% if entry.percentage_display %}
+                                <span>Percentage change: {{ entry.percentage_display }}%</span>
+                            {% else %}
+                                <span>Percentage unavailable</span>
                             {% endif %}
+                        </div>
+
+                        {% if entry.is_current %}
+                            <span class="price-history-current-v283">
+                                Current price
+                            </span>
                         {% endif %}
                     </div>
                 </li>
             {% endfor %}
         </ol>
     </section>
+{% endif %}
 {% endif %}
 
 {% if related_listings %}

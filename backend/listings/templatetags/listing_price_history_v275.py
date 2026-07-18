@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from django import template
 
+from listings.listing_public_price_history_v283 import (
+    PUBLIC_PRICE_HISTORY_CACHE_ATTRIBUTE_V283,
+)
+
 
 register = template.Library()
 
@@ -48,9 +52,17 @@ def listing_price_history_summary_v275(
         ),
     )
 
-    entries = list(
-        listing.price_history.all()[:limit]
+    cached_entries = getattr(
+        listing,
+        PUBLIC_PRICE_HISTORY_CACHE_ATTRIBUTE_V283,
+        None,
     )
+    if cached_entries is None:
+        entries = list(
+            listing.price_history.all()[:limit]
+        )
+    else:
+        entries = list(cached_entries[:limit])
 
     current_price = listing.price
 
