@@ -30,7 +30,8 @@ reflect current evidence rather than a generic wishlist.
 - **Effort / implementation risk:** Small / low.
 - **Dependencies / order:** Update after the current sprint is finalized.
 - **Validation:** Compare the document with Git tags, HEAD, and test results.
-- **Status:** Planned for this sprint as a separate documentation repair.
+- **Status:** Implemented in documentation repair R002 after the v286 full-suite
+  result was verified.
 
 ## R003 — Add durable notification-event deduplication (P1)
 
@@ -78,3 +79,23 @@ reflect current evidence rather than a generic wishlist.
 - **Validation:** Verification-state, opt-in, unsubscribe, and privacy tests.
 - **Status:** Deferred because recipient-verification policy requires a product
   decision; do not broaden delivery automatically.
+
+## R006 — Make preserved parallel test clones migration-aware (P2)
+
+- **Category:** Testing, operations
+- **Evidence:** The post-v286 parallel `--keepdb` run discovered all 2,462 tests
+  but worker clones lacked migration 0019; the migrated serial database passed
+  the full suite with explicit `OK`.
+- **Affected systems:** Django test database lifecycle and local/CI runbooks.
+- **Value:** Restores fast parallel regression runs after schema milestones
+  without unsafe manual database deletion.
+- **Risk if ignored:** Parallel runs can report false product failures or force
+  repeated eleven-minute serial validation.
+- **Effort / implementation risk:** Small to medium / low if confined to test
+  infrastructure.
+- **Dependencies / order:** Inspect the Compose PostgreSQL clone lifecycle and
+  choose a noninteractive, migration-aware refresh strategy before v287.
+- **Validation:** Create a migration on a disposable branch, run parallel
+  `--keepdb`, and prove all worker schemas update without losing non-test data.
+- **Status:** Deferred; this sprint deliberately preserved existing databases
+  and used the safe serial fallback.
