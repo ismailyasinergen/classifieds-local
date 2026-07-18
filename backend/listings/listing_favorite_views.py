@@ -13,6 +13,9 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
 from .models import Listing, ListingFavorite
+from .listing_action_redirects_r001 import (
+    get_safe_listing_action_redirect_r001,
+)
 
 
 LISTING_FAVORITE_VIEWS_V155 = True
@@ -29,7 +32,12 @@ def listing_favorite_toggle(request, pk):
 
     if listing.owner == request.user:
         messages.warning(request, "You cannot save your own listing.")
-        return redirect(request.POST.get("next") or listing.get_absolute_url())
+        return redirect(
+            get_safe_listing_action_redirect_r001(
+                request,
+                listing.get_absolute_url(),
+            )
+        )
 
     favorite, created = ListingFavorite.objects.get_or_create(
         user=request.user,
@@ -42,4 +50,9 @@ def listing_favorite_toggle(request, pk):
         favorite.delete()
         messages.success(request, "Listing removed from saved listings.")
 
-    return redirect(request.POST.get("next") or listing.get_absolute_url())
+    return redirect(
+        get_safe_listing_action_redirect_r001(
+            request,
+            listing.get_absolute_url(),
+        )
+    )
