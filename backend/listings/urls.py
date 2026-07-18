@@ -36,11 +36,25 @@ from .listing_comparison_views_v274 import (
     listing_comparison_view_v274,
 )
 from .listing_price_alerts_v285 import listing_price_alert_toggle_v285
+from .listing_price_alert_management_v289 import (
+    listing_price_alert_management_v289,
+    listing_price_alert_remove_v289,
+)
 
 app_name = "listings"
 
 urlpatterns = [
     path("listings/", ListingListView.as_view(), name="listing_list"),
+    path(
+        "listings/price-alerts/",
+        listing_price_alert_management_v289,
+        name="listing_price_alert_management_v289",
+    ),
+    path(
+        "listings/price-alerts/<int:pk>/remove/",
+        listing_price_alert_remove_v289,
+        name="listing_price_alert_remove_v289",
+    ),
     # LISTING_COMPARISON_V274
     path(
         "listings/compare/clear/",

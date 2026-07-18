@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Price alerts</h1>
+            <p class="muted">
+                Review the listings you asked us to watch and remove alerts you
+                no longer need.
+            </p>
+        </div>
+        <a class="button-link" href="{% url 'accounts:notification_delivery_preferences_v288' %}">
+            Notification preferences
+        </a>
+    </div>
+
+    {% if not listing_price_alert_email_enabled_v289 %}
+        <section role="status" aria-labelledby="price-alert-email-status-v289" style="margin-bottom:18px; padding:14px; border:1px solid #fde68a; border-radius:10px; background:#fffbeb;">
+            <h2 id="price-alert-email-status-v289" style="margin-top:0;">Listing price-alert emails are off</h2>
+            <p style="margin-bottom:0;">
+                Your subscriptions remain saved, but email delivery is disabled
+                in <a href="{% url 'accounts:notification_delivery_preferences_v288' %}">notification preferences</a>.
+            </p>
+        </section>
+    {% endif %}
+
+    {% if price_alert_entries_v289 %}
+        <ul aria-label="Listing price alerts" style="list-style:none; padding:0; display:grid; gap:14px;">
+            {% for entry in price_alert_entries_v289 %}
+                <li data-price-alert-entry-v289="true" style="border:1px solid #dbe4ef; border-radius:12px; padding:16px;">
+                    {% if entry.listing_is_public %}
+                        <h2 style="margin-top:0; font-size:1.1rem;">
+                            <a href="{{ entry.alert.listing.get_absolute_url }}">
+                                {{ entry.alert.listing.title }}
+                            </a>
+                        </h2>
+                        <p class="muted">
+                            {{ entry.alert.listing.category.name }} · {{ entry.alert.listing.location }}
+                        </p>
+                        <dl style="display:grid; grid-template-columns:max-content 1fr; gap:6px 12px;">
+                            <dt>Price when added</dt>
+                            <dd style="margin:0;">{{ entry.alert.baseline_price }} TL</dd>
+                            <dt>Current price</dt>
+                            <dd style="margin:0;">{{ entry.alert.listing.price }} TL</dd>
+                            <dt>Status</dt>
+                            <dd style="margin:0;">
+                                {% if listing_price_alert_email_enabled_v289 %}
+                                    {{ entry.delivery_status }}
+                                {% else %}
+                                    Email delivery disabled
+                                {% endif %}
+                            </dd>
+                            {% if entry.alert.last_notification_sent_at %}
+                                <dt>Last email sent</dt>
+                                <dd style="margin:0;">
+                                    <time datetime="{{ entry.alert.last_notification_sent_at|date:'c' }}">
+                                        {{ entry.alert.last_notification_sent_at|date:"M j, Y H:i" }}
+                                    </time>
+                                </dd>
+                            {% endif %}
+                        </dl>
+                    {% else %}
+                        <h2 style="margin-top:0; font-size:1.1rem;">Listing unavailable</h2>
+                        <p>
+                            This listing is not currently public. The alert is
+                            paused and no current listing details are shown.
+                        </p>
+                        <p><strong>Status:</strong> {{ entry.delivery_status }}</p>
+                    {% endif %}
+
+                    <p class="muted">
+                        Added
+                        <time datetime="{{ entry.alert.created_at|date:'c' }}">
+                            {{ entry.alert.created_at|date:"M j, Y H:i" }}
+                        </time>
+                    </p>
+
+                    <form method="post" action="{% url 'listings:listing_price_alert_remove_v289' entry.alert.pk %}">
+                        {% csrf_token %}
+                        <button
+                            type="submit"
+                            {% if entry.listing_is_public %}
+                                aria-label="Remove price alert for {{ entry.alert.listing.title }}"
+                            {% else %}
+                                aria-label="Remove unavailable listing price alert"
+                            {% endif %}
+                        >
+                            Remove price alert
+                        </button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+            <nav class="pagination" aria-label="Price alert pages">
+                {% if page_obj.has_previous %}
+                    <a class="button-link" rel="prev" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+                <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a class="button-link" rel="next" href="?page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% else %}
+        <section aria-labelledby="price-alert-empty-v289" style="padding:18px; border:1px dashed #cbd5e1; border-radius:12px;">
+            <h2 id="price-alert-empty-v289">No price alerts yet</h2>
+            <p>Open an eligible listing and choose “Alert me to price drops.”</p>
+            <a class="button-link button-primary" href="{% url 'listings:listing_list' %}">Browse listings</a>
+        </section>
+    {% endif %}
+{% endblock %}
