@@ -183,3 +183,25 @@ reflect current evidence rather than a generic wishlist.
 - **Validation:** Redaction, staff workflow, and command snapshot tests.
 - **Status:** Deferred pending an explicit operator-output policy; no established
   contract was silently weakened in this sprint.
+
+## R011 — Replace sequence-dependent price-alert privacy assertions (P2)
+
+- **Category:** Testing, privacy, maintainability
+- **Evidence:** The v285 detail privacy test rejected the buyer's bare numeric
+  primary key anywhere in the full HTML response. The same number can
+  legitimately appear as a listing ID, layout value, or unrelated markup, so
+  suite ordering made the assertion fail without exposing recipient state.
+- **Affected systems:** Listing-detail price-alert privacy regression tests.
+- **User / business value:** Keeps privacy failures actionable instead of hiding
+  them among numeric-substring false positives.
+- **Technical value:** Tests the actual exposure boundary: recipient identifiers,
+  recipient form fields, and private alert context.
+- **Risk if ignored:** Sequence-dependent failures can erode confidence in the
+  full regression suite and encourage unsafe test weakening.
+- **Effort / implementation risk:** Small / low.
+- **Dependencies / recommended order:** None; completed alongside v289 after the
+  compatibility batch reproduced the false positive in isolation.
+- **Validation:** Isolated v285 test, 53-test notification compatibility batch,
+  and the complete 2,511-test regression suite.
+- **Status:** Implemented in repair R003; anonymous and private-state privacy
+  assertions remain intact.

@@ -2,11 +2,11 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v288 — Notification delivery preferences**
-- Product checkpoint: `project-checkpoint-v288-notification-delivery-preferences`
-- Previous milestone: `project-checkpoint-v287-notification-delivery-deduplication`
-- Validated regression baseline: **2,495 tests passing**
-- Full-suite mode: serial `--keepdb` fallback, explicit `OK` in 700.669 seconds
+- Latest product milestone: **v289 — Price-alert management UI**
+- Product checkpoint: `project-checkpoint-v289-price-alert-management-ui`
+- Previous milestone: `project-checkpoint-v288-notification-delivery-preferences`
+- Validated regression baseline: **2,511 tests passing**
+- Full-suite mode: serial `--keepdb`, explicit `OK` in 736.533 seconds
 - Django system check: zero issues
 - Migration state: migrations `0020_notification_delivery_event_v287` and
   `0021_notification_delivery_preference_v288` are committed; no pending model changes
@@ -28,18 +28,22 @@ database passed. See R006 in `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
   duplicate suppression
 - v288: independent defaults-on delivery preferences with terminal suppression
   and an authenticated settings page
+- v289: authenticated, paginated management and owner-scoped removal for
+  listing-specific price-alert subscriptions
 - Repair: preserved legacy listing-detail source-shape contracts after v285
+- Repair R003: replaced a sequence-dependent bare numeric privacy assertion
+  with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-1. v289 — Price-alert management UI
-2. v290–v295 — Seller pricing and pricing-integrity controls
+1. v290 — Seller pricing dashboard
+2. v291–v295 — Seller price-change and pricing-integrity controls
 3. v296–v300 — Deals discovery, comparison/SEO integration, and release audit
 
 Verified-recipient policy, provider bounce handling, event retention, and
-scheduler leasing remain explicit recommendations rather than hidden v288
-scope. The next sprint should pair v289 with a small notification-operations
-improvement only if its policy dependencies are resolved.
+scheduler leasing remain explicit recommendations rather than hidden v289
+scope. Verified-recipient enforcement and retention automation remain deferred
+until their product and privacy policies are defined.
 
 Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
