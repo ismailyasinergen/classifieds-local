@@ -9,6 +9,9 @@ from listings.models import Listing
 from listings.attribute_filters import apply_attribute_filters, get_attribute_filter_context, get_page_querystring
 
 from .models import Category
+from listings.listing_price_drop_sort_v279 import (
+    apply_public_listing_sort_v279,
+)
 
 
 def apply_category_filters(queryset, request):
@@ -41,12 +44,11 @@ def apply_category_filters(queryset, request):
     except InvalidOperation:
         pass
 
-    if sort == "price_low":
-        queryset = queryset.order_by("price")
-    elif sort == "price_high":
-        queryset = queryset.order_by("-price")
-    else:
-        queryset = queryset.order_by("-top_listing_priority", "-created_at")
+    # RECENT_PRICE_DROP_SORT_V279
+    queryset = apply_public_listing_sort_v279(
+        queryset,
+        request,
+    )
 
     category_slug = getattr(getattr(request, "resolver_match", None), "kwargs", {}).get("slug", "")
     if not category_slug:

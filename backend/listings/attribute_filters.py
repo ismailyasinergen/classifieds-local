@@ -255,6 +255,8 @@ def _format_sort_filter_value(sort_value):
     labels = {
         "price_low": "Price low to high",
         "price_high": "Price high to low",
+        # RECENT_PRICE_DROP_SORT_V279
+        "recent_price_drop": "Recently reduced",
         "newest": "Newest",
     }
     return labels.get(sort_value, sort_value)

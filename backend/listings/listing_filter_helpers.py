@@ -17,8 +17,8 @@ from decimal import Decimal, InvalidOperation
 from django.db.models import Q
 from categories.models import Category
 
-from .listing_price_drop_filter_v278 import (
-    apply_price_drop_filter_v278,
+from .listing_price_drop_sort_v279 import (
+    apply_public_listing_sort_v279,
 )
 
 
@@ -58,17 +58,10 @@ def apply_listing_filters(queryset, request):
     except InvalidOperation:
         pass
 
-    # PRICE_DROP_PUBLIC_BROWSE_FILTER_V278
-    queryset = apply_price_drop_filter_v278(
+    # RECENT_PRICE_DROP_SORT_V279
+    # V278 compatibility: apply_price_drop_filter_v278 is
+    # delegated through apply_public_listing_sort_v279.
+    return apply_public_listing_sort_v279(
         queryset,
         request,
     )
-
-    if sort == "price_low":
-        queryset = queryset.order_by("price")
-    elif sort == "price_high":
-        queryset = queryset.order_by("-price")
-    else:
-        queryset = queryset.order_by("-top_listing_priority", "-created_at")
-
-    return queryset

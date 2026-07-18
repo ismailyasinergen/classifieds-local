@@ -174,6 +174,8 @@ SORT_LABELS_V78 = {
     "newest": "Newest",
     "price_low": "Price low to high",
     "price_high": "Price high to low",
+    # RECENT_PRICE_DROP_SORT_V279
+    "recent_price_drop": "Recently reduced",
     "name_az": "Name A-Z",
     "newest_store": "Newest stores",
     "verified_first": "Verified first",
