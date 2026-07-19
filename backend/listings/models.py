@@ -106,6 +106,17 @@ class Listing(models.Model):
         A single baseline row represents the initial price. Subsequent rows
         are created only when the persisted price actually changes.
         """
+        price_change_reason = str(
+            kwargs.pop("price_change_reason", "") or ""
+        ).strip()
+        valid_price_change_reasons = {
+            value for value, _label in ListingPriceHistory.Reason.choices
+        }
+        if price_change_reason not in valid_price_change_reasons:
+            raise AuditValidationError(
+                {"price_change_reason": "Select a valid price-change reason."}
+            )
+
         update_fields = kwargs.get("update_fields")
 
         if (
@@ -183,6 +194,7 @@ class Listing(models.Model):
                         previous_price=previous_price,
                         new_price=current_price,
                         changed_at=timezone.now(),
+                        reason=price_change_reason,
                     )
                 )
 
@@ -220,6 +232,14 @@ class Listing(models.Model):
 
 # LISTING_PRICE_HISTORY_V275
 class ListingPriceHistory(models.Model):
+    class Reason(models.TextChoices):
+        UNSPECIFIED = "", "No reason selected"
+        MARKET_ADJUSTMENT = "market_adjustment", "Market adjustment"
+        PROMOTION = "promotion", "Promotion"
+        CONDITION_UPDATE = "condition_update", "Condition update"
+        LISTING_CORRECTION = "listing_correction", "Listing correction"
+        OTHER = "other", "Other"
+
     listing = models.ForeignKey(
         Listing,
         on_delete=models.CASCADE,
@@ -238,6 +258,12 @@ class ListingPriceHistory(models.Model):
     changed_at = models.DateTimeField(
         default=timezone.now,
         editable=False,
+    )
+    reason = models.CharField(
+        max_length=32,
+        choices=Reason.choices,
+        blank=True,
+        default=Reason.UNSPECIFIED,
     )
 
     class Meta:

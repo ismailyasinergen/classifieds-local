@@ -13,7 +13,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
-from .models import Listing
+from .models import Listing, ListingPriceHistory
 
 
 PRICE_CHANGE_CONFIRMATION_V291 = True
@@ -35,6 +35,12 @@ class PriceChangeProposalFormV291(forms.Form):
             }
         ),
     )
+    price_change_reason = forms.ChoiceField(
+        label="Reason (optional)",
+        required=False,
+        choices=ListingPriceHistory.Reason.choices,
+        help_text="Choose a reason to keep your private pricing record clear.",
+    )
 
 
 @dataclass(frozen=True)
@@ -44,6 +50,7 @@ class PriceChangeSummaryV291:
     direction_label: str
     absolute_change: Decimal
     percentage_display: str
+    reason_label: str
 
 
 def _format_percentage_v291(value: Decimal) -> str:
@@ -54,6 +61,7 @@ def _format_percentage_v291(value: Decimal) -> str:
 def _build_summary_v291(
     current_price: Decimal,
     proposed_price: Decimal,
+    price_change_reason: str = "",
 ) -> PriceChangeSummaryV291:
     absolute_change = abs(proposed_price - current_price)
     percentage_display = ""
@@ -69,16 +77,27 @@ def _build_summary_v291(
         ),
         absolute_change=absolute_change,
         percentage_display=percentage_display,
+        reason_label=dict(ListingPriceHistory.Reason.choices).get(
+            price_change_reason,
+            "",
+        ),
     )
 
 
-def _make_confirmation_token_v291(*, listing, user, proposed_price) -> str:
+def _make_confirmation_token_v291(
+    *,
+    listing,
+    user,
+    proposed_price,
+    price_change_reason="",
+) -> str:
     return signing.dumps(
         {
             "listing_id": listing.pk,
             "user_id": user.pk,
             "current_price": format(listing.price, "f"),
             "proposed_price": format(proposed_price, "f"),
+            "price_change_reason": price_change_reason,
         },
         salt=PRICE_CHANGE_TOKEN_SALT_V291,
         compress=True,
@@ -149,6 +168,11 @@ def listing_price_change_confirmation_v291(request, pk):
                 raise signing.BadSignature("Confirmation scope does not match.")
             expected_price = Decimal(payload["current_price"])
             proposed_price = Decimal(payload["proposed_price"])
+            price_change_reason = str(
+                payload.get("price_change_reason", "") or ""
+            )
+            if price_change_reason not in dict(ListingPriceHistory.Reason.choices):
+                raise signing.BadSignature("Invalid price-change reason.")
         except (signing.BadSignature, signing.SignatureExpired, KeyError, ArithmeticError):
             return _render_v291(
                 request,
@@ -188,7 +212,10 @@ def listing_price_change_confirmation_v291(request, pk):
 
             locked_listing.price = proposed_price
             locked_listing.status = Listing.Status.PENDING
-            locked_listing.save(update_fields=["price", "status"])
+            locked_listing.save(
+                update_fields=["price", "status"],
+                price_change_reason=price_change_reason,
+            )
 
         messages.success(
             request,
@@ -201,6 +228,7 @@ def listing_price_change_confirmation_v291(request, pk):
         return _render_v291(request, listing, form_v291=form)
 
     proposed_price = form.cleaned_data["proposed_price"]
+    price_change_reason = form.cleaned_data["price_change_reason"]
     if proposed_price == listing.price:
         messages.info(request, "Enter a different price to create a price change.")
         return redirect(
@@ -211,10 +239,15 @@ def listing_price_change_confirmation_v291(request, pk):
     return _render_v291(
         request,
         listing,
-        summary_v291=_build_summary_v291(listing.price, proposed_price),
+        summary_v291=_build_summary_v291(
+            listing.price,
+            proposed_price,
+            price_change_reason,
+        ),
         confirmation_token_v291=_make_confirmation_token_v291(
             listing=listing,
             user=request.user,
             proposed_price=proposed_price,
+            price_change_reason=price_change_reason,
         ),
     )

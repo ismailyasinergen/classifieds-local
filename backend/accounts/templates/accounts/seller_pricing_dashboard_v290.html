@@ -88,6 +88,9 @@
                                     <span>
                                         Change: {{ entry.absolute_change }} TL{% if entry.percentage_display %} ({{ entry.percentage_display }}%){% else %} · Percentage unavailable{% endif %}
                                     </span>
+                                    {% if entry.reason_label %}
+                                        <br><span>Reason: {{ entry.reason_label }}</span>
+                                    {% endif %}
                                 {% else %}
                                     No price changes
                                 {% endif %}

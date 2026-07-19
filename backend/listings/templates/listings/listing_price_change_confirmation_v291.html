@@ -36,6 +36,8 @@
                         Percentage unavailable
                     {% endif %}
                 </dd>
+                <dt>Reason</dt>
+                <dd>{{ summary_v291.reason_label|default:"Not provided" }}</dd>
             </dl>
             <p>
                 Confirming records one price-history transition and submits the listing for approval.
@@ -58,6 +60,14 @@
                     {{ form_v291.proposed_price.label_tag }}
                     {{ form_v291.proposed_price }}
                     {{ form_v291.proposed_price.errors }}
+                </p>
+                <p>
+                    {{ form_v291.price_change_reason.label_tag }}
+                    {{ form_v291.price_change_reason }}
+                    {% if form_v291.price_change_reason.help_text %}
+                        <span class="muted">{{ form_v291.price_change_reason.help_text }}</span>
+                    {% endif %}
+                    {{ form_v291.price_change_reason.errors }}
                 </p>
                 <button class="button-primary" type="submit">Review price change</button>
             </form>

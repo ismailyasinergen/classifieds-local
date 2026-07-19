@@ -7,7 +7,16 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Count, DateTimeField, DecimalField, F, OuterRef, Q, Subquery
+from django.db.models import (
+    CharField,
+    Count,
+    DateTimeField,
+    DecimalField,
+    F,
+    OuterRef,
+    Q,
+    Subquery,
+)
 from django.shortcuts import render
 
 from listings.models import Listing, ListingPriceHistory
@@ -28,6 +37,7 @@ INITIAL_PRICE_ANNOTATION_V290 = "seller_initial_price_v290"
 LATEST_PREVIOUS_PRICE_ANNOTATION_V290 = "seller_latest_previous_price_v290"
 LATEST_NEW_PRICE_ANNOTATION_V290 = "seller_latest_new_price_v290"
 LATEST_CHANGED_AT_ANNOTATION_V290 = "seller_latest_changed_at_v290"
+LATEST_REASON_ANNOTATION_V292 = "seller_latest_reason_v292"
 
 
 @dataclass(frozen=True)
@@ -41,6 +51,7 @@ class SellerPricingEntryV290:
     absolute_change: Decimal | None
     percentage_display: str
     history_matches_current_price: bool
+    reason_label: str
 
     @property
     def has_price_change(self) -> bool:
@@ -114,6 +125,10 @@ def get_seller_pricing_queryset_v290(user, *, status="", sort=""):
                     latest_transition.values("changed_at")[:1],
                     output_field=DateTimeField(),
                 ),
+                LATEST_REASON_ANNOTATION_V292: Subquery(
+                    latest_transition.values("reason")[:1],
+                    output_field=CharField(max_length=32),
+                ),
             }
         )
     )
@@ -172,6 +187,10 @@ def _build_entry_v290(listing: Listing) -> SellerPricingEntryV290:
         percentage_display=percentage_display,
         history_matches_current_price=(
             transition_price is not None and transition_price == listing.price
+        ),
+        reason_label=dict(ListingPriceHistory.Reason.choices).get(
+            getattr(listing, LATEST_REASON_ANNOTATION_V292) or "",
+            "",
         ),
     )
 
