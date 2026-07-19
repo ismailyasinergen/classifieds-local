@@ -2,20 +2,19 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v295 — Price-history integrity audit**
-- Product checkpoint: `project-checkpoint-v295-price-history-integrity-audit`
-- Previous milestone: `project-checkpoint-v294-pricing-integrity-moderation-queue`
-- Validated regression baseline: **2,590 tests passing**
-- Full-suite mode: serial `--keepdb`, explicit `OK` in 808.525 seconds
+- Latest product milestone: **v298 — Public Deals SEO metadata**
+- Product checkpoint: `project-checkpoint-v298-public-deals-seo-metadata`
+- Previous milestone: `project-checkpoint-v297-deal-aware-listing-comparison`
+- Validated regression baseline: **2,624 tests passing**
+- Full-suite mode: serial `--keepdb`, explicit `OK` in 1216.863 seconds
 - Django system check: zero issues
-- Migration state: no v294 migration; additive migration
+- Migration state: no v296, v297, or v298 migration; additive migration
   `0023_listingpricehistory_discount_guardrail_v293` remains the latest and no
   model changes are pending
 
-The non-`keepdb` parallel attempt discovered all 2,495 tests but stopped before
-execution because the preserved base test database already existed and Django
-requested interactive deletion. No database was deleted. The migrated serial
-database passed. See R006 in `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
+The preserved, fully migrated serial test database passed the complete v298
+suite. Parallel preserved-database lifecycle limitations remain documented in
+R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
 
 ## Recently completed
 
@@ -43,13 +42,21 @@ database passed. See R006 in `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
   enforcement actions
 - v295: read-only two-query price-history consistency audit with bounded,
   sanitized text/JSON output and CI-compatible failure mode
+- v296: public, paginated Deals discovery using established discount
+  qualification, visibility, ordering, and listing-card contracts
+- v297: deal-aware listing comparison with previous/current prices, savings,
+  discount badges, and a direct Deals discovery link
+- v298: request-aware Deals SEO metadata with deterministic canonicals,
+  robots directives, Open Graph and Twitter tags, safe CollectionPage JSON-LD,
+  and backward-compatible opt-in shared-head rendering
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-1. v296–v300 — Deals discovery, comparison/SEO integration, and release audit
+1. v299 — Deals discovery integration and release-readiness audit
+2. v300 — v296–v299 sprint closeout, final verification, and roadmap refresh
 
 Verified-recipient policy, provider bounce handling, event retention, and
 scheduler leasing remain explicit recommendations rather than hidden v289
@@ -60,9 +67,10 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The current local development database has listings migrations `0019`–`0023`
-pending and was deliberately not mutated during v295 validation. Operational
-commands that use post-v286 fields require those committed migrations to be
-applied first. The preserved Django test database is fully migrated.
+pending and remained deliberately unmodified through v298 validation.
+Operational commands that use post-v286 fields require those committed
+migrations to be applied first. The preserved Django test database is fully
+migrated.
 
 ## Validation commands
 

@@ -20,6 +20,9 @@ from .listing_biggest_price_drop_sort_v281 import (
 )
 from .listing_visibility_helpers import active_approved_listings
 from .models import Listing
+from .public_deals_seo_metadata_v298 import (
+    build_public_deals_seo_context_v298,
+)
 
 
 PUBLIC_DEALS_LANDING_PAGE_V296 = True
@@ -69,4 +72,13 @@ class PublicDealsListViewV296(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["page_title"] = "Deals"
+
+        context.update(
+            build_public_deals_seo_context_v298(
+                request=self.request,
+                page_obj=context["page_obj"],
+                listings=context["listings"],
+            )
+        )
+
         return context
