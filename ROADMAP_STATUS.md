@@ -2,17 +2,17 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v299 — Deals discovery integration and release-readiness audit**
-- Product checkpoint: `project-checkpoint-v299-public-deals-discovery-integration-audit`
-- Previous milestone: `project-checkpoint-v298-public-deals-seo-metadata`
-- Validated regression baseline: **2,633 tests passing**
-- Full-suite mode: serial `--keepdb`, explicit `OK` in 1220.745 seconds
+- Latest product milestone: **v300 — Public Deals sprint closeout and final audit**
+- Product checkpoint: `project-checkpoint-v300-public-deals-sprint-closeout-audit`
+- Previous milestone: `project-checkpoint-v299-public-deals-discovery-integration-audit`
+- Validated regression baseline: **2,641 tests passing**
+- Full-suite mode: serial `--keepdb`, explicit `OK` in 1293.325 seconds
 - Django system check: zero issues
-- Migration state: no v296, v297, v298, or v299 migration; additive migration
+- Migration state: no v296, v297, v298, v299, or v300 migration; additive migration
   `0023_listingpricehistory_discount_guardrail_v293` remains the latest and no
   model changes are pending
 
-The preserved, fully migrated serial test database passed the complete v299
+The preserved, fully migrated serial test database passed the complete v300
 suite. Parallel preserved-database lifecycle limitations remain documented in
 R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
 
@@ -52,13 +52,17 @@ R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
 - v299: shared-header Deals active state, `aria-current` semantics, visible
   keyboard focus, discovery-flow continuity, and cross-milestone
   release-readiness audit
+- v300: read-only v296-v299 sprint closeout, 43-contract package audit,
+  documentation verification, final system and migration checks, and complete
+  2,641-test regression validation
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-1. v300 — v296–v299 sprint closeout, final verification, and roadmap refresh
+No numbered milestone is currently selected. The next milestone must be
+chosen explicitly before implementation.
 
 Verified-recipient policy, provider bounce handling, event retention, and
 scheduler leasing remain explicit recommendations rather than hidden v289
@@ -68,11 +72,10 @@ until their product and privacy policies are defined.
 Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
-The current local development database has listings migrations `0019`–`0023`
-pending and remained deliberately unmodified through v299 validation.
-Operational commands that use post-v286 fields require those committed
-migrations to be applied first. The preserved Django test database is fully
-migrated.
+The local development database was observed fully migrated through listings
+migration `0023_listingpricehistory_discount_guardrail_v293` during v300
+validation. v300 did not run `migrate`; this statement records the observed
+database state only. The preserved Django test database is also fully migrated.
 
 ## Validation commands
 
