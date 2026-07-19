@@ -2,17 +2,17 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v298 — Public Deals SEO metadata**
-- Product checkpoint: `project-checkpoint-v298-public-deals-seo-metadata`
-- Previous milestone: `project-checkpoint-v297-deal-aware-listing-comparison`
-- Validated regression baseline: **2,624 tests passing**
-- Full-suite mode: serial `--keepdb`, explicit `OK` in 1216.863 seconds
+- Latest product milestone: **v299 — Deals discovery integration and release-readiness audit**
+- Product checkpoint: `project-checkpoint-v299-public-deals-discovery-integration-audit`
+- Previous milestone: `project-checkpoint-v298-public-deals-seo-metadata`
+- Validated regression baseline: **2,633 tests passing**
+- Full-suite mode: serial `--keepdb`, explicit `OK` in 1220.745 seconds
 - Django system check: zero issues
-- Migration state: no v296, v297, or v298 migration; additive migration
+- Migration state: no v296, v297, v298, or v299 migration; additive migration
   `0023_listingpricehistory_discount_guardrail_v293` remains the latest and no
   model changes are pending
 
-The preserved, fully migrated serial test database passed the complete v298
+The preserved, fully migrated serial test database passed the complete v299
 suite. Parallel preserved-database lifecycle limitations remain documented in
 R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
 
@@ -49,14 +49,16 @@ R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
 - v298: request-aware Deals SEO metadata with deterministic canonicals,
   robots directives, Open Graph and Twitter tags, safe CollectionPage JSON-LD,
   and backward-compatible opt-in shared-head rendering
+- v299: shared-header Deals active state, `aria-current` semantics, visible
+  keyboard focus, discovery-flow continuity, and cross-milestone
+  release-readiness audit
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-1. v299 — Deals discovery integration and release-readiness audit
-2. v300 — v296–v299 sprint closeout, final verification, and roadmap refresh
+1. v300 — v296–v299 sprint closeout, final verification, and roadmap refresh
 
 Verified-recipient policy, provider bounce handling, event retention, and
 scheduler leasing remain explicit recommendations rather than hidden v289
@@ -67,7 +69,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The current local development database has listings migrations `0019`–`0023`
-pending and remained deliberately unmodified through v298 validation.
+pending and remained deliberately unmodified through v299 validation.
 Operational commands that use post-v286 fields require those committed
 migrations to be applied first. The preserved Django test database is fully
 migrated.

@@ -127,14 +127,19 @@ class PublicDealsLandingPageV296Tests(TestCase):
             '<h1 id="public-deals-heading-v296">Deals</h1>',
             html=True,
         )
+        # v299 adds active-page attributes to the shared Deals link.
+        # Preserve the v296 public-navigation contract by asserting the
+        # resolved destination instead of the former bare-link shape.
         self.assertContains(
             response,
-            f'href="{deals_url}">Deals</a>',
+            f'href="{deals_url}"',
+            count=1,
             html=False,
         )
         self.assertContains(
             browse,
-            f'href="{deals_url}">Deals</a>',
+            f'href="{deals_url}"',
+            count=1,
             html=False,
         )
 

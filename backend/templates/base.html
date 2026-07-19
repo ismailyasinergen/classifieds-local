@@ -718,6 +718,26 @@
     text-decoration: none;
 }
 
+/* PUBLIC_DEALS_DISCOVERY_INTEGRATION_V299 */
+.header-nav .header-nav-deals-v299.is-current-v299 {
+    background: #fffbea;
+    border-color: #e7bf00;
+    box-shadow:
+        inset 0 -2px 0 #e7bf00,
+        0 2px 8px rgba(0,0,0,0.08);
+    font-weight: 800;
+}
+
+.header-nav .header-nav-deals-v299.is-current-v299:hover {
+    background: #fff7cc;
+}
+
+.header-nav a:focus-visible,
+.header-nav summary:focus-visible {
+    outline: 3px solid rgba(231,191,0,0.45);
+    outline-offset: 2px;
+}
+
 .nav-menu[open] summary {
     background: #fffbea;
     border-color: #e7bf00;
@@ -1207,7 +1227,14 @@
 
             <nav class="header-nav" aria-label="Main navigation">
                 <a href="{{ nav_home_url }}">Browse</a>
-                <a href="{{ nav_deals_url }}">Deals</a>
+                {% comment %}PUBLIC_DEALS_DISCOVERY_INTEGRATION_V299{% endcomment %}
+                <a
+                    class="header-nav-deals-v299{% if request.resolver_match.namespace == 'listings' and request.resolver_match.url_name == 'public_deals_v296' %} is-current-v299{% endif %}"
+                    href="{{ nav_deals_url }}"
+                    {% if request.resolver_match.namespace == 'listings' and request.resolver_match.url_name == 'public_deals_v296' %}aria-current="page"{% endif %}
+                >
+                    Deals
+                </a>
                 <a href="{{ nav_store_directory_url }}">Stores</a>
 
                 {% if user.is_authenticated %}
