@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% comment %}DEAL_AWARE_LISTING_COMPARISON_V297{% endcomment %}
+
 {% block content %}
 {% comment %}LISTING_COMPARISON_V274{% endcomment %}
 <style>
@@ -110,6 +112,66 @@
     font-weight: 900;
   }
 
+  .listing-comparison-discount-v297 {
+    display: grid;
+    gap: 5px;
+  }
+
+  .listing-comparison-discount-summary-v297 {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+  }
+
+  .listing-comparison-discount-badge-v297 {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 3px 7px;
+    border: 1px solid #9ed9b5;
+    border-radius: 999px;
+    background: #d9f7e5;
+    color: #146c38;
+    font-size: 12px;
+    font-weight: 850;
+  }
+
+  .listing-comparison-previous-price-v297 {
+    color: #667085;
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  .listing-comparison-current-price-v297 {
+    color: #111827;
+    font-size: 18px;
+    font-weight: 900;
+  }
+
+  .listing-comparison-current-label-v297,
+  .listing-comparison-saving-v297 {
+    color: #146c38;
+    font-weight: 800;
+  }
+
+  .listing-comparison-current-label-v297 {
+    margin-right: 4px;
+    font-size: 13px;
+  }
+
+  .listing-comparison-saving-v297 {
+    font-size: 14px;
+  }
+
+  .listing-comparison-empty-actions-v297 {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
   .listing-comparison-remove-v274 {
     margin-top: 9px;
   }
@@ -148,6 +210,13 @@
     </div>
 
     <div class="listing-comparison-actions-v274">
+      <a
+        class="button-link button-primary"
+        href="{% url 'listings:public_deals_v296' %}"
+      >
+        Browse deals
+      </a>
+
       <a
         class="button-link"
         href="{% url 'listings:listing_list' %}"
@@ -255,7 +324,56 @@
             </th>
             {% for listing in comparison_listings %}
               <td class="listing-comparison-price-v274">
-                {{ listing.price }} TL
+                {% with discount=listing.comparison_discount_v297 %}
+                  {% if discount %}
+                    <div
+                      class="listing-comparison-discount-v297"
+                      data-listing-comparison-discount-v297="true"
+                      role="group"
+                      aria-label="{{ discount.accessible_explanation }}"
+                    >
+                      <div class="listing-comparison-discount-summary-v297">
+                        <span
+                          class="listing-comparison-discount-badge-v297"
+                        >
+                          Price dropped
+                        </span>
+
+                        <del
+                          class="listing-comparison-previous-price-v297"
+                          aria-label="Previous price {{ discount.previous_price }} TL"
+                        >
+                          {{ discount.previous_price }} TL
+                        </del>
+                      </div>
+
+                      <div
+                        class="listing-comparison-current-price-v297"
+                        aria-label="Current price {{ listing.price }} TL"
+                      >
+                        <span
+                          class="listing-comparison-current-label-v297"
+                          aria-hidden="true"
+                        >
+                          Now
+                        </span>
+                        {{ listing.price }} TL
+                      </div>
+
+                      <div
+                        class="listing-comparison-saving-v297"
+                        data-saving-amount-v297="{{ discount.saving_amount }}"
+                        data-saving-percentage-v297="{{ discount.saving_percentage_display }}"
+                        aria-label="You save {{ discount.saving_amount }} TL, {{ discount.saving_percentage_display }} percent"
+                      >
+                        You save {{ discount.saving_amount }} TL
+                        ({{ discount.saving_percentage_display }}%)
+                      </div>
+                    </div>
+                  {% else %}
+                    {{ listing.price }} TL
+                  {% endif %}
+                {% endwith %}
               </td>
             {% endfor %}
           </tr>
@@ -365,12 +483,21 @@
       <p class="muted">
         Use “Add to compare” on listing cards or listing detail pages.
       </p>
-      <a
-        class="button-link button-primary"
-        href="{% url 'listings:listing_list' %}"
-      >
-        Browse listings
-      </a>
+      <div class="listing-comparison-empty-actions-v297">
+        <a
+          class="button-link button-primary"
+          href="{% url 'listings:public_deals_v296' %}"
+        >
+          Browse deals
+        </a>
+
+        <a
+          class="button-link"
+          href="{% url 'listings:listing_list' %}"
+        >
+          Browse listings
+        </a>
+      </div>
     </div>
   {% endif %}
 </section>

@@ -28,6 +28,9 @@ from .listing_comparison_v274 import (
     clear_comparison_listings_v274,
     toggle_comparison_listing_v274,
 )
+from .listing_comparison_discount_v297 import (
+    attach_listing_comparison_discounts_v297,
+)
 from .models import Listing
 
 
@@ -87,6 +90,13 @@ def listing_comparison_view_v274(
             request
         )
     )
+
+    attach_listing_comparison_discounts_v297(
+        context["comparison_listings"]
+    )
+
+    context["page_title"] = "Compare listings"
+    context["deal_aware_listing_comparison_v297"] = True
 
     return render(
         request,
