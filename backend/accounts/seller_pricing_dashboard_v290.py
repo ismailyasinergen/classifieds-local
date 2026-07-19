@@ -20,6 +20,7 @@ from django.db.models import (
 from django.shortcuts import render
 
 from listings.models import Listing, ListingPriceHistory
+from listings.listing_price_integrity_v293 import guardrail_warning_v293
 
 
 SELLER_PRICING_DASHBOARD_V290 = True
@@ -38,6 +39,8 @@ LATEST_PREVIOUS_PRICE_ANNOTATION_V290 = "seller_latest_previous_price_v290"
 LATEST_NEW_PRICE_ANNOTATION_V290 = "seller_latest_new_price_v290"
 LATEST_CHANGED_AT_ANNOTATION_V290 = "seller_latest_changed_at_v290"
 LATEST_REASON_ANNOTATION_V292 = "seller_latest_reason_v292"
+LATEST_GUARDRAIL_ANNOTATION_V293 = "seller_latest_guardrail_v293"
+LATEST_REFERENCE_PRICE_ANNOTATION_V293 = "seller_latest_reference_price_v293"
 
 
 @dataclass(frozen=True)
@@ -52,6 +55,7 @@ class SellerPricingEntryV290:
     percentage_display: str
     history_matches_current_price: bool
     reason_label: str
+    guardrail_warning: str
 
     @property
     def has_price_change(self) -> bool:
@@ -129,6 +133,14 @@ def get_seller_pricing_queryset_v290(user, *, status="", sort=""):
                     latest_transition.values("reason")[:1],
                     output_field=CharField(max_length=32),
                 ),
+                LATEST_GUARDRAIL_ANNOTATION_V293: Subquery(
+                    latest_transition.values("discount_guardrail_status")[:1],
+                    output_field=CharField(max_length=32),
+                ),
+                LATEST_REFERENCE_PRICE_ANNOTATION_V293: Subquery(
+                    latest_transition.values("discount_reference_price")[:1],
+                    output_field=DecimalField(max_digits=12, decimal_places=2),
+                ),
             }
         )
     )
@@ -191,6 +203,13 @@ def _build_entry_v290(listing: Listing) -> SellerPricingEntryV290:
         reason_label=dict(ListingPriceHistory.Reason.choices).get(
             getattr(listing, LATEST_REASON_ANNOTATION_V292) or "",
             "",
+        ),
+        guardrail_warning=(
+            guardrail_warning_v293(
+                getattr(listing, LATEST_REFERENCE_PRICE_ANNOTATION_V293)
+            )
+            if getattr(listing, LATEST_GUARDRAIL_ANNOTATION_V293)
+            else ""
         ),
     )
 

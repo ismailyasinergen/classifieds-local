@@ -81,6 +81,7 @@ def listing_price_history_summary_v275(
     is_drop = bool(
         latest_change
         and latest_change.is_price_drop
+        and latest_change.is_public_discount_eligible
     )
 
     return {

@@ -2,14 +2,15 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v292 — Optional price-change reasons**
-- Product checkpoint: `project-checkpoint-v292-optional-price-change-reasons`
-- Previous milestone: `project-checkpoint-v291-price-change-confirmation`
-- Validated regression baseline: **2,555 tests passing**
-- Full-suite mode: serial `--keepdb`, explicit `OK` in 752.187 seconds
+- Latest product milestone: **v293 — Fake-discount guardrails**
+- Product checkpoint: `project-checkpoint-v293-fake-discount-guardrails`
+- Previous milestone: `project-checkpoint-v292-optional-price-change-reasons`
+- Validated regression baseline: **2,567 tests passing**
+- Full-suite mode: serial `--keepdb`, explicit `OK` in 751.235 seconds
 - Django system check: zero issues
 - Migration state: additive migration
-  `0022_listingpricehistory_reason_v292` is validated; no pending model changes
+  `0023_listingpricehistory_discount_guardrail_v293` is validated; no pending
+  model changes
 
 The non-`keepdb` parallel attempt discovered all 2,495 tests but stopped before
 execution because the preserved base test database already existed and Django
@@ -35,13 +36,15 @@ database passed. See R006 in `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
 - v291: signed, owner-only, stale-safe price-change review and confirmation
 - v292: optional structured transition reasons with private seller-dashboard
   display and no public timeline disclosure
+- v293: sequence-based raise-then-drop detection with durable reference prices,
+  public discount suppression, seller warnings, and factual-history preservation
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-1. v293–v295 — Pricing-integrity guardrails, moderation, and audit
+1. v294–v295 — Pricing-integrity moderation and audit
 2. v296–v300 — Deals discovery, comparison/SEO integration, and release audit
 
 Verified-recipient policy, provider bounce handling, event retention, and

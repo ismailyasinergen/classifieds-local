@@ -14,6 +14,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
 from .models import Listing, ListingPriceHistory
+from .listing_price_integrity_v293 import (
+    evaluate_listing_price_change_v293,
+    guardrail_warning_v293,
+)
 
 
 PRICE_CHANGE_CONFIRMATION_V291 = True
@@ -51,6 +55,7 @@ class PriceChangeSummaryV291:
     absolute_change: Decimal
     percentage_display: str
     reason_label: str
+    guardrail_warning: str
 
 
 def _format_percentage_v291(value: Decimal) -> str:
@@ -62,6 +67,7 @@ def _build_summary_v291(
     current_price: Decimal,
     proposed_price: Decimal,
     price_change_reason: str = "",
+    guardrail_warning: str = "",
 ) -> PriceChangeSummaryV291:
     absolute_change = abs(proposed_price - current_price)
     percentage_display = ""
@@ -81,6 +87,7 @@ def _build_summary_v291(
             price_change_reason,
             "",
         ),
+        guardrail_warning=guardrail_warning,
     )
 
 
@@ -236,6 +243,10 @@ def listing_price_change_confirmation_v291(request, pk):
             pk=listing.pk,
         )
 
+    integrity_v293 = evaluate_listing_price_change_v293(
+        listing,
+        proposed_price,
+    )
     return _render_v291(
         request,
         listing,
@@ -243,6 +254,9 @@ def listing_price_change_confirmation_v291(request, pk):
             listing.price,
             proposed_price,
             price_change_reason,
+            guardrail_warning_v293(integrity_v293.reference_price)
+            if integrity_v293.is_restricted
+            else "",
         ),
         confirmation_token_v291=_make_confirmation_token_v291(
             listing=listing,

@@ -13,6 +13,7 @@ from django.db.models import DateTimeField, F, OuterRef, QuerySet, Subquery
 from django.utils import timezone
 
 from .listing_price_drop_filter_v278 import (
+    PRICE_DROP_GUARDRAIL_ANNOTATION_V293,
     PRICE_DROP_PREVIOUS_ANNOTATION_V278,
     PRICE_DROP_TRANSITION_ANNOTATION_V278,
     annotate_current_price_transition_v278,
@@ -117,6 +118,7 @@ def apply_price_drop_period_filter_v280(
             PRICE_DROP_PREVIOUS_ANNOTATION_V278
             + "__gt": F(PRICE_DROP_TRANSITION_ANNOTATION_V278),
             PRICE_DROP_TRANSITION_ANNOTATION_V278: F("price"),
+            PRICE_DROP_GUARDRAIL_ANNOTATION_V293: "",
         }
     )
 

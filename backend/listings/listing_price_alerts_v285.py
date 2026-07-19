@@ -20,6 +20,7 @@ from .listing_action_redirects_r001 import (
     get_safe_listing_action_redirect_r001,
 )
 from .listing_price_drop_filter_v278 import (
+    PRICE_DROP_GUARDRAIL_ANNOTATION_V293,
     PRICE_DROP_PREVIOUS_ANNOTATION_V278,
     PRICE_DROP_TRANSITION_ANNOTATION_V278,
     annotate_current_price_transition_v278,
@@ -101,7 +102,7 @@ def listing_price_alert_toggle_v285(request, pk):
 
 
 def get_listing_price_alert_candidates_v285(now=None):
-    """Return alerts whose listing has a new valid current reduction."""
+    """Return alerts whose listing has a promotable valid current reduction."""
 
     now = now or timezone.now()
     eligible_listing = annotate_current_price_transition_v278(
@@ -115,6 +116,7 @@ def get_listing_price_alert_candidates_v285(now=None):
                 PRICE_DROP_TRANSITION_ANNOTATION_V278
             ),
             PRICE_DROP_TRANSITION_ANNOTATION_V278: F("price"),
+            PRICE_DROP_GUARDRAIL_ANNOTATION_V293: "",
         },
     ).filter(
         **{

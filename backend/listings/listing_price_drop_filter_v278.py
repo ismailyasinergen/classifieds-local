@@ -8,6 +8,7 @@ current reduction.
 from __future__ import annotations
 
 from django.db.models import (
+    CharField,
     DecimalField,
     F,
     OuterRef,
@@ -29,6 +30,9 @@ PRICE_DROP_PREVIOUS_ANNOTATION_V278 = (
 
 PRICE_DROP_TRANSITION_ANNOTATION_V278 = (
     "price_drop_transition_price_v278"
+)
+PRICE_DROP_GUARDRAIL_ANNOTATION_V293 = (
+    "price_drop_guardrail_status_v293"
 )
 
 
@@ -90,6 +94,12 @@ def annotate_current_price_transition_v278(
             )[:1],
             output_field=decimal_output,
         ),
+        price_drop_guardrail_status_v293=Subquery(
+            latest_transition.values(
+                "discount_guardrail_status"
+            )[:1],
+            output_field=CharField(max_length=32),
+        ),
     )
 
 
@@ -105,7 +115,8 @@ def apply_price_drop_filter_v278(
     1. the filter value is exactly ``price_drops=1``;
     2. a non-baseline price transition exists;
     3. the latest transition reduced the price;
-    4. that transition's new price still equals the listing's current price.
+    4. that transition's new price still equals the listing's current price;
+    5. v293 has not restricted the transition after a raise-then-drop sequence.
 
     The final requirement prevents an old or stale reduction from appearing as
     a current price drop.
@@ -129,4 +140,5 @@ def apply_price_drop_filter_v278(
         price_drop_transition_price_v278=F(
             "price"
         ),
+        price_drop_guardrail_status_v293="",
     )

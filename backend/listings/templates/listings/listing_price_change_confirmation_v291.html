@@ -42,6 +42,12 @@
             <p>
                 Confirming records one price-history transition and submits the listing for approval.
             </p>
+            {% if summary_v291.guardrail_warning %}
+                <div role="alert" class="content-card">
+                    <strong>Public discount guardrail</strong>
+                    <p>{{ summary_v291.guardrail_warning }}</p>
+                </div>
+            {% endif %}
             <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="confirmation_token" value="{{ confirmation_token_v291 }}">

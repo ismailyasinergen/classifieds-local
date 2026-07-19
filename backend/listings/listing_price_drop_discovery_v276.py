@@ -17,6 +17,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from typing import Any
 
 from django.db.models import (
+    CharField,
     DecimalField,
     OuterRef,
     Q,
@@ -106,6 +107,7 @@ def get_current_listing_price_drops_v276(
     * the listing is active and approved;
     * its most recent real transition is a reduction;
     * its persisted current price still matches that transition's new price.
+    * v293 has not restricted the reduction from public discount promotion.
 
     The entire lookup is executed as one Listing query containing correlated
     subqueries for the latest transition.
@@ -158,12 +160,19 @@ def get_current_listing_price_drops_v276(
                 )[:1],
                 output_field=decimal_output,
             ),
+            price_drop_guardrail_status_v293=Subquery(
+                latest_transition.values(
+                    "discount_guardrail_status"
+                )[:1],
+                output_field=CharField(max_length=32),
+            ),
         )
         .values(
             "pk",
             "price",
             "price_drop_previous_price_v276",
             "price_drop_transition_price_v276",
+            "price_drop_guardrail_status_v293",
         )
     )
 
@@ -197,6 +206,9 @@ def get_current_listing_price_drops_v276(
             continue
 
         if transition_price >= previous_price:
+            continue
+
+        if row["price_drop_guardrail_status_v293"]:
             continue
 
         saving_amount = (

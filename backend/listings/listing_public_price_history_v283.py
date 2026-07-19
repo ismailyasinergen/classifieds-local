@@ -57,6 +57,7 @@ def get_public_price_history_v283(listing) -> list[PublicPriceHistoryEntryV283]:
             "previous_price",
             "new_price",
             "changed_at",
+            "discount_guardrail_status",
         )
         .order_by("-changed_at", "-pk")[:PUBLIC_PRICE_HISTORY_LIMIT_V283]
     )

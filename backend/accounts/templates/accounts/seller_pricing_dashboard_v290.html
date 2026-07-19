@@ -91,6 +91,11 @@
                                     {% if entry.reason_label %}
                                         <br><span>Reason: {{ entry.reason_label }}</span>
                                     {% endif %}
+                                    {% if entry.guardrail_warning %}
+                                        <div role="status" class="muted">
+                                            Public discount restricted. {{ entry.guardrail_warning }}
+                                        </div>
+                                    {% endif %}
                                 {% else %}
                                     No price changes
                                 {% endif %}

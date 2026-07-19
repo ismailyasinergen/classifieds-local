@@ -9,6 +9,11 @@ from django.urls import reverse
 from django.utils import timezone
 
 from categories.models import Category
+from .listing_price_integrity_v293 import (
+    DISCOUNT_GUARDRAIL_CHOICES_V293,
+    DISCOUNT_GUARDRAIL_CLEAR_V293,
+    evaluate_price_transition_integrity_v293,
+)
 
 
 class Listing(models.Model):
@@ -185,6 +190,41 @@ class Listing(models.Model):
                 previous_price is not None
                 and previous_price != current_price
             ):
+                prior_transition = (
+                    ListingPriceHistory
+                    .objects
+                    .using(using)
+                    .filter(
+                        listing_id=self.pk,
+                        previous_price__isnull=False,
+                    )
+                    .order_by("-changed_at", "-pk")
+                    .values(
+                        "previous_price",
+                        "new_price",
+                        "discount_reference_price",
+                    )
+                    .first()
+                )
+                integrity = evaluate_price_transition_integrity_v293(
+                    previous_price=previous_price,
+                    new_price=current_price,
+                    prior_previous_price=(
+                        prior_transition["previous_price"]
+                        if prior_transition
+                        else None
+                    ),
+                    prior_new_price=(
+                        prior_transition["new_price"]
+                        if prior_transition
+                        else None
+                    ),
+                    prior_reference_price=(
+                        prior_transition["discount_reference_price"]
+                        if prior_transition
+                        else None
+                    ),
+                )
                 (
                     ListingPriceHistory
                     .objects
@@ -195,6 +235,8 @@ class Listing(models.Model):
                         new_price=current_price,
                         changed_at=timezone.now(),
                         reason=price_change_reason,
+                        discount_guardrail_status=integrity.guardrail_status,
+                        discount_reference_price=integrity.reference_price,
                     )
                 )
 
@@ -265,6 +307,18 @@ class ListingPriceHistory(models.Model):
         blank=True,
         default=Reason.UNSPECIFIED,
     )
+    discount_guardrail_status = models.CharField(
+        max_length=32,
+        choices=DISCOUNT_GUARDRAIL_CHOICES_V293,
+        blank=True,
+        default=DISCOUNT_GUARDRAIL_CLEAR_V293,
+    )
+    discount_reference_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         ordering = [
@@ -319,6 +373,10 @@ class ListingPriceHistory(models.Model):
             self.previous_price is not None
             and self.new_price > self.previous_price
         )
+
+    @property
+    def is_public_discount_eligible(self):
+        return self.discount_guardrail_status == DISCOUNT_GUARDRAIL_CLEAR_V293
 
     @property
     def change_amount(self):
