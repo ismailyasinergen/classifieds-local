@@ -43,10 +43,18 @@ from .listing_price_alert_management_v289 import (
 from .listing_price_change_confirmation_v291 import (
     listing_price_change_confirmation_v291,
 )
+from .pricing_integrity_moderation_queue_views_v294 import (
+    PricingIntegrityModerationQueueViewV294,
+)
 
 app_name = "listings"
 
 urlpatterns = [
+    path(
+        "staff/pricing-integrity/",
+        PricingIntegrityModerationQueueViewV294.as_view(),
+        name="pricing_integrity_moderation_queue_v294",
+    ),
     path("listings/", ListingListView.as_view(), name="listing_list"),
     path(
         "listings/price-alerts/",

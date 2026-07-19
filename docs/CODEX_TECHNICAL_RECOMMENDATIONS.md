@@ -230,3 +230,27 @@ reflect current evidence rather than a generic wishlist.
   bot/replay deduplication, retention boundaries, and dashboard query plans.
 - **Status:** Deferred. Do not add engagement or conversion claims until the
   product and privacy policies above are defined.
+
+## R013 — Define pricing-integrity adjudication before enforcement (P1)
+
+- **Category:** Correctness, security, moderation, operations
+- **Evidence:** v293 records sequence-based promotional restrictions and v294
+  gives staff a bounded, read-only evidence queue. The repository does not yet
+  define review outcomes, who may apply them, seller notice requirements,
+  appeal behavior, or how an incorrect flag is reversed without rewriting
+  history.
+- **Affected systems:** Listing price history, staff moderation, seller notices,
+  trust-and-safety audit logs, and future deals surfaces.
+- **User / business value:** Enables accountable review without silently
+  penalizing sellers or presenting heuristic evidence as a final fraud finding.
+- **Technical value:** Establishes one auditable state machine and permission
+  boundary before mutable moderation controls are introduced.
+- **Risk if ignored:** Ad-hoc enforcement could create inconsistent outcomes,
+  weak appeal evidence, or unauthorized listing changes.
+- **Effort / implementation risk:** Medium / medium.
+- **Dependencies / recommended order:** Define outcomes and seller-facing policy
+  before v295 adds any mutable integrity audit workflow.
+- **Validation:** Staff authorization, transition-state, concurrent-action,
+  audit-log, notification, reversal, and appeal regression tests.
+- **Status:** Open. v294 intentionally remains read-only until the product and
+  moderation policy is defined.

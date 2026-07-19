@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section aria-labelledby="pricing-integrity-heading">
+    <div class="page-title-row">
+        <div>
+            <h1 id="pricing-integrity-heading">Pricing integrity</h1>
+            <p class="muted">
+                Review price transitions restricted from public discount promotion.
+                This queue is evidence-only and does not change listing status.
+            </p>
+        </div>
+    </div>
+
+    <form method="get" class="filter-panel" aria-label="Filter pricing integrity queue">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="pricing-integrity-query">Listing or seller</label>
+                <input
+                    id="pricing-integrity-query"
+                    name="q"
+                    type="search"
+                    maxlength="100"
+                    value="{{ filters.query }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="pricing-integrity-guardrail">Restriction reason</label>
+                <select id="pricing-integrity-guardrail" name="guardrail">
+                    <option value="">All reasons</option>
+                    {% for value, label in guardrail_choices %}
+                        <option value="{{ value }}"{% if filters.guardrail_status == value %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="pricing-integrity-state">Restriction state</label>
+                <select id="pricing-integrity-state" name="state">
+                    <option value="">Current and historical</option>
+                    {% for value, label in state_choices %}
+                        <option value="{{ value }}"{% if filters.state == value %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="pricing-integrity-listing-status">Listing status</label>
+                <select id="pricing-integrity-listing-status" name="listing_status">
+                    <option value="">All listing statuses</option>
+                    {% for value, label in listing_status_choices %}
+                        <option value="{{ value }}"{% if filters.listing_status == value %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="submit">Apply filters</button>
+            <a class="button-link secondary" href="{% url 'listings:pricing_integrity_moderation_queue_v294' %}">Clear filters</a>
+        </div>
+    </form>
+
+    <p class="muted" role="status">
+        {{ page_obj.paginator.count }} restricted price transition{{ page_obj.paginator.count|pluralize }} found.
+    </p>
+
+    {% if events %}
+        <div class="table-wrap">
+            <table>
+                <caption class="visually-hidden">Restricted price transitions requiring staff review</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Listing</th>
+                        <th scope="col">Seller</th>
+                        <th scope="col">Price transition</th>
+                        <th scope="col">Reference price</th>
+                        <th scope="col">Restriction</th>
+                        <th scope="col">Recorded</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                        <tr>
+                            <td>
+                                <a href="{{ event.listing.get_absolute_url }}">{{ event.listing.title }}</a>
+                                <div class="muted">
+                                    {{ event.listing.get_status_display }} · {{ event.listing.category.name }}
+                                </div>
+                            </td>
+                            <td>{{ event.listing.owner.username }}</td>
+                            <td>
+                                <span aria-label="Previous price">{{ event.previous_price }} TL</span>
+                                →
+                                <span aria-label="New price">{{ event.new_price }} TL</span>
+                                <div class="muted">Current listing price: {{ event.listing.price }} TL</div>
+                            </td>
+                            <td>
+                                {% if event.discount_reference_price is not None %}
+                                    {{ event.discount_reference_price }} TL
+                                {% else %}
+                                    Not available
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ event.get_discount_guardrail_status_display }}</strong>
+                                <div>
+                                    {% if event.is_current_restriction_v294 %}
+                                        Current restriction
+                                    {% else %}
+                                        Historical restriction
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <time datetime="{{ event.changed_at|date:'c' }}">
+                                    {{ event.changed_at|date:"M j, Y H:i" }}
+                                </time>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+            <nav class="pagination" aria-label="Pricing integrity pages">
+                {% if previous_page_url %}
+                    <a class="button-link secondary" href="{{ previous_page_url }}" rel="prev">Previous</a>
+                {% endif %}
+                <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if next_page_url %}
+                    <a class="button-link secondary" href="{{ next_page_url }}" rel="next">Next</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="empty-state" role="status">
+            <h2>No matching restrictions</h2>
+            <p>No recorded price transitions match the selected filters.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

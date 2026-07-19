@@ -1160,6 +1160,7 @@
     {% safe_url 'accounts:trust_safety_audit' as nav_audit_url %}
     {% safe_url 'listings:report_queue' as nav_listing_reports_url %}
     {% safe_url 'accounts:user_report_queue' as nav_seller_reports_url %}
+    {% safe_url 'listings:pricing_integrity_moderation_queue_v294' as nav_pricing_integrity_url %}
 
     <header class="site-header clean-header">
         <div class="clean-header-inner">
@@ -1248,6 +1249,7 @@
                         </a>
                         <a href="{{ nav_listing_reports_url }}">Listing Reports</a>
                         <a href="{{ nav_seller_reports_url }}">Seller Reports</a>
+                        <a href="{{ nav_pricing_integrity_url }}">Pricing Integrity</a>
                     </div>
                 </details>
 
