@@ -2,11 +2,11 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v294 — Pricing-integrity moderation queue**
-- Product checkpoint: `project-checkpoint-v294-pricing-integrity-moderation-queue`
-- Previous milestone: `project-checkpoint-v293-fake-discount-guardrails`
-- Validated regression baseline: **2,578 tests passing**
-- Full-suite mode: serial `--keepdb`, explicit `OK` in 759.613 seconds
+- Latest product milestone: **v295 — Price-history integrity audit**
+- Product checkpoint: `project-checkpoint-v295-price-history-integrity-audit`
+- Previous milestone: `project-checkpoint-v294-pricing-integrity-moderation-queue`
+- Validated regression baseline: **2,590 tests passing**
+- Full-suite mode: serial `--keepdb`, explicit `OK` in 808.525 seconds
 - Django system check: zero issues
 - Migration state: no v294 migration; additive migration
   `0023_listingpricehistory_discount_guardrail_v293` remains the latest and no
@@ -41,14 +41,15 @@ database passed. See R006 in `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
 - v294: staff-only, read-only pricing-integrity evidence queue with bounded
   search, deterministic pagination, current/historical classification, and no
   enforcement actions
+- v295: read-only two-query price-history consistency audit with bounded,
+  sanitized text/JSON output and CI-compatible failure mode
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-1. v295 — Pricing-integrity audit and adjudication policy
-2. v296–v300 — Deals discovery, comparison/SEO integration, and release audit
+1. v296–v300 — Deals discovery, comparison/SEO integration, and release audit
 
 Verified-recipient policy, provider bounce handling, event retention, and
 scheduler leasing remain explicit recommendations rather than hidden v289
@@ -57,6 +58,11 @@ until their product and privacy policies are defined.
 
 Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
+
+The current local development database has listings migrations `0019`–`0023`
+pending and was deliberately not mutated during v295 validation. Operational
+commands that use post-v286 fields require those committed migrations to be
+applied first. The preserved Django test database is fully migrated.
 
 ## Validation commands
 

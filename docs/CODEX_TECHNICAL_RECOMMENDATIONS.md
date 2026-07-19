@@ -252,5 +252,30 @@ reflect current evidence rather than a generic wishlist.
   before v295 adds any mutable integrity audit workflow.
 - **Validation:** Staff authorization, transition-state, concurrent-action,
   audit-log, notification, reversal, and appeal regression tests.
-- **Status:** Open. v294 intentionally remains read-only until the product and
-  moderation policy is defined.
+- **Status:** Partially addressed. v294 provides read-only review and v295 adds
+  a non-mutating consistency audit. Enforcement and adjudication remain open
+  until the product and moderation policy is defined.
+
+## R014 — Add an unapplied-migration deployment preflight (P1)
+
+- **Category:** Correctness, operations, deployment
+- **Evidence:** During v295 validation, the migrated Django test database passed
+  while the local development database still had listings migrations
+  `0019`–`0023` unapplied. The v295 read-only command therefore failed at its
+  first query because the expected `reason` column was absent.
+- **Affected systems:** Local and production deployment procedures, management
+  commands, and schema-dependent background jobs.
+- **User / business value:** Prevents runtime failures immediately after code is
+  deployed against an older schema.
+- **Technical value:** Makes code/schema drift fail early with an actionable
+  deployment signal rather than an ORM traceback.
+- **Risk if ignored:** Web requests or scheduled jobs may execute new code
+  before additive migrations have been applied.
+- **Effort / implementation risk:** Small / low.
+- **Dependencies / recommended order:** Define whether migration application is
+  automatic or operator-controlled, then add `manage.py migrate --check` to the
+  deployment/startup preflight without altering data automatically.
+- **Validation:** Pending-migration and fully-migrated deployment tests plus a
+  documented rollback-safe startup path.
+- **Status:** Open. v295 documentation explicitly requires applied migrations;
+  the local database was not mutated during validation.
