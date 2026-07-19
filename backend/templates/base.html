@@ -1136,6 +1136,7 @@
 
     <!-- CLEAN_HEADER_NAV_V1 -->
     {% safe_url 'listings:listing_list' as nav_home_url %}
+    {% safe_url 'listings:public_deals_v296' as nav_deals_url %}
     {% safe_url 'listings:listing_create' as nav_post_url %}
     {% safe_url 'accounts:dashboard' as nav_dashboard_url %}
     {% safe_url 'accounts:profile' as nav_profile_url %}
@@ -1170,6 +1171,7 @@
 
             <nav class="header-nav" aria-label="Main navigation">
                 <a href="{{ nav_home_url }}">Browse</a>
+                <a href="{{ nav_deals_url }}">Deals</a>
                 <a href="{{ nav_store_directory_url }}">Stores</a>
 
                 {% if user.is_authenticated %}

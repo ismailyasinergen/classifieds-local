@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% comment %}PUBLIC_DEALS_LANDING_PAGE_V296{% endcomment %}
+<style>
+    .layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .layout > .sidebar {
+        display: none;
+    }
+
+    .layout > .content {
+        min-width: 0;
+    }
+
+    .public-deals-page-v296 {
+        display: grid;
+        gap: 18px;
+    }
+
+    .public-deals-hero-v296 {
+        padding: 20px;
+        border: 1px solid #d9e2ef;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .public-deals-hero-v296 h1 {
+        margin: 0;
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+
+    .public-deals-hero-v296 p {
+        max-width: 760px;
+        margin: 9px 0 0;
+        line-height: 1.55;
+    }
+
+    .public-deals-summary-v296 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .public-deals-summary-v296 p {
+        margin: 0;
+    }
+
+    .public-deals-grid-v296 {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 16px;
+    }
+
+    .public-deals-empty-v296 {
+        padding: 24px;
+        border: 1px solid #d9e2ef;
+        border-radius: 12px;
+        background: #ffffff;
+        text-align: center;
+    }
+
+    .public-deals-empty-v296 h2 {
+        margin-top: 0;
+    }
+
+    .public-deals-pagination-v296 {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding-top: 4px;
+    }
+
+    @media (max-width: 640px) {
+        .public-deals-hero-v296 {
+            padding: 16px;
+        }
+
+        .public-deals-hero-v296 h1 {
+            font-size: 1.65rem;
+        }
+
+        .public-deals-grid-v296 {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+</style>
+
+<section
+    class="public-deals-page-v296"
+    data-public-deals-page-v296="true"
+    aria-labelledby="public-deals-heading-v296"
+>
+    <header class="public-deals-hero-v296">
+        <h1 id="public-deals-heading-v296">Deals</h1>
+        <p class="muted">
+            Discover active public listings with genuine current price
+            reductions, ordered by the biggest percentage saving.
+        </p>
+    </header>
+
+    <section
+        class="public-deals-summary-v296"
+        aria-label="Deals results summary"
+    >
+        <p>
+            {% if page_obj.paginator.count %}
+                Showing {{ page_obj.start_index }}-{{ page_obj.end_index }}
+                of {{ page_obj.paginator.count }}
+                deal{% if page_obj.paginator.count != 1 %}s{% endif %}
+            {% else %}
+                No eligible deals are currently available.
+            {% endif %}
+        </p>
+
+        <a href="{% url 'listings:listing_list' %}">
+            Browse all listings
+        </a>
+    </section>
+
+    {% if listings %}
+        <section
+            class="listing-grid public-deals-grid-v296"
+            aria-label="Available deals"
+        >
+            {% for listing in listings %}
+                {% include "listings/_listing_card.html" with listing=listing %}
+            {% endfor %}
+        </section>
+    {% else %}
+        <section
+            class="public-deals-empty-v296"
+            aria-labelledby="public-deals-empty-heading-v296"
+        >
+            <h2 id="public-deals-empty-heading-v296">
+                No deals available
+            </h2>
+            <p class="muted">
+                There are currently no public listings with an eligible
+                current price reduction.
+            </p>
+            <a
+                class="button-link button-primary"
+                href="{% url 'listings:listing_list' %}"
+            >
+                Browse all listings
+            </a>
+        </section>
+    {% endif %}
+
+    {% if is_paginated %}
+        <nav
+            class="pagination public-deals-pagination-v296"
+            aria-label="Deals pages"
+        >
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">
+                    Previous
+                </a>
+            {% endif %}
+
+            <span aria-current="page">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">
+                    Next
+                </a>
+            {% endif %}
+        </nav>
+    {% endif %}
+</section>
+{% endblock %}

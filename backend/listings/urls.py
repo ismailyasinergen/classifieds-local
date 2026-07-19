@@ -46,6 +46,9 @@ from .listing_price_change_confirmation_v291 import (
 from .pricing_integrity_moderation_queue_views_v294 import (
     PricingIntegrityModerationQueueViewV294,
 )
+from .public_deals_landing_page_v296 import (
+    PublicDealsListViewV296,
+)
 
 app_name = "listings"
 
@@ -54,6 +57,11 @@ urlpatterns = [
         "staff/pricing-integrity/",
         PricingIntegrityModerationQueueViewV294.as_view(),
         name="pricing_integrity_moderation_queue_v294",
+    ),
+    path(
+        "deals/",
+        PublicDealsListViewV296.as_view(),
+        name="public_deals_v296",
     ),
     path("listings/", ListingListView.as_view(), name="listing_list"),
     path(
