@@ -79,9 +79,11 @@ reflect current evidence rather than a generic wishlist.
 - **Dependencies / recommended order:** Product policy and the completed v288
   delivery preferences; decide before increasing notification volume.
 - **Validation:** Verification-state, opt-in, unsubscribe, and privacy tests.
-- **Status:** Assessed during v288 and deferred. No verified-email field,
-  verification workflow, or compatible third-party identity state exists, so
-  v288 deliberately retained the established non-empty-email rule.
+- **Status:** Policy baseline defined in v304; implementation remains open.
+  The read-only capability check confirms that no repository-visible
+  email-specific verification state exists. Runtime enforcement remains
+  disabled, and the established non-empty-email rule is preserved until an
+  address-bound verification lifecycle is designed and validated.
 
 ## R006 — Make preserved parallel test clones migration-aware (P2)
 
@@ -129,7 +131,11 @@ reflect current evidence rather than a generic wishlist.
   retention policy; address alongside R005 before high-volume rollout.
 - **Validation:** Signed webhook, replay, ownership, bounce, complaint, and
   redacted-log tests.
-- **Status:** Deferred because it requires external-provider and policy choices.
+- **Status:** Provider-outcome contract defined in the v304 baseline;
+  integration remains deferred. The checker requires both provider message
+  identity and authenticated outcome state before reporting implementation
+  readiness. Backend acceptance is not represented as confirmed provider
+  delivery.
 
 ## R008 — Define notification-event retention (P2)
 
@@ -148,7 +154,10 @@ reflect current evidence rather than a generic wishlist.
   measured event volume; decide before adding automated deletion.
 - **Validation:** Age-boundary, legal-hold if required, audit, and query-plan
   tests.
-- **Status:** Deferred; destructive retention behavior cannot be inferred.
+- **Status:** Retention prerequisites defined in the v304 baseline;
+  destructive automation remains deferred. A positive approved duration,
+  legal-hold behavior, backup handling and deletion-evidence contract are
+  required before cleanup can become implementation-ready.
 
 ## R009 — Add a scheduler-level lease if duplicate batch work becomes material (P2)
 
@@ -192,8 +201,11 @@ reflect current evidence rather than a generic wishlist.
 - **Dependencies / recommended order:** Confirm operator troubleshooting needs
   and log access policy, then update all affected contracts together.
 - **Validation:** Redaction, staff workflow, and command snapshot tests.
-- **Status:** Deferred pending an explicit operator-output policy; no established
-  contract was silently weakened in this sprint.
+- **Status:** Redacted-by-default target contract defined in the v304 baseline;
+  legacy-output migration remains open. Four existing preview, observability,
+  delivery-result and rollback surfaces are explicitly inventoried. v304 adds
+  no new raw-recipient output and does not silently change established operator
+  snapshots.
 
 ## R011 — Replace sequence-dependent price-alert privacy assertions (P2)
 
