@@ -2,20 +2,22 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v302 — Unapplied migration deployment preflight**
+- Latest product milestone: **v303 — Parallel preserved test database lifecycle**
 - Product checkpoint:
+  `project-checkpoint-v303-parallel-test-database-lifecycle`
+- Previous milestone:
   `project-checkpoint-v302-unapplied-migration-deployment-preflight`
-- Previous milestone: `project-checkpoint-v301-notification-scheduler-leasing`
-- Validated regression baseline: **2,663 tests passing**
-- Full-suite mode: serial `--keepdb`, explicit `OK` in 1408.896 seconds
+- Validated regression baseline: **2,673 tests passing**
+- Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
+  in 362.498 seconds; 382 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v302 migration; additive migration
+- Migration state: no v303 migration; additive migration
   `0023_listingpricehistory_discount_guardrail_v293` remains the latest and no
   model changes are pending
 
-The preserved, fully migrated serial test database passed the complete v302
-suite. Parallel preserved-database lifecycle limitations remain documented in
-R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
+The fully migrated preserved base test database remained intact while all four
+worker clones were safely recreated from it. The complete v303 parallel suite
+passed, closing R006 without changing development-database state.
 
 ## Recently completed
 
@@ -64,6 +66,10 @@ R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
   operator-controlled production migration application, preserved local
   auto-migration behavior, production preflight integration, rollback-safe
   operating guidance, and repository-enforced LF shell portability
+- v303: migration-aware PostgreSQL preserved worker-clone refresh, strict
+  Django test-prefix and clone-name validation, fail-closed active-connection
+  behavior, temporary test-only creation-object replacement, and unchanged
+  serial, non-keepdb, non-PostgreSQL, and application-runtime behavior
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
@@ -73,11 +79,17 @@ R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
 No numbered milestone is currently selected. The next milestone must be
 chosen explicitly before implementation.
 
-Verified-recipient policy, provider bounce handling, event retention, operator
-recipient-output policy, and parallel preserved-test-database lifecycle work
-remain explicit recommendations. Verified-recipient enforcement, provider
-outcome ingestion, and retention automation remain deferred until their product,
-provider, legal, and privacy policies are defined.
+Verified-recipient policy, provider bounce handling, event retention, and
+operator recipient-output policy remain explicit recommendations.
+Verified-recipient enforcement, provider outcome ingestion, and retention
+automation remain deferred until their product, provider, legal, and privacy
+policies are defined.
+
+R006 preserved parallel test-clone lifecycle work was completed in v303.
+PostgreSQL parallel `--keepdb` runs now recreate only validated Django worker
+clone names from the fully migrated preserved base test database. Active clone
+connections fail closed rather than being forcibly terminated, and serial,
+non-keepdb, non-PostgreSQL, and application-runtime paths retain Django defaults.
 
 R009 scheduler-level leasing was completed in v301. PostgreSQL session advisory
 locks now coordinate mutating and delivery-capable notification scheduler modes
@@ -92,9 +104,10 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database was observed fully migrated through listings
-migration `0023_listingpricehistory_discount_guardrail_v293` during v302
-validation. v302 did not run `migrate`; this statement records the observed
-database state only. The preserved Django test database is also fully migrated.
+migration `0023_listingpricehistory_discount_guardrail_v293` during v303
+validation. v303 did not run `migrate`; this statement records the observed
+database state only. The preserved base test database and all four parallel
+worker clones are fully migrated.
 
 ## Validation commands
 
@@ -102,8 +115,9 @@ database state only. The preserved Django test database is also fully migrated.
 docker compose exec -T -e PYTHONDONTWRITEBYTECODE=1 web python manage.py check
 docker compose exec -T -e PYTHONDONTWRITEBYTECODE=1 web python manage.py makemigrations --check --dry-run
 docker compose exec -T -e PYTHONDONTWRITEBYTECODE=1 web python manage.py migrate --check --noinput
-docker compose exec -T -e PYTHONDONTWRITEBYTECODE=1 web python manage.py test --keepdb --verbosity 1
+docker compose exec -T -e PYTHONDONTWRITEBYTECODE=1 web python manage.py test --parallel 4 --keepdb --noinput --verbosity 1
 ```
 
-Use a serial test fallback when parallel database cloning or isolation—not product
-behavior—is the failure source. An explicit final `OK` is mandatory.
+Parallel preserved-database validation is now the default complete regression
+path. Use the serial `--keepdb` fallback only when a separate parallel isolation
+or multiprocessing limitation is proven. An explicit final `OK` is mandatory.

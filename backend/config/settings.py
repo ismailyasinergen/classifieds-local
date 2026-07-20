@@ -80,6 +80,10 @@ DATABASES = {
     }
 }
 
+# V303: refresh preserved PostgreSQL parallel test clones from the migrated
+# base test database. Application and serial test database behavior is unchanged.
+TEST_RUNNER = "config.test_runner.MigrationAwareParallelDiscoverRunner"
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",

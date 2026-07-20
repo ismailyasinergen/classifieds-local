@@ -100,11 +100,15 @@ reflect current evidence rather than a generic wishlist.
   choose a noninteractive, migration-aware refresh strategy before v287.
 - **Validation:** Create a migration on a disposable branch, run parallel
   `--keepdb`, and prove all worker schemas update without losing non-test data.
-- **Status:** Still open. The v287-v288 non-`keepdb` parallel attempt discovered
-  all 2,495 tests but stopped at the existing base test database prompt; the
-  safe migrated serial `--keepdb` suite passed. The first v290 focused run
-  reproduced the same noninteractive prompt without deleting a database; the
-  serial `--keepdb` full suite then passed all 2,528 tests.
+- **Status:** Completed in v303. A test-only custom `DiscoverRunner` now
+  temporarily installs migration-aware PostgreSQL creation handling only for
+  parallel `--keepdb` setup. The migrated preserved base test database remains
+  intact while validated worker clone names are dropped and recreated from that
+  base. Clone names must use Django's test prefix and the exact positive numeric
+  suffix contract. Active clone connections fail closed and are never forcibly
+  terminated. Serial, non-keepdb, non-PostgreSQL, and application-runtime paths
+  preserve Django defaults. The complete parallel regression passed all 2,673
+  tests in 362.498 seconds.
 
 ## R007 — Integrate provider delivery and bounce outcomes (P1)
 
