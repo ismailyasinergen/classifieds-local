@@ -9,7 +9,7 @@
 services:
   db:
     env_file:
-      - .env.production
+      - ${DJANGO_ENV_FILE:-.env.production}
     restart: unless-stopped
 
   web:
@@ -22,7 +22,9 @@ services:
       start_period: 40s
     restart: unless-stopped
     env_file:
-      - .env.production
+      - ${DJANGO_ENV_FILE:-.env.production}
+    environment:
+      DJANGO_AUTO_MIGRATE: "${DJANGO_AUTO_MIGRATE:-0}"
     volumes:
       - prod_static:/app/staticfiles
       - prod_media:/app/media

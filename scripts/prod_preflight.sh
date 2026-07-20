@@ -16,9 +16,14 @@ if [ -f docker-compose.prod.yml ]; then
         docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production config > /tmp/classifieds_local_compose_prod.yml
         echo "Production compose config: OK"
     else
-        docker compose -f docker-compose.yml -f docker-compose.prod.yml config > /tmp/classifieds_local_compose_prod.yml
-        echo "Production compose config: OK"
-        echo "Note: .env.production not found, so only compose structure was checked."
+        DJANGO_ENV_FILE=.env.production.example \
+          docker compose \
+          -f docker-compose.yml \
+          -f docker-compose.prod.yml \
+          --env-file .env.production.example \
+          config > /tmp/classifieds_local_compose_prod.yml
+        echo "Production compose config using example environment: OK"
+        echo "Note: .env.production was not read or created."
     fi
 else
     echo "WARNING: docker-compose.prod.yml not found."
@@ -52,16 +57,33 @@ else
 fi
 
 echo
-echo "5) Rebuilding and starting local development stack..."
+echo "5) Checking for unapplied database migrations..."
+echo "This check is read-only and never applies migrations."
+
+if [ -f .env.production ]; then
+    docker compose \
+      -f docker-compose.yml \
+      -f docker-compose.prod.yml \
+      --env-file .env.production \
+      run --rm --entrypoint "" \
+      web python manage.py migrate --check --noinput
+else
+    docker compose run --rm --entrypoint "" \
+      web python manage.py migrate --check --noinput
+    echo "Note: .env.production not found; the current local database was checked."
+fi
+
+echo
+echo "6) Rebuilding and starting local development stack..."
 docker compose up -d --build
 sleep 10
 
 echo
-echo "6) Container status:"
+echo "7) Container status:"
 docker compose ps
 
 echo
-echo "7) Health endpoint check from host:"
+echo "8) Health endpoint check from host:"
 if command -v curl >/dev/null 2>&1; then
     curl -fsS http://localhost/healthz/
     echo
@@ -70,7 +92,7 @@ else
 fi
 
 echo
-echo "8) Recent web logs:"
+echo "9) Recent web logs:"
 docker compose logs web --tail=80
 
 echo

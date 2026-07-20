@@ -282,5 +282,9 @@ reflect current evidence rather than a generic wishlist.
   deployment/startup preflight without altering data automatically.
 - **Validation:** Pending-migration and fully-migrated deployment tests plus a
   documented rollback-safe startup path.
-- **Status:** Open. v295 documentation explicitly requires applied migrations;
-  the local database was not mutated during validation.
+- **Status:** Completed in v302. Production startup now defaults to
+  `manage.py migrate --check --noinput` and fails before schema-dependent work
+  when committed migrations are unapplied. Local Compose explicitly preserves
+  automatic migration application, production application is an
+  operator-controlled one-off action, and shell entrypoints are protected by
+  repository-enforced LF line endings.

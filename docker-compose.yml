@@ -16,6 +16,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      DJANGO_AUTO_MIGRATE: "${DJANGO_AUTO_MIGRATE:-1}"
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./backend:/app

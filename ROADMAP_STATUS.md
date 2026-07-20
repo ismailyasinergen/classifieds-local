@@ -2,17 +2,18 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v301 — Notification scheduler leasing**
-- Product checkpoint: `project-checkpoint-v301-notification-scheduler-leasing`
-- Previous milestone: `project-checkpoint-v300-public-deals-sprint-closeout-audit`
-- Validated regression baseline: **2,657 tests passing**
-- Full-suite mode: serial `--keepdb`, explicit `OK` in 1233.694 seconds
+- Latest product milestone: **v302 — Unapplied migration deployment preflight**
+- Product checkpoint:
+  `project-checkpoint-v302-unapplied-migration-deployment-preflight`
+- Previous milestone: `project-checkpoint-v301-notification-scheduler-leasing`
+- Validated regression baseline: **2,663 tests passing**
+- Full-suite mode: serial `--keepdb`, explicit `OK` in 1408.896 seconds
 - Django system check: zero issues
-- Migration state: no v301 migration; additive migration
+- Migration state: no v302 migration; additive migration
   `0023_listingpricehistory_discount_guardrail_v293` remains the latest and no
   model changes are pending
 
-The preserved, fully migrated serial test database passed the complete v301
+The preserved, fully migrated serial test database passed the complete v302
 suite. Parallel preserved-database lifecycle limitations remain documented in
 R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
 
@@ -59,6 +60,10 @@ R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
   and saved-search notification schedulers, including cross-command exclusion,
   read-only-mode bypass, automatic connection-close recovery, sanitized busy
   output, and preservation of v287 event-level delivery claims
+- v302: fail-closed production migration verification, explicit
+  operator-controlled production migration application, preserved local
+  auto-migration behavior, production preflight integration, rollback-safe
+  operating guidance, and repository-enforced LF shell portability
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
@@ -78,12 +83,17 @@ R009 scheduler-level leasing was completed in v301. PostgreSQL session advisory
 locks now coordinate mutating and delivery-capable notification scheduler modes
 without replacing the durable v287 logical-event claim boundary.
 
+R014 unapplied-migration deployment preflight was completed in v302. Production
+startup now defaults to a read-only, fail-closed migration check, while schema
+application remains an explicit operator-controlled action. Local Compose
+continues to apply migrations automatically.
+
 Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database was observed fully migrated through listings
-migration `0023_listingpricehistory_discount_guardrail_v293` during v301
-validation. v301 did not run `migrate`; this statement records the observed
+migration `0023_listingpricehistory_discount_guardrail_v293` during v302
+validation. v302 did not run `migrate`; this statement records the observed
 database state only. The preserved Django test database is also fully migrated.
 
 ## Validation commands
@@ -91,6 +101,7 @@ database state only. The preserved Django test database is also fully migrated.
 ```bash
 docker compose exec -T -e PYTHONDONTWRITEBYTECODE=1 web python manage.py check
 docker compose exec -T -e PYTHONDONTWRITEBYTECODE=1 web python manage.py makemigrations --check --dry-run
+docker compose exec -T -e PYTHONDONTWRITEBYTECODE=1 web python manage.py migrate --check --noinput
 docker compose exec -T -e PYTHONDONTWRITEBYTECODE=1 web python manage.py test --keepdb --verbosity 1
 ```
 
