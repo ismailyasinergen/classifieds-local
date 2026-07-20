@@ -74,15 +74,13 @@ class NotificationDeliveryPolicyBuilderV304Tests(
             capabilities[
                 "operator_recipient_output_policy"
             ],
-            "",
+            V304_OPERATOR_OUTPUT_REDACTED_BY_DEFAULT,
         )
         self.assertEqual(
             capabilities[
                 "legacy_recipient_output_surfaces"
             ],
-            list(
-                V304_LEGACY_RECIPIENT_OUTPUT_SURFACES
-            ),
+            [],
         )
 
     def test_default_baseline_is_defined_but_not_ready(
@@ -123,7 +121,7 @@ class NotificationDeliveryPolicyBuilderV304Tests(
         )
         self.assertEqual(
             result["blocking_not_ready_count"],
-            4,
+            3,
         )
 
     def test_current_delivery_guardrails_remain_ready(

@@ -47,12 +47,15 @@ V304_PROVIDER_OUTCOME_FIELD_CANDIDATES = frozenset(
     }
 )
 
-V304_LEGACY_RECIPIENT_OUTPUT_SURFACES = (
-    "process_saved_search_notifications:execute_email_send",
-    "process_saved_search_notifications:render_email_previews",
-    "saved_search_notification_observability:sample_output",
-    "saved_search_notification_audit:rollback_output",
+from listings.notification_recipient_output_redaction_v305 import (
+    V305_MIGRATED_RECIPIENT_OUTPUT_SURFACES,
 )
+
+
+V304_MIGRATED_RECIPIENT_OUTPUT_SURFACES = (
+    V305_MIGRATED_RECIPIENT_OUTPUT_SURFACES
+)
+V304_LEGACY_RECIPIENT_OUTPUT_SURFACES = ()
 
 
 @dataclass(frozen=True)
@@ -362,10 +365,18 @@ def build_notification_delivery_policy_baseline_v304(
                 else "operator_output_policy_missing"
             ),
             current_contract=(
-                "New notification command summaries are "
-                "recipient-sanitized, while identified legacy "
-                "preview, observability and rollback surfaces "
-                "may still expose configured addresses."
+                (
+                    "Command, preview, observability and rollback "
+                    "operator outputs redact configured recipient "
+                    "addresses by default."
+                )
+                if operator_output_ready
+                else (
+                    "New notification command summaries are "
+                    "recipient-sanitized, while identified legacy "
+                    "preview, observability and rollback surfaces "
+                    "may still expose configured addresses."
+                )
             ),
             required_contract=(
                 "Operator output must redact recipient addresses "
@@ -490,6 +501,7 @@ def get_notification_delivery_policy_baseline_v304(
 
 __all__ = [
     "V304_LEGACY_RECIPIENT_OUTPUT_SURFACES",
+    "V304_MIGRATED_RECIPIENT_OUTPUT_SURFACES",
     "V304_NOTIFICATION_DELIVERY_POLICY_BASELINE",
     "V304_NOTIFICATION_DELIVERY_POLICY_SCHEMA_VERSION",
     "V304_OPERATOR_OUTPUT_REDACTED_BY_DEFAULT",

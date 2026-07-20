@@ -276,3 +276,10 @@ SAVED_SEARCH_PRODUCTION_DELIVERY_ENABLED = (
         default=False,
     )
 )
+
+# V305 operator-facing notification recipient-output policy.
+# Delivery internals retain the actual destination address, while command,
+# preview, observability and rollback output redact it by default.
+NOTIFICATION_OPERATOR_RECIPIENT_OUTPUT_POLICY = (
+    "redacted_by_default"
+)

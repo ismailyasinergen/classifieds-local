@@ -185,7 +185,14 @@ class SavedSearchNotificationRollbackAuditHardeningV224Tests(TestCase):
         self.assertEqual(plan["candidate_count"], 2)
         self.assertEqual(plan["rollback_candidate_count"], 1)
         self.assertEqual(plan["untouched_candidate_count"], 1)
-        self.assertEqual(plan["rollback_candidates"][0]["saved_search_id"], first.pk)
+        self.assertEqual(
+            plan["rollback_candidates"][0]["saved_search_id"],
+            first.pk,
+        )
+        self.assertEqual(
+            plan["rollback_candidates"][0]["recipient_email"],
+            "[redacted]",
+        )
         self.assertEqual(plan["untouched_candidates"][0]["saved_search_id"], second.pk)
 
         for saved_search in (first, second, other):
@@ -224,7 +231,11 @@ class SavedSearchNotificationRollbackAuditHardeningV224Tests(TestCase):
         self.assertIn("candidates=2", lines[0])
         self.assertIn("rollback_candidates=1", lines[0])
         self.assertIn("ROLLBACK CANDIDATE saved_search", lines[1])
-        self.assertIn("recipient=rollback@example.com", lines[1])
+        self.assertIn("recipient=[redacted]", lines[1])
+        self.assertNotIn(
+            "rollback@example.com",
+            lines[1],
+        )
         self.assertIn("label=Rollback sample", lines[1])
 
     def test_v224_rollback_requires_explicit_execute_flag(self):
@@ -338,7 +349,11 @@ class SavedSearchNotificationRollbackAuditHardeningV224Tests(TestCase):
         self.assertIn("read_only=True", output)
         self.assertIn("mutation_allowed=False", output)
         self.assertIn("rollback_candidates=1", output)
-        self.assertIn("v224-command-owner@example.com", output)
+        self.assertIn("recipient=[redacted]", output)
+        self.assertNotIn(
+            "v224-command-owner@example.com",
+            output,
+        )
         self.assertEqual(len(mail.outbox), 0)
 
         saved_search.refresh_from_db()

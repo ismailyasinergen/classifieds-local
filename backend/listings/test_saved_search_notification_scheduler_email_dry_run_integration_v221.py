@@ -251,7 +251,11 @@ class SavedSearchNotificationSchedulerEmailDryRunIntegrationV221Tests(TestCase):
         self.assertIn("delivery_enabled=False", output)
         self.assertIn("sent=0", output)
         self.assertIn("DRY RUN email preview", output)
-        self.assertIn("v221-command-owner@example.com", output)
+        self.assertIn("recipient=[redacted]", output)
+        self.assertNotIn(
+            "v221-command-owner@example.com",
+            output,
+        )
         self.assertEqual(len(mail.outbox), 0)
 
         saved_search.refresh_from_db()

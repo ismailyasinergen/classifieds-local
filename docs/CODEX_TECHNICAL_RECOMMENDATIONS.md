@@ -201,11 +201,14 @@ reflect current evidence rather than a generic wishlist.
 - **Dependencies / recommended order:** Confirm operator troubleshooting needs
   and log access policy, then update all affected contracts together.
 - **Validation:** Redaction, staff workflow, and command snapshot tests.
-- **Status:** Redacted-by-default target contract defined in the v304 baseline;
-  legacy-output migration remains open. Four existing preview, observability,
-  delivery-result and rollback surfaces are explicitly inventoried. v304 adds
-  no new raw-recipient output and does not silently change established operator
-  snapshots.
+- **Status:** Completed in v305. All four inventoried explicit-send, preview,
+  observability and rollback operator surfaces use one shared idempotent,
+  fail-closed redaction helper. Configured addresses render as `[redacted]`,
+  unavailable recipients remain `<missing>`, and actual destination values
+  remain available only inside the unchanged delivery renderer, sender and
+  scheduler contracts. Validation passed 6 focused tests, 1,380 saved-search
+  notification tests, 67 policy/delivery compatibility tests and the complete
+  2,691-test PostgreSQL parallel regression.
 
 ## R011 — Replace sequence-dependent price-alert privacy assertions (P2)
 

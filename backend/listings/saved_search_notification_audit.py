@@ -4,6 +4,10 @@ import hashlib
 import json
 from typing import Any
 
+from listings.notification_recipient_output_redaction_v305 import (
+    redact_notification_recipient_for_operator_v305,
+)
+
 from django.utils import timezone
 
 from listings.models import SavedSearch
@@ -140,7 +144,11 @@ def build_saved_search_notification_rollback_plan(
             "saved_search_id": saved_search.pk,
             "label": _label_for(saved_search),
             "owner_id": getattr(saved_search, "user_id", None),
-            "recipient_email": _user_email_for(saved_search),
+            "recipient_email": (
+                redact_notification_recipient_for_operator_v305(
+                    _user_email_for(saved_search)
+                )
+            ),
             "email_notifications_enabled": bool(
                 getattr(saved_search, "email_notifications_enabled", False)
             ),
@@ -184,12 +192,17 @@ def format_saved_search_notification_rollback_plan_lines(plan: dict[str, Any]) -
     ]
 
     for item in plan["rollback_candidates"]:
+        recipient_output = (
+            redact_notification_recipient_for_operator_v305(
+                item.get("recipient_email")
+            )
+        )
         lines.append(
             (
                 "ROLLBACK CANDIDATE saved_search "
                 f"id={item['saved_search_id']} "
                 f"owner_id={item['owner_id']} "
-                f"recipient={item['recipient_email'] or '<missing>'} "
+                f"recipient={recipient_output} "
                 f"sent_at={item['last_notification_sent_at'] or '<none>'} "
                 f"label={item['label']}"
             )

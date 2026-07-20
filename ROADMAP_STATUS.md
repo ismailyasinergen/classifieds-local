@@ -2,24 +2,24 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v304 — Notification delivery policy baseline**
+- Latest product milestone: **v305 — Legacy operator recipient-output redaction migration**
 - Product checkpoint:
-  `project-checkpoint-v304-notification-delivery-policy-baseline`
+  `project-checkpoint-v305-legacy-operator-recipient-output-redaction`
 - Previous milestone:
-  `project-checkpoint-v303-parallel-test-database-lifecycle`
-- Validated regression baseline: **2,685 tests passing**
+  `project-checkpoint-v304-notification-delivery-policy-baseline`
+- Validated regression baseline: **2,691 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 358.564 seconds; 379 seconds measured wall-clock time
+  in 398.842 seconds; 420 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v304 migration; additive migration
+- Migration state: no v305 migration; additive migration
   `0023_listingpricehistory_discount_guardrail_v293` remains the latest and no
   model changes are pending
 
-v304 defines one read-only, executable and recipient-sanitized notification
-policy baseline. Runtime enforcement remains disabled while verified-recipient,
-provider-outcome, retention and legacy operator-output implementations remain
-open. The complete parallel suite passed without changing development-database
-state.
+v305 completes R010 by migrating all four inventoried operator recipient-output
+surfaces to one idempotent redacted-by-default contract. Configured recipients
+render as `[redacted]`, missing recipients remain `<missing>`, and delivery
+renderer, sender and scheduler payloads remain unchanged. Three policy blockers
+remain open: verified-recipient state, provider outcomes and event retention.
 
 ## Recently completed
 
@@ -76,6 +76,10 @@ state.
   verified-recipient state, provider outcomes, delivery-event retention and
   operator recipient output, with sanitized text/JSON reporting and no runtime
   enforcement, provider access, deletion automation or legacy-output rewrite
+- v305: shared idempotent recipient-output redaction across explicit-send,
+  preview, observability and rollback operator surfaces, preserving
+  `<missing>` diagnostics, internal delivery destinations and all established
+  sender, renderer and scheduler contracts
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
@@ -85,13 +89,17 @@ state.
 No numbered milestone is currently selected. The next milestone must be
 chosen explicitly before implementation.
 
-R005, R007, R008 and R010 remain open implementation recommendations. v304
-records their prerequisites and fail-safe defaults without guessing product,
-provider, legal, privacy or operator-access decisions.
+R005, R007 and R008 remain open implementation recommendations. Their v304
+prerequisites and fail-safe defaults remain authoritative until product,
+provider, legal and privacy decisions are approved.
 
-Verified-recipient enforcement, provider outcome ingestion, retention
-automation and legacy operator-output migration remain deferred until their
-respective policies and implementation contracts are approved.
+Verified-recipient enforcement, provider outcome ingestion and retention
+automation remain deferred until their respective policies and implementation
+contracts are approved.
+
+R010 legacy operator recipient-output migration was completed in v305. The four
+inventoried command, preview, observability and rollback surfaces now redact
+configured recipient addresses by default without changing delivery internals.
 
 R006 preserved parallel test-clone lifecycle work was completed in v303.
 PostgreSQL parallel `--keepdb` runs now recreate only validated Django worker
@@ -112,10 +120,10 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database was observed fully migrated through listings
-migration `0023_listingpricehistory_discount_guardrail_v293` during v304
-validation. v304 did not run `migrate`; this statement records the observed
-database state only. The preserved base test database and all four refreshed
-parallel worker clones are fully migrated.
+migration `0023_listingpricehistory_discount_guardrail_v293` during v305
+validation. v305 did not run `migrate`; this statement records the observed
+database state only. The preserved base test database and all four parallel
+worker clones remain fully migrated.
 
 ## Validation commands
 

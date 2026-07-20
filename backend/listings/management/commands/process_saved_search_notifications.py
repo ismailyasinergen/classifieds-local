@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from listings.notification_recipient_output_redaction_v305 import (
+    redact_notification_recipient_for_operator_v305,
+)
+
 from listings.saved_search_notification_audit_runtime import (
     SavedSearchNotificationAuditRuntimeContext,
     V232_SAVED_SEARCH_NOTIFICATION_AUDIT_RUNTIME_INTEGRATION,
@@ -354,11 +358,16 @@ class Command(BaseCommand):
                 )
             )
             for item in result["results"]:
+                recipient_output = (
+                    redact_notification_recipient_for_operator_v305(
+                        item.get("recipient_email")
+                    )
+                )
                 self.stdout.write(
                     (
                         "EXECUTE SEND email delivery "
                         f"saved_search_id={item['saved_search_id']} "
-                        f"recipient={item['recipient_email']} "
+                        f"recipient={recipient_output} "
                         f"delivered={item['delivered_count']} "
                         f"subject={item['subject']}"
                     )
@@ -377,11 +386,16 @@ class Command(BaseCommand):
                 )
             )
             for preview in previews:
+                recipient_output = (
+                    redact_notification_recipient_for_operator_v305(
+                        preview.get("recipient_email")
+                    )
+                )
                 self.stdout.write(
                     (
                         "DRY RUN email preview "
                         f"saved_search_id={preview['saved_search_id']} "
-                        f"recipient={preview['recipient_email']} "
+                        f"recipient={recipient_output} "
                         f"subject={preview['subject']}"
                     )
                 )

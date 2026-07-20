@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from listings.notification_recipient_output_redaction_v305 import (
+    redact_notification_recipient_for_operator_v305,
+)
+
 from listings.models import SavedSearch
 
 
@@ -74,7 +78,11 @@ def build_saved_search_notification_observability_snapshot(
                     "saved_search_id": saved_search.pk,
                     "label": _saved_search_label(saved_search),
                     "owner_id": getattr(saved_search, "user_id", None),
-                    "recipient_email": _user_email_for(saved_search),
+                    "recipient_email": (
+                        redact_notification_recipient_for_operator_v305(
+                            _user_email_for(saved_search)
+                        )
+                    ),
                     "email_notifications_enabled": bool(
                         getattr(saved_search, "email_notifications_enabled", False)
                     ),
@@ -124,13 +132,18 @@ def format_saved_search_notification_observability_lines(snapshot: dict[str, Any
     ]
 
     for sample in snapshot["samples"]:
+        recipient_output = (
+            redact_notification_recipient_for_operator_v305(
+                sample.get("recipient_email")
+            )
+        )
         lines.append(
             (
                 "OBSERVABILITY saved_search "
                 f"id={sample['saved_search_id']} "
                 f"owner_id={sample['owner_id']} "
                 f"enabled={sample['email_notifications_enabled']} "
-                f"recipient={sample['recipient_email'] or '<missing>'} "
+                f"recipient={recipient_output} "
                 f"checked_at={sample['last_notification_checked_at'] or '<none>'} "
                 f"sent_at={sample['last_notification_sent_at'] or '<none>'} "
                 f"label={sample['label']}"

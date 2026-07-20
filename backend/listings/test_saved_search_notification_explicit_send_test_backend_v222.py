@@ -300,7 +300,11 @@ class SavedSearchNotificationExplicitSendTestBackendV222Tests(TestCase):
         self.assertIn("delivery_enabled=True", output)
         self.assertIn("attempted=1", output)
         self.assertIn("delivered=1", output)
-        self.assertIn("v222-command-owner@example.com", output)
+        self.assertIn("recipient=[redacted]", output)
+        self.assertNotIn(
+            "v222-command-owner@example.com",
+            output,
+        )
         self.assertEqual(len(mail.outbox), 1)
 
         saved_search.refresh_from_db()

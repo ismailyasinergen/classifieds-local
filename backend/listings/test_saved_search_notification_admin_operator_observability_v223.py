@@ -169,7 +169,10 @@ class SavedSearchNotificationAdminOperatorObservabilityV223Tests(TestCase):
         self.assertEqual(snapshot["enabled_count"], 2)
         self.assertEqual(snapshot["sample_count"], 1)
         self.assertEqual(snapshot["samples"][0]["owner_id"], owner.pk)
-        self.assertEqual(snapshot["samples"][0]["recipient_email"], "v223-scope-owner@example.com")
+        self.assertEqual(
+            snapshot["samples"][0]["recipient_email"],
+            "[redacted]",
+        )
 
     def test_v223_observability_lines_are_operator_readable(self):
         snapshot = {
@@ -208,7 +211,11 @@ class SavedSearchNotificationAdminOperatorObservabilityV223Tests(TestCase):
         self.assertIn("total=2", lines[0])
         self.assertIn("enabled=1", lines[0])
         self.assertIn("OBSERVABILITY saved_search", lines[1])
-        self.assertIn("recipient=operator@example.com", lines[1])
+        self.assertIn("recipient=[redacted]", lines[1])
+        self.assertNotIn(
+            "operator@example.com",
+            lines[1],
+        )
         self.assertIn("label=Operator sample", lines[1])
 
     def test_v223_management_command_report_is_read_only_and_does_not_deliver(self):
@@ -248,7 +255,11 @@ class SavedSearchNotificationAdminOperatorObservabilityV223Tests(TestCase):
         self.assertIn("mutation_allowed=False", output)
         self.assertIn("total=1", output)
         self.assertIn("enabled=1", output)
-        self.assertIn("v223-command-owner@example.com", output)
+        self.assertIn("recipient=[redacted]", output)
+        self.assertNotIn(
+            "v223-command-owner@example.com",
+            output,
+        )
         self.assertEqual(len(mail.outbox), 0)
 
         saved_search.refresh_from_db()
