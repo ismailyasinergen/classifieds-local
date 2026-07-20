@@ -2,17 +2,17 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v300 — Public Deals sprint closeout and final audit**
-- Product checkpoint: `project-checkpoint-v300-public-deals-sprint-closeout-audit`
-- Previous milestone: `project-checkpoint-v299-public-deals-discovery-integration-audit`
-- Validated regression baseline: **2,641 tests passing**
-- Full-suite mode: serial `--keepdb`, explicit `OK` in 1293.325 seconds
+- Latest product milestone: **v301 — Notification scheduler leasing**
+- Product checkpoint: `project-checkpoint-v301-notification-scheduler-leasing`
+- Previous milestone: `project-checkpoint-v300-public-deals-sprint-closeout-audit`
+- Validated regression baseline: **2,657 tests passing**
+- Full-suite mode: serial `--keepdb`, explicit `OK` in 1233.694 seconds
 - Django system check: zero issues
-- Migration state: no v296, v297, v298, v299, or v300 migration; additive migration
+- Migration state: no v301 migration; additive migration
   `0023_listingpricehistory_discount_guardrail_v293` remains the latest and no
   model changes are pending
 
-The preserved, fully migrated serial test database passed the complete v300
+The preserved, fully migrated serial test database passed the complete v301
 suite. Parallel preserved-database lifecycle limitations remain documented in
 R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
 
@@ -55,6 +55,10 @@ R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
 - v300: read-only v296-v299 sprint closeout, 43-contract package audit,
   documentation verification, final system and migration checks, and complete
   2,641-test regression validation
+- v301: PostgreSQL session advisory-lock coordination for listing-price-alert
+  and saved-search notification schedulers, including cross-command exclusion,
+  read-only-mode bypass, automatic connection-close recovery, sanitized busy
+  output, and preservation of v287 event-level delivery claims
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
@@ -64,17 +68,22 @@ R006 of `docs/CODEX_TECHNICAL_RECOMMENDATIONS.md`.
 No numbered milestone is currently selected. The next milestone must be
 chosen explicitly before implementation.
 
-Verified-recipient policy, provider bounce handling, event retention, and
-scheduler leasing remain explicit recommendations rather than hidden v289
-scope. Verified-recipient enforcement and retention automation remain deferred
-until their product and privacy policies are defined.
+Verified-recipient policy, provider bounce handling, event retention, operator
+recipient-output policy, and parallel preserved-test-database lifecycle work
+remain explicit recommendations. Verified-recipient enforcement, provider
+outcome ingestion, and retention automation remain deferred until their product,
+provider, legal, and privacy policies are defined.
+
+R009 scheduler-level leasing was completed in v301. PostgreSQL session advisory
+locks now coordinate mutating and delivery-capable notification scheduler modes
+without replacing the durable v287 logical-event claim boundary.
 
 Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database was observed fully migrated through listings
-migration `0023_listingpricehistory_discount_guardrail_v293` during v300
-validation. v300 did not run `migrate`; this statement records the observed
+migration `0023_listingpricehistory_discount_guardrail_v293` during v301
+validation. v301 did not run `migrate`; this statement records the observed
 database state only. The preserved Django test database is also fully migrated.
 
 ## Validation commands

@@ -164,8 +164,13 @@ reflect current evidence rather than a generic wishlist.
   claims as the correctness boundary.
 - **Validation:** Concurrent command, lease expiry, crash recovery, and no-send
   regression tests.
-- **Status:** Deferred because current risk is resource efficiency, not duplicate
-  delivery correctness.
+- **Status:** Completed in v301. PostgreSQL session advisory locks now
+  coordinate listing-price-alert sends and both saved-search scheduler command
+  surfaces. Mutating and delivery-capable modes fail closed before candidate
+  scanning when the lease is busy; dry-run and read-only report/preview modes
+  bypass the lease. Separate database-session concurrency and connection-close
+  recovery tests passed. Durable v287 event claims remain the delivery
+  correctness boundary.
 
 ## R010 — Review recipient data in operator command output (P2)
 

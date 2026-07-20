@@ -37,6 +37,11 @@ from django.core.management.base import (
     CommandError as _V242CommandError,
 )
 
+from listings.notification_scheduler_lease_v301 import (
+    SAVED_SEARCH_SCHEDULER_LEASE_NAME_V301,
+    notification_scheduler_lease_v301,
+)
+
 from listings.saved_search_notification_email_sender import (
     V242_SAVED_SEARCH_NOTIFICATION_PRODUCTION_DELIVERY_IMPLEMENTATION,
     send_saved_search_notification_email_production_batch,
@@ -183,14 +188,29 @@ class Command(BaseCommand):
                     "Production delivery owner was not found."
                 )
 
-            result = (
-                send_saved_search_notification_email_production_batch(
-                    owner=owner,
-                    limit=production_limit,
-                    execute_production_send=True,
-                    confirm_production_delivery=True,
+            with notification_scheduler_lease_v301(
+                SAVED_SEARCH_SCHEDULER_LEASE_NAME_V301
+            ) as lease:
+                if not lease.acquired:
+                    self.stdout.write(
+                        self.style.WARNING(
+                            "Scheduler lease unavailable: another "
+                            "saved-search notification run is active; "
+                            "no production candidate scan, no email "
+                            "delivery, no audit batch setup, and no "
+                            "timestamp update occurred."
+                        )
+                    )
+                    return
+
+                result = (
+                    send_saved_search_notification_email_production_batch(
+                        owner=owner,
+                        limit=production_limit,
+                        execute_production_send=True,
+                        confirm_production_delivery=True,
+                    )
                 )
-            )
 
             self.stdout.write(
                 (
@@ -222,6 +242,71 @@ class Command(BaseCommand):
                 V242_LEGACY_LIMIT_DEFAULT
             )
 
+        rollback_report_requested = bool(
+            options.get("notification_rollback_report")
+        )
+        observability_report_requested = bool(
+            options.get("notification_observability_report")
+        )
+        explicit_email_send_requested = bool(
+            options.get("execute_email_send")
+        )
+        email_preview_requested = bool(
+            options.get("render_email_previews")
+        )
+        scheduler_execute_requested = bool(
+            options.get("execute")
+        )
+
+        if (
+            rollback_report_requested
+            or observability_report_requested
+        ):
+            requires_scheduler_lease = False
+        elif explicit_email_send_requested:
+            requires_scheduler_lease = True
+        elif email_preview_requested:
+            requires_scheduler_lease = False
+        else:
+            requires_scheduler_lease = (
+                scheduler_execute_requested
+            )
+
+        if not requires_scheduler_lease:
+            return (
+                self._handle_non_production_with_scheduler_lease_v301(
+                    *args,
+                    **options,
+                )
+            )
+
+        with notification_scheduler_lease_v301(
+            SAVED_SEARCH_SCHEDULER_LEASE_NAME_V301
+        ) as lease:
+            if not lease.acquired:
+                self.stdout.write(
+                    self.style.WARNING(
+                        "Scheduler lease unavailable: another "
+                        "saved-search notification run is active; "
+                        "no candidate scan, no email delivery, no "
+                        "audit batch setup, and no timestamp update "
+                        "occurred."
+                    )
+                )
+                return
+
+            return (
+                self._handle_non_production_with_scheduler_lease_v301(
+                    *args,
+                    **options,
+                )
+            )
+
+    def _handle_non_production_with_scheduler_lease_v301(
+        self,
+        *args,
+        **options,
+    ):
         audit_runtime_context = (
             SavedSearchNotificationAuditRuntimeContext.create(
                 actor_type="management_command",

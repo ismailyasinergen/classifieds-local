@@ -19,6 +19,10 @@ from listings.notification_delivery_deduplication_v287 import (
 from listings.notification_delivery_preferences_v288 import (
     apply_notification_preferences_v288,
 )
+from listings.notification_scheduler_lease_v301 import (
+    LISTING_PRICE_ALERT_SCHEDULER_LEASE_NAME_V301,
+    notification_scheduler_lease_v301,
+)
 
 
 class Command(BaseCommand):
@@ -34,6 +38,35 @@ class Command(BaseCommand):
         parser.add_argument("--site-base-url", default="")
 
     def handle(self, *args, **options):
+        if not options.get("send"):
+            return self._handle_with_scheduler_lease_v301(
+                *args,
+                **options,
+            )
+
+        with notification_scheduler_lease_v301(
+            LISTING_PRICE_ALERT_SCHEDULER_LEASE_NAME_V301
+        ) as lease:
+            if not lease.acquired:
+                self.stdout.write(
+                    self.style.WARNING(
+                        "Scheduler lease unavailable: another "
+                        "listing-price-alert run is active; no "
+                        "candidates were scanned and no email was sent."
+                    )
+                )
+                return
+
+            return self._handle_with_scheduler_lease_v301(
+                *args,
+                **options,
+            )
+
+    def _handle_with_scheduler_lease_v301(
+        self,
+        *args,
+        **options,
+    ):
         limit = options["limit"]
         if limit <= 0 or limit > LISTING_PRICE_ALERT_BATCH_LIMIT_V285:
             raise CommandError(

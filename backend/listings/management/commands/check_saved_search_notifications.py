@@ -31,6 +31,10 @@ from listings.notification_delivery_preferences_v288 import (
     apply_notification_preferences_v288,
     load_notification_preference_map_v288,
 )
+from listings.notification_scheduler_lease_v301 import (
+    SAVED_SEARCH_SCHEDULER_LEASE_NAME_V301,
+    notification_scheduler_lease_v301,
+)
 
 
 class Command(BaseCommand):
@@ -99,6 +103,41 @@ Safety notes:
         )
 
     def handle(self, *args, **options):
+        requires_scheduler_lease = bool(
+            options.get("send")
+            or options.get("mark_checked")
+        )
+
+        if not requires_scheduler_lease:
+            return self._handle_with_scheduler_lease_v301(
+                *args,
+                **options,
+            )
+
+        with notification_scheduler_lease_v301(
+            SAVED_SEARCH_SCHEDULER_LEASE_NAME_V301
+        ) as lease:
+            if not lease.acquired:
+                self.stdout.write(
+                    self.style.WARNING(
+                        "Scheduler lease unavailable: another "
+                        "saved-search notification run is active; "
+                        "no candidates were scanned and no email or "
+                        "timestamp update occurred."
+                    )
+                )
+                return
+
+            return self._handle_with_scheduler_lease_v301(
+                *args,
+                **options,
+            )
+
+    def _handle_with_scheduler_lease_v301(
+        self,
+        *args,
+        **options,
+    ):
         checked_at = timezone.now()
         max_searches = options.get("max_searches")
         stale_before_hours = options.get("stale_before_hours")
