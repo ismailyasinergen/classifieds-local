@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from accounts.models import EmailVerificationState
 
 from listings.models import NotificationDeliveryEvent
 
@@ -26,6 +26,21 @@ V304_VERIFIED_RECIPIENT_FIELD_CANDIDATES = frozenset(
         "is_email_verified",
         "verified_email",
         "verified_email_at",
+    }
+)
+
+V306_VERIFIED_RECIPIENT_STATE_MODEL = (
+    "accounts.EmailVerificationState"
+)
+
+V306_VERIFIED_RECIPIENT_REQUIRED_FIELDS = frozenset(
+    {
+        "user",
+        "email_snapshot",
+        "verified_at",
+        "verification_method",
+        "token_version",
+        "last_requested_at",
     }
 )
 
@@ -100,8 +115,8 @@ def _positive_integer_or_none(value) -> int | None:
 
 def discover_notification_delivery_policy_capabilities_v304(
 ) -> dict[str, Any]:
-    user_fields = _model_field_names(
-        get_user_model()
+    verification_state_fields = _model_field_names(
+        EmailVerificationState
     )
 
     event_fields = _model_field_names(
@@ -109,8 +124,13 @@ def discover_notification_delivery_policy_capabilities_v304(
     )
 
     verified_fields = sorted(
-        user_fields
-        & V304_VERIFIED_RECIPIENT_FIELD_CANDIDATES
+        verification_state_fields
+        & V306_VERIFIED_RECIPIENT_REQUIRED_FIELDS
+    )
+
+    verified_recipient_state = (
+        V306_VERIFIED_RECIPIENT_REQUIRED_FIELDS
+        <= verification_state_fields
     )
 
     provider_message_id_fields = sorted(
@@ -141,8 +161,13 @@ def discover_notification_delivery_policy_capabilities_v304(
     ).strip().casefold()
 
     return {
-        "verified_recipient_state": bool(
-            verified_fields
+        "verified_recipient_state": (
+            verified_recipient_state
+        ),
+        "verified_recipient_model": (
+            V306_VERIFIED_RECIPIENT_STATE_MODEL
+            if verified_recipient_state
+            else ""
         ),
         "verified_recipient_fields": verified_fields,
         "provider_message_id_state": bool(
@@ -276,8 +301,17 @@ def build_notification_delivery_policy_baseline_v304(
                 else "verified_recipient_state_missing"
             ),
             current_contract=(
-                "The repository currently treats a non-empty "
-                "account email as the recipient address."
+                (
+                    "A persisted email-specific verification "
+                    "lifecycle is bound to the current account "
+                    "address, while notification enforcement "
+                    "remains disabled."
+                )
+                if verified_ready
+                else (
+                    "The repository currently treats a non-empty "
+                    "account email as the recipient address."
+                )
             ),
             required_contract=(
                 "A persisted email-specific verification state "
@@ -505,6 +539,8 @@ __all__ = [
     "V304_NOTIFICATION_DELIVERY_POLICY_BASELINE",
     "V304_NOTIFICATION_DELIVERY_POLICY_SCHEMA_VERSION",
     "V304_OPERATOR_OUTPUT_REDACTED_BY_DEFAULT",
+    "V306_VERIFIED_RECIPIENT_REQUIRED_FIELDS",
+    "V306_VERIFIED_RECIPIENT_STATE_MODEL",
     "build_notification_delivery_policy_baseline_v304",
     "discover_notification_delivery_policy_capabilities_v304",
     "get_notification_delivery_policy_baseline_v304",

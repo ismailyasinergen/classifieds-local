@@ -283,3 +283,15 @@ SAVED_SEARCH_PRODUCTION_DELIVERY_ENABLED = (
 NOTIFICATION_OPERATOR_RECIPIENT_OUTPUT_POLICY = (
     "redacted_by_default"
 )
+
+# V306 verified-recipient lifecycle foundation.
+# Runtime notification delivery enforcement remains disabled.
+EMAIL_VERIFICATION_TOKEN_MAX_AGE_SECONDS = _env_int(
+    "EMAIL_VERIFICATION_TOKEN_MAX_AGE_SECONDS",
+    86400,
+)
+
+EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS = _env_int(
+    "EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS",
+    300,
+)

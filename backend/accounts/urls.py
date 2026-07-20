@@ -5,6 +5,7 @@ from . import (
     appeal_list_views,
     appeal_views,
     evidence_stage_views,
+    email_verification_views_v306,
     extra_evidence_views,
     notice_views,
     notification_preferences_v288,
@@ -51,6 +52,21 @@ urlpatterns = [
     path("login/", auth_views.LoginView.as_view(template_name="accounts/login.html"), name="login"),
     path("logout/", logout_view, name="logout"),
     path("profile/", profile_view, name="profile"),
+    path(
+        "email-verification/",
+        email_verification_views_v306.email_verification_status_v306,
+        name="email_verification_status_v306",
+    ),
+    path(
+        "email-verification/resend/",
+        email_verification_views_v306.email_verification_resend_v306,
+        name="email_verification_resend_v306",
+    ),
+    path(
+        "email-verification/confirm/<str:token>/",
+        email_verification_views_v306.email_verification_confirm_v306,
+        name="email_verification_confirm_v306",
+    ),
     path(
         "notification-preferences/",
         notification_preferences_v288.notification_delivery_preferences_v288,

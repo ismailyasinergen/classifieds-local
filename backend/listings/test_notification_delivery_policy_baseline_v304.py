@@ -12,6 +12,8 @@ from listings.notification_delivery_policy_v304 import (
     V304_LEGACY_RECIPIENT_OUTPUT_SURFACES,
     V304_NOTIFICATION_DELIVERY_POLICY_BASELINE,
     V304_OPERATOR_OUTPUT_REDACTED_BY_DEFAULT,
+    V306_VERIFIED_RECIPIENT_REQUIRED_FIELDS,
+    V306_VERIFIED_RECIPIENT_STATE_MODEL,
     build_notification_delivery_policy_baseline_v304,
     discover_notification_delivery_policy_capabilities_v304,
     get_notification_delivery_policy_baseline_v304,
@@ -58,8 +60,18 @@ class NotificationDeliveryPolicyBuilderV304Tests(
             discover_notification_delivery_policy_capabilities_v304()
         )
 
-        self.assertFalse(
+        self.assertTrue(
             capabilities["verified_recipient_state"]
+        )
+        self.assertEqual(
+            capabilities["verified_recipient_model"],
+            V306_VERIFIED_RECIPIENT_STATE_MODEL,
+        )
+        self.assertEqual(
+            capabilities["verified_recipient_fields"],
+            sorted(
+                V306_VERIFIED_RECIPIENT_REQUIRED_FIELDS
+            ),
         )
         self.assertFalse(
             capabilities["provider_message_id_state"]
@@ -121,7 +133,7 @@ class NotificationDeliveryPolicyBuilderV304Tests(
         )
         self.assertEqual(
             result["blocking_not_ready_count"],
-            3,
+            2,
         )
 
     def test_current_delivery_guardrails_remain_ready(

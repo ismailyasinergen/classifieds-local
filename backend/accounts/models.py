@@ -61,6 +61,59 @@ class UserProfile(models.Model):
         return self.verification_status == self.VerificationStatus.APPROVED
 
 
+class EmailVerificationState(models.Model):
+    METHOD_SIGNED_LINK_V306 = "signed_link_v306"
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="email_verification_state",
+    )
+    email_snapshot = models.EmailField(
+        max_length=254,
+        blank=True,
+        default="",
+    )
+    verified_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    verification_method = models.CharField(
+        max_length=40,
+        blank=True,
+        default="",
+    )
+    token_version = models.PositiveBigIntegerField(
+        default=0,
+    )
+    last_requested_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    @property
+    def is_verified_for_current_email(self):
+        current_email = str(
+            getattr(self.user, "email", "")
+            or ""
+        ).strip()
+
+        return bool(
+            self.verified_at
+            and self.email_snapshot
+            and self.email_snapshot == current_email
+        )
+
+    def __str__(self):
+        return f"Email verification state for {self.user.get_username()}"
+
+
 class SellerStore(models.Model):
     owner = models.OneToOneField(
         settings.AUTH_USER_MODEL,

@@ -177,7 +177,7 @@ class NotificationRecipientOutputRedactionV305Tests(
             rendered,
         )
 
-    def test_v305_policy_discovery_closes_only_r010(self):
+    def test_v305_redaction_remains_ready_after_v306_verified_recipient(self):
         self.assertEqual(
             settings.NOTIFICATION_OPERATOR_RECIPIENT_OUTPUT_POLICY,
             V304_OPERATOR_OUTPUT_REDACTED_BY_DEFAULT,
@@ -226,7 +226,7 @@ class NotificationRecipientOutputRedactionV305Tests(
         )
         self.assertEqual(
             result["blocking_not_ready_count"],
-            3,
+            2,
         )
         self.assertFalse(
             result["runtime_enforcement_ready"]

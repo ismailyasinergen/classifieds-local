@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="page-title-row">
+        <div>
+            <h1>Email verification</h1>
+            <p class="muted">
+                Confirm that your current account email belongs to you.
+                Verification enforcement for marketplace notifications is
+                not enabled by this milestone.
+            </p>
+        </div>
+    </div>
+
+    <section class="content-card">
+        <h2>Current address</h2>
+
+        {% if current_email %}
+            <p>
+                <strong>Email:</strong>
+                {{ current_email }}
+            </p>
+
+            {% if is_email_verified %}
+                <p>
+                    <strong>Status:</strong>
+                    Verified
+                </p>
+
+                <p class="muted">
+                    Verified
+                    {{ verification_state.verified_at|date:"Y-m-d H:i" }}.
+                </p>
+            {% else %}
+                <p>
+                    <strong>Status:</strong>
+                    Not verified
+                </p>
+
+                <form
+                    method="post"
+                    action="{% url 'accounts:email_verification_resend_v306' %}"
+                >
+                    {% csrf_token %}
+                    <button class="button-primary" type="submit">
+                        Send verification email
+                    </button>
+                </form>
+
+                <p class="muted" style="margin-top:12px;">
+                    Requests are protected by a resend cooldown of
+                    {{ resend_cooldown_seconds }} seconds.
+                </p>
+            {% endif %}
+        {% else %}
+            <p>
+                No email address is configured for this account.
+            </p>
+        {% endif %}
+    </section>
+
+    <p style="margin-top:18px;">
+        <a class="button-link" href="{% url 'accounts:profile' %}">
+            Back to profile
+        </a>
+    </p>
+{% endblock %}
