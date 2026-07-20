@@ -73,10 +73,10 @@ class NotificationDeliveryPolicyBuilderV304Tests(
                 V306_VERIFIED_RECIPIENT_REQUIRED_FIELDS
             ),
         )
-        self.assertFalse(
+        self.assertTrue(
             capabilities["provider_message_id_state"]
         )
-        self.assertFalse(
+        self.assertTrue(
             capabilities["provider_outcome_state"]
         )
         self.assertIsNone(
@@ -133,7 +133,7 @@ class NotificationDeliveryPolicyBuilderV304Tests(
         )
         self.assertEqual(
             result["blocking_not_ready_count"],
-            2,
+            1,
         )
 
     def test_current_delivery_guardrails_remain_ready(

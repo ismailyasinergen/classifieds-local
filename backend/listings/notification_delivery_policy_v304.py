@@ -340,8 +340,17 @@ def build_notification_delivery_policy_baseline_v304(
                 else "provider_outcome_contract_missing"
             ),
             current_contract=(
-                "Synchronous email-backend exceptions and "
-                "zero-delivery returns are recorded locally."
+                (
+                    "Provider message identity is persisted and "
+                    "authenticated, idempotent delivered, bounce "
+                    "and complaint outcomes are ingested while "
+                    "runtime enforcement remains disabled."
+                )
+                if provider_ready
+                else (
+                    "Synchronous email-backend exceptions and "
+                    "zero-delivery returns are recorded locally."
+                )
             ),
             required_contract=(
                 "Provider message identity plus authenticated, "

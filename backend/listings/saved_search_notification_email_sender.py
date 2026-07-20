@@ -26,6 +26,10 @@ from listings.notification_delivery_preferences_v288 import (
     notification_type_enabled_for_user_v288,
 )
 from listings.models import NotificationDeliveryEvent
+from listings.notification_provider_outcomes_v307 import (
+    extract_notification_provider_message_identity_v307,
+    record_notification_provider_message_identity_v307,
+)
 
 
 V222_SAVED_SEARCH_NOTIFICATION_EXPLICIT_SEND_TEST_BACKEND = (
@@ -673,8 +677,38 @@ def send_saved_search_notification_email(
             ),
         }
 
+    provider_name, provider_message_id = (
+        extract_notification_provider_message_identity_v307(
+            message
+        )
+    )
+    provider_identity_recorded_count = 0
+    provider_identity_recording_error = ""
+
     if event_claim is not None:
-        mark_notification_events_sent_v287(event_claim)
+        mark_notification_events_sent_v287(
+            event_claim
+        )
+
+        if provider_name and provider_message_id:
+            try:
+                provider_identity_recorded_count = (
+                    record_notification_provider_message_identity_v307(
+                        event_keys=(
+                            event_claim.claimed_keys
+                        ),
+                        provider_name=provider_name,
+                        provider_message_id=(
+                            provider_message_id
+                        ),
+                    )
+                )
+            except Exception as exc:
+                # Provider metadata must never trigger a duplicate
+                # email retry after the backend accepted delivery.
+                provider_identity_recording_error = (
+                    type(exc).__name__
+                )
 
     succeeded_write = (
         record_saved_search_notification_runtime_event(
@@ -774,6 +808,14 @@ def send_saved_search_notification_email(
             saved_search,
             "last_notification_sent_at",
             None,
+        ),
+        "provider_name": provider_name,
+        "provider_message_id": provider_message_id,
+        "provider_identity_recorded_count": (
+            provider_identity_recorded_count
+        ),
+        "provider_identity_recording_error": (
+            provider_identity_recording_error
         ),
         "audit_correlation_id": str(
             sender_context.correlation_id

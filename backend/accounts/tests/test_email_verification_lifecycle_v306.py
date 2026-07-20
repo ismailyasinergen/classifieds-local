@@ -468,7 +468,9 @@ class EmailVerificationLifecycleV306Tests(TestCase):
             "invalid-token",
         )
 
-    def test_policy_discovers_v306_state_and_two_blockers(self):
+    def test_policy_discovers_v306_state_and_one_remaining_blocker(
+        self,
+    ):
         capabilities = (
             discover_notification_delivery_policy_capabilities_v304()
         )
@@ -491,7 +493,7 @@ class EmailVerificationLifecycleV306Tests(TestCase):
 
         self.assertEqual(
             result["blocking_not_ready_count"],
-            2,
+            1,
         )
         self.assertFalse(
             result["runtime_enforcement_ready"]

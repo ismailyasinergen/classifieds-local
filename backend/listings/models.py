@@ -514,6 +514,11 @@ class NotificationDeliveryEvent(models.Model):
         FAILED = "failed", "Failed"
         SKIPPED = "skipped", "Skipped"
 
+    class ProviderOutcome(models.TextChoices):
+        DELIVERED = "delivered", "Delivered"
+        BOUNCED = "bounced", "Bounced"
+        COMPLAINED = "complained", "Complained"
+
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
@@ -572,6 +577,27 @@ class NotificationDeliveryEvent(models.Model):
     processing_started_at = models.DateTimeField(null=True, blank=True)
     sent_at = models.DateTimeField(null=True, blank=True)
     last_error_category = models.CharField(max_length=64, blank=True)
+    provider_name = models.CharField(
+        max_length=64,
+        blank=True,
+    )
+    provider_message_id = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+    provider_outcome = models.CharField(
+        max_length=16,
+        choices=ProviderOutcome.choices,
+        blank=True,
+    )
+    provider_event_id = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+    provider_outcome_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -594,6 +620,13 @@ class NotificationDeliveryEvent(models.Model):
                 fields=["listing_price_alert", "status"],
                 name="notif_alert_status_idx",
             ),
+            models.Index(
+                fields=[
+                    "provider_name",
+                    "provider_message_id",
+                ],
+                name="notif_provider_msg_idx",
+            ),
         ]
         constraints = [
             models.CheckConstraint(
@@ -610,6 +643,76 @@ class NotificationDeliveryEvent(models.Model):
 
     def __str__(self):
         return f"{self.notification_type}:{self.status}:{self.event_key[:12]}"
+
+
+
+# NOTIFICATION_PROVIDER_OUTCOMES_V307
+class NotificationProviderOutcomeReceipt(models.Model):
+    provider_name = models.CharField(
+        max_length=64,
+    )
+    provider_event_id = models.CharField(
+        max_length=255,
+    )
+    provider_message_id = models.CharField(
+        max_length=255,
+    )
+    outcome = models.CharField(
+        max_length=16,
+        choices=(
+            NotificationDeliveryEvent
+            .ProviderOutcome
+            .choices
+        ),
+    )
+    occurred_at = models.DateTimeField()
+    payload_digest = models.CharField(
+        max_length=64,
+    )
+    matched_event_count = models.PositiveIntegerField(
+        default=0,
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    class Meta:
+        ordering = [
+            "-occurred_at",
+            "-pk",
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "provider_name",
+                    "provider_event_id",
+                ],
+                name="notif_provider_event_uniq",
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=[
+                    "provider_name",
+                    "provider_message_id",
+                ],
+                name="notif_receipt_msg_idx",
+            ),
+            models.Index(
+                fields=[
+                    "outcome",
+                    "-occurred_at",
+                ],
+                name="notif_receipt_out_idx",
+            ),
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.provider_name}:"
+            f"{self.outcome}:"
+            f"{self.provider_event_id[:12]}"
+        )
 
 
 # NOTIFICATION_DELIVERY_PREFERENCES_V288

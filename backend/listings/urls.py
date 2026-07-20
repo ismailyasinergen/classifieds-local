@@ -49,10 +49,18 @@ from .pricing_integrity_moderation_queue_views_v294 import (
 from .public_deals_landing_page_v296 import (
     PublicDealsListViewV296,
 )
+from .notification_provider_outcome_views_v307 import (
+    notification_provider_outcome_webhook_v307,
+)
 
 app_name = "listings"
 
 urlpatterns = [
+    path(
+        "webhooks/notification-provider/outcomes/",
+        notification_provider_outcome_webhook_v307,
+        name="notification_provider_outcome_webhook_v307",
+    ),
     path(
         "staff/pricing-integrity/",
         PricingIntegrityModerationQueueViewV294.as_view(),
