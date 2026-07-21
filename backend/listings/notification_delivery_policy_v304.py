@@ -6,14 +6,21 @@ from typing import Any
 from django.conf import settings
 from accounts.models import EmailVerificationState
 
-from listings.models import NotificationDeliveryEvent
+from listings.models import (
+    NotificationDeliveryEvent,
+    NotificationDeliveryRetentionEvidence,
+)
+from listings.notification_delivery_retention_v308 import (
+    V308_RETENTION_BACKUP_POLICY,
+    V308_RETENTION_DRY_RUN_CONTRACT,
+)
 
 
 V304_NOTIFICATION_DELIVERY_POLICY_BASELINE = (
     "V304_NOTIFICATION_DELIVERY_POLICY_BASELINE"
 )
 
-V304_NOTIFICATION_DELIVERY_POLICY_SCHEMA_VERSION = 1
+V304_NOTIFICATION_DELIVERY_POLICY_SCHEMA_VERSION = 2
 
 V304_OPERATOR_OUTPUT_REDACTED_BY_DEFAULT = (
     "redacted_by_default"
@@ -61,6 +68,36 @@ V304_PROVIDER_OUTCOME_FIELD_CANDIDATES = frozenset(
         "complained_at",
     }
 )
+
+V308_RETENTION_EVENT_REQUIRED_FIELDS = frozenset(
+    {
+        "legal_hold",
+        "legal_hold_reason",
+        "legal_hold_set_at",
+        "legal_hold_set_by",
+        "retention_tombstoned_at",
+        "retention_evidence",
+    }
+)
+
+V308_RETENTION_EVIDENCE_REQUIRED_FIELDS = frozenset(
+    {
+        "run_id",
+        "cutoff_at",
+        "retention_days",
+        "eligible_count",
+        "candidate_count",
+        "held_count",
+        "non_terminal_count",
+        "tombstoned_count",
+        "batch_limit",
+        "backup_policy",
+        "evidence_digest",
+        "source",
+        "created_at",
+    }
+)
+
 
 from listings.notification_recipient_output_redaction_v305 import (
     V305_MIGRATED_RECIPIENT_OUTPUT_SURFACES,
@@ -123,6 +160,10 @@ def discover_notification_delivery_policy_capabilities_v304(
         NotificationDeliveryEvent
     )
 
+    evidence_fields = _model_field_names(
+        NotificationDeliveryRetentionEvidence
+    )
+
     verified_fields = sorted(
         verification_state_fields
         & V306_VERIFIED_RECIPIENT_REQUIRED_FIELDS
@@ -149,6 +190,40 @@ def discover_notification_delivery_policy_capabilities_v304(
             "NOTIFICATION_DELIVERY_EVENT_RETENTION_DAYS",
             None,
         )
+    )
+
+    retention_legal_hold_fields = sorted(
+        event_fields
+        & V308_RETENTION_EVENT_REQUIRED_FIELDS
+    )
+
+    retention_evidence_fields = sorted(
+        evidence_fields
+        & V308_RETENTION_EVIDENCE_REQUIRED_FIELDS
+    )
+
+    retention_legal_hold_state = (
+        V308_RETENTION_EVENT_REQUIRED_FIELDS
+        <= event_fields
+    )
+
+    retention_deletion_evidence_state = (
+        V308_RETENTION_EVIDENCE_REQUIRED_FIELDS
+        <= evidence_fields
+    )
+
+    retention_backup_policy = str(
+        getattr(
+            settings,
+            "NOTIFICATION_DELIVERY_RETENTION_BACKUP_POLICY",
+            "",
+        )
+        or ""
+    ).strip().casefold()
+
+    retention_cleanup_dry_run_contract = (
+        V308_RETENTION_DRY_RUN_CONTRACT
+        == "dry_run_default_explicit_confirmed_apply"
     )
 
     operator_output_policy = str(
@@ -183,6 +258,24 @@ def discover_notification_delivery_policy_capabilities_v304(
             provider_outcome_fields
         ),
         "retention_days": retention_days,
+        "retention_legal_hold_state": (
+            retention_legal_hold_state
+        ),
+        "retention_legal_hold_fields": (
+            retention_legal_hold_fields
+        ),
+        "retention_deletion_evidence_state": (
+            retention_deletion_evidence_state
+        ),
+        "retention_evidence_fields": (
+            retention_evidence_fields
+        ),
+        "retention_backup_policy": (
+            retention_backup_policy
+        ),
+        "retention_cleanup_dry_run_contract": (
+            retention_cleanup_dry_run_contract
+        ),
         "operator_recipient_output_policy": (
             operator_output_policy
         ),
@@ -225,6 +318,10 @@ def build_notification_delivery_policy_baseline_v304(
     provider_message_id_state: bool,
     provider_outcome_state: bool,
     retention_days=None,
+    retention_legal_hold_state=False,
+    retention_deletion_evidence_state=False,
+    retention_backup_policy="",
+    retention_cleanup_dry_run_contract=False,
     operator_recipient_output_policy="",
     legacy_recipient_output_surfaces=(
         V304_LEGACY_RECIPIENT_OUTPUT_SURFACES
@@ -235,6 +332,11 @@ def build_notification_delivery_policy_baseline_v304(
             retention_days
         )
     )
+
+    normalized_backup_policy = str(
+        retention_backup_policy
+        or ""
+    ).strip().casefold()
 
     normalized_operator_policy = str(
         operator_recipient_output_policy
@@ -250,8 +352,13 @@ def build_notification_delivery_policy_baseline_v304(
         and provider_outcome_state
     )
 
-    retention_ready = (
+    retention_ready = bool(
         normalized_retention_days is not None
+        and retention_legal_hold_state
+        and retention_deletion_evidence_state
+        and normalized_backup_policy
+        == V308_RETENTION_BACKUP_POLICY
+        and retention_cleanup_dry_run_contract
     )
 
     operator_output_ready = (
@@ -374,13 +481,23 @@ def build_notification_delivery_policy_baseline_v304(
             blocking=True,
             enforcement_enabled=False,
             reason_code=(
-                "retention_duration_configured"
+                "retention_foundation_available"
                 if retention_ready
                 else "retention_policy_missing"
             ),
             current_contract=(
-                "Notification delivery events are durable and "
-                "no age-based deletion runs automatically."
+                (
+                    "A bounded tombstone-based retention workflow "
+                    "preserves logical-event deduplication, skips "
+                    "persisted legal holds, records immutable "
+                    "deletion evidence, defaults to dry-run and "
+                    "requires cleanup again after backup restore."
+                )
+                if retention_ready
+                else (
+                    "Notification delivery events are durable and "
+                    "no age-based deletion runs automatically."
+                )
             ),
             required_contract=(
                 "An approved retention duration, legal-hold "
@@ -388,7 +505,8 @@ def build_notification_delivery_policy_baseline_v304(
                 "contract must be documented."
             ),
             safe_default=(
-                "Do not perform destructive retention cleanup."
+                "Do not perform destructive retention cleanup "
+                "without an explicit confirmed apply gate."
             ),
         ),
         _policy_check(
@@ -497,6 +615,18 @@ def build_notification_delivery_policy_baseline_v304(
         "retention_days": (
             normalized_retention_days
         ),
+        "retention_legal_hold_state": bool(
+            retention_legal_hold_state
+        ),
+        "retention_deletion_evidence_state": bool(
+            retention_deletion_evidence_state
+        ),
+        "retention_backup_policy": (
+            normalized_backup_policy
+        ),
+        "retention_cleanup_dry_run_contract": bool(
+            retention_cleanup_dry_run_contract
+        ),
         "operator_recipient_output_policy": (
             normalized_operator_policy
         ),
@@ -528,6 +658,22 @@ def get_notification_delivery_policy_baseline_v304(
         ),
         retention_days=(
             capabilities["retention_days"]
+        ),
+        retention_legal_hold_state=(
+            capabilities["retention_legal_hold_state"]
+        ),
+        retention_deletion_evidence_state=(
+            capabilities[
+                "retention_deletion_evidence_state"
+            ]
+        ),
+        retention_backup_policy=(
+            capabilities["retention_backup_policy"]
+        ),
+        retention_cleanup_dry_run_contract=(
+            capabilities[
+                "retention_cleanup_dry_run_contract"
+            ]
         ),
         operator_recipient_output_policy=(
             capabilities[

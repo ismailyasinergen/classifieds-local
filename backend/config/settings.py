@@ -313,3 +313,50 @@ NOTIFICATION_PROVIDER_WEBHOOK_MAX_AGE_SECONDS = _env_int(
     "NOTIFICATION_PROVIDER_WEBHOOK_MAX_AGE_SECONDS",
     300,
 )
+
+
+# V308 notification-delivery-event retention foundation.
+# Cleanup defaults to read-only dry-run. Destructive tombstoning additionally
+# requires an explicit command confirmation and this default-off feature gate.
+def _notification_retention_env_bool_v308(
+    name,
+    default=False,
+):
+    raw_value = os.getenv(name)
+
+    if raw_value is None or raw_value == "":
+        return bool(default)
+
+    return raw_value.strip().casefold() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
+NOTIFICATION_DELIVERY_EVENT_RETENTION_DAYS = _env_int(
+    "NOTIFICATION_DELIVERY_EVENT_RETENTION_DAYS",
+    90,
+)
+
+NOTIFICATION_DELIVERY_RETENTION_BACKUP_POLICY = (
+    os.getenv(
+        "NOTIFICATION_DELIVERY_RETENTION_BACKUP_POLICY",
+        "restore_requires_recleanup",
+    )
+    .strip()
+    .casefold()
+)
+
+NOTIFICATION_DELIVERY_RETENTION_APPLY_ENABLED = (
+    _notification_retention_env_bool_v308(
+        "NOTIFICATION_DELIVERY_RETENTION_APPLY_ENABLED",
+        default=False,
+    )
+)
+
+NOTIFICATION_DELIVERY_RETENTION_DEFAULT_LIMIT = _env_int(
+    "NOTIFICATION_DELIVERY_RETENTION_DEFAULT_LIMIT",
+    100,
+)

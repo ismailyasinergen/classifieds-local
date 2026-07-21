@@ -226,9 +226,9 @@ class NotificationRecipientOutputRedactionV305Tests(
         )
         self.assertEqual(
             result["blocking_not_ready_count"],
-            1,
+            0,
         )
-        self.assertFalse(
+        self.assertTrue(
             result["runtime_enforcement_ready"]
         )
 

@@ -18,6 +18,9 @@ from listings.notification_delivery_policy_v304 import (
     discover_notification_delivery_policy_capabilities_v304,
     get_notification_delivery_policy_baseline_v304,
 )
+from listings.notification_delivery_retention_v308 import (
+    V308_RETENTION_BACKUP_POLICY,
+)
 
 
 class NotificationDeliveryPolicyBuilderV304Tests(
@@ -32,6 +35,12 @@ class NotificationDeliveryPolicyBuilderV304Tests(
             "provider_message_id_state": False,
             "provider_outcome_state": False,
             "retention_days": None,
+            "retention_legal_hold_state": True,
+            "retention_deletion_evidence_state": True,
+            "retention_backup_policy": (
+                V308_RETENTION_BACKUP_POLICY
+            ),
+            "retention_cleanup_dry_run_contract": True,
             "operator_recipient_output_policy": "",
         }
         values.update(overrides)
@@ -79,8 +88,26 @@ class NotificationDeliveryPolicyBuilderV304Tests(
         self.assertTrue(
             capabilities["provider_outcome_state"]
         )
-        self.assertIsNone(
-            capabilities["retention_days"]
+        self.assertEqual(
+            capabilities["retention_days"],
+            90,
+        )
+        self.assertTrue(
+            capabilities["retention_legal_hold_state"]
+        )
+        self.assertTrue(
+            capabilities[
+                "retention_deletion_evidence_state"
+            ]
+        )
+        self.assertEqual(
+            capabilities["retention_backup_policy"],
+            V308_RETENTION_BACKUP_POLICY,
+        )
+        self.assertTrue(
+            capabilities[
+                "retention_cleanup_dry_run_contract"
+            ]
         )
         self.assertEqual(
             capabilities[
@@ -95,7 +122,7 @@ class NotificationDeliveryPolicyBuilderV304Tests(
             [],
         )
 
-    def test_default_baseline_is_defined_but_not_ready(
+    def test_default_baseline_is_ready_with_enforcement_disabled(
         self,
     ):
         result = (
@@ -108,7 +135,7 @@ class NotificationDeliveryPolicyBuilderV304Tests(
         )
         self.assertEqual(
             result["schema_version"],
-            1,
+            2,
         )
         self.assertTrue(
             result["policy_defined"]
@@ -125,7 +152,7 @@ class NotificationDeliveryPolicyBuilderV304Tests(
         self.assertFalse(
             result["provider_accessed"]
         )
-        self.assertFalse(
+        self.assertTrue(
             result["runtime_enforcement_ready"]
         )
         self.assertFalse(
@@ -133,7 +160,11 @@ class NotificationDeliveryPolicyBuilderV304Tests(
         )
         self.assertEqual(
             result["blocking_not_ready_count"],
-            1,
+            0,
+        )
+        self.assertEqual(
+            result["status"],
+            "implementation_ready_enforcement_disabled",
         )
 
     def test_current_delivery_guardrails_remain_ready(
@@ -346,7 +377,11 @@ class NotificationDeliveryPolicyCommandV304Tests(
             rendered,
         )
         self.assertIn(
-            "runtime_enforcement_ready=false",
+            "runtime_enforcement_ready=true",
+            rendered,
+        )
+        self.assertIn(
+            "runtime_enforcement_enabled=false",
             rendered,
         )
         self.assertIn(
@@ -358,7 +393,11 @@ class NotificationDeliveryPolicyCommandV304Tests(
             rendered,
         )
         self.assertIn(
-            "check=delivery_event_retention",
+            "check=delivery_event_retention status=ready",
+            rendered,
+        )
+        self.assertIn(
+            "reason=retention_foundation_available",
             rendered,
         )
         self.assertIn(
@@ -392,27 +431,45 @@ class NotificationDeliveryPolicyCommandV304Tests(
         self.assertTrue(
             result["read_only"]
         )
-        self.assertFalse(
+        self.assertTrue(
             result["runtime_enforcement_ready"]
+        )
+        self.assertFalse(
+            result["runtime_enforcement_enabled"]
+        )
+        self.assertEqual(
+            result["blocking_not_ready_count"],
+            0,
+        )
+        self.assertEqual(
+            result["retention_backup_policy"],
+            V308_RETENTION_BACKUP_POLICY,
         )
         self.assertNotIn(
             "@",
             output.getvalue(),
         )
 
-    def test_strict_command_fails_while_capabilities_are_missing(
+    def test_strict_command_passes_for_repository_policy(
         self,
     ):
-        with self.assertRaisesMessage(
-            CommandError,
-            "blocking implementation capabilities remain unavailable",
-        ):
-            call_command(
-                "check_notification_delivery_policy",
-                "--strict",
-                stdout=StringIO(),
-                stderr=StringIO(),
-            )
+        output = StringIO()
+
+        call_command(
+            "check_notification_delivery_policy",
+            "--strict",
+            stdout=output,
+            stderr=StringIO(),
+        )
+
+        self.assertIn(
+            "runtime_enforcement_ready=true",
+            output.getvalue(),
+        )
+        self.assertNotIn(
+            "@",
+            output.getvalue(),
+        )
 
     def test_strict_command_passes_for_ready_mocked_policy(
         self,
@@ -423,6 +480,12 @@ class NotificationDeliveryPolicyCommandV304Tests(
                 provider_message_id_state=True,
                 provider_outcome_state=True,
                 retention_days=90,
+                retention_legal_hold_state=True,
+                retention_deletion_evidence_state=True,
+                retention_backup_policy=(
+                    V308_RETENTION_BACKUP_POLICY
+                ),
+                retention_cleanup_dry_run_contract=True,
                 operator_recipient_output_policy=(
                     V304_OPERATOR_OUTPUT_REDACTED_BY_DEFAULT
                 ),

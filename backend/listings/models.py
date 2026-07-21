@@ -598,6 +598,37 @@ class NotificationDeliveryEvent(models.Model):
         null=True,
         blank=True,
     )
+    legal_hold = models.BooleanField(
+        default=False,
+    )
+    legal_hold_reason = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+    legal_hold_set_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    legal_hold_set_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name=(
+            "notification_delivery_legal_holds"
+        ),
+    )
+    retention_tombstoned_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    retention_evidence = models.ForeignKey(
+        "NotificationDeliveryRetentionEvidence",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="delivery_events",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -627,6 +658,14 @@ class NotificationDeliveryEvent(models.Model):
                 ],
                 name="notif_provider_msg_idx",
             ),
+            models.Index(
+                fields=[
+                    "legal_hold",
+                    "retention_tombstoned_at",
+                    "created_at",
+                ],
+                name="notif_retention_scan_idx",
+            ),
         ]
         constraints = [
             models.CheckConstraint(
@@ -639,11 +678,138 @@ class NotificationDeliveryEvent(models.Model):
                 ),
                 name="notif_processing_claim_required",
             ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(legal_hold=False)
+                    | (
+                        ~models.Q(legal_hold_reason="")
+                        & models.Q(legal_hold_set_at__isnull=False)
+                    )
+                ),
+                name="notif_legal_hold_metadata",
+            ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(retention_tombstoned_at__isnull=True)
+                    | models.Q(retention_evidence__isnull=False)
+                ),
+                name="notif_retention_evidence_req",
+            ),
         ]
 
     def __str__(self):
         return f"{self.notification_type}:{self.status}:{self.event_key[:12]}"
 
+
+
+# NOTIFICATION_DELIVERY_RETENTION_V308
+class NotificationDeliveryRetentionEvidenceQuerySet(
+    models.QuerySet
+):
+    immutable_error_message = (
+        "Notification delivery retention evidence "
+        "cannot be mutated."
+    )
+
+    def update(self, **kwargs):
+        raise AuditValidationError(
+            self.immutable_error_message
+        )
+
+    def delete(self):
+        raise AuditValidationError(
+            self.immutable_error_message
+        )
+
+    def bulk_update(
+        self,
+        objs,
+        fields,
+        batch_size=None,
+    ):
+        raise AuditValidationError(
+            self.immutable_error_message
+        )
+
+
+class NotificationDeliveryRetentionEvidence(
+    models.Model
+):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+    run_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+    cutoff_at = models.DateTimeField()
+    retention_days = models.PositiveIntegerField()
+    eligible_count = models.PositiveIntegerField()
+    candidate_count = models.PositiveIntegerField()
+    held_count = models.PositiveIntegerField(
+        default=0,
+    )
+    non_terminal_count = models.PositiveIntegerField(
+        default=0,
+    )
+    tombstoned_count = models.PositiveIntegerField()
+    batch_limit = models.PositiveIntegerField()
+    backup_policy = models.CharField(
+        max_length=64,
+    )
+    evidence_digest = models.CharField(
+        max_length=64,
+        unique=True,
+    )
+    source = models.CharField(
+        max_length=64,
+        default="management_command",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    objects = (
+        NotificationDeliveryRetentionEvidenceQuerySet
+        .as_manager()
+    )
+
+    class Meta:
+        ordering = [
+            "-created_at",
+            "-pk",
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise AuditValidationError(
+                "Notification delivery retention "
+                "evidence cannot be updated."
+            )
+
+        if kwargs.get("force_update"):
+            raise AuditValidationError(
+                "Notification delivery retention "
+                "evidence cannot be force-updated."
+            )
+
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise AuditValidationError(
+            "Notification delivery retention "
+            "evidence cannot be deleted."
+        )
+
+    def __str__(self):
+        return (
+            f"retention:{self.retention_days}:"
+            f"{self.tombstoned_count}:"
+            f"{self.pk}"
+        )
 
 
 # NOTIFICATION_PROVIDER_OUTCOMES_V307

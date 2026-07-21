@@ -693,8 +693,8 @@ class NotificationProviderOutcomesV307Tests(
         )
         self.assertEqual(
             policy["blocking_not_ready_count"],
-            1,
+            0,
         )
-        self.assertFalse(
+        self.assertTrue(
             policy["runtime_enforcement_ready"]
         )
