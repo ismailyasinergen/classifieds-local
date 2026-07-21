@@ -57,7 +57,24 @@ else
 fi
 
 echo
-echo "5) Checking for unapplied database migrations..."
+echo "5) Checking notification-delivery migration rollout..."
+echo "This check is read-only and never applies migrations."
+
+if [ -f .env.production ]; then
+    docker compose \
+      -f docker-compose.yml \
+      -f docker-compose.prod.yml \
+      --env-file .env.production \
+      run --rm --entrypoint "" \
+      web python manage.py check_notification_delivery_migration_rollout --strict
+else
+    docker compose run --rm --entrypoint "" \
+      web python manage.py check_notification_delivery_migration_rollout --strict
+    echo "Note: .env.production not found; the current local database was inspected."
+fi
+
+echo
+echo "6) Checking for unapplied database migrations..."
 echo "This check is read-only and never applies migrations."
 
 if [ -f .env.production ]; then
@@ -74,16 +91,16 @@ else
 fi
 
 echo
-echo "6) Rebuilding and starting local development stack..."
+echo "7) Rebuilding and starting local development stack..."
 docker compose up -d --build
 sleep 10
 
 echo
-echo "7) Container status:"
+echo "8) Container status:"
 docker compose ps
 
 echo
-echo "8) Health endpoint check from host:"
+echo "9) Health endpoint check from host:"
 if command -v curl >/dev/null 2>&1; then
     curl -fsS http://localhost/healthz/
     echo
@@ -92,7 +109,7 @@ else
 fi
 
 echo
-echo "9) Recent web logs:"
+echo "10) Recent web logs:"
 docker compose logs web --tail=80
 
 echo
