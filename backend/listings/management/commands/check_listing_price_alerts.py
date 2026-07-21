@@ -19,6 +19,9 @@ from listings.notification_delivery_deduplication_v287 import (
 from listings.notification_delivery_preferences_v288 import (
     apply_notification_preferences_v288,
 )
+from listings.notification_delivery_runtime_enforcement_v309 import (
+    notification_delivery_recipient_decision_v309,
+)
 from listings.notification_scheduler_lease_v301 import (
     LISTING_PRICE_ALERT_SCHEDULER_LEASE_NAME_V301,
     notification_scheduler_lease_v301,
@@ -136,13 +139,30 @@ class Command(BaseCommand):
                 )
                 self.stdout.write("  Skipped: subscription is no longer active.")
                 continue
-            if not str(alert.user.email or "").strip():
+            recipient_decision_v309 = (
+                notification_delivery_recipient_decision_v309(
+                    alert.user
+                )
+            )
+            if not recipient_decision_v309.allowed:
                 skipped += 1
+                reason_code_v309 = (
+                    recipient_decision_v309.reason_code
+                    or "recipient_unavailable"
+                )
                 mark_notification_events_skipped_v287(
                     item_claim,
-                    reason="missing_recipient",
+                    reason=reason_code_v309,
                 )
-                self.stdout.write("  Skipped: subscriber has no email address.")
+                if reason_code_v309 == "missing_recipient":
+                    self.stdout.write(
+                        "  Skipped: subscriber has no email address."
+                    )
+                else:
+                    self.stdout.write(
+                        "  Skipped: subscriber has no eligible "
+                        "verified recipient address."
+                    )
                 continue
             try:
                 delivered = send_listing_price_alert_v285(

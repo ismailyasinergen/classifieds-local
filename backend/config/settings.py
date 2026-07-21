@@ -285,7 +285,12 @@ NOTIFICATION_OPERATOR_RECIPIENT_OUTPUT_POLICY = (
 )
 
 # V306 verified-recipient lifecycle foundation.
-# Runtime notification delivery enforcement remains disabled.
+# V309 runtime enforcement remains default-off and must fail closed
+# when explicitly enabled without a current verified address.
+NOTIFICATION_DELIVERY_RUNTIME_ENFORCEMENT_ENABLED = _env_bool(
+    "NOTIFICATION_DELIVERY_RUNTIME_ENFORCEMENT_ENABLED",
+    default=False,
+)
 EMAIL_VERIFICATION_TOKEN_MAX_AGE_SECONDS = _env_int(
     "EMAIL_VERIFICATION_TOKEN_MAX_AGE_SECONDS",
     86400,

@@ -5,6 +5,9 @@ from typing import Any
 
 from django.conf import settings
 from accounts.models import EmailVerificationState
+from listings.notification_delivery_runtime_enforcement_v309 import (
+    notification_delivery_runtime_enforcement_enabled_v309,
+)
 
 from listings.models import (
     NotificationDeliveryEvent,
@@ -323,6 +326,7 @@ def build_notification_delivery_policy_baseline_v304(
     retention_backup_policy="",
     retention_cleanup_dry_run_contract=False,
     operator_recipient_output_policy="",
+    runtime_enforcement_enabled=False,
     legacy_recipient_output_surfaces=(
         V304_LEGACY_RECIPIENT_OUTPUT_SURFACES
     ),
@@ -567,10 +571,19 @@ def build_notification_delivery_policy_baseline_v304(
         blocking_not_ready
     )
 
+    effective_runtime_enforcement_enabled = bool(
+        runtime_enforcement_enabled
+        and runtime_enforcement_ready
+    )
+
     status = (
-        "implementation_ready_enforcement_disabled"
-        if runtime_enforcement_ready
-        else "policy_defined_runtime_not_ready"
+        "runtime_enforcement_enabled"
+        if effective_runtime_enforcement_enabled
+        else (
+            "implementation_ready_enforcement_disabled"
+            if runtime_enforcement_ready
+            else "implementation_not_ready_enforcement_disabled"
+        )
     )
 
     legacy_surfaces = tuple(
@@ -597,7 +610,9 @@ def build_notification_delivery_policy_baseline_v304(
         "runtime_enforcement_ready": (
             runtime_enforcement_ready
         ),
-        "runtime_enforcement_enabled": False,
+        "runtime_enforcement_enabled": (
+            effective_runtime_enforcement_enabled
+        ),
         "check_count": len(checks),
         "ready_count": sum(
             1
@@ -679,6 +694,9 @@ def get_notification_delivery_policy_baseline_v304(
             capabilities[
                 "operator_recipient_output_policy"
             ]
+        ),
+        runtime_enforcement_enabled=(
+            notification_delivery_runtime_enforcement_enabled_v309()
         ),
         legacy_recipient_output_surfaces=(
             capabilities[

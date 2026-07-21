@@ -9,6 +9,9 @@ from django.http import QueryDict
 from django.utils import timezone
 
 from categories.models import Category
+from .notification_delivery_runtime_enforcement_v309 import (
+    notification_delivery_recipient_email_v309,
+)
 from .attribute_filters import apply_attribute_filters
 from .models import Listing, SavedSearch
 from .saved_search_price_drop_notifications_v286 import (
@@ -226,7 +229,9 @@ def _saved_search_url_for_email(saved_search, site_base_url=None):
 
 # SAVED_SEARCH_NOTIFICATION_OPERATIONAL_HARDENING_V83
 def get_saved_search_recipient_email(saved_search):
-    return str(getattr(saved_search.user, "email", "") or "").strip()
+    return notification_delivery_recipient_email_v309(
+        saved_search.user
+    )
 
 
 def _saved_search_display_name(saved_search):

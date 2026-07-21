@@ -31,6 +31,9 @@ from listings.notification_delivery_preferences_v288 import (
     apply_notification_preferences_v288,
     load_notification_preference_map_v288,
 )
+from listings.notification_delivery_runtime_enforcement_v309 import (
+    notification_delivery_recipient_decision_v309,
+)
 from listings.notification_scheduler_lease_v301 import (
     SAVED_SEARCH_SCHEDULER_LEASE_NAME_V301,
     notification_scheduler_lease_v301,
@@ -281,17 +284,40 @@ Safety notes:
                     listings=claimed_listings,
                 )
 
-            recipient_email = get_saved_search_recipient_email(saved_search)
-            if not recipient_email:
+            recipient_decision_v309 = (
+                notification_delivery_recipient_decision_v309(
+                    saved_search.user
+                )
+            )
+            recipient_email = (
+                recipient_decision_v309.recipient_email
+            )
+            if not recipient_decision_v309.allowed:
                 skipped_no_recipient += 1
+                reason_code_v309 = (
+                    recipient_decision_v309.reason_code
+                    or "recipient_unavailable"
+                )
                 if event_claim is not None:
                     mark_notification_events_skipped_v287(
                         event_claim,
-                        reason="missing_recipient",
+                        reason=reason_code_v309,
                     )
-                self.stdout.write("  Email skipped: saved search user has no email address.")
+                if reason_code_v309 == "missing_recipient":
+                    self.stdout.write(
+                        "  Email skipped: saved search user "
+                        "has no email address."
+                    )
+                else:
+                    self.stdout.write(
+                        "  Email skipped: saved search user "
+                        "has no eligible verified recipient address."
+                    )
                 if should_mark_checked and not should_send:
-                    self.stdout.write("  --mark-checked skipped because no email recipient is available.")
+                    self.stdout.write(
+                        "  --mark-checked skipped because no "
+                        "eligible email recipient is available."
+                    )
                 continue
 
             message = build_saved_search_email_message(

@@ -26,6 +26,9 @@ from .listing_price_drop_filter_v278 import (
     annotate_current_price_transition_v278,
 )
 from .models import Listing, ListingPriceAlert
+from .notification_delivery_runtime_enforcement_v309 import (
+    notification_delivery_recipient_decision_v309,
+)
 
 
 LISTING_SPECIFIC_PRICE_ALERTS_V285 = True
@@ -152,9 +155,16 @@ def _listing_alert_url_v285(listing, site_base_url=""):
 
 
 def build_listing_price_alert_email_v285(alert, *, site_base_url=""):
-    recipient = str(alert.user.email or "").strip()
+    recipient_decision = (
+        notification_delivery_recipient_decision_v309(
+            alert.user
+        )
+    )
+    recipient = recipient_decision.recipient_email
     if not recipient:
-        raise ValueError("Price-alert user has no email address.")
+        raise ValueError(
+            "Price-alert user has no eligible recipient address."
+        )
 
     listing = alert.listing
     subject = f"Price drop: {listing.title}"
@@ -179,7 +189,12 @@ def build_listing_price_alert_email_v285(alert, *, site_base_url=""):
 
 
 def send_listing_price_alert_v285(alert, *, site_base_url="") -> int:
-    if not str(alert.user.email or "").strip():
+    recipient_decision = (
+        notification_delivery_recipient_decision_v309(
+            alert.user
+        )
+    )
+    if not recipient_decision.allowed:
         return 0
     return build_listing_price_alert_email_v285(
         alert,

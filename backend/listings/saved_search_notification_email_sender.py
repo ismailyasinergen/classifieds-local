@@ -8,6 +8,9 @@ from django.conf import settings
 from django.utils import timezone
 
 from listings.models import SavedSearch
+from listings.notification_delivery_runtime_enforcement_v309 import (
+    notification_delivery_recipient_decision_v309,
+)
 from listings.saved_search_notification_email_renderer import (
     render_saved_search_notification_email,
 )
@@ -501,6 +504,46 @@ def send_saved_search_notification_email(
         raise SavedSearchNotificationEmailDeliveryBlocked(
             "Saved-search notification delivery requires "
             "a recipient email address."
+        )
+
+    recipient_decision_v309 = (
+        notification_delivery_recipient_decision_v309(
+            saved_search.user
+        )
+    )
+
+    if not recipient_decision_v309.allowed:
+        reason_code_v309 = (
+            recipient_decision_v309.reason_code
+            or "recipient_unavailable"
+        )
+
+        if event_claim is not None:
+            mark_notification_events_skipped_v287(
+                event_claim,
+                reason=reason_code_v309,
+            )
+
+        record_saved_search_notification_runtime_event(
+            saved_search=saved_search,
+            context=sender_context,
+            event_type="skipped_missing_recipient",
+            notification_fingerprint=fingerprint,
+            operation_sequence=(
+                "delivery:"
+                f"{saved_search.pk}:"
+                "runtime_recipient_refused"
+            ),
+            reason_code=reason_code_v309,
+            metadata={
+                "mode": "execute_send",
+                "skip_reason": reason_code_v309,
+            },
+        )
+
+        raise SavedSearchNotificationEmailDeliveryBlocked(
+            "Saved-search notification delivery requires "
+            "an eligible verified recipient address."
         )
 
     before_checked = getattr(
