@@ -2,23 +2,23 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v321 — Mobile listing buyer action bar**
+- Latest product milestone: **v322 — Listing detail accessibility**
 - Product checkpoint:
-  `project-checkpoint-v321-mobile-listing-buyer-action-bar`
+  `project-checkpoint-v322-listing-detail-accessibility`
 - Previous milestone:
-  `project-checkpoint-v320-listing-social-preview-seo`
-- Validated regression baseline: **2,854 tests passing**
+  `project-checkpoint-v321-mobile-listing-buyer-action-bar`
+- Validated regression baseline: **2,861 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 419.758 seconds; 438.8 seconds measured wall-clock time
+  in 400.256 seconds; 420.2 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v321 migration; all existing migrations are applied
+- Migration state: no v322 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v321 adds a responsive, safe-area-aware buyer action bar to approved listing
-detail pages. Message, save/remove and share actions preserve the established
-authorization, CSRF and v317 share-fallback contracts. The same checkpoint
-closes audit findings around inactive-listing buyer actions, same-origin staff
-and notice redirects, and conversation-inbox unread-count query scaling.
+v322 gives listing detail pages a keyboard-visible skip path, main-content-first
+DOM order, valid heading progression, explicit focus visibility, reduced-motion
+handling, and a modal gallery focus loop with Escape closure and focus restore.
+Desktop sidebar placement remains unchanged, while mobile listing pages expose
+the listing before the category tree.
 
 ## Recently completed
 
@@ -88,24 +88,24 @@ and notice redirects, and conversation-inbox unread-count query scaling.
 - v320: listing social preview and SEO metadata
 - v321: mobile buyer action bar plus audit-driven buyer-action, redirect, and
   conversation query repairs
+- v322: listing-detail accessibility audit covering skip navigation, semantic
+  content order, headings, focus visibility, motion preferences, live regions,
+  unique IDs, and modal gallery keyboard containment
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v322 — Listing detail accessibility audit and
-fixes**. Its scope is keyboard navigation, focus management, accessible names,
-heading and landmark structure, live regions, motion preferences, contrast,
-touch targets, and regressions across anonymous buyer, authenticated buyer,
-seller, staff, and inactive-listing states.
+The selected next milestone is **v323 — Staff CSV formula-neutralization**. Its
+scope is one shared, idempotent export-cell safety contract applied to remaining
+staff-only CSV downloads, with exact preservation of headers, ordering,
+authorization, pagination independence, and ordinary cell values.
 
 Audit backlog after v321:
 
 - consolidate shadowed duplicate view definitions in the largest accounts and
   listings modules only through a separately tested extraction milestone;
-- review remaining staff-only CSV exports for shared spreadsheet-formula
-  neutralization without changing their data contract;
 - continue splitting the oversized listing-detail inline CSS and JavaScript
   after v322 locks down its accessible behavior.
 
@@ -113,7 +113,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V321 did not run `migrate`; this statement records the observed
+`listings.0025`. V322 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

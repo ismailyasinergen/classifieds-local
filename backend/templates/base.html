@@ -67,6 +67,26 @@
             color: #222;
         }
 
+        .skip-to-primary-content-v322 {
+            position: fixed;
+            top: 8px;
+            left: 8px;
+            z-index: 2000;
+            padding: 10px 14px;
+            border: 2px solid #111827;
+            border-radius: 6px;
+            background: #ffd200;
+            color: #111827;
+            font-weight: 800;
+            transform: translateY(-150%);
+        }
+
+        .skip-to-primary-content-v322:focus-visible {
+            transform: translateY(0);
+            outline: 3px solid #fff;
+            outline-offset: 2px;
+        }
+
         a {
             color: #1264a3;
             text-decoration: none;
@@ -174,12 +194,14 @@
         }
 
         .sidebar {
+            grid-column: 1;
+            grid-row: 1;
             padding: 0;
             align-self: start;
             overflow: hidden;
         }
 
-        .sidebar h3 {
+        .sidebar h2 {
             margin: 0;
             padding: 13px 14px;
             background: #f7f7f7;
@@ -219,6 +241,8 @@
         }
 
         .content {
+            grid-column: 2;
+            grid-row: 1;
             padding: 18px;
             min-height: 600px;
         }
@@ -448,6 +472,24 @@
 
             .layout {
                 grid-template-columns: 1fr;
+            }
+
+            .sidebar,
+            .content {
+                grid-column: 1;
+                grid-row: auto;
+            }
+
+            .sidebar {
+                order: -1;
+            }
+
+            body.listing-detail-page-v321 .content {
+                order: -1;
+            }
+
+            body.listing-detail-page-v321 .sidebar {
+                order: 0;
             }
 
             .nav {
@@ -1118,6 +1160,11 @@
 </head>
 <body class="{% block body_class %}{% endblock %}">
 
+    <!-- LISTING_DETAIL_ACCESSIBILITY_V322 -->
+    <a class="skip-to-primary-content-v322" href="#primary-content">
+        Skip to main content
+    </a>
+
 <!-- SELLER_RESTRICTION_ENFORCEMENT_UI_SINGLE -->
 {% if current_user_is_seller_suspended %}
     <div style="background:#7f1d1d; color:#fff; padding:14px 18px; text-align:center; font-weight:bold;">
@@ -1350,11 +1397,7 @@
 
 
     <main class="layout">
-        <aside class="sidebar">
-            {% include "categories/_sidebar.html" %}
-        </aside>
-
-        <section class="content">
+        <section class="content" id="primary-content" tabindex="-1">
             {% if messages %}
                 <div style="margin-bottom:16px;">
                     {% for message in messages %}
@@ -1367,6 +1410,10 @@
 
             {% block content %}{% endblock %}
         </section>
+
+        <aside class="sidebar" aria-label="Browse categories">
+            {% include "categories/_sidebar.html" %}
+        </aside>
     </main>
 </body>
 </html>

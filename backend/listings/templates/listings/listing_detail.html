@@ -1192,6 +1192,25 @@
             margin-top: 16px;
         }
 
+        /* LISTING_DETAIL_ACCESSIBILITY_V322 */
+        body.listing-detail-page-v321 a:focus-visible,
+        body.listing-detail-page-v321 button:focus-visible,
+        .gallery-main-display[role="button"]:focus-visible {
+            outline: 3px solid #005fcc;
+            outline-offset: 3px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body.listing-detail-page-v321 *,
+            body.listing-detail-page-v321 *::before,
+            body.listing-detail-page-v321 *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
         /* MOBILE_LISTING_BUYER_ACTION_BAR_V321 */
         .mobile-buyer-action-bar-v321 {
             display: none;
@@ -1381,6 +1400,7 @@
                 class="listing-gallery-lightbox-v318"
                 id="listing-gallery-lightbox-v318"
                 aria-labelledby="listing-gallery-lightbox-title-v318"
+                aria-modal="true"
                 data-marker="LISTING_GALLERY_LIGHTBOX_V318"
             >
                 <div class="listing-gallery-lightbox-shell-v318">
@@ -1434,6 +1454,7 @@
                     <footer class="listing-gallery-lightbox-footer-v318">
                         <span
                             id="listing-gallery-lightbox-counter-v318"
+                            role="status"
                             aria-live="polite"
                             aria-atomic="true"
                         >
@@ -2228,6 +2249,11 @@
                     ".classified-thumb-button"
                 )
             );
+            const focusableControls = [
+                closeButton,
+                previousButton,
+                nextButton,
+            ].filter(Boolean);
 
             if (
                 !mainImage
@@ -2387,6 +2413,36 @@
             lightbox.addEventListener(
                 "keydown",
                 function (event) {
+                    if (event.key === "Escape") {
+                        event.preventDefault();
+                        closeLightbox();
+                        return;
+                    }
+
+                    if (
+                        event.key === "Tab"
+                        && focusableControls.length
+                    ) {
+                        const firstControl = focusableControls[0];
+                        const lastControl = focusableControls[
+                            focusableControls.length - 1
+                        ];
+
+                        if (
+                            event.shiftKey
+                            && document.activeElement === firstControl
+                        ) {
+                            event.preventDefault();
+                            lastControl.focus();
+                        } else if (
+                            !event.shiftKey
+                            && document.activeElement === lastControl
+                        ) {
+                            event.preventDefault();
+                            firstControl.focus();
+                        }
+                    }
+
                     if (event.key === "ArrowLeft") {
                         event.preventDefault();
                         showLightboxImage(activeIndex - 1);
