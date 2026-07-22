@@ -64,12 +64,24 @@ class InlineStyleAttributeV324:
 
 
 @dataclass(frozen=True)
+class StaticAssetV324:
+    path: str
+    kind: str
+    character_count: int
+    markers: tuple[str, ...]
+
+    def as_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
 class ListingDetailAssetBoundaryReportV324:
     template_path: str
     style_blocks: tuple[InlineAssetBlockV324, ...]
     script_blocks: tuple[InlineAssetBlockV324, ...]
     inline_event_handlers: tuple[InlineEventHandlerV324, ...]
     inline_style_attributes: tuple[InlineStyleAttributeV324, ...]
+    static_assets: tuple[StaticAssetV324, ...]
     source_contract_tests: tuple[str, ...]
     asset_aware_source_tests: tuple[str, ...]
     template_markers: tuple[str, ...]
@@ -87,7 +99,7 @@ class ListingDetailAssetBoundaryReportV324:
 
     @property
     def mechanically_extractable(self) -> bool:
-        return bool(self.asset_blocks) and not self.template_dependent_block_count
+        return not self.template_dependent_block_count
 
     @property
     def blocker_codes(self) -> tuple[str, ...]:
@@ -130,6 +142,10 @@ class ListingDetailAssetBoundaryReportV324:
             "inline_style_attributes": [
                 attribute.as_dict()
                 for attribute in self.inline_style_attributes
+            ],
+            "static_assets": [
+                asset.as_dict()
+                for asset in self.static_assets
             ],
             "source_contract_tests": list(self.source_contract_tests),
             "asset_aware_source_tests": list(
@@ -232,6 +248,38 @@ def _source_contract_tests(
     return tuple(legacy_matches), tuple(asset_aware_matches)
 
 
+def _static_assets(backend_dir: Path) -> tuple[StaticAssetV324, ...]:
+    assets = []
+
+    for relative_path, kind in (
+        (
+            f"listings/static/{PLANNED_CSS_ASSET_V324}",
+            "css",
+        ),
+        (
+            f"listings/static/{PLANNED_JS_ASSET_V324}",
+            "javascript",
+        ),
+    ):
+        path = backend_dir / relative_path
+        if not path.is_file():
+            continue
+
+        source = path.read_text(encoding="utf-8")
+        assets.append(
+            StaticAssetV324(
+                path=relative_path,
+                kind=kind,
+                character_count=len(source),
+                markers=tuple(
+                    sorted(set(_MARKER_PATTERN.findall(source)))
+                ),
+            )
+        )
+
+    return tuple(assets)
+
+
 def audit_listing_detail_asset_boundary_v324(
     *,
     template_path: Path,
@@ -263,6 +311,7 @@ def audit_listing_detail_asset_boundary_v324(
         inline_style_attributes=tuple(
             attribute_parser.style_attributes
         ),
+        static_assets=_static_assets(backend_dir),
         source_contract_tests=source_contract_tests,
         asset_aware_source_tests=asset_aware_source_tests,
         template_markers=tuple(sorted(set(_MARKER_PATTERN.findall(source)))),

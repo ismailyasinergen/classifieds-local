@@ -38,7 +38,15 @@ class ListingDetailExtractionBlockersV325Tests(SimpleTestCase):
     def test_v325_marker_and_current_contract_path_are_stable(self):
         paths = listing_detail_contract_paths_v325(self.backend_dir)
 
-        self.assertEqual(paths, (self.template_path,))
+        self.assertEqual(len(paths), 2)
+        self.assertEqual(paths[0], self.template_path)
+        self.assertEqual(
+            paths[1].as_posix(),
+            (
+                self.backend_dir
+                / LISTING_DETAIL_STATIC_ASSET_PATHS_V325[0]
+            ).as_posix(),
+        )
         self.assertIn(V325_MARKER, self.source)
         self.assertIn(
             "LISTING_DETAIL_CONTRACT_SOURCE: "

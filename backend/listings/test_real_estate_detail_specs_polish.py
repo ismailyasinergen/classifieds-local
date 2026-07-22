@@ -1,11 +1,16 @@
 from datetime import timedelta
 from decimal import Decimal
+from pathlib import Path
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 
 from categories.models import Category
+from listings.listing_detail_asset_contract_v325 import (
+    read_listing_detail_contract_source_v325,
+)
 from listings.models import Listing
 
 
@@ -81,9 +86,12 @@ class RealEstateDetailSpecsPolishTests(TestCase):
         )
 
         response = self.client.get(listing.get_absolute_url())
+        contract_source = read_listing_detail_contract_source_v325(
+            Path(settings.BASE_DIR),
+        )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "REAL_ESTATE_DETAIL_SPECS_V69")
+        self.assertIn("REAL_ESTATE_DETAIL_SPECS_V69", contract_source)
         self.assertContains(response, "real-estate-detail-summary")
         self.assertContains(response, '<div class="real-estate-specs-panel"')
         self.assertContains(response, "Konut Özellikleri")
@@ -102,7 +110,7 @@ class RealEstateDetailSpecsPolishTests(TestCase):
         self.assertContains(response, "Takaslı")
         self.assertContains(response, "Hayır")
 
-    def test_non_real_estate_detail_keeps_generic_detail_grid(self):
+    def test_non_real_estate_detail_keeps_specialized_vehicle_panel(self):
         listing = self._listing(
             "V69 normal car detail specs",
             self.cars,
@@ -112,6 +120,7 @@ class RealEstateDetailSpecsPolishTests(TestCase):
         response = self.client.get(listing.get_absolute_url())
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "classified-detail-grid")
+        self.assertContains(response, "VEHICLE_DETAIL_SPECS_V72")
+        self.assertContains(response, '<div class="vehicle-detail-summary"')
         self.assertContains(response, "V69 normal car detail specs")
         self.assertNotContains(response, '<div class="real-estate-specs-panel"')

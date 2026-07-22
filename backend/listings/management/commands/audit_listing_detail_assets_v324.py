@@ -60,6 +60,7 @@ class Command(BaseCommand):
                 f"inline_handlers={len(report.inline_event_handlers)} "
                 "inline_styles="
                 f"{len(report.inline_style_attributes)} "
+                f"static_assets={len(report.static_assets)} "
                 f"source_contract_tests={len(report.source_contract_tests)} "
                 "asset_aware_source_tests="
                 f"{len(report.asset_aware_source_tests)} "
