@@ -14,6 +14,8 @@ from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
+from config.csv_safety_v323 import csv_safe_cell_v323
+
 from .models import SavedSearchNotificationAuditEvent
 
 
@@ -913,22 +915,7 @@ def paginate_saved_search_notification_audit_operator_events(
 
 
 def _csv_safe_cell(value: Any) -> str:
-    if value is None:
-        return ""
-
-    text = str(value)
-
-    if text.startswith(
-        (
-            "=",
-            "+",
-            "-",
-            "@",
-        )
-    ):
-        return "'" + text
-
-    return text
+    return csv_safe_cell_v323(value)
 
 
 def iter_saved_search_notification_audit_csv_rows(

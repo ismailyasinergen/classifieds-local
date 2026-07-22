@@ -17,6 +17,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from config.csv_safety_v323 import write_csv_row_v323
 from listings.models import Listing
 
 from .models import (
@@ -606,7 +607,7 @@ def moderation_appeal_export_csv(request):
 
     writer = csv.writer(response)
 
-    writer.writerow([
+    write_csv_row_v323(writer, [
         "appeal_id",
         "status",
         "appeal_type",
@@ -630,7 +631,7 @@ def moderation_appeal_export_csv(request):
         total_mb = round(total_size / 1024 / 1024, 2)
         filenames = "; ".join(item.original_name for item in attachments)
 
-        writer.writerow([
+        write_csv_row_v323(writer, [
             appeal.pk,
             appeal.get_status_display(),
             appeal.get_appeal_type_display(),
@@ -736,7 +737,7 @@ def moderation_appeal_bulk_evidence_zip(request):
         summary_buffer = io.StringIO()
         writer = csv.writer(summary_buffer)
 
-        writer.writerow([
+        write_csv_row_v323(writer, [
             "appeal_id",
             "status",
             "appeal_type",
@@ -759,7 +760,7 @@ def moderation_appeal_bulk_evidence_zip(request):
                 total_size = sum(item.size or 0 for item in attachments)
                 total_mb = round(total_size / 1024 / 1024, 2)
 
-                writer.writerow([
+                write_csv_row_v323(writer, [
                     appeal.pk,
                     appeal.get_status_display(),
                     appeal.get_appeal_type_display(),
@@ -1386,7 +1387,7 @@ def moderation_appeal_export_csv(request):
 
     writer = csv.writer(response)
 
-    writer.writerow([
+    write_csv_row_v323(writer, [
         "appeal_id",
         "status",
         "appeal_type",
@@ -1415,7 +1416,7 @@ def moderation_appeal_export_csv(request):
         filenames = "; ".join(item.original_name for item in attachments)
         extra_state = _appeal_extra_evidence_state(appeal)
 
-        writer.writerow([
+        write_csv_row_v323(writer, [
             appeal.pk,
             appeal.get_status_display(),
             appeal.get_appeal_type_display(),
@@ -2070,7 +2071,7 @@ def moderation_appeal_export_csv(request):
 
     writer = csv.writer(response)
 
-    writer.writerow([
+    write_csv_row_v323(writer, [
         "appeal_id",
         "status",
         "appeal_type",
@@ -2102,7 +2103,7 @@ def moderation_appeal_export_csv(request):
         filenames = "; ".join(item.original_name for item in attachments)
         extra_state = _appeal_deadline_queue_state(appeal)
 
-        writer.writerow([
+        write_csv_row_v323(writer, [
             appeal.pk,
             appeal.get_status_display(),
             appeal.get_appeal_type_display(),

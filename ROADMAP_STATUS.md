@@ -2,23 +2,23 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v322 — Listing detail accessibility**
+- Latest product milestone: **v323 — Staff CSV formula-neutralization**
 - Product checkpoint:
-  `project-checkpoint-v322-listing-detail-accessibility`
+  `project-checkpoint-v323-staff-csv-formula-neutralization`
 - Previous milestone:
-  `project-checkpoint-v321-mobile-listing-buyer-action-bar`
-- Validated regression baseline: **2,861 tests passing**
+  `project-checkpoint-v322-listing-detail-accessibility`
+- Validated regression baseline: **2,868 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 400.256 seconds; 420.2 seconds measured wall-clock time
+  in 395.933 seconds; 416.3 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v322 migration; all existing migrations are applied
+- Migration state: no v323 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v322 gives listing detail pages a keyboard-visible skip path, main-content-first
-DOM order, valid heading progression, explicit focus visibility, reduced-motion
-handling, and a modal gallery focus loop with Escape closure and focus restore.
-Desktop sidebar placement remains unchanged, while mobile listing pages expose
-the listing before the category tree.
+v323 applies one idempotent spreadsheet-formula neutralization contract across
+all five staff CSV producer families. Listing reports, moderation appeals and
+ZIP summaries, Trust & Safety action/event logs, seller-store admin exports, and
+saved-search audit exports now neutralize `=`, `+`, `-`, `@`, tab, and carriage
+return prefixes without changing headers, ordering, filters, or authorization.
 
 ## Recently completed
 
@@ -91,29 +91,31 @@ the listing before the category tree.
 - v322: listing-detail accessibility audit covering skip navigation, semantic
   content order, headings, focus visibility, motion preferences, live regions,
   unique IDs, and modal gallery keyboard containment
+- v323: shared, idempotent spreadsheet-formula neutralization across all staff
+  CSV producer families with real export-response regression coverage
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v323 — Staff CSV formula-neutralization**. Its
-scope is one shared, idempotent export-cell safety contract applied to remaining
-staff-only CSV downloads, with exact preservation of headers, ordering,
-authorization, pagination independence, and ordinary cell values.
+The selected next milestone is **v324 — Listing-detail asset-extraction
+groundwork**. Its scope is a source-shape and dependency contract for moving the
+oversized inline listing-detail CSS and JavaScript into versioned static assets
+without changing rendered behavior, CSP assumptions, loading order, or the
+v275-v323 marker surface.
 
 Audit backlog after v321:
 
 - consolidate shadowed duplicate view definitions in the largest accounts and
-  listings modules only through a separately tested extraction milestone;
-- continue splitting the oversized listing-detail inline CSS and JavaScript
-  after v322 locks down its accessible behavior.
+  listings modules only through separately tested extraction milestones after
+  the listing-detail asset boundary is established.
 
 Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V322 did not run `migrate`; this statement records the observed
+`listings.0025`. V323 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

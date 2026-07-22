@@ -10,6 +10,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from config.csv_safety_v323 import write_csv_row_v323
+
 from .listing_moderation_helpers import _create_moderation_notice
 from .models import Listing
 
@@ -359,7 +361,7 @@ def listing_report_export_csv(request):
     response["Content-Disposition"] = 'attachment; filename="listing_reports.csv"'
 
     writer = csv.writer(response)
-    writer.writerow([
+    write_csv_row_v323(writer, [
         "Report ID",
         "Listing ID",
         "Listing Title",
@@ -377,7 +379,7 @@ def listing_report_export_csv(request):
     ])
 
     for report in reports:
-        writer.writerow([
+        write_csv_row_v323(writer, [
             report.id,
             report.listing.id,
             report.listing.title,
@@ -837,7 +839,7 @@ def listing_report_export_csv(request):
     response["Content-Disposition"] = 'attachment; filename="listing_reports.csv"'
 
     writer = csv.writer(response)
-    writer.writerow([
+    write_csv_row_v323(writer, [
         "Report ID",
         "Listing ID",
         "Listing Title",
@@ -855,7 +857,7 @@ def listing_report_export_csv(request):
     ])
 
     for report in reports:
-        writer.writerow([
+        write_csv_row_v323(writer, [
             report.id,
             report.listing.id,
             report.listing.title,

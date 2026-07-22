@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 
+from config.csv_safety_v323 import write_csv_row_v323
 from listings.models import ListingReport
 
 from .models import ModerationAppeal, TrustSafetyEvent, UserReport
@@ -444,7 +445,7 @@ def trust_safety_action_log_export(request):
 
     for row in rows:
         row.pop("sort_date", None)
-        writer.writerow(row)
+        write_csv_row_v323(writer, row)
 
     return response
 
@@ -578,7 +579,7 @@ def trust_safety_event_log_export(request):
     response["Content-Disposition"] = 'attachment; filename="trust_safety_events.csv"'
 
     writer = csv.writer(response)
-    writer.writerow([
+    write_csv_row_v323(writer, [
         "event_id",
         "event_type",
         "created_at",
@@ -596,7 +597,7 @@ def trust_safety_event_log_export(request):
     ])
 
     for event in events:
-        writer.writerow([
+        write_csv_row_v323(writer, [
             event.pk,
             event.get_event_type_display(),
             event.created_at.isoformat() if event.created_at else "",

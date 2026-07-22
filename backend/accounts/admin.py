@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from config.csv_safety_v323 import csv_safe_cell_v323
+
 from .models import SellerStore, UserProfile
 
 
@@ -351,10 +353,7 @@ V215_SELLER_STORE_REVIEW_EXPORT_MAX_ROWS = 250
 
 
 def _v215_seller_store_csv_safe(value):
-    text = "" if value is None else str(value)
-    if text[:1] in {"=", "+", "-", "@"}:
-        return "'" + text
-    return text
+    return csv_safe_cell_v323(value)
 
 
 def _v215_seller_store_attr(instance, names, default=""):
