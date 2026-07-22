@@ -57,6 +57,32 @@ The restore command:
 A production or development restore requires a separate procedure and explicit
 human authorization. This disposable-target command does not provide it.
 
+## Verified PostgreSQL backup and restore rehearsal
+
+V315 combines the guarded backup and disposable restore foundations into an
+explicit operator-run rehearsal.
+
+The rehearsal must:
+
+- create a new verified PostgreSQL backup and adjacent SHA-256 sidecar;
+- restore only into a separately created `test_` database;
+- compare table inventories, row counts, migration history, sequences, logical
+  columns, and relevant CHECK-constraint behaviour;
+- confirm that the source development database remains unchanged;
+- confirm that the exact three notification-delivery migrations remain
+  unapplied;
+- remove the disposable target after verification;
+- retain the verified backup and checksum for the later migration rollout.
+
+The rehearsal does not authorize migration application or a development or
+production restore.
+
+The disposable target must be removed after verification. The backup pair must
+remain under the ignored `backups/` directory.
+
+See `docs/verified_postgres_backup_restore_rehearsal_v315.md` for the full
+operator sequence and evidence contract.
+
 ## Media backup
 
 Create a media backup:
