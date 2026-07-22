@@ -5,6 +5,7 @@
 {% comment %}PUBLIC_LISTING_PRICE_HISTORY_TIMELINE_V283{% endcomment %}
 {% comment %}LISTING_COMPARISON_V274{% endcomment %}
 {% comment %}LISTING_DETAIL_ASSET_EXTRACTION_GROUNDWORK_V324{% endcomment %}
+{% comment %}LISTING_DETAIL_EXTRACTION_BLOCKER_REMOVAL_V325{% endcomment %}
 
 {% block body_class %}listing-detail-page-v321{% endblock %}
 
@@ -1342,7 +1343,7 @@
                             aria-label="Open full-screen photo viewer"
                             aria-haspopup="dialog"
                             aria-controls="listing-gallery-lightbox-v318"
-                            onerror="this.outerHTML='<div class=&quot;classified-main-placeholder&quot;>No image</div>'"
+                            data-listing-image-fallback-v325="classified-main-placeholder"
                         >
                     {% else %}
                         <div class="classified-main-placeholder">No images yet</div>
@@ -1380,7 +1381,7 @@
                             class="classified-thumb"
                             src="{{ image.image.url }}"
                             alt="{{ listing.title }} thumbnail {{ forloop.counter }}"
-                            onerror="this.outerHTML='<div class=&quot;classified-thumb-placeholder&quot;>No image</div>'"
+                            data-listing-image-fallback-v325="classified-thumb-placeholder"
                         >
                     </button>
                 {% empty %}
@@ -2166,6 +2167,35 @@
     </section>
     <script>
         (function () {
+            const fallbackImagesV325 = document.querySelectorAll(
+                "[data-listing-image-fallback-v325]"
+            );
+
+            fallbackImagesV325.forEach(function (image) {
+                function replaceFailedImageV325() {
+                    if (!image.parentNode) {
+                        return;
+                    }
+
+                    const fallback = document.createElement("div");
+                    fallback.className = (
+                        image.dataset.listingImageFallbackV325
+                    );
+                    fallback.textContent = "No image";
+                    image.replaceWith(fallback);
+                }
+
+                image.addEventListener(
+                    "error",
+                    replaceFailedImageV325,
+                    { once: true }
+                );
+
+                if (image.complete && image.naturalWidth === 0) {
+                    replaceFailedImageV325();
+                }
+            });
+
             const mainImage = document.getElementById("classified-main-image");
             const counter = document.getElementById("gallery-counter");
             const prevButton = document.getElementById("gallery-prev");

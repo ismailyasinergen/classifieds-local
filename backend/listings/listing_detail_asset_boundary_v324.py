@@ -11,6 +11,9 @@ from pathlib import Path
 V324_MARKER = "LISTING_DETAIL_ASSET_EXTRACTION_GROUNDWORK_V324"
 PLANNED_CSS_ASSET_V324 = "listings/listing-detail-v324.css"
 PLANNED_JS_ASSET_V324 = "listings/listing-detail-v324.js"
+ASSET_AWARE_SOURCE_READER_V325 = (
+    "read_listing_detail_contract_source_v325"
+)
 
 _STYLE_BLOCK_PATTERN = re.compile(
     r"<style\b[^>]*>(?P<body>.*?)</style>",
@@ -52,12 +55,23 @@ class InlineEventHandlerV324:
 
 
 @dataclass(frozen=True)
+class InlineStyleAttributeV324:
+    tag: str
+    line_number: int
+
+    def as_dict(self) -> dict[str, object]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
 class ListingDetailAssetBoundaryReportV324:
     template_path: str
     style_blocks: tuple[InlineAssetBlockV324, ...]
     script_blocks: tuple[InlineAssetBlockV324, ...]
     inline_event_handlers: tuple[InlineEventHandlerV324, ...]
+    inline_style_attributes: tuple[InlineStyleAttributeV324, ...]
     source_contract_tests: tuple[str, ...]
+    asset_aware_source_tests: tuple[str, ...]
     template_markers: tuple[str, ...]
 
     @property
@@ -98,6 +112,7 @@ class ListingDetailAssetBoundaryReportV324:
             self.style_blocks
             or self.script_blocks
             or self.inline_event_handlers
+            or self.inline_style_attributes
         )
 
     def as_dict(self) -> dict[str, object]:
@@ -112,7 +127,14 @@ class ListingDetailAssetBoundaryReportV324:
                 handler.as_dict()
                 for handler in self.inline_event_handlers
             ],
+            "inline_style_attributes": [
+                attribute.as_dict()
+                for attribute in self.inline_style_attributes
+            ],
             "source_contract_tests": list(self.source_contract_tests),
+            "asset_aware_source_tests": list(
+                self.asset_aware_source_tests
+            ),
             "template_markers": list(self.template_markers),
             "asset_block_count": len(self.asset_blocks),
             "template_dependent_block_count": (
@@ -126,10 +148,11 @@ class ListingDetailAssetBoundaryReportV324:
         }
 
 
-class _InlineEventHandlerParserV324(HTMLParser):
+class _InlineAttributeParserV324(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=False)
         self.handlers: list[InlineEventHandlerV324] = []
+        self.style_attributes: list[InlineStyleAttributeV324] = []
 
     def handle_starttag(self, tag, attrs):
         line_number, _offset = self.getpos()
@@ -141,6 +164,13 @@ class _InlineEventHandlerParserV324(HTMLParser):
                     InlineEventHandlerV324(
                         tag=tag.lower(),
                         attribute=normalized,
+                        line_number=line_number,
+                    )
+                )
+            if normalized == "style":
+                self.style_attributes.append(
+                    InlineStyleAttributeV324(
+                        tag=tag.lower(),
                         line_number=line_number,
                     )
                 )
@@ -180,19 +210,26 @@ def _asset_blocks(
     return tuple(blocks)
 
 
-def _source_contract_tests(backend_dir: Path) -> tuple[str, ...]:
-    matches = []
+def _source_contract_tests(
+    backend_dir: Path,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    legacy_matches = []
+    asset_aware_matches = []
 
     for path in sorted(backend_dir.rglob("test*.py")):
         source = path.read_text(encoding="utf-8")
+        relative_path = path.relative_to(backend_dir).as_posix()
+        if ASSET_AWARE_SOURCE_READER_V325 in source:
+            asset_aware_matches.append(relative_path)
+            continue
         if "listing_detail.html" not in source:
             continue
         if "read_text" not in source:
             continue
 
-        matches.append(path.relative_to(backend_dir).as_posix())
+        legacy_matches.append(relative_path)
 
-    return tuple(matches)
+    return tuple(legacy_matches), tuple(asset_aware_matches)
 
 
 def audit_listing_detail_asset_boundary_v324(
@@ -204,8 +241,11 @@ def audit_listing_detail_asset_boundary_v324(
     backend_dir = Path(backend_dir)
     source = template_path.read_text(encoding="utf-8")
 
-    handler_parser = _InlineEventHandlerParserV324()
-    handler_parser.feed(source)
+    attribute_parser = _InlineAttributeParserV324()
+    attribute_parser.feed(source)
+    source_contract_tests, asset_aware_source_tests = (
+        _source_contract_tests(backend_dir)
+    )
 
     return ListingDetailAssetBoundaryReportV324(
         template_path=template_path.relative_to(backend_dir).as_posix(),
@@ -219,7 +259,11 @@ def audit_listing_detail_asset_boundary_v324(
             kind="script",
             pattern=_SCRIPT_BLOCK_PATTERN,
         ),
-        inline_event_handlers=tuple(handler_parser.handlers),
-        source_contract_tests=_source_contract_tests(backend_dir),
+        inline_event_handlers=tuple(attribute_parser.handlers),
+        inline_style_attributes=tuple(
+            attribute_parser.style_attributes
+        ),
+        source_contract_tests=source_contract_tests,
+        asset_aware_source_tests=asset_aware_source_tests,
         template_markers=tuple(sorted(set(_MARKER_PATTERN.findall(source)))),
     )

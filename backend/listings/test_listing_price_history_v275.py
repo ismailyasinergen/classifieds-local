@@ -10,6 +10,9 @@ from django.test import TestCase
 from django.urls import reverse
 
 from categories.models import Category
+from listings.listing_detail_asset_contract_v325 import (
+    read_listing_detail_contract_source_v325,
+)
 from listings.models import (
     Listing,
     ListingPriceHistory,
@@ -446,13 +449,8 @@ class ListingPriceHistoryV275Tests(TestCase):
                 )
 
     def test_v271_through_v275_template_markers_coexist(self):
-        template_source = (
-            Path(__file__).resolve().parent
-            / "templates"
-            / "listings"
-            / "listing_detail.html"
-        ).read_text(
-            encoding="utf-8",
+        template_source = read_listing_detail_contract_source_v325(
+            Path(__file__).resolve().parents[1],
         )
 
         for marker in (
@@ -470,13 +468,8 @@ class ListingPriceHistoryV275Tests(TestCase):
                 )
 
     def test_v275_price_ui_preserves_v274_compare_control(self):
-        template_source = (
-            Path(__file__).resolve().parent
-            / "templates"
-            / "listings"
-            / "listing_detail.html"
-        ).read_text(
-            encoding="utf-8",
+        template_source = read_listing_detail_contract_source_v325(
+            Path(__file__).resolve().parents[1],
         )
 
         price_hook = (
@@ -512,13 +505,8 @@ class ListingPriceHistoryV275Tests(TestCase):
         )
 
     def test_v275_timeline_is_independent_of_related_listings(self):
-        template_source = (
-            Path(__file__).resolve().parent
-            / "templates"
-            / "listings"
-            / "listing_detail.html"
-        ).read_text(
-            encoding="utf-8",
+        template_source = read_listing_detail_contract_source_v325(
+            Path(__file__).resolve().parents[1],
         )
 
         timeline_position = template_source.index(

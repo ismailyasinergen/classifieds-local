@@ -45,6 +45,9 @@ from listings.listing_comparison_views_v274 import (
     listing_comparison_toggle_v274,
     listing_comparison_view_v274,
 )
+from listings.listing_detail_asset_contract_v325 import (
+    read_listing_detail_contract_source_v325,
+)
 from listings.models import Listing
 
 
@@ -706,9 +709,14 @@ class ListingComparisonV274Tests(TestCase):
         )
 
         for template_path, block_marker in cases:
-            source = template_path.read_text(
-                encoding="utf-8",
-            )
+            if template_path.name == "listing_detail.html":
+                source = read_listing_detail_contract_source_v325(
+                    backend_root,
+                )
+            else:
+                source = template_path.read_text(
+                    encoding="utf-8",
+                )
 
             marker_position = source.index(
                 block_marker
@@ -785,11 +793,16 @@ class ListingComparisonV274Tests(TestCase):
         )
 
         for relative_path in relative_paths:
-            source = (
-                backend_root / relative_path
-            ).read_text(
-                encoding="utf-8",
-            )
+            if relative_path.endswith("listing_detail.html"):
+                source = read_listing_detail_contract_source_v325(
+                    backend_root,
+                )
+            else:
+                source = (
+                    backend_root / relative_path
+                ).read_text(
+                    encoding="utf-8",
+                )
 
             self.assertIn(
                 "LISTING_COMPARISON_V274",

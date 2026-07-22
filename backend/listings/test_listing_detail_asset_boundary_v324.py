@@ -4,7 +4,6 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.management import call_command
-from django.core.management.base import CommandError
 from django.test import SimpleTestCase
 
 from listings.listing_detail_asset_boundary_v324 import (
@@ -12,6 +11,9 @@ from listings.listing_detail_asset_boundary_v324 import (
     PLANNED_JS_ASSET_V324,
     V324_MARKER,
     audit_listing_detail_asset_boundary_v324,
+)
+from listings.listing_detail_asset_contract_v325 import (
+    read_listing_detail_contract_source_v325,
 )
 
 
@@ -33,7 +35,9 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         )
 
     def test_v324_marker_and_planned_asset_paths_are_stable(self):
-        source = self.template_path.read_text(encoding="utf-8")
+        source = read_listing_detail_contract_source_v325(
+            self.backend_dir,
+        )
 
         self.assertIn(V324_MARKER, source)
         self.assertEqual(
@@ -74,34 +78,26 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         )
         self.assertIn(V324_MARKER, self.report.template_markers)
 
-    def test_cutover_blockers_are_explicit_and_csp_is_not_overclaimed(self):
-        self.assertEqual(len(self.report.inline_event_handlers), 2)
-        self.assertEqual(
-            {
-                handler.attribute
-                for handler in self.report.inline_event_handlers
-            },
-            {"onerror"},
+    def test_v325_clears_cutover_blockers_without_overclaiming_csp(self):
+        self.assertEqual(self.report.inline_event_handlers, ())
+        self.assertEqual(self.report.source_contract_tests, ())
+        self.assertGreaterEqual(
+            len(self.report.asset_aware_source_tests),
+            8,
         )
-        self.assertGreaterEqual(len(self.report.source_contract_tests), 8)
-        self.assertEqual(
-            self.report.blocker_codes,
-            (
-                "inline-event-handlers",
-                "legacy-source-contract-tests",
-            ),
-        )
-        self.assertFalse(self.report.cutover_ready)
+        self.assertEqual(self.report.blocker_codes, ())
+        self.assertTrue(self.report.cutover_ready)
+        self.assertGreater(len(self.report.inline_style_attributes), 0)
         self.assertFalse(self.report.strict_csp_ready)
 
-    def test_known_source_contracts_are_discovered(self):
+    def test_known_source_contracts_are_asset_aware(self):
         self.assertIn(
             "listings/test_listing_gallery_lightbox_v318.py",
-            self.report.source_contract_tests,
+            self.report.asset_aware_source_tests,
         )
         self.assertIn(
             "listings/test_listing_detail_accessibility_v322.py",
-            self.report.source_contract_tests,
+            self.report.asset_aware_source_tests,
         )
 
     def test_text_and_json_commands_are_deterministic_and_read_only(self):
@@ -112,7 +108,7 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         self.assertIn("styles=1 scripts=4", rendered)
         self.assertIn("template_dependent=0", rendered)
         self.assertIn("mechanically_extractable=true", rendered)
-        self.assertIn("cutover_ready=false", rendered)
+        self.assertIn("cutover_ready=true", rendered)
         self.assertIn("read_only=true", rendered)
 
         json_output = StringIO()
@@ -124,20 +120,18 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         payload = json.loads(json_output.getvalue())
 
         self.assertEqual(payload["asset_block_count"], 5)
-        self.assertEqual(payload["inline_event_handlers"][0]["tag"], "img")
+        self.assertEqual(payload["inline_event_handlers"], [])
+        self.assertGreater(len(payload["inline_style_attributes"]), 0)
+        self.assertEqual(payload["source_contract_tests"], [])
         self.assertTrue(payload["read_only"])
 
-    def test_fail_on_blockers_is_ci_compatible(self):
-        with self.assertRaisesMessage(
-            CommandError,
-            "Listing-detail asset cutover blockers remain",
-        ):
-            call_command(
-                "audit_listing_detail_assets_v324",
-                fail_on_blockers=True,
-                stdout=StringIO(),
-                stderr=StringIO(),
-            )
+    def test_fail_on_blockers_succeeds_after_v325_remediation(self):
+        call_command(
+            "audit_listing_detail_assets_v324",
+            fail_on_blockers=True,
+            stdout=StringIO(),
+            stderr=StringIO(),
+        )
 
     def test_v324_adds_no_database_migration(self):
         matches = []

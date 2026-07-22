@@ -8,6 +8,9 @@ from django.test import TestCase
 from django.urls import reverse
 
 from categories.models import Category
+from listings.listing_detail_asset_contract_v325 import (
+    read_listing_detail_contract_source_v325,
+)
 from listings.models import Listing, ListingFavorite
 
 
@@ -142,7 +145,9 @@ class ListingMobileBuyerActionBarV321Tests(TestCase):
                 )
 
     def test_v321_mobile_safe_area_and_print_contract_is_packaged(self):
-        source = self.template_path.read_text(encoding="utf-8")
+        source = read_listing_detail_contract_source_v325(
+            Path(settings.BASE_DIR),
+        )
 
         for fragment in (
             ".mobile-buyer-action-bar-v321",

@@ -13,6 +13,9 @@ from accounts.models import (
     UserProfile,
 )
 from categories.models import Category
+from listings.listing_detail_asset_contract_v325 import (
+    read_listing_detail_contract_source_v325,
+)
 from listings.models import Listing
 
 
@@ -34,8 +37,8 @@ class ListingLocationActionsV319Tests(
             / "listings"
             / "listing_detail.html"
         )
-        cls.source = cls.template_path.read_text(
-            encoding="utf-8"
+        cls.source = read_listing_detail_contract_source_v325(
+            cls.base_dir,
         )
 
     def setUp(self):

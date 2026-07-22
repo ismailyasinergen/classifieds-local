@@ -37,6 +37,9 @@ from listings.listing_recommendations import (
     get_related_listings_v271,
     normalize_related_listings_limit_v271,
 )
+from listings.listing_detail_asset_contract_v325 import (
+    read_listing_detail_contract_source_v325,
+)
 from listings.models import Listing
 
 
@@ -569,11 +572,8 @@ class RelatedListingsRecommendationsV271Tests(
             encoding="utf-8",
         )
 
-        template_source = Path(
-            "listings/templates/listings/"
-            "listing_detail.html"
-        ).read_text(
-            encoding="utf-8",
+        template_source = read_listing_detail_contract_source_v325(
+            Path(__file__).resolve().parents[1],
         )
 
         for source in (

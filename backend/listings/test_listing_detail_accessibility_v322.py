@@ -8,6 +8,9 @@ from django.test import TestCase
 from django.urls import reverse
 
 from categories.models import Category
+from listings.listing_detail_asset_contract_v325 import (
+    read_listing_detail_contract_source_v325,
+)
 from listings.models import Listing
 
 
@@ -114,7 +117,7 @@ class ListingDetailAccessibilityV322Tests(TestCase):
             self.assertLessEqual(current - previous, 1)
 
     def test_lightbox_has_modal_and_keyboard_focus_contract(self):
-        source = self.detail_template_path.read_text(encoding="utf-8")
+        source = read_listing_detail_contract_source_v325(self.base_dir)
 
         for fragment in (
             'aria-modal="true"',
@@ -129,7 +132,7 @@ class ListingDetailAccessibilityV322Tests(TestCase):
                 self.assertIn(fragment, source)
 
     def test_focus_visibility_and_reduced_motion_are_packaged(self):
-        source = self.detail_template_path.read_text(encoding="utf-8")
+        source = read_listing_detail_contract_source_v325(self.base_dir)
 
         for fragment in (
             "LISTING_DETAIL_ACCESSIBILITY_V322",

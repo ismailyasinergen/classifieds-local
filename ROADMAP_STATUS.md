@@ -2,22 +2,23 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v324 — Listing-detail asset-extraction groundwork**
+- Latest product milestone: **v325 — Listing-detail extraction blocker removal**
 - Product checkpoint:
-  `project-checkpoint-v324-listing-detail-asset-boundary`
+  `project-checkpoint-v325-listing-detail-extraction-blockers`
 - Previous milestone:
-  `project-checkpoint-v323-staff-csv-formula-neutralization`
-- Validated regression baseline: **2,876 tests passing**
+  `project-checkpoint-v324-listing-detail-asset-boundary`
+- Validated regression baseline: **2,883 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 416.325 seconds; 442 seconds measured wall-clock time
+  in 384.497 seconds; 406.2 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v324 migration; all existing migrations are applied
+- Migration state: no v325 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v324 establishes an executable, read-only boundary around the oversized inline
-listing-detail CSS and JavaScript. The audit records one style block, four
-script blocks, two inline event handlers, eleven legacy source-contract tests,
-and marker ownership without extracting assets or changing browser behavior.
+v325 replaces two inline image error handlers with equivalent early/late
+failure listeners and migrates eleven legacy source-reading tests to a shared,
+asset-aware contract. The audit now reports zero cutover blockers while keeping
+strict CSP readiness false for the remaining inline blocks and style
+attributes.
 
 ## Recently completed
 
@@ -95,16 +96,20 @@ and marker ownership without extracting assets or changing browser behavior.
 - v324: deterministic, read-only listing-detail asset boundary with block
   ranges, template-dependency and marker inventories, explicit CSP/cutover
   blockers, JSON output, and a CI-compatible failure mode
+- v325: equivalent data-hook image fallbacks, asset-aware source contracts for
+  eleven migrated test modules, zero extraction blockers, and inline-style
+  inventory that prevents strict-CSP overclaiming
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v325 — Listing-detail extraction blocker
-removal**. Its scope is to replace the two inline image error handlers with
-equivalent event-listener behavior and give the eleven legacy source-reading
-tests an asset-aware contract before any physical CSS or JavaScript cutover.
+The selected next milestone is **v326 — Listing-detail CSS static-asset
+extraction**. Its scope is to move only the template-independent style block to
+the planned versioned static file while preserving cascade order, template
+markers, rendering, and the asset-aware test surface. JavaScript remains inline
+for an independently validated later milestone.
 
 Audit backlog after v321:
 
@@ -116,7 +121,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V324 did not run `migrate`; this statement records the observed
+`listings.0025`. V325 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

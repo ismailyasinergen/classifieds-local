@@ -17,6 +17,9 @@ from listings.listing_public_price_history_v283 import (
     PUBLIC_PRICE_HISTORY_LIMIT_V283,
     get_public_price_history_v283,
 )
+from listings.listing_detail_asset_contract_v325 import (
+    read_listing_detail_contract_source_v325,
+)
 from listings.models import Listing, ListingPriceHistory
 
 
@@ -375,13 +378,9 @@ class PublicListingPriceHistoryTimelineV283Tests(TestCase):
 
         response = self.client.get(self.detail_url())
         entry = response.context["public_price_history_v283"][0]
-        template_path = (
-            Path(__file__).resolve().parent
-            / "templates"
-            / "listings"
-            / "listing_detail.html"
+        template_source = read_listing_detail_contract_source_v325(
+            Path(__file__).resolve().parents[1],
         )
-        template_source = template_path.read_text(encoding="utf-8")
         timeline_source = template_source.split(
             "{% if price_history_v275.has_changes %}",
             1,
@@ -417,12 +416,9 @@ class PublicListingPriceHistoryTimelineV283Tests(TestCase):
         )
 
     def test_v283_source_markers_documentation_and_migration_status(self):
-        template_source = (
-            Path(__file__).resolve().parent
-            / "templates"
-            / "listings"
-            / "listing_detail.html"
-        ).read_text(encoding="utf-8")
+        template_source = read_listing_detail_contract_source_v325(
+            Path(__file__).resolve().parents[1],
+        )
         migration_directory = Path(__file__).resolve().parent / "migrations"
 
         self.assertTrue(PUBLIC_LISTING_PRICE_HISTORY_TIMELINE_V283)

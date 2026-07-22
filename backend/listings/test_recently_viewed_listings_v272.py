@@ -45,6 +45,9 @@ from listings.listing_recently_viewed import (
     normalize_recently_viewed_listing_ids_v272,
     record_recently_viewed_listing_v272,
 )
+from listings.listing_detail_asset_contract_v325 import (
+    read_listing_detail_contract_source_v325,
+)
 from listings.models import Listing
 
 
@@ -913,11 +916,8 @@ class RecentlyViewedListingsV272Tests(
             encoding="utf-8",
         )
 
-        template_source = Path(
-            "listings/templates/listings/"
-            "listing_detail.html"
-        ).read_text(
-            encoding="utf-8",
+        template_source = read_listing_detail_contract_source_v325(
+            Path(__file__).resolve().parents[1],
         )
 
         for source in (

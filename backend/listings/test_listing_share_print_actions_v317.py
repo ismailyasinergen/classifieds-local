@@ -5,6 +5,10 @@ from pathlib import Path
 from django.conf import settings
 from django.test import SimpleTestCase
 
+from listings.listing_detail_asset_contract_v325 import (
+    read_listing_detail_contract_source_v325,
+)
+
 
 V317_LISTING_SHARE_PRINT_ACTIONS = (
     "LISTING_SHARE_PRINT_ACTIONS_V317"
@@ -28,10 +32,8 @@ class ListingSharePrintActionsV317Tests(
             / "listing_detail.html"
         )
 
-        cls.template_source = (
-            cls.template_path.read_text(
-                encoding="utf-8"
-            )
+        cls.template_source = read_listing_detail_contract_source_v325(
+            cls.base_dir,
         )
 
     def test_v317_marker_and_controls_are_packaged(
