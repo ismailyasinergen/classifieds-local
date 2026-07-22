@@ -2,24 +2,23 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v305 — Legacy operator recipient-output redaction migration**
+- Latest product milestone: **v321 — Mobile listing buyer action bar**
 - Product checkpoint:
-  `project-checkpoint-v305-legacy-operator-recipient-output-redaction`
+  `project-checkpoint-v321-mobile-listing-buyer-action-bar`
 - Previous milestone:
-  `project-checkpoint-v304-notification-delivery-policy-baseline`
-- Validated regression baseline: **2,691 tests passing**
+  `project-checkpoint-v320-listing-social-preview-seo`
+- Validated regression baseline: **2,854 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 398.842 seconds; 420 seconds measured wall-clock time
+  in 419.758 seconds; 438.8 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v305 migration; additive migration
-  `0023_listingpricehistory_discount_guardrail_v293` remains the latest and no
-  model changes are pending
+- Migration state: no v321 migration; all existing migrations are applied
+  through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v305 completes R010 by migrating all four inventoried operator recipient-output
-surfaces to one idempotent redacted-by-default contract. Configured recipients
-render as `[redacted]`, missing recipients remain `<missing>`, and delivery
-renderer, sender and scheduler payloads remain unchanged. Three policy blockers
-remain open: verified-recipient state, provider outcomes and event retention.
+v321 adds a responsive, safe-area-aware buyer action bar to approved listing
+detail pages. Message, save/remove and share actions preserve the established
+authorization, CSRF and v317 share-fallback contracts. The same checkpoint
+closes audit findings around inactive-listing buyer actions, same-origin staff
+and notice redirects, and conversation-inbox unread-count query scaling.
 
 ## Recently completed
 
@@ -80,48 +79,41 @@ remain open: verified-recipient state, provider outcomes and event retention.
   preview, observability and rollback operator surfaces, preserving
   `<missing>` diagnostics, internal delivery destinations and all established
   sender, renderer and scheduler contracts
+- v306–v316: verified-recipient lifecycle, provider outcomes, retention,
+  enforcement, rollout controls, backup/restore verification, and completed
+  development-database migration rollout
+- v317: listing share and print actions
+- v318: full-screen listing gallery lightbox
+- v319: listing location map and copy actions
+- v320: listing social preview and SEO metadata
+- v321: mobile buyer action bar plus audit-driven buyer-action, redirect, and
+  conversation query repairs
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-No numbered milestone is currently selected. The next milestone must be
-chosen explicitly before implementation.
+The selected next milestone is **v322 — Listing detail accessibility audit and
+fixes**. Its scope is keyboard navigation, focus management, accessible names,
+heading and landmark structure, live regions, motion preferences, contrast,
+touch targets, and regressions across anonymous buyer, authenticated buyer,
+seller, staff, and inactive-listing states.
 
-R005, R007 and R008 remain open implementation recommendations. Their v304
-prerequisites and fail-safe defaults remain authoritative until product,
-provider, legal and privacy decisions are approved.
+Audit backlog after v321:
 
-Verified-recipient enforcement, provider outcome ingestion and retention
-automation remain deferred until their respective policies and implementation
-contracts are approved.
-
-R010 legacy operator recipient-output migration was completed in v305. The four
-inventoried command, preview, observability and rollback surfaces now redact
-configured recipient addresses by default without changing delivery internals.
-
-R006 preserved parallel test-clone lifecycle work was completed in v303.
-PostgreSQL parallel `--keepdb` runs now recreate only validated Django worker
-clone names from the fully migrated preserved base test database. Active clone
-connections fail closed rather than being forcibly terminated, and serial,
-non-keepdb, non-PostgreSQL, and application-runtime paths retain Django defaults.
-
-R009 scheduler-level leasing was completed in v301. PostgreSQL session advisory
-locks now coordinate mutating and delivery-capable notification scheduler modes
-without replacing the durable v287 logical-event claim boundary.
-
-R014 unapplied-migration deployment preflight was completed in v302. Production
-startup now defaults to a read-only, fail-closed migration check, while schema
-application remains an explicit operator-controlled action. Local Compose
-continues to apply migrations automatically.
+- consolidate shadowed duplicate view definitions in the largest accounts and
+  listings modules only through a separately tested extraction milestone;
+- review remaining staff-only CSV exports for shared spreadsheet-formula
+  neutralization without changing their data contract;
+- continue splitting the oversized listing-detail inline CSS and JavaScript
+  after v322 locks down its accessible behavior.
 
 Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
-The local development database was observed fully migrated through listings
-migration `0023_listingpricehistory_discount_guardrail_v293` during v305
-validation. v305 did not run `migrate`; this statement records the observed
+The local development database is fully migrated through `accounts.0016` and
+`listings.0025`. V321 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

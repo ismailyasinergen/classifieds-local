@@ -1116,7 +1116,7 @@
 
     </style>
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
 
 <!-- SELLER_RESTRICTION_ENFORCEMENT_UI_SINGLE -->
 {% if current_user_is_seller_suspended %}

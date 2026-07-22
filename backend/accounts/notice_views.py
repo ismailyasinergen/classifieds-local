@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from .models import ModerationAppeal, ModerationNotice
@@ -95,12 +97,21 @@ def moderation_notice_mark_read(request, pk):
         notice.is_read = True
         notice.save(update_fields=["is_read"])
 
-    next_url = request.POST.get("next") or request.GET.get("next")
+    fallback_url = reverse("accounts:moderation_notices")
+    next_url = str(
+        request.POST.get("next")
+        or request.GET.get("next")
+        or ""
+    ).strip()
 
-    if next_url:
-        return redirect(next_url)
+    if not url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        next_url = fallback_url
 
-    return redirect("accounts:moderation_notices")
+    return redirect(next_url)
 
 
 @login_required

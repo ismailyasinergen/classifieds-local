@@ -3,11 +3,12 @@ from types import SimpleNamespace
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import CreateView, ListView
 
 from listings.models import Listing
+from listings.listing_visibility_helpers import active_approved_listings
 
 from .forms import ListingMessageForm
 from .models import ListingMessage
@@ -27,6 +28,16 @@ def build_conversation_threads(user, mode="all"):
         .order_by("-created_at")
     )
 
+    unread_counts = {
+        (row["listing_id"], row["sender_id"]): row["count"]
+        for row in (
+            ListingMessage.objects
+            .filter(recipient=user, is_read=False)
+            .values("listing_id", "sender_id")
+            .annotate(count=Count("id"))
+        )
+    }
+
     grouped = {}
 
     for message in queryset:
@@ -34,18 +45,11 @@ def build_conversation_threads(user, mode="all"):
         key = (message.listing_id, other_user.id)
 
         if key not in grouped:
-            unread_count = ListingMessage.objects.filter(
-                listing=message.listing,
-                sender=other_user,
-                recipient=user,
-                is_read=False,
-            ).count()
-
             grouped[key] = SimpleNamespace(
                 latest_message=message,
                 listing=message.listing,
                 other_user=other_user,
-                unread_count=unread_count,
+                unread_count=unread_counts.get(key, 0),
             )
 
     return list(grouped.values())
@@ -76,9 +80,10 @@ class ListingMessageCreateView(LoginRequiredMixin, CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.listing = get_object_or_404(
-            Listing.objects.select_related("owner"),
+            active_approved_listings(
+                Listing.objects.select_related("owner")
+            ),
             pk=kwargs["pk"],
-            status=Listing.Status.APPROVED,
         )
 
         if self.listing.owner == request.user:

@@ -32,6 +32,9 @@ from .listing_image_helpers import save_uploaded_listing_images  # SAVE_UPLOADED
 from .listing_image_helpers import validate_uploaded_images  # VALIDATE_UPLOADED_IMAGES_HELPER_EXTRACTION_V148
 from .listing_favorite_views import listing_favorite_toggle  # V155 re-export
 from .listing_browse_detail_views import ListingDetailView  # V157 re-export
+from .listing_action_redirects_r001 import (
+    get_safe_listing_action_redirect_r001,
+)
 
 
 LISTING_UNCATEGORIZED_VIEWS_V159 = True
@@ -196,4 +199,4 @@ def listing_feature_toggle(request, pk):
     else:
         messages.success(request, "Listing removed from featured listings.")
 
-    return redirect(request.POST.get("next") or listing.get_absolute_url())
+    return redirect(get_safe_listing_action_redirect_r001(request, listing.get_absolute_url()))

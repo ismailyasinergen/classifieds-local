@@ -19,6 +19,11 @@ class ListingActionRedirectSecurityR001Tests(TestCase):
             username="r001-buyer",
             password="Testpass12345",
         )
+        self.staff = User.objects.create_user(
+            username="r001-staff",
+            password="Testpass12345",
+            is_staff=True,
+        )
         self.category = Category.objects.create(
             name="R001 category",
             slug="r001-category",
@@ -87,3 +92,40 @@ class ListingActionRedirectSecurityR001Tests(TestCase):
                 listing=self.listing,
             ).exists()
         )
+
+    def test_staff_listing_actions_reject_external_next_targets(self):
+        self.client.force_login(self.staff)
+
+        action_payloads = (
+            (
+                "listings:listing_feature_toggle",
+                {},
+            ),
+            (
+                "listings:listing_feature_priority_update",
+                {"featured_priority": "5"},
+            ),
+            (
+                "listings:listing_feature_days_update",
+                {"featured_days": "7"},
+            ),
+        )
+
+        for url_name, payload in action_payloads:
+            with self.subTest(url_name=url_name):
+                response = self.client.post(
+                    reverse(
+                        url_name,
+                        kwargs={"pk": self.listing.pk},
+                    ),
+                    {
+                        **payload,
+                        "next": "https://attacker.example/phishing",
+                    },
+                )
+
+                self.assertRedirects(
+                    response,
+                    self.listing.get_absolute_url(),
+                    fetch_redirect_response=False,
+                )

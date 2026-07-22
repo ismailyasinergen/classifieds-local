@@ -8,6 +8,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
+from .listing_action_redirects_r001 import (
+    get_safe_listing_action_redirect_r001,
+)
 from .models import Listing, ListingFavorite, ListingImage
 
 @login_required
@@ -31,4 +34,4 @@ def listing_feature_priority_update(request, pk):
     listing.save(update_fields=["featured_priority"])
 
     messages.success(request, "Featured priority updated.")
-    return redirect(request.POST.get("next") or listing.get_absolute_url())
+    return redirect(get_safe_listing_action_redirect_r001(request, listing.get_absolute_url()))

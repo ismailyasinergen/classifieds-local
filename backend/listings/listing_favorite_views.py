@@ -16,6 +16,7 @@ from .models import Listing, ListingFavorite
 from .listing_action_redirects_r001 import (
     get_safe_listing_action_redirect_r001,
 )
+from .listing_visibility_helpers import active_approved_listings
 
 
 LISTING_FAVORITE_VIEWS_V155 = True
@@ -25,9 +26,8 @@ LISTING_FAVORITE_VIEWS_V155 = True
 @require_POST
 def listing_favorite_toggle(request, pk):
     listing = get_object_or_404(
-        Listing,
+        active_approved_listings(Listing.objects.all()),
         pk=pk,
-        status=Listing.Status.APPROVED,
     )
 
     if listing.owner == request.user:
