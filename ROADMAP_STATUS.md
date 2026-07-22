@@ -2,23 +2,22 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v323 — Staff CSV formula-neutralization**
+- Latest product milestone: **v324 — Listing-detail asset-extraction groundwork**
 - Product checkpoint:
-  `project-checkpoint-v323-staff-csv-formula-neutralization`
+  `project-checkpoint-v324-listing-detail-asset-boundary`
 - Previous milestone:
-  `project-checkpoint-v322-listing-detail-accessibility`
-- Validated regression baseline: **2,868 tests passing**
+  `project-checkpoint-v323-staff-csv-formula-neutralization`
+- Validated regression baseline: **2,876 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 395.933 seconds; 416.3 seconds measured wall-clock time
+  in 416.325 seconds; 442 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v323 migration; all existing migrations are applied
+- Migration state: no v324 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v323 applies one idempotent spreadsheet-formula neutralization contract across
-all five staff CSV producer families. Listing reports, moderation appeals and
-ZIP summaries, Trust & Safety action/event logs, seller-store admin exports, and
-saved-search audit exports now neutralize `=`, `+`, `-`, `@`, tab, and carriage
-return prefixes without changing headers, ordering, filters, or authorization.
+v324 establishes an executable, read-only boundary around the oversized inline
+listing-detail CSS and JavaScript. The audit records one style block, four
+script blocks, two inline event handlers, eleven legacy source-contract tests,
+and marker ownership without extracting assets or changing browser behavior.
 
 ## Recently completed
 
@@ -93,17 +92,19 @@ return prefixes without changing headers, ordering, filters, or authorization.
   unique IDs, and modal gallery keyboard containment
 - v323: shared, idempotent spreadsheet-formula neutralization across all staff
   CSV producer families with real export-response regression coverage
+- v324: deterministic, read-only listing-detail asset boundary with block
+  ranges, template-dependency and marker inventories, explicit CSP/cutover
+  blockers, JSON output, and a CI-compatible failure mode
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v324 — Listing-detail asset-extraction
-groundwork**. Its scope is a source-shape and dependency contract for moving the
-oversized inline listing-detail CSS and JavaScript into versioned static assets
-without changing rendered behavior, CSP assumptions, loading order, or the
-v275-v323 marker surface.
+The selected next milestone is **v325 — Listing-detail extraction blocker
+removal**. Its scope is to replace the two inline image error handlers with
+equivalent event-listener behavior and give the eleven legacy source-reading
+tests an asset-aware contract before any physical CSS or JavaScript cutover.
 
 Audit backlog after v321:
 
@@ -115,7 +116,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V323 did not run `migrate`; this statement records the observed
+`listings.0025`. V324 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 
