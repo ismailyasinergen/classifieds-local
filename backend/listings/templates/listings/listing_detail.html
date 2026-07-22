@@ -1466,6 +1466,35 @@
                         </span>
                     </form>
                 {% endif %}
+
+                <!-- LISTING_SHARE_PRINT_ACTIONS_V317 -->
+                <button
+                    class="seller-secondary-action"
+                    type="button"
+                    data-listing-share-v317
+                    data-marker="LISTING_SHARE_PRINT_ACTIONS_V317"
+                    aria-describedby="listing-action-status-v317"
+                >
+                    Share listing
+                </button>
+
+                <button
+                    class="seller-secondary-action"
+                    type="button"
+                    data-listing-print-v317
+                    aria-describedby="listing-action-status-v317"
+                >
+                    Print / Save PDF
+                </button>
+
+                <span
+                    id="listing-action-status-v317"
+                    class="muted"
+                    data-listing-action-status-v317
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                ></span>
             </div>
 
             <div class="seller-safety-box">
@@ -1750,6 +1779,132 @@
 
             showImage(0);
         })();
+    </script>
+
+    <script>
+        (function () {
+            const shareButton = document.querySelector(
+                "[data-listing-share-v317]"
+            );
+            const printButton = document.querySelector(
+                "[data-listing-print-v317]"
+            );
+            const statusNode = document.querySelector(
+                "[data-listing-action-status-v317]"
+            );
+
+            function announce(message) {
+                if (!statusNode) {
+                    return;
+                }
+
+                statusNode.textContent = message;
+
+                window.setTimeout(function () {
+                    statusNode.textContent = "";
+                }, 3500);
+            }
+
+            function fallbackCopy(value) {
+                const textarea = document.createElement("textarea");
+
+                textarea.value = value;
+                textarea.setAttribute("readonly", "");
+                textarea.style.position = "fixed";
+                textarea.style.opacity = "0";
+
+                document.body.appendChild(textarea);
+                textarea.select();
+
+                const copied = document.execCommand("copy");
+
+                document.body.removeChild(textarea);
+
+                return copied;
+            }
+
+            function copyListingUrl() {
+                const listingUrl = window.location.href;
+
+                if (
+                    navigator.clipboard
+                    && navigator.clipboard.writeText
+                ) {
+                    navigator.clipboard.writeText(listingUrl).then(
+                        function () {
+                            announce("Listing link copied.");
+                        },
+                        function () {
+                            if (fallbackCopy(listingUrl)) {
+                                announce("Listing link copied.");
+                            } else {
+                                announce(
+                                    "Listing link could not be copied."
+                                );
+                            }
+                        }
+                    );
+
+                    return;
+                }
+
+                if (fallbackCopy(listingUrl)) {
+                    announce("Listing link copied.");
+                } else {
+                    announce(
+                        "Listing link could not be copied."
+                    );
+                }
+            }
+
+            if (shareButton) {
+                shareButton.addEventListener(
+                    "click",
+                    function () {
+                        const shareData = {
+                            title: document.title,
+                            url: window.location.href,
+                        };
+
+                        if (navigator.share) {
+                            navigator.share(shareData).then(
+                                function () {
+                                    announce(
+                                        "Listing shared."
+                                    );
+                                },
+                                function (error) {
+                                    if (
+                                        error
+                                        && error.name === "AbortError"
+                                    ) {
+                                        return;
+                                    }
+
+                                    copyListingUrl();
+                                }
+                            );
+
+                            return;
+                        }
+
+                        copyListingUrl();
+                    }
+                );
+            }
+
+            if (printButton) {
+                printButton.addEventListener(
+                    "click",
+                    function () {
+                        announce(
+                            "Opening print and PDF options."
+                        );
+                        window.print();
+                    }
+                );
+            }
+        }());
     </script>
 
 
