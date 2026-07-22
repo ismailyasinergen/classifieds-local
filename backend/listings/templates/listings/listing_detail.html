@@ -761,6 +761,135 @@
         }
 
 
+        /* LISTING_GALLERY_LIGHTBOX_V318 */
+        .listing-gallery-lightbox-v318 {
+            width: min(96vw, 1440px);
+            max-width: none;
+            height: min(94vh, 980px);
+            max-height: none;
+            margin: auto;
+            padding: 0;
+            border: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0b0f19;
+            color: #fff;
+        }
+
+        .listing-gallery-lightbox-v318::backdrop {
+            background: rgba(0, 0, 0, 0.88);
+        }
+
+        .listing-gallery-lightbox-shell-v318 {
+            position: relative;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            width: 100%;
+            height: 100%;
+        }
+
+        .listing-gallery-lightbox-header-v318 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 16px;
+            background: #111827;
+        }
+
+        .listing-gallery-lightbox-title-v318 {
+            margin: 0;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .listing-gallery-lightbox-close-v318,
+        .listing-gallery-lightbox-nav-v318 {
+            border: 0;
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .listing-gallery-lightbox-close-v318 {
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            font-size: 26px;
+            line-height: 1;
+        }
+
+        .listing-gallery-lightbox-stage-v318 {
+            position: relative;
+            display: grid;
+            place-items: center;
+            min-height: 0;
+            padding: 16px 64px;
+        }
+
+        .listing-gallery-lightbox-image-v318 {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .listing-gallery-lightbox-nav-v318 {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 56px;
+            border-radius: 999px;
+            font-size: 32px;
+        }
+
+        .listing-gallery-lightbox-prev-v318 {
+            left: 12px;
+        }
+
+        .listing-gallery-lightbox-next-v318 {
+            right: 12px;
+        }
+
+        .listing-gallery-lightbox-close-v318:hover,
+        .listing-gallery-lightbox-close-v318:focus,
+        .listing-gallery-lightbox-nav-v318:hover,
+        .listing-gallery-lightbox-nav-v318:focus {
+            background: rgba(246, 197, 0, 0.92);
+            color: #111827;
+        }
+
+        .listing-gallery-lightbox-footer-v318 {
+            display: flex;
+            justify-content: center;
+            padding: 10px 16px;
+            background: #111827;
+            font-weight: 800;
+        }
+
+        body.listing-gallery-lightbox-open-v318 {
+            overflow: hidden;
+        }
+
+        @media (max-width: 760px) {
+            .listing-gallery-lightbox-v318 {
+                width: 100vw;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .listing-gallery-lightbox-stage-v318 {
+                padding: 10px 48px;
+            }
+
+            .listing-gallery-lightbox-nav-v318 {
+                width: 40px;
+                height: 48px;
+                font-size: 28px;
+            }
+        }
+
         /* LISTING_DETAIL_CONTACT_SAFETY_V66 */
         .classified-contact-panel.contact-safety-v66 {
             border-radius: 10px;
@@ -1071,6 +1200,11 @@
                             id="classified-main-image"
                             src="{{ first_image.image.url }}"
                             alt="{{ listing.title }} photo 1"
+                            role="button"
+                            tabindex="0"
+                            aria-label="Open full-screen photo viewer"
+                            aria-haspopup="dialog"
+                            aria-controls="listing-gallery-lightbox-v318"
                             onerror="this.outerHTML='<div class=&quot;classified-main-placeholder&quot;>No image</div>'"
                         >
                     {% else %}
@@ -1123,6 +1257,75 @@
                 </p>
             {% endif %}
         </section>
+
+        {% if listing.images.exists %}
+            <!-- LISTING_GALLERY_LIGHTBOX_V318 -->
+            <dialog
+                class="listing-gallery-lightbox-v318"
+                id="listing-gallery-lightbox-v318"
+                aria-labelledby="listing-gallery-lightbox-title-v318"
+                data-marker="LISTING_GALLERY_LIGHTBOX_V318"
+            >
+                <div class="listing-gallery-lightbox-shell-v318">
+                    <header class="listing-gallery-lightbox-header-v318">
+                        <h2
+                            class="listing-gallery-lightbox-title-v318"
+                            id="listing-gallery-lightbox-title-v318"
+                        >
+                            {{ listing.title }}
+                        </h2>
+
+                        <button
+                            class="listing-gallery-lightbox-close-v318"
+                            type="button"
+                            data-gallery-lightbox-close-v318
+                            aria-label="Close full-screen photo viewer"
+                        >
+                            &times;
+                        </button>
+                    </header>
+
+                    <div class="listing-gallery-lightbox-stage-v318">
+                        <button
+                            class="listing-gallery-lightbox-nav-v318 listing-gallery-lightbox-prev-v318"
+                            type="button"
+                            data-gallery-lightbox-prev-v318
+                            aria-label="Previous full-screen photo"
+                        >
+                            &lsaquo;
+                        </button>
+
+                        {% with first_image=listing.images.first %}
+                            <img
+                                class="listing-gallery-lightbox-image-v318"
+                                id="listing-gallery-lightbox-image-v318"
+                                src="{{ first_image.image.url }}"
+                                alt="{{ listing.title }} photo 1"
+                            >
+                        {% endwith %}
+
+                        <button
+                            class="listing-gallery-lightbox-nav-v318 listing-gallery-lightbox-next-v318"
+                            type="button"
+                            data-gallery-lightbox-next-v318
+                            aria-label="Next full-screen photo"
+                        >
+                            &rsaquo;
+                        </button>
+                    </div>
+
+                    <footer class="listing-gallery-lightbox-footer-v318">
+                        <span
+                            id="listing-gallery-lightbox-counter-v318"
+                            aria-live="polite"
+                            aria-atomic="true"
+                        >
+                            1 / {{ listing.images.count }}
+                        </span>
+                    </footer>
+                </div>
+            </dialog>
+        {% endif %}
 
         <section class="classified-info-panel" aria-label="Listing details">
             {% listing_price_history_summary_v275 listing as price_history_v275 %}
@@ -1779,6 +1982,216 @@
 
             showImage(0);
         })();
+    </script>
+
+    <script>
+        (function () {
+            const mainImage = document.getElementById(
+                "classified-main-image"
+            );
+            const lightbox = document.getElementById(
+                "listing-gallery-lightbox-v318"
+            );
+            const lightboxImage = document.getElementById(
+                "listing-gallery-lightbox-image-v318"
+            );
+            const lightboxCounter = document.getElementById(
+                "listing-gallery-lightbox-counter-v318"
+            );
+            const closeButton = document.querySelector(
+                "[data-gallery-lightbox-close-v318]"
+            );
+            const previousButton = document.querySelector(
+                "[data-gallery-lightbox-prev-v318]"
+            );
+            const nextButton = document.querySelector(
+                "[data-gallery-lightbox-next-v318]"
+            );
+            const thumbnails = Array.from(
+                document.querySelectorAll(
+                    ".classified-thumb-button"
+                )
+            );
+
+            if (
+                !mainImage
+                || !lightbox
+                || !lightboxImage
+                || !thumbnails.length
+            ) {
+                return;
+            }
+
+            let activeIndex = 0;
+            let restoreFocusNode = null;
+
+            function normalizedIndex(index) {
+                return (
+                    index + thumbnails.length
+                ) % thumbnails.length;
+            }
+
+            function selectedIndex() {
+                const foundIndex = thumbnails.findIndex(
+                    function (button) {
+                        return button.classList.contains(
+                            "is-active"
+                        );
+                    }
+                );
+
+                return foundIndex >= 0
+                    ? foundIndex
+                    : 0;
+            }
+
+            function showLightboxImage(index) {
+                activeIndex = normalizedIndex(index);
+
+                const selected = thumbnails[activeIndex];
+
+                selected.click();
+
+                lightboxImage.src = selected.dataset.gallerySrc;
+                lightboxImage.alt = (
+                    selected.dataset.galleryAlt
+                    || mainImage.alt
+                );
+
+                if (lightboxCounter) {
+                    lightboxCounter.textContent = (
+                        `${activeIndex + 1} / ${thumbnails.length}`
+                    );
+                }
+            }
+
+            function openLightbox() {
+                restoreFocusNode = document.activeElement;
+                showLightboxImage(selectedIndex());
+
+                if (
+                    typeof lightbox.showModal === "function"
+                ) {
+                    lightbox.showModal();
+                } else {
+                    lightbox.setAttribute("open", "");
+                }
+
+                document.body.classList.add(
+                    "listing-gallery-lightbox-open-v318"
+                );
+
+                if (closeButton) {
+                    closeButton.focus();
+                }
+            }
+
+            function closeLightbox() {
+                if (
+                    typeof lightbox.close === "function"
+                    && lightbox.open
+                ) {
+                    lightbox.close();
+                } else {
+                    lightbox.removeAttribute("open");
+                }
+
+                document.body.classList.remove(
+                    "listing-gallery-lightbox-open-v318"
+                );
+
+                if (
+                    restoreFocusNode
+                    && typeof restoreFocusNode.focus === "function"
+                ) {
+                    restoreFocusNode.focus();
+                }
+            }
+
+            mainImage.addEventListener(
+                "click",
+                openLightbox
+            );
+
+            mainImage.addEventListener(
+                "keydown",
+                function (event) {
+                    if (
+                        event.key === "Enter"
+                        || event.key === " "
+                    ) {
+                        event.preventDefault();
+                        openLightbox();
+                    }
+                }
+            );
+
+            if (previousButton) {
+                previousButton.addEventListener(
+                    "click",
+                    function () {
+                        showLightboxImage(activeIndex - 1);
+                    }
+                );
+            }
+
+            if (nextButton) {
+                nextButton.addEventListener(
+                    "click",
+                    function () {
+                        showLightboxImage(activeIndex + 1);
+                    }
+                );
+            }
+
+            if (closeButton) {
+                closeButton.addEventListener(
+                    "click",
+                    closeLightbox
+                );
+            }
+
+            lightbox.addEventListener(
+                "click",
+                function (event) {
+                    if (event.target === lightbox) {
+                        closeLightbox();
+                    }
+                }
+            );
+
+            lightbox.addEventListener(
+                "cancel",
+                function (event) {
+                    event.preventDefault();
+                    closeLightbox();
+                }
+            );
+
+            lightbox.addEventListener(
+                "keydown",
+                function (event) {
+                    if (event.key === "ArrowLeft") {
+                        event.preventDefault();
+                        showLightboxImage(activeIndex - 1);
+                    }
+
+                    if (event.key === "ArrowRight") {
+                        event.preventDefault();
+                        showLightboxImage(activeIndex + 1);
+                    }
+                }
+            );
+
+            lightbox.addEventListener(
+                "close",
+                function () {
+                    document.body.classList.remove(
+                        "listing-gallery-lightbox-open-v318"
+                    );
+                }
+            );
+        }());
     </script>
 
     <script>
