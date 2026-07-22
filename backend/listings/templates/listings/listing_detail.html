@@ -242,6 +242,47 @@
             color: #111;
         }
 
+        /* LISTING_LOCATION_ACTIONS_V319 */
+        .listing-location-value-v319 {
+            display: grid;
+            gap: 8px;
+        }
+
+        .listing-location-actions-v319 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .listing-location-actions-v319 .button-link,
+        .listing-location-actions-v319 button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 34px;
+            padding: 6px 9px;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .listing-location-status-v319 {
+            min-height: 18px;
+            color: #667085;
+            font-size: 12px;
+        }
+
+        @media (max-width: 520px) {
+            .listing-location-actions-v319 {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .listing-location-actions-v319 .button-link,
+            .listing-location-actions-v319 button {
+                width: 100%;
+            }
+        }
+
         .classified-badge-row {
             display: flex;
             gap: 6px;
@@ -1465,7 +1506,45 @@
                     </tr>
                     <tr>
                         <th>Location</th>
-                        <td>{{ listing.location }}</td>
+                        <td>
+                            <!-- LISTING_LOCATION_ACTIONS_V319 -->
+                            <div class="listing-location-value-v319">
+                                <span>{{ listing.location }}</span>
+
+                                <div
+                                    class="listing-location-actions-v319"
+                                    data-marker="LISTING_LOCATION_ACTIONS_V319"
+                                >
+                                    <a
+                                        class="button-link"
+                                        href="https://www.openstreetmap.org/search?query={{ listing.location|urlencode }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label="Open {{ listing.location }} in OpenStreetMap"
+                                    >
+                                        Open in map
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        data-listing-location-copy-v319
+                                        data-listing-location-v319="{{ listing.location }}"
+                                        aria-describedby="listing-location-status-v319"
+                                    >
+                                        Copy location
+                                    </button>
+                                </div>
+
+                                <span
+                                    class="listing-location-status-v319"
+                                    id="listing-location-status-v319"
+                                    data-listing-location-status-v319
+                                    role="status"
+                                    aria-live="polite"
+                                    aria-atomic="true"
+                                ></span>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
                         <th>Price</th>
@@ -2189,6 +2268,111 @@
                     document.body.classList.remove(
                         "listing-gallery-lightbox-open-v318"
                     );
+                }
+            );
+        }());
+    </script>
+
+    <script>
+        (function () {
+            const copyButton = document.querySelector(
+                "[data-listing-location-copy-v319]"
+            );
+            const statusNode = document.querySelector(
+                "[data-listing-location-status-v319]"
+            );
+
+            if (!copyButton) {
+                return;
+            }
+
+            function announceLocationAction(message) {
+                if (!statusNode) {
+                    return;
+                }
+
+                statusNode.textContent = message;
+
+                window.setTimeout(function () {
+                    statusNode.textContent = "";
+                }, 3500);
+            }
+
+            function fallbackCopyLocation(value) {
+                const textarea = document.createElement(
+                    "textarea"
+                );
+
+                textarea.value = value;
+                textarea.setAttribute("readonly", "");
+                textarea.style.position = "fixed";
+                textarea.style.opacity = "0";
+
+                document.body.appendChild(textarea);
+                textarea.select();
+
+                const copied = document.execCommand("copy");
+
+                document.body.removeChild(textarea);
+
+                return copied;
+            }
+
+            function copyLocation(value) {
+                if (
+                    navigator.clipboard
+                    && navigator.clipboard.writeText
+                ) {
+                    navigator.clipboard.writeText(value).then(
+                        function () {
+                            announceLocationAction(
+                                "Location copied."
+                            );
+                        },
+                        function () {
+                            if (fallbackCopyLocation(value)) {
+                                announceLocationAction(
+                                    "Location copied."
+                                );
+                            } else {
+                                announceLocationAction(
+                                    "Location could not be copied."
+                                );
+                            }
+                        }
+                    );
+
+                    return;
+                }
+
+                if (fallbackCopyLocation(value)) {
+                    announceLocationAction(
+                        "Location copied."
+                    );
+                } else {
+                    announceLocationAction(
+                        "Location could not be copied."
+                    );
+                }
+            }
+
+            copyButton.addEventListener(
+                "click",
+                function () {
+                    const locationValue = (
+                        copyButton.dataset
+                            .listingLocationV319
+                        || ""
+                    ).trim();
+
+                    if (!locationValue) {
+                        announceLocationAction(
+                            "Location is unavailable."
+                        );
+                        return;
+                    }
+
+                    copyLocation(locationValue);
                 }
             );
         }());
