@@ -47,6 +47,9 @@ from .listing_public_price_history_v283 import (
 from .listing_price_alerts_v285 import (
     get_listing_price_alert_context_v285,
 )
+from .listing_detail_seo_v320 import (
+    ListingDetailSeoContextMixinV320,
+)
 
 
 LISTING_BROWSE_DETAIL_VIEWS_V157 = True
@@ -128,7 +131,7 @@ class RelatedListingsContextMixinV271:
         return context
 
 
-class ListingDetailView(RecentlyViewedListingsContextMixinV272, RelatedListingsContextMixinV271, PublicPriceHistoryContextMixinV283, SidebarCategoriesMixin, DetailView):
+class ListingDetailView(RecentlyViewedListingsContextMixinV272, RelatedListingsContextMixinV271, ListingDetailSeoContextMixinV320, PublicPriceHistoryContextMixinV283, SidebarCategoriesMixin, DetailView):
     model = Listing
     template_name = "listings/listing_detail.html"
     context_object_name = "listing"

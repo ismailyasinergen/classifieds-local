@@ -246,10 +246,17 @@ class ListingGalleryLightboxV318Tests(
             'data-marker="LISTING_GALLERY_LIGHTBOX_V318"',
         )
 
-        self.assertContains(
-            response,
-            image_url,
-            count=4,
+        rendered = response.content.decode(
+            "utf-8"
+        )
+
+        # V320 social metadata adds Open Graph,
+        # Twitter and JSON-LD image references.
+        # The gallery contract still requires at
+        # least its original four references.
+        self.assertGreaterEqual(
+            rendered.count(image_url),
+            4,
         )
 
         self.assertContains(
