@@ -20,7 +20,7 @@ _STYLE_BLOCK_PATTERN = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 _SCRIPT_BLOCK_PATTERN = re.compile(
-    r"<script\b[^>]*>(?P<body>.*?)</script>",
+    r"<script\b(?![^>]*\bsrc\s*=)[^>]*>(?P<body>.*?)</script>",
     re.IGNORECASE | re.DOTALL,
 )
 _TEMPLATE_TOKEN_PATTERN = re.compile(r"\{[{%#]")

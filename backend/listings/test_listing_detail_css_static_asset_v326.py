@@ -84,9 +84,13 @@ class ListingDetailCssStaticAssetV326Tests(SimpleTestCase):
 
     def test_audit_distinguishes_inline_blocks_from_static_assets(self):
         self.assertEqual(self.report.style_blocks, ())
-        self.assertEqual(len(self.report.script_blocks), 4)
-        self.assertEqual(len(self.report.static_assets), 1)
-        css_asset = self.report.static_assets[0]
+        self.assertEqual(self.report.script_blocks, ())
+        self.assertEqual(len(self.report.static_assets), 2)
+        css_asset = next(
+            asset
+            for asset in self.report.static_assets
+            if asset.kind == "css"
+        )
         self.assertEqual(css_asset.kind, "css")
         self.assertEqual(
             css_asset.path,
@@ -96,14 +100,14 @@ class ListingDetailCssStaticAssetV326Tests(SimpleTestCase):
         self.assertTrue(self.report.cutover_ready)
         self.assertFalse(self.report.strict_csp_ready)
 
-    def test_asset_aware_contract_includes_template_then_css(self):
+    def test_asset_aware_contract_includes_template_css_then_javascript(self):
         paths = listing_detail_contract_paths_v325(self.backend_dir)
 
-        self.assertEqual(len(paths), 2)
+        self.assertEqual(len(paths), 3)
         self.assertEqual(paths[0], self.template_path)
         self.assertTrue(paths[1].as_posix().endswith(PLANNED_CSS_ASSET_V324))
+        self.assertTrue(paths[2].as_posix().endswith(PLANNED_JS_ASSET_V324))
         self.assertIn(V326_MARKER, self.contract_source)
-        self.assertNotIn(PLANNED_JS_ASSET_V324, [path.name for path in paths])
 
     def test_all_listing_detail_style_markers_survive_extraction(self):
         for marker in (

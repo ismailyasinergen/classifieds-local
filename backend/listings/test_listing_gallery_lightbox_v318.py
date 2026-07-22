@@ -162,10 +162,7 @@ class ListingGalleryLightboxV318Tests(
     ):
         fragments = (
             "data-gallery-lightbox-close-v318",
-            (
-                'lightbox.addEventListener(\n'
-                '                "cancel"'
-            ),
+            '"cancel",',
             "event.target === lightbox",
             "restoreFocusNode.focus()",
             "listing-gallery-lightbox-open-v318",

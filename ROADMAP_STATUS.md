@@ -2,22 +2,23 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v326 — Listing-detail CSS static asset**
+- Latest product milestone: **v327 — Listing-detail JavaScript static asset**
 - Product checkpoint:
-  `project-checkpoint-v326-listing-detail-css-static-asset`
+  `project-checkpoint-v327-listing-detail-javascript-static-asset`
 - Previous milestone:
-  `project-checkpoint-v325-listing-detail-extraction-blockers`
-- Validated regression baseline: **2,891 tests passing**
+  `project-checkpoint-v326-listing-detail-css-static-asset`
+- Validated regression baseline: **2,899 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 397.561 seconds; 415.5 seconds measured wall-clock time
+  in 414.096 seconds; 434.9 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v326 migration; all existing migrations are applied
+- Migration state: no v327 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v326 moves the exact listing-detail style body into a Django-discoverable
-static CSS asset loaded once from the document head. The audit now reports zero
-inline style blocks, four inline scripts, one static asset, zero legacy source
-contracts, and fourteen asset-aware consumers without changing page styling.
+v327 moves the four exact listing-detail script bodies into one
+Django-discoverable static JavaScript asset at their original bottom-of-page
+execution point. The audit now reports zero inline blocks, two static assets,
+zero legacy source contracts, and fifteen asset-aware consumers while retaining
+four inline style attributes as explicit strict-CSP debt.
 
 ## Recently completed
 
@@ -101,17 +102,19 @@ contracts, and fourteen asset-aware consumers without changing page styling.
 - v326: exact, indentation-normalized extraction of listing-detail CSS into a
   versioned static asset with a base head extension point, real-response and
   collectstatic validation, and repair of one false-positive v69 response test
+- v327: exact, order-preserving extraction of all four listing-detail scripts
+  into one versioned static asset with real-response, Node, collectstatic, and
+  asset-aware interaction validation
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v327 — Listing-detail JavaScript static-asset
-extraction**. Its scope is to move the four template-independent scripts into
-the planned versioned JavaScript file at the same bottom-of-page execution
-point, preserving DOM availability, script order, interactions, markers, and
-the asset-aware test surface.
+The selected next milestone is **v328 — Listing-detail inline-style and CSP
+boundary cleanup**. Its scope is to replace the four remaining inline `style=`
+attributes with static CSS classes and distinguish listing-detail-owned CSP
+readiness from inherited inline assets in the shared base template.
 
 Audit backlog after v321:
 
@@ -123,7 +126,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V326 did not run `migrate`; this statement records the observed
+`listings.0025`. V327 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

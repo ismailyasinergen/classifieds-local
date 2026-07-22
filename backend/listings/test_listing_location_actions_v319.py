@@ -117,8 +117,8 @@ class ListingLocationActionsV319Tests(
         fragments = (
             "navigator.clipboard",
             "navigator.clipboard.writeText",
-            'document.createElement(\n'
-            '                    "textarea"',
+            "document.createElement(",
+            '"textarea"',
             'document.execCommand("copy")',
             "Location copied.",
             "Location could not be copied.",

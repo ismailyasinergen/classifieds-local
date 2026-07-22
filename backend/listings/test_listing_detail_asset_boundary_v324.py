@@ -51,8 +51,8 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
 
     def test_current_inline_assets_are_template_independent(self):
         self.assertEqual(len(self.report.style_blocks), 0)
-        self.assertEqual(len(self.report.script_blocks), 4)
-        self.assertEqual(len(self.report.asset_blocks), 4)
+        self.assertEqual(len(self.report.script_blocks), 0)
+        self.assertEqual(len(self.report.asset_blocks), 0)
         self.assertEqual(self.report.template_dependent_block_count, 0)
         self.assertTrue(self.report.mechanically_extractable)
 
@@ -63,8 +63,12 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
                 self.assertGreaterEqual(block.end_line, block.start_line)
 
     def test_asset_marker_ownership_is_inventoried(self):
-        self.assertEqual(len(self.report.static_assets), 1)
-        css_asset = self.report.static_assets[0]
+        self.assertEqual(len(self.report.static_assets), 2)
+        css_asset = next(
+            asset
+            for asset in self.report.static_assets
+            if asset.kind == "css"
+        )
         self.assertEqual(css_asset.kind, "css")
         style_markers = set(css_asset.markers)
 
@@ -108,8 +112,8 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         call_command("audit_listing_detail_assets_v324", stdout=text_output)
         rendered = text_output.getvalue()
 
-        self.assertIn("styles=0 scripts=4", rendered)
-        self.assertIn("static_assets=1", rendered)
+        self.assertIn("styles=0 scripts=0", rendered)
+        self.assertIn("static_assets=2", rendered)
         self.assertIn("template_dependent=0", rendered)
         self.assertIn("mechanically_extractable=true", rendered)
         self.assertIn("cutover_ready=true", rendered)
@@ -123,8 +127,8 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         )
         payload = json.loads(json_output.getvalue())
 
-        self.assertEqual(payload["asset_block_count"], 4)
-        self.assertEqual(len(payload["static_assets"]), 1)
+        self.assertEqual(payload["asset_block_count"], 0)
+        self.assertEqual(len(payload["static_assets"]), 2)
         self.assertEqual(payload["inline_event_handlers"], [])
         self.assertGreater(len(payload["inline_style_attributes"]), 0)
         self.assertEqual(payload["source_contract_tests"], [])
