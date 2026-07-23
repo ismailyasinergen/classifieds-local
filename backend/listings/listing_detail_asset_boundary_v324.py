@@ -7,6 +7,10 @@ from dataclasses import asdict, dataclass
 from html.parser import HTMLParser
 from pathlib import Path
 
+from accounts.seller_restriction_asset_contract_v331 import (
+    SELLER_RESTRICTION_CSS_REPOSITORY_PATH_V331,
+    SELLER_RESTRICTION_JS_REPOSITORY_PATH_V331,
+)
 from pages.base_asset_contract_v330 import (
     BASE_CSS_REPOSITORY_PATH_V330,
 )
@@ -29,7 +33,7 @@ _SCRIPT_BLOCK_PATTERN = re.compile(
 )
 _TEMPLATE_TOKEN_PATTERN = re.compile(r"\{[{%#]")
 _MARKER_PATTERN = re.compile(
-    r"\b(?:BASE|LISTING|PUBLIC_LISTING|MOBILE_LISTING)_[A-Z0-9_]+_V\d+\b"
+    r"\b(?:BASE|LISTING|PUBLIC_LISTING|MOBILE_LISTING|SELLER_RESTRICTION)_[A-Z0-9_]+_V\d+\b"
 )
 
 
@@ -321,6 +325,14 @@ def _static_assets(backend_dir: Path) -> tuple[StaticAssetV324, ...]:
         (
             BASE_CSS_REPOSITORY_PATH_V330,
             "css",
+        ),
+        (
+            SELLER_RESTRICTION_CSS_REPOSITORY_PATH_V331,
+            "css",
+        ),
+        (
+            SELLER_RESTRICTION_JS_REPOSITORY_PATH_V331,
+            "javascript",
         ),
     ):
         path = backend_dir / relative_path

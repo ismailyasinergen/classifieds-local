@@ -127,8 +127,8 @@ class BaseInlineStyleAttributeCleanupV329Tests(SimpleTestCase):
     def test_inherited_csp_debt_is_limited_to_blocks_after_v329(self):
         inherited = self.report.inherited_csp_boundary
 
-        self.assertEqual(len(inherited.style_blocks), 1)
-        self.assertEqual(len(inherited.script_blocks), 2)
+        self.assertEqual(inherited.style_blocks, ())
+        self.assertEqual(len(inherited.script_blocks), 1)
         self.assertEqual(inherited.inline_event_handlers, ())
         self.assertEqual(inherited.inline_style_attributes, ())
         self.assertFalse(inherited.strict_csp_ready)
@@ -139,8 +139,8 @@ class BaseInlineStyleAttributeCleanupV329Tests(SimpleTestCase):
         call_command("audit_listing_detail_assets_v324", stdout=text_output)
         rendered = text_output.getvalue()
 
-        self.assertIn("inherited_styles=1", rendered)
-        self.assertIn("inherited_scripts=2", rendered)
+        self.assertIn("inherited_styles=0", rendered)
+        self.assertIn("inherited_scripts=1", rendered)
         self.assertIn("inherited_handlers=0", rendered)
         self.assertIn("inherited_inline_styles=0", rendered)
         self.assertIn("strict_csp_ready=false", rendered)

@@ -101,7 +101,7 @@ class ListingDetailJavascriptStaticAssetV327Tests(SimpleTestCase):
         self.assertEqual(positions, sorted(positions))
         self.assertEqual(script_source.count("\n(function () {"), 4)
 
-    def test_audit_reports_two_static_assets_and_no_inline_blocks(self):
+    def test_audit_reports_static_asset_kinds_and_no_inline_blocks(self):
         self.assertEqual(self.report.asset_blocks, ())
         self.assertEqual(self.report.template_dependent_block_count, 0)
         self.assertEqual(

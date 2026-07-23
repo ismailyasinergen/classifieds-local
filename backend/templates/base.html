@@ -64,6 +64,14 @@
         data-base-stylesheet-v330
     >
     {% block extra_styles %}{% endblock %}
+    {% if current_user_is_seller_suspended %}
+        {% comment %}SELLER_RESTRICTION_CONDITIONAL_ASSET_V331{% endcomment %}
+        <link
+            rel="stylesheet"
+            href="{% static 'accounts/seller-restriction-v331.css' %}"
+            data-seller-restriction-css-v331
+        >
+    {% endif %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
 
@@ -84,62 +92,10 @@
         {% endif %}
     </div>
 
-    <style>
-        .seller-action-disabled {
-            opacity: 0.45 !important;
-            cursor: not-allowed !important;
-            pointer-events: none !important;
-            filter: grayscale(1);
-        }
-    </style>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const hrefTokens = [
-                "/listings/create",
-                "/listings/new",
-                "/listings/add",
-                "/edit",
-                "/delete",
-                "/archive",
-                "/renew",
-                "/promote",
-                "/promotions/"
-            ];
-
-            const exactActionLabels = [
-                "post listing",
-                "+ post listing",
-                "promote listing",
-                "archive",
-                "renew",
-                "delete",
-                "edit"
-            ];
-
-            document.querySelectorAll("a, button, input[type='submit']").forEach(function (el) {
-                const label = ((el.innerText || el.value || "") + "").trim().toLowerCase();
-                const href = ((el.getAttribute("href") || "") + "").toLowerCase();
-
-                const hrefLooksBlocked = hrefTokens.some(function (token) {
-                    return href.includes(token);
-                });
-
-                const labelLooksBlocked = exactActionLabels.includes(label);
-
-                if (hrefLooksBlocked || labelLooksBlocked) {
-                    el.classList.add("seller-action-disabled");
-                    el.setAttribute("title", "Seller action disabled because this account is temporarily suspended.");
-
-                    if (el.tagName.toLowerCase() === "a") {
-                        el.removeAttribute("href");
-                    } else {
-                        el.disabled = true;
-                    }
-                }
-            });
-        });
-    </script>
+    <script
+        src="{% static 'accounts/seller-restriction-v331.js' %}"
+        data-seller-restriction-js-v331
+    ></script>
 {% endif %}
 
 

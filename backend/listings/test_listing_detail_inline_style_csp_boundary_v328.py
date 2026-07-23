@@ -90,8 +90,8 @@ class ListingDetailInlineStyleCspBoundaryV328Tests(SimpleTestCase):
         inherited = self.report.inherited_csp_boundary
 
         self.assertEqual(inherited.template_path, "templates/base.html")
-        self.assertEqual(len(inherited.style_blocks), 1)
-        self.assertEqual(len(inherited.script_blocks), 2)
+        self.assertEqual(inherited.style_blocks, ())
+        self.assertEqual(len(inherited.script_blocks), 1)
         self.assertEqual(inherited.inline_event_handlers, ())
         self.assertEqual(inherited.inline_style_attributes, ())
         self.assertFalse(inherited.strict_csp_ready)
@@ -104,8 +104,8 @@ class ListingDetailInlineStyleCspBoundaryV328Tests(SimpleTestCase):
 
         self.assertIn("inline_styles=0", rendered)
         self.assertIn("template_csp_ready=true", rendered)
-        self.assertIn("inherited_styles=1", rendered)
-        self.assertIn("inherited_scripts=2", rendered)
+        self.assertIn("inherited_styles=0", rendered)
+        self.assertIn("inherited_scripts=1", rendered)
         self.assertIn("inherited_inline_styles=0", rendered)
         self.assertIn("strict_csp_ready=false", rendered)
 

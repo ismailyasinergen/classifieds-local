@@ -86,19 +86,19 @@ class BaseStylesheetStaticAssetV330Tests(SimpleTestCase):
         )
         get_template("base.html")
 
-    def test_only_conditional_seller_style_block_remains_inline(self):
+    def test_only_dynamic_json_ld_script_boundary_remains_inline(self):
         inherited = self.report.inherited_csp_boundary
 
-        self.assertEqual(len(inherited.style_blocks), 1)
-        self.assertIn(".seller-action-disabled", self.template_source)
-        self.assertEqual(len(inherited.script_blocks), 2)
+        self.assertEqual(inherited.style_blocks, ())
+        self.assertNotIn(".seller-action-disabled", self.template_source)
+        self.assertEqual(len(inherited.script_blocks), 1)
         self.assertEqual(inherited.inline_event_handlers, ())
         self.assertEqual(inherited.inline_style_attributes, ())
         self.assertFalse(inherited.strict_csp_ready)
         self.assertFalse(self.report.strict_csp_ready)
 
-    def test_audit_inventories_base_css_as_third_static_asset(self):
-        self.assertEqual(len(self.report.static_assets), 3)
+    def test_audit_inventories_base_css_static_asset(self):
+        self.assertEqual(len(self.report.static_assets), 5)
         base_asset = next(
             asset
             for asset in self.report.static_assets
@@ -114,9 +114,9 @@ class BaseStylesheetStaticAssetV330Tests(SimpleTestCase):
         call_command("audit_listing_detail_assets_v324", stdout=text_output)
         rendered = text_output.getvalue()
 
-        self.assertIn("static_assets=3", rendered)
-        self.assertIn("inherited_styles=1", rendered)
-        self.assertIn("inherited_scripts=2", rendered)
+        self.assertIn("static_assets=5", rendered)
+        self.assertIn("inherited_styles=0", rendered)
+        self.assertIn("inherited_scripts=1", rendered)
         self.assertIn("inherited_inline_styles=0", rendered)
         self.assertIn("strict_csp_ready=false", rendered)
 
@@ -128,10 +128,10 @@ class BaseStylesheetStaticAssetV330Tests(SimpleTestCase):
         )
         payload = json.loads(json_output.getvalue())
 
-        self.assertEqual(len(payload["static_assets"]), 3)
+        self.assertEqual(len(payload["static_assets"]), 5)
         self.assertEqual(
             len(payload["inherited_csp_boundary"]["style_blocks"]),
-            1,
+            0,
         )
         self.assertFalse(payload["strict_csp_ready"])
 

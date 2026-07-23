@@ -1,0 +1,8 @@
+/* SELLER_RESTRICTION_CONDITIONAL_ASSET_V331 */
+
+.seller-action-disabled {
+    opacity: 0.45 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    filter: grayscale(1);
+}

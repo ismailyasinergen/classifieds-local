@@ -63,7 +63,7 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
                 self.assertGreaterEqual(block.end_line, block.start_line)
 
     def test_asset_marker_ownership_is_inventoried(self):
-        self.assertEqual(len(self.report.static_assets), 3)
+        self.assertEqual(len(self.report.static_assets), 5)
         css_asset = next(
             asset
             for asset in self.report.static_assets
@@ -98,7 +98,7 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         self.assertTrue(self.report.template_owned_strict_csp_ready)
         self.assertEqual(
             len(self.report.inherited_csp_boundary.style_blocks),
-            1,
+            0,
         )
         self.assertFalse(self.report.strict_csp_ready)
 
@@ -118,13 +118,13 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         rendered = text_output.getvalue()
 
         self.assertIn("styles=0 scripts=0", rendered)
-        self.assertIn("static_assets=3", rendered)
+        self.assertIn("static_assets=5", rendered)
         self.assertIn("template_dependent=0", rendered)
         self.assertIn("mechanically_extractable=true", rendered)
         self.assertIn("cutover_ready=true", rendered)
         self.assertIn("template_csp_ready=true", rendered)
-        self.assertIn("inherited_styles=1", rendered)
-        self.assertIn("inherited_scripts=2", rendered)
+        self.assertIn("inherited_styles=0", rendered)
+        self.assertIn("inherited_scripts=1", rendered)
         self.assertIn("read_only=true", rendered)
 
         json_output = StringIO()
@@ -136,7 +136,7 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         payload = json.loads(json_output.getvalue())
 
         self.assertEqual(payload["asset_block_count"], 0)
-        self.assertEqual(len(payload["static_assets"]), 3)
+        self.assertEqual(len(payload["static_assets"]), 5)
         self.assertEqual(payload["inline_event_handlers"], [])
         self.assertEqual(payload["inline_style_attributes"], [])
         self.assertTrue(payload["template_owned_strict_csp_ready"])

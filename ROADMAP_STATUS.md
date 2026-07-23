@@ -2,23 +2,24 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v330 — Base stylesheet static asset extraction**
+- Latest product milestone: **v331 — Seller-restriction conditional asset extraction**
 - Product checkpoint:
-  `project-checkpoint-v330-base-stylesheet-static-asset`
+  `project-checkpoint-v331-seller-restriction-conditional-assets`
 - Previous milestone:
-  `project-checkpoint-v329-base-inline-style-attribute-cleanup`
-- Validated regression baseline: **2,923 tests passing**
+  `project-checkpoint-v330-base-stylesheet-static-asset`
+- Validated regression baseline: **2,933 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 423.915 seconds; 444.3 seconds measured wall-clock time
+  in 422.206 seconds; 443.4 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v330 migration; all existing migrations are applied
+- Migration state: no v331 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v330 moves the 1,118-line main `base.html` CSS payload into the versioned,
-Django-discoverable `pages/base-v330.css` asset while preserving declaration
-order and the `extra_styles` cascade boundary. The audit now inventories three
-physical assets and one inherited inline style block; two inline script blocks
-remain explicit full-page strict-CSP debt.
+v331 moves the suspension-only seller-action CSS and JavaScript out of
+`base.html` into versioned, Django-discoverable Accounts assets while preserving
+conditional loading, cascade position, source order, and interaction behavior.
+The audit now inventories five physical assets, zero inherited inline style
+blocks, and one inherited inline script block: dynamic SEO JSON-LD is the sole
+remaining full-page strict-CSP boundary.
 
 ## Recently completed
 
@@ -115,17 +116,20 @@ remain explicit full-page strict-CSP debt.
   versioned Pages static asset with preserved `extra_styles` ordering,
   findstatic/collectstatic coverage, and repair of two CSS-source false-positive
   response tests
+- v331: exact, hash-locked extraction of conditional seller-restriction CSS and
+  JavaScript into versioned Accounts static assets with suspension-only loading,
+  preserved cascade/source order, real suspended/unrestricted render coverage,
+  and dynamic SEO JSON-LD isolated as the sole inherited inline boundary
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v331 — Seller-restriction conditional asset
-extraction**. Its scope is to move the remaining conditional seller-action CSS
-and JavaScript into versioned static assets while preserving suspension-only
-loading and behavior, leaving dynamic SEO JSON-LD as the sole inherited inline
-script boundary.
+The selected next milestone is **v332 — Dynamic SEO JSON-LD CSP nonce
+groundwork**. Its scope is to establish and test request-scoped nonce plumbing
+for the remaining dynamic JSON-LD boundary without prematurely enabling a CSP
+enforcement header or weakening the existing source policy.
 
 Audit backlog after v321:
 
@@ -137,7 +141,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V330 did not run `migrate`; this statement records the observed
+`listings.0025`. V331 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 
