@@ -2,25 +2,25 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v335 — CSP observation operational-readiness audit**
+- Latest product milestone: **v336 — CSP report edge abuse-control baseline**
 - Product checkpoint:
-  `project-checkpoint-v335-csp-observation-readiness-audit`
+  `project-checkpoint-v336-csp-report-edge-abuse-control`
 - Previous milestone:
-  `project-checkpoint-v334-csp-violation-report-ingestion`
-- Validated regression baseline: **2,990 tests passing**
+  `project-checkpoint-v335-csp-observation-readiness-audit`
+- Validated regression baseline: **3,000 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 423.491 seconds; 445.0 seconds measured wall-clock time
+  in 427.727 seconds; 449.5 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v335 migration; all existing migrations are applied
+- Migration state: no v336 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v335 adds a deterministic 13-check, read-only readiness command for the
-built-in V333/V334 observation path. It fails closed on disabled or mismatched
-gates, dropped INFO logs, missing deployment attestations, or any enforcement
-reference. Edge limiting, sanitized log governance, and a real synthetic
-delivery remain independently reviewed external evidence; their default-off
-settings do not configure those controls. The audit performs no network,
-report, cache, database, or file mutation.
+v336 adds an exact-path Nginx boundary for the built-in CSP report receiver:
+a worker-shared client-IP zone averaging one request per second, ten-request
+burst, explicit 429 status, 16 KiB body limit, and ten-second body timeout. A
+13-check bounded validator and native/live proxy evidence lock the upstream
+headers, fallback proxy, active enforcement of the request limit, and absence
+of CSP enforcement. The zone remains node-local and requires trusted real-IP
+handling or a deployment-wide upstream limit where applicable.
 
 ## Recently completed
 
@@ -136,16 +136,18 @@ report, cache, database, or file mutation.
 - v335: deterministic read-only CSP observation readiness reporting with 13
   fail-closed checks, sanitized text/JSON output, strict CI mode, explicit
   external-control attestations, and no network, persistence, or enforcement
+- v336: exact-path Nginx CSP report abuse controls with a shared client-IP
+  rate zone, burst and 429 behavior, endpoint body/time bounds, a fail-closed
+  source validator, native/live proxy evidence, and no CSP enforcement
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v336 — CSP report edge abuse-control
-baseline**. Its scope is an exact-path proxy request limit, endpoint-specific
-body bound, configuration validation, and no change to CSP enforcement or
-report persistence.
+The selected next milestone is **v337 — sanitized CSP report log-operations
+baseline**. Its scope is dedicated routing, bounded local retention evidence,
+and continued separation from report payload persistence and CSP enforcement.
 
 Audit backlog after v321:
 
@@ -157,7 +159,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V335 did not run `migrate`; this statement records the observed
+`listings.0025`. V336 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

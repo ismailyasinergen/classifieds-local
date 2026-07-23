@@ -64,6 +64,27 @@ log destination. Confirm that the response still has no
 `Content-Security-Policy` enforcement header. Never include a real URL,
 account, token or script sample in the synthetic payload.
 
+V336 adds a single-node Nginx edge baseline for the built-in path:
+
+- a 10 MiB shared client-IP state zone averaging one request per second;
+- a ten-request immediate burst allowance with active enforcement;
+- a `429` response for excess requests;
+- a 16 KiB endpoint body limit and ten-second body timeout;
+- unchanged upstream target and forwarding headers;
+- no CSP enforcement header or report persistence.
+
+Validate the committed configuration before deployment:
+
+python backend/scripts/check_csp_report_edge_config_v336.py --strict
+python backend/scripts/check_csp_report_edge_config_v336.py --json
+docker compose exec -T nginx nginx -t
+
+The Nginx zone is shared across workers on one node, not across multiple proxy
+nodes. A multi-node deployment still needs a deployment-wide upstream limit.
+If another load balancer is placed before Nginx, configure and verify trusted
+real-client-IP restoration before approving the edge check; otherwise clients
+may be grouped under the load balancer address.
+
 
 Production Docker Compose
 =========================
