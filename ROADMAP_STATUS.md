@@ -2,25 +2,25 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v337 — sanitized CSP report log-operations baseline**
+- Latest product milestone: **v338 — CSP observation synthetic-delivery smoke harness**
 - Product checkpoint:
-  `project-checkpoint-v337-csp-report-log-operations`
+  `project-checkpoint-v338-csp-observation-synthetic-delivery-smoke`
 - Previous milestone:
-  `project-checkpoint-v336-csp-report-edge-abuse-control`
-- Validated regression baseline: **3,011 tests passing**
+  `project-checkpoint-v337-csp-report-log-operations`
+- Validated regression baseline: **3,025 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 427.424 seconds; 449.0 seconds measured wall-clock time
+  in 427.135 seconds; 449.3 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v337 migration; all existing migrations are applied
+- Migration state: no v338 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v337 routes sanitized CSP evidence through a dedicated non-propagating stdout
-handler whose formatter ignores the original message and fails closed on any
-schema mismatch. The production web container uses Docker's local driver with
-10 MiB rotation, five files, and compression; a seven-check bounded validator
-audits resolved Compose JSON without echoing it. Docker access and external
-retention remain independent governance evidence, while raw report
-persistence and CSP enforcement remain absent.
+v338 packages an explicit plan/execute/verify harness for sending one invented
+CSP report to the exact built-in endpoint and proving that its sanitized V337
+evidence reached the reviewed log destination. Exact-host confirmation,
+loopback-only HTTP, disabled proxies and redirects, bounded response and log
+reads, fixed response assertions, and `.invalid` payload origins keep the
+workflow privacy-safe. The harness does not change CSP gates, enforcement,
+application data, or readiness attestations.
 
 ## Recently completed
 
@@ -142,15 +142,20 @@ persistence and CSP enforcement remain absent.
 - v337: dedicated fail-closed JSON routing for sanitized CSP evidence,
   non-propagating stdout delivery, bounded compressed production Docker
   retention, a read-only Compose validator, and no raw report persistence
+- v338: privacy-safe synthetic CSP report planning, one-request delivery,
+  strict target confirmation, bounded response inspection, exact sanitized
+  log-evidence verification, and no CSP gate, enforcement, or attestation
+  mutation
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v338 — CSP observation synthetic-delivery
-smoke harness**. Its scope is invented payloads, explicit target controls,
-bounded timeouts, sanitized evidence assertions, and no enforcement enablement.
+The selected next milestone is **v339 — CSP observation evidence closeout
+audit**. Its scope is a read-only V333-V338 control-chain audit, explicit
+production evidence boundaries, sanitized output, and no enforcement or
+attestation mutation.
 
 Audit backlog after v321:
 
@@ -162,7 +167,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V337 did not run `migrate`; this statement records the observed
+`listings.0025`. V338 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

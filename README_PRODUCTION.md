@@ -107,6 +107,34 @@ must have approved access, export, and deletion controls. The local rotation
 baseline alone does not justify setting
 `DJANGO_CSP_OBSERVATION_LOG_GOVERNANCE_APPROVED=1`.
 
+V338 packages a privacy-safe synthetic delivery harness. Its default mode only
+plans and performs no network request:
+
+python backend/scripts/run_csp_observation_smoke_v338.py --target-url https://your-domain.com/__csp_reports__/ --confirm-remote-host your-domain.com
+
+Copy the generated `smoke_id`, review the target, then send exactly one
+invented report:
+
+python backend/scripts/run_csp_observation_smoke_v338.py --target-url https://your-domain.com/__csp_reports__/ --confirm-remote-host your-domain.com --smoke-id <16-lowercase-hex> --execute
+
+Successful delivery requires `204`, `Cache-Control: no-store`, an empty body,
+and no `Content-Security-Policy` enforcement header. Remote targets require
+HTTPS and an exact hostname confirmation. Loopback HTTP is allowed for local
+testing. Credentials, redirects, proxies, cookies, query strings, fragments,
+other paths, and timeouts above ten seconds are rejected or disabled.
+
+Verify the same smoke identifier against one exact V337 JSON line. Docker
+Compose prefixes must be disabled:
+
+docker compose logs --since 5m --no-color --no-log-prefix web | python backend/scripts/run_csp_observation_smoke_v338.py --target-url https://your-domain.com/__csp_reports__/ --confirm-remote-host your-domain.com --smoke-id <16-lowercase-hex> --verify-log-stdin
+
+The log input is limited to 512 KiB and is never echoed. For an external
+collector, pipe an equivalent bounded export containing the standalone JSON
+line. The harness uses only `.invalid` synthetic origins and never changes CSP
+gates, enforcement, or the V335 attestations. Set
+`DJANGO_CSP_OBSERVATION_SYNTHETIC_REPORT_VERIFIED=1` only after both delivery
+and log verification pass in the reviewed deployment.
+
 
 Production Docker Compose
 =========================
