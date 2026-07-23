@@ -135,6 +135,38 @@ gates, enforcement, or the V335 attestations. Set
 `DJANGO_CSP_OBSERVATION_SYNTHETIC_REPORT_VERIFIED=1` only after both delivery
 and log verification pass in the reviewed deployment.
 
+V339 closes the V333-V338 evidence chain without contacting the deployment or
+changing it. Keep the five sanitized JSON outputs in an operator-controlled
+directory outside the repository:
+
+1. V335 `--json --strict` readiness output from the final reviewed
+   configuration.
+2. V336 `--json --strict` edge-validator output.
+3. V337 `--json --strict` resolved-Compose retention output.
+4. V338 `--execute --json` delivery output.
+5. V338 `--verify-log-stdin --json` log-verification output using the same
+   smoke identifier, origin, timeout, and expected-log digest.
+
+Generate the V335 evidence only after the external edge and log-governance
+reviews are approved, the V338 delivery and log checks pass, the corresponding
+attestations are set, and the reviewed application configuration is active.
+Then run:
+
+python backend/scripts/check_csp_observation_evidence_closeout_v339.py --readiness-json <v335.json> --edge-json <v336.json> --retention-json <v337.json> --delivery-json <v338-delivery.json> --log-json <v338-log.json> --expected-origin https://your-domain.com --strict
+
+Each input is limited to 128 KiB. The closeout requires exact component
+schemas, all component checks ready, a safe exact expected origin, linked V338
+smoke evidence, and independent absence of application, edge, and response
+enforcement. Its output contains only fixed identifiers, counts, and reason
+codes; it never repeats the hostname, smoke ID, digest, file content, or file
+path.
+
+V339 validates structural consistency, not evidence authenticity, freshness,
+deployment identity, collector governance, or multi-node edge behavior.
+Operators must collect all five artifacts from the same reviewed deployment
+and change window. The audit performs no network, Docker, file-write, database,
+environment, CSP gate, enforcement, or attestation mutation.
+
 
 Production Docker Compose
 =========================

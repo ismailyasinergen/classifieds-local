@@ -2,25 +2,25 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v338 — CSP observation synthetic-delivery smoke harness**
+- Latest product milestone: **v339 — CSP observation evidence closeout audit**
 - Product checkpoint:
-  `project-checkpoint-v338-csp-observation-synthetic-delivery-smoke`
+  `project-checkpoint-v339-csp-observation-evidence-closeout`
 - Previous milestone:
-  `project-checkpoint-v337-csp-report-log-operations`
-- Validated regression baseline: **3,025 tests passing**
+  `project-checkpoint-v338-csp-observation-synthetic-delivery-smoke`
+- Validated regression baseline: **3,039 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 427.135 seconds; 449.3 seconds measured wall-clock time
+  in 458.389 seconds; 480.6 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v338 migration; all existing migrations are applied
+- Migration state: no v339 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v338 packages an explicit plan/execute/verify harness for sending one invented
-CSP report to the exact built-in endpoint and proving that its sanitized V337
-evidence reached the reviewed log destination. Exact-host confirmation,
-loopback-only HTTP, disabled proxies and redirects, bounded response and log
-reads, fixed response assertions, and `.invalid` payload origins keep the
-workflow privacy-safe. The harness does not change CSP gates, enforcement,
-application data, or readiness attestations.
+v339 closes the V333-V338 evidence chain with a bounded, read-only aggregator
+for the five sanitized readiness, edge, retention, delivery, and log artifacts.
+Eight fail-closed checks require exact component schemas, a safe expected
+origin, fully ready component results, linked V338 evidence, and independent
+enforcement absence. Output omits hostnames, smoke identifiers, digests, input
+paths, and content; provenance, freshness, and deployment identity remain
+explicit operator responsibilities.
 
 ## Recently completed
 
@@ -146,16 +146,19 @@ application data, or readiness attestations.
   strict target confirmation, bounded response inspection, exact sanitized
   log-evidence verification, and no CSP gate, enforcement, or attestation
   mutation
+- v339: bounded structural closeout of five sanitized V335-V338 evidence
+  artifacts with exact schemas, origin binding, smoke linkage, independent
+  enforcement-absence checks, fixed output, and no deployment mutation
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v339 — CSP observation evidence closeout
-audit**. Its scope is a read-only V333-V338 control-chain audit, explicit
-production evidence boundaries, sanitized output, and no enforcement or
-attestation mutation.
+The selected next milestone is **v340 — bounded CSP observation-window
+analysis**. Its scope is privacy-safe aggregation of approved sanitized V337
+evidence, fixed cardinality and input bounds, deterministic summaries, and no
+raw report access, persistence, network activity, or enforcement.
 
 Audit backlog after v321:
 
@@ -167,7 +170,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V338 did not run `migrate`; this statement records the observed
+`listings.0025`. V339 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 
