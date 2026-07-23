@@ -245,11 +245,23 @@ LOGGING = {
             "format": "[{levelname}] {asctime} {name}: {message}",
             "style": "{",
         },
+        "csp_report_v337": {
+            "()": (
+                "config.csp_report_logging_v337."
+                "SanitizedCspReportFormatterV337"
+            ),
+        },
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "simple",
+        },
+        "csp_report_console_v337": {
+            "class": "logging.StreamHandler",
+            "formatter": "csp_report_v337",
+            "level": "INFO",
+            "stream": "ext://sys.stdout",
         },
     },
     "root": {
@@ -265,6 +277,11 @@ LOGGING = {
         "django.security": {
             "handlers": ["console"],
             "level": "WARNING",
+            "propagate": False,
+        },
+        "security.csp_report_v334": {
+            "handlers": ["csp_report_console_v337"],
+            "level": "INFO",
             "propagate": False,
         },
     },

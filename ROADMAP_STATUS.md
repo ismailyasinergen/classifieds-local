@@ -2,25 +2,25 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v336 — CSP report edge abuse-control baseline**
+- Latest product milestone: **v337 — sanitized CSP report log-operations baseline**
 - Product checkpoint:
-  `project-checkpoint-v336-csp-report-edge-abuse-control`
+  `project-checkpoint-v337-csp-report-log-operations`
 - Previous milestone:
-  `project-checkpoint-v335-csp-observation-readiness-audit`
-- Validated regression baseline: **3,000 tests passing**
+  `project-checkpoint-v336-csp-report-edge-abuse-control`
+- Validated regression baseline: **3,011 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 427.727 seconds; 449.5 seconds measured wall-clock time
+  in 427.424 seconds; 449.0 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v336 migration; all existing migrations are applied
+- Migration state: no v337 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v336 adds an exact-path Nginx boundary for the built-in CSP report receiver:
-a worker-shared client-IP zone averaging one request per second, ten-request
-burst, explicit 429 status, 16 KiB body limit, and ten-second body timeout. A
-13-check bounded validator and native/live proxy evidence lock the upstream
-headers, fallback proxy, active enforcement of the request limit, and absence
-of CSP enforcement. The zone remains node-local and requires trusted real-IP
-handling or a deployment-wide upstream limit where applicable.
+v337 routes sanitized CSP evidence through a dedicated non-propagating stdout
+handler whose formatter ignores the original message and fails closed on any
+schema mismatch. The production web container uses Docker's local driver with
+10 MiB rotation, five files, and compression; a seven-check bounded validator
+audits resolved Compose JSON without echoing it. Docker access and external
+retention remain independent governance evidence, while raw report
+persistence and CSP enforcement remain absent.
 
 ## Recently completed
 
@@ -139,15 +139,18 @@ handling or a deployment-wide upstream limit where applicable.
 - v336: exact-path Nginx CSP report abuse controls with a shared client-IP
   rate zone, burst and 429 behavior, endpoint body/time bounds, a fail-closed
   source validator, native/live proxy evidence, and no CSP enforcement
+- v337: dedicated fail-closed JSON routing for sanitized CSP evidence,
+  non-propagating stdout delivery, bounded compressed production Docker
+  retention, a read-only Compose validator, and no raw report persistence
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v337 — sanitized CSP report log-operations
-baseline**. Its scope is dedicated routing, bounded local retention evidence,
-and continued separation from report payload persistence and CSP enforcement.
+The selected next milestone is **v338 — CSP observation synthetic-delivery
+smoke harness**. Its scope is invented payloads, explicit target controls,
+bounded timeouts, sanitized evidence assertions, and no enforcement enablement.
 
 Audit backlog after v321:
 
@@ -159,7 +162,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V336 did not run `migrate`; this statement records the observed
+`listings.0025`. V337 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

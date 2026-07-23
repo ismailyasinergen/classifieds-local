@@ -85,6 +85,28 @@ If another load balancer is placed before Nginx, configure and verify trusted
 real-client-IP restoration before approving the edge check; otherwise clients
 may be grouped under the load balancer address.
 
+V337 routes `security.csp_report_v334` through a dedicated non-propagating
+stdout handler. Its formatter ignores the original log message and renders
+only the exact validated evidence schema as compact JSON. Missing, malformed,
+or forged evidence produces a fixed `csp_report_log_rejected_v337` event
+without echoing the rejected value, exception, or format arguments.
+
+The production Compose override uses Docker's `local` log driver for the web
+container with 10 MiB rotation size, five files, and compression. This bounds
+the node-local copy of all web-container stdout/stderr, including the dedicated
+CSP stream. Validate the resolved configuration without creating a secret-
+bearing temporary file:
+
+DJANGO_ENV_FILE=.env.production.example docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env.production.example config --format json | python backend/scripts/check_csp_report_log_retention_v337.py --strict
+
+The validator reads bounded Compose JSON from stdin and emits only fixed status
+and reason codes. In a real deployment, substitute the approved environment
+file while keeping the pipe direct. Access to Docker logs grants access to the
+sanitized evidence, so Docker-daemon membership and any external collector
+must have approved access, export, and deletion controls. The local rotation
+baseline alone does not justify setting
+`DJANGO_CSP_OBSERVATION_LOG_GOVERNANCE_APPROVED=1`.
+
 
 Production Docker Compose
 =========================

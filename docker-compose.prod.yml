@@ -25,6 +25,15 @@ services:
       - ${DJANGO_ENV_FILE:-.env.production}
     environment:
       DJANGO_AUTO_MIGRATE: "${DJANGO_AUTO_MIGRATE:-0}"
+    # CSP_REPORT_BOUNDED_LOCAL_RETENTION_V337
+    # This bounds the local Docker copy. External collectors still require
+    # separately approved retention and access controls.
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "5"
+        compress: "true"
     volumes:
       - prod_static:/app/staticfiles
       - prod_media:/app/media

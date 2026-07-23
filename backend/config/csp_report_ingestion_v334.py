@@ -17,6 +17,10 @@ from django.http import (
 )
 from django.views.decorators.csrf import csrf_exempt
 
+from config.csp_report_logging_v337 import (
+    CSP_REPORT_EVIDENCE_EXTRA_V337,
+)
+
 
 CSP_REPORT_INGESTION_FOUNDATION_V334 = True
 CSP_REPORT_PATH_V334 = "__csp_reports__/"
@@ -444,6 +448,9 @@ def csp_report_ingestion_v334(request: HttpRequest) -> HttpResponse:
                 sort_keys=True,
                 separators=(",", ":"),
             ),
+            extra={
+                CSP_REPORT_EVIDENCE_EXTRA_V337: evidence,
+            },
         )
 
     return _response_v334(status=204)
