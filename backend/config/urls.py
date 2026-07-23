@@ -2,10 +2,16 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from config.csp_report_ingestion_v334 import csp_report_ingestion_v334
 from config.health_views import healthz
 
 
 urlpatterns = [
+    path(
+        "__csp_reports__/",
+        csp_report_ingestion_v334,
+        name="csp_report_ingestion_v334",
+    ),
     path("healthz/", healthz, name="healthz"),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),

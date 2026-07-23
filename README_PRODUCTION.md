@@ -25,12 +25,19 @@ default and does not emit a `Content-Security-Policy` enforcement header.
 Enable it only after selecting where browser reports will be reviewed:
 
 DJANGO_CSP_REPORT_ONLY_ENABLED=1
-DJANGO_CSP_REPORT_ONLY_REPORT_URI=/approved-csp-report-path/
+DJANGO_CSP_REPORT_ONLY_REPORT_URI=/__csp_reports__/
+DJANGO_CSP_REPORT_INGESTION_ENABLED=1
 
 The report URI may be a same-origin absolute path or a credential-free HTTPS
 collector URI. Leave it empty to use browser developer-console observation
 without server-side collection. Review violations and update source contracts
 before considering enforcement.
+
+The built-in `/__csp_reports__/` endpoint is independently default-off. It
+accepts only CSP report media types, limits request and batch sizes, applies a
+hashed-client in-process cache rate limit, and emits sanitized structured logs
+without database persistence. Production still requires proxy-level
+distributed rate limiting and approved log retention/access controls.
 
 
 Production Docker Compose

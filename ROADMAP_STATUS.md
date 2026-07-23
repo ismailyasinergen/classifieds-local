@@ -2,24 +2,25 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v333 — CSP Report-Only header rollout**
+- Latest product milestone: **v334 — CSP violation-report ingestion foundation**
 - Product checkpoint:
-  `project-checkpoint-v333-csp-report-only-header-rollout`
+  `project-checkpoint-v334-csp-violation-report-ingestion`
 - Previous milestone:
-  `project-checkpoint-v332-dynamic-seo-json-ld-csp-nonce`
-- Validated regression baseline: **2,959 tests passing**
+  `project-checkpoint-v333-csp-report-only-header-rollout`
+- Validated regression baseline: **2,978 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 429.959 seconds; 454.2 seconds measured wall-clock time
+  in 426.936 seconds; 448.8 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v333 migration; all existing migrations are applied
+- Migration state: no v334 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v333 adds a default-off, environment-controlled CSP Report-Only policy that
-uses the V332 request nonce, preserves an upstream observation header, and
-never emits enforcement. Its source contract is backed by a full template
-inventory, retains explicit transitional inline-style compatibility, rejects
-unsafe report collector URIs, and reports nonce-free scripts and event
-handlers without changing application behavior.
+v334 adds an independently default-off, bounded same-origin receiver for the
+V333 Report-Only policy. It accepts only the two CSP report media types,
+enforces body, batch, and hashed-client cache bounds before parsing, and logs
+only a fixed sanitized evidence schema without database or file persistence.
+Raw paths, queries, credentials, policies, and samples are discarded; proxy
+rate limiting and log governance remain explicit production requirements.
+No enforcement header or response to reported violations is introduced.
 
 ## Recently completed
 
@@ -128,16 +129,20 @@ handlers without changing application behavior.
   directives, strict report-URI validation, upstream-header preservation,
   repository-wide source/debt inventory, operations guidance, and explicit
   proof that no enforcement header is emitted
+- v334: independently default-off CSP violation-report ingestion with strict
+  media and shape validation, 16 KiB body and ten-item batch bounds,
+  hashed-client cache throttling, privacy-bounded structured logs, no
+  persistence, and no CSP enforcement
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v334 — CSP violation-report ingestion
-foundation**. Its scope is a bounded same-origin endpoint with strict media
-types and payload limits, sanitized non-persistent operator evidence, abuse
-controls, and no CSP enforcement.
+The selected next milestone is **v335 — CSP observation operational-readiness
+audit**. Its scope is a read-only audit of deployment gates, edge rate limits,
+sanitized log controls, synthetic report delivery, and the continued absence
+of CSP enforcement.
 
 Audit backlog after v321:
 
@@ -149,7 +154,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V333 did not run `migrate`; this statement records the observed
+`listings.0025`. V334 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 
