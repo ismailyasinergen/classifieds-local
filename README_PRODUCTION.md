@@ -39,6 +39,31 @@ hashed-client in-process cache rate limit, and emits sanitized structured logs
 without database persistence. Production still requires proxy-level
 distributed rate limiting and approved log retention/access controls.
 
+V335 packages a read-only readiness command. It does not send a report,
+contact the network, change configuration, write application data, or enable
+enforcement:
+
+python manage.py check_csp_observation_readiness_v335
+python manage.py check_csp_observation_readiness_v335 --json
+python manage.py check_csp_observation_readiness_v335 --strict
+
+The strict result remains `not_ready` until both application gates target the
+built-in path and all three external prerequisites have been independently
+reviewed:
+
+DJANGO_CSP_OBSERVATION_EDGE_RATE_LIMIT_APPROVED=1
+DJANGO_CSP_OBSERVATION_LOG_GOVERNANCE_APPROVED=1
+DJANGO_CSP_OBSERVATION_SYNTHETIC_REPORT_VERIFIED=1
+
+These values are attestations, not substitutes for the controls. Before
+setting them, verify that the edge has a distributed limit specifically for
+`/__csp_reports__/`; that sanitized `security.csp_report_v334` INFO events have
+approved retention, access and export controls; and that a same-origin
+synthetic `application/csp-report` POST returns 204 and reaches that sanitized
+log destination. Confirm that the response still has no
+`Content-Security-Policy` enforcement header. Never include a real URL,
+account, token or script sample in the synthetic payload.
+
 
 Production Docker Compose
 =========================

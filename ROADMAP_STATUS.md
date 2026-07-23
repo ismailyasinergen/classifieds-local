@@ -2,25 +2,25 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v334 — CSP violation-report ingestion foundation**
+- Latest product milestone: **v335 — CSP observation operational-readiness audit**
 - Product checkpoint:
-  `project-checkpoint-v334-csp-violation-report-ingestion`
+  `project-checkpoint-v335-csp-observation-readiness-audit`
 - Previous milestone:
-  `project-checkpoint-v333-csp-report-only-header-rollout`
-- Validated regression baseline: **2,978 tests passing**
+  `project-checkpoint-v334-csp-violation-report-ingestion`
+- Validated regression baseline: **2,990 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 426.936 seconds; 448.8 seconds measured wall-clock time
+  in 423.491 seconds; 445.0 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v334 migration; all existing migrations are applied
+- Migration state: no v335 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v334 adds an independently default-off, bounded same-origin receiver for the
-V333 Report-Only policy. It accepts only the two CSP report media types,
-enforces body, batch, and hashed-client cache bounds before parsing, and logs
-only a fixed sanitized evidence schema without database or file persistence.
-Raw paths, queries, credentials, policies, and samples are discarded; proxy
-rate limiting and log governance remain explicit production requirements.
-No enforcement header or response to reported violations is introduced.
+v335 adds a deterministic 13-check, read-only readiness command for the
+built-in V333/V334 observation path. It fails closed on disabled or mismatched
+gates, dropped INFO logs, missing deployment attestations, or any enforcement
+reference. Edge limiting, sanitized log governance, and a real synthetic
+delivery remain independently reviewed external evidence; their default-off
+settings do not configure those controls. The audit performs no network,
+report, cache, database, or file mutation.
 
 ## Recently completed
 
@@ -133,16 +133,19 @@ No enforcement header or response to reported violations is introduced.
   media and shape validation, 16 KiB body and ten-item batch bounds,
   hashed-client cache throttling, privacy-bounded structured logs, no
   persistence, and no CSP enforcement
+- v335: deterministic read-only CSP observation readiness reporting with 13
+  fail-closed checks, sanitized text/JSON output, strict CI mode, explicit
+  external-control attestations, and no network, persistence, or enforcement
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v335 — CSP observation operational-readiness
-audit**. Its scope is a read-only audit of deployment gates, edge rate limits,
-sanitized log controls, synthetic report delivery, and the continued absence
-of CSP enforcement.
+The selected next milestone is **v336 — CSP report edge abuse-control
+baseline**. Its scope is an exact-path proxy request limit, endpoint-specific
+body bound, configuration validation, and no change to CSP enforcement or
+report persistence.
 
 Audit backlog after v321:
 
@@ -154,7 +157,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V334 did not run `migrate`; this statement records the observed
+`listings.0025`. V335 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 
