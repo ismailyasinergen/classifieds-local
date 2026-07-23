@@ -85,7 +85,7 @@ class ListingDetailCssStaticAssetV326Tests(SimpleTestCase):
     def test_audit_distinguishes_inline_blocks_from_static_assets(self):
         self.assertEqual(self.report.style_blocks, ())
         self.assertEqual(self.report.script_blocks, ())
-        self.assertEqual(len(self.report.static_assets), 2)
+        self.assertEqual(len(self.report.static_assets), 3)
         css_asset = next(
             asset
             for asset in self.report.static_assets

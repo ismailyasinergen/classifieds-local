@@ -254,7 +254,7 @@ class SavedSearchNotificationPersistentAuditOperatorNavigationIntegrationV237Tes
         )
 
         marker_position = source.index(
-            "ADMIN_NAV_CLEANUP_V2"
+            "ADMIN_NAV_GROUPED_TOOLBAR_V99"
         )
 
         admin_positions = [
@@ -622,7 +622,7 @@ class SavedSearchNotificationPersistentAuditOperatorNavigationIntegrationV237Tes
         source = self._navigation_source()
 
         self.assertIn(
-            "ADMIN_NAV_CLEANUP_V2",
+            "ADMIN_NAV_GROUPED_TOOLBAR_V99",
             source,
         )
 

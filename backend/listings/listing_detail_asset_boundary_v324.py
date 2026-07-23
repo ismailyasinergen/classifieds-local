@@ -7,6 +7,10 @@ from dataclasses import asdict, dataclass
 from html.parser import HTMLParser
 from pathlib import Path
 
+from pages.base_asset_contract_v330 import (
+    BASE_CSS_REPOSITORY_PATH_V330,
+)
+
 
 V324_MARKER = "LISTING_DETAIL_ASSET_EXTRACTION_GROUNDWORK_V324"
 PLANNED_CSS_ASSET_V324 = "listings/listing-detail-v324.css"
@@ -25,7 +29,7 @@ _SCRIPT_BLOCK_PATTERN = re.compile(
 )
 _TEMPLATE_TOKEN_PATTERN = re.compile(r"\{[{%#]")
 _MARKER_PATTERN = re.compile(
-    r"\b(?:LISTING|PUBLIC_LISTING|MOBILE_LISTING)_[A-Z0-9_]+_V\d+\b"
+    r"\b(?:BASE|LISTING|PUBLIC_LISTING|MOBILE_LISTING)_[A-Z0-9_]+_V\d+\b"
 )
 
 
@@ -313,6 +317,10 @@ def _static_assets(backend_dir: Path) -> tuple[StaticAssetV324, ...]:
         (
             f"listings/static/{PLANNED_JS_ASSET_V324}",
             "javascript",
+        ),
+        (
+            BASE_CSS_REPOSITORY_PATH_V330,
+            "css",
         ),
     ):
         path = backend_dir / relative_path

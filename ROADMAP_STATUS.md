@@ -2,23 +2,23 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v329 — Base-template inline-style attribute cleanup**
+- Latest product milestone: **v330 — Base stylesheet static asset extraction**
 - Product checkpoint:
-  `project-checkpoint-v329-base-inline-style-attribute-cleanup`
+  `project-checkpoint-v330-base-stylesheet-static-asset`
 - Previous milestone:
-  `project-checkpoint-v328-listing-detail-inline-style-csp-boundary`
-- Validated regression baseline: **2,915 tests passing**
+  `project-checkpoint-v329-base-inline-style-attribute-cleanup`
+- Validated regression baseline: **2,923 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 429.447 seconds; 450.8 seconds measured wall-clock time
+  in 423.915 seconds; 444.3 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v329 migration; all existing migrations are applied
+- Migration state: no v330 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v329 replaces all three shared `base.html` inline `style=` attributes with
-dedicated classes in the main base CSS block. Seller-restriction and Django
-message rendering retain their prior declarations. The inherited CSP audit now
-reports zero inline style attributes and zero event handlers; the two style
-blocks and two script blocks remain explicit full-page strict-CSP debt.
+v330 moves the 1,118-line main `base.html` CSS payload into the versioned,
+Django-discoverable `pages/base-v330.css` asset while preserving declaration
+order and the `extra_styles` cascade boundary. The audit now inventories three
+physical assets and one inherited inline style block; two inline script blocks
+remain explicit full-page strict-CSP debt.
 
 ## Recently completed
 
@@ -111,16 +111,21 @@ blocks and two script blocks remain explicit full-page strict-CSP debt.
 - v329: replacement of all three base-template inline style attributes with
   class-based seller-restriction and Django-message presentation, real template
   rendering coverage, and zero inherited inline-style attribute debt
+- v330: exact, hash-locked extraction of the main base stylesheet into a
+  versioned Pages static asset with preserved `extra_styles` ordering,
+  findstatic/collectstatic coverage, and repair of two CSS-source false-positive
+  response tests
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v330 — Base stylesheet static asset
-extraction**. Its scope is to move the main shared CSS block into a versioned,
-Django-discoverable static asset without changing declaration order or the
-existing `extra_styles` cascade boundary.
+The selected next milestone is **v331 — Seller-restriction conditional asset
+extraction**. Its scope is to move the remaining conditional seller-action CSS
+and JavaScript into versioned static assets while preserving suspension-only
+loading and behavior, leaving dynamic SEO JSON-LD as the sole inherited inline
+script boundary.
 
 Audit backlog after v321:
 
@@ -132,7 +137,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V329 did not run `migrate`; this statement records the observed
+`listings.0025`. V330 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

@@ -12,6 +12,9 @@ from listings.listing_detail_asset_contract_v325 import (
     read_listing_detail_contract_source_v325,
 )
 from listings.models import Listing
+from pages.base_asset_contract_v330 import (
+    BASE_CSS_REPOSITORY_PATH_V330,
+)
 
 
 V322_MARKER = "LISTING_DETAIL_ACCESSIBILITY_V322"
@@ -43,6 +46,9 @@ class ListingDetailAccessibilityV322Tests(TestCase):
         super().setUpClass()
         cls.base_dir = Path(settings.BASE_DIR)
         cls.base_template_path = cls.base_dir / "templates" / "base.html"
+        cls.base_css_path = (
+            cls.base_dir / BASE_CSS_REPOSITORY_PATH_V330
+        )
         cls.detail_template_path = (
             cls.base_dir
             / "listings"
@@ -92,13 +98,20 @@ class ListingDetailAccessibilityV322Tests(TestCase):
 
     def test_primary_content_precedes_category_sidebar_in_dom(self):
         base_source = self.base_template_path.read_text(encoding="utf-8")
+        base_css_source = self.base_css_path.read_text(encoding="utf-8")
 
         self.assertLess(
             base_source.index('<section class="content"'),
             base_source.index('<aside class="sidebar"'),
         )
-        self.assertIn("body.listing-detail-page-v321 .content", base_source)
-        self.assertIn("body.listing-detail-page-v321 .sidebar", base_source)
+        self.assertIn(
+            "body.listing-detail-page-v321 .content",
+            base_css_source,
+        )
+        self.assertIn(
+            "body.listing-detail-page-v321 .sidebar",
+            base_css_source,
+        )
 
     def test_rendered_heading_and_id_structure_is_valid(self):
         response = self.client.get(self.detail_url)

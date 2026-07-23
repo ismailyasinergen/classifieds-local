@@ -16,6 +16,9 @@ from listings.listing_detail_asset_boundary_v324 import (
 from listings.listing_detail_asset_contract_v325 import (
     LISTING_DETAIL_TEMPLATE_PATH_V325,
 )
+from pages.base_asset_contract_v330 import (
+    BASE_CSS_REPOSITORY_PATH_V330,
+)
 
 
 V329_MARKER = "BASE_INLINE_STYLE_ATTRIBUTE_CLEANUP_V329"
@@ -28,6 +31,12 @@ class BaseInlineStyleAttributeCleanupV329Tests(SimpleTestCase):
         cls.backend_dir = Path(settings.BASE_DIR)
         cls.base_template_path = cls.backend_dir / "templates" / "base.html"
         cls.base_source = cls.base_template_path.read_text(encoding="utf-8")
+        cls.base_css_source = (
+            cls.backend_dir / BASE_CSS_REPOSITORY_PATH_V330
+        ).read_text(encoding="utf-8")
+        cls.base_contract_source = (
+            cls.base_css_source + "\n" + cls.base_source
+        )
         cls.report = audit_listing_detail_asset_boundary_v324(
             template_path=(
                 cls.backend_dir / LISTING_DETAIL_TEMPLATE_PATH_V325
@@ -36,7 +45,7 @@ class BaseInlineStyleAttributeCleanupV329Tests(SimpleTestCase):
         )
 
     def test_v329_marker_and_base_inline_style_cleanup_are_packaged(self):
-        self.assertIn(V329_MARKER, self.base_source)
+        self.assertIn(V329_MARKER, self.base_css_source)
         self.assertEqual(
             re.findall(r"\sstyle\s*=", self.base_source, re.IGNORECASE),
             [],
@@ -53,7 +62,10 @@ class BaseInlineStyleAttributeCleanupV329Tests(SimpleTestCase):
             "django-message-v329",
         ):
             with self.subTest(class_name=class_name):
-                self.assertEqual(self.base_source.count(class_name), 2)
+                self.assertEqual(
+                    self.base_contract_source.count(class_name),
+                    2,
+                )
 
     def test_base_css_preserves_all_former_inline_declarations(self):
         fragments = (
@@ -75,16 +87,14 @@ class BaseInlineStyleAttributeCleanupV329Tests(SimpleTestCase):
 
         for fragment in fragments:
             with self.subTest(fragment=fragment):
-                self.assertIn(fragment, self.base_source)
+                self.assertIn(fragment, self.base_css_source)
 
-    def test_v329_rules_are_at_end_of_main_base_style_block(self):
-        main_style_end = self.base_source.index("</style>")
-        marker_index = self.base_source.index(V329_MARKER)
+    def test_v329_rules_remain_at_end_of_base_css_asset(self):
+        marker_index = self.base_css_source.index(V329_MARKER)
 
-        self.assertLess(marker_index, main_style_end)
         self.assertGreater(
             marker_index,
-            self.base_source.rindex("@media", 0, main_style_end),
+            self.base_css_source.rindex("@media"),
         )
 
     def test_rendered_banner_and_messages_use_replacement_classes(self):
@@ -117,7 +127,7 @@ class BaseInlineStyleAttributeCleanupV329Tests(SimpleTestCase):
     def test_inherited_csp_debt_is_limited_to_blocks_after_v329(self):
         inherited = self.report.inherited_csp_boundary
 
-        self.assertEqual(len(inherited.style_blocks), 2)
+        self.assertEqual(len(inherited.style_blocks), 1)
         self.assertEqual(len(inherited.script_blocks), 2)
         self.assertEqual(inherited.inline_event_handlers, ())
         self.assertEqual(inherited.inline_style_attributes, ())
@@ -129,7 +139,7 @@ class BaseInlineStyleAttributeCleanupV329Tests(SimpleTestCase):
         call_command("audit_listing_detail_assets_v324", stdout=text_output)
         rendered = text_output.getvalue()
 
-        self.assertIn("inherited_styles=2", rendered)
+        self.assertIn("inherited_styles=1", rendered)
         self.assertIn("inherited_scripts=2", rendered)
         self.assertIn("inherited_handlers=0", rendered)
         self.assertIn("inherited_inline_styles=0", rendered)

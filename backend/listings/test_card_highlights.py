@@ -63,16 +63,24 @@ class ListingCardHighlightTests(TestCase):
         self.assertEqual([item["value"] for item in highlights], ["BMW", "520i", "2018", "90000"])
 
     def test_browse_card_renders_highlights(self):
-        self._listing(
+        listing = self._listing(
             "BMW 520i card highlight",
             self.cars,
             {"marka": "BMW", "model": "520i", "yil": "2018", "km": "90000"},
         )
 
-        response = self.client.get(reverse("listings:listing_list"), {"category": "cars"})
+        response = self.client.get(reverse("listings:listing_list"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "listing-card-highlights")
+        self.assertQuerySetEqual(
+            response.context["listings"],
+            [listing],
+        )
+        self.assertContains(
+            response,
+            'class="listing-card-highlights"',
+            count=1,
+        )
         self.assertContains(response, "BMW")
         self.assertContains(response, "520i")
         self.assertContains(response, "2018")

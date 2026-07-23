@@ -13,6 +13,10 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import resolve, reverse
 
+from pages.base_asset_contract_v330 import (
+    read_base_contract_source_v330,
+)
+
 from .listing_comparison_discount_v297 import (
     DEAL_AWARE_LISTING_COMPARISON_V297,
 )
@@ -317,12 +321,8 @@ class PublicDealsDiscoveryIntegrationReleaseAuditV299Tests(
         )
 
     def test_shared_header_packages_active_focus_and_responsive_contract(self):
-        base_source = (
+        base_source = read_base_contract_source_v330(
             Path(settings.BASE_DIR)
-            / "templates"
-            / "base.html"
-        ).read_text(
-            encoding="utf-8",
         )
 
         required_terms = (
