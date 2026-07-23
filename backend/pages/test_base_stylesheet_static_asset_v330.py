@@ -86,7 +86,7 @@ class BaseStylesheetStaticAssetV330Tests(SimpleTestCase):
         )
         get_template("base.html")
 
-    def test_only_dynamic_json_ld_script_boundary_remains_inline(self):
+    def test_only_dynamic_json_ld_script_is_inline_and_nonce_protected(self):
         inherited = self.report.inherited_csp_boundary
 
         self.assertEqual(inherited.style_blocks, ())
@@ -94,8 +94,13 @@ class BaseStylesheetStaticAssetV330Tests(SimpleTestCase):
         self.assertEqual(len(inherited.script_blocks), 1)
         self.assertEqual(inherited.inline_event_handlers, ())
         self.assertEqual(inherited.inline_style_attributes, ())
-        self.assertFalse(inherited.strict_csp_ready)
-        self.assertFalse(self.report.strict_csp_ready)
+        self.assertEqual(
+            inherited.nonce_protected_script_blocks,
+            inherited.script_blocks,
+        )
+        self.assertEqual(inherited.unprotected_script_blocks, ())
+        self.assertTrue(inherited.strict_csp_ready)
+        self.assertTrue(self.report.strict_csp_ready)
 
     def test_audit_inventories_base_css_static_asset(self):
         self.assertEqual(len(self.report.static_assets), 5)
@@ -117,8 +122,10 @@ class BaseStylesheetStaticAssetV330Tests(SimpleTestCase):
         self.assertIn("static_assets=5", rendered)
         self.assertIn("inherited_styles=0", rendered)
         self.assertIn("inherited_scripts=1", rendered)
+        self.assertIn("inherited_nonce_scripts=1", rendered)
+        self.assertIn("inherited_unprotected_scripts=0", rendered)
         self.assertIn("inherited_inline_styles=0", rendered)
-        self.assertIn("strict_csp_ready=false", rendered)
+        self.assertIn("strict_csp_ready=true", rendered)
 
         json_output = StringIO()
         call_command(
@@ -133,7 +140,7 @@ class BaseStylesheetStaticAssetV330Tests(SimpleTestCase):
             len(payload["inherited_csp_boundary"]["style_blocks"]),
             0,
         )
-        self.assertFalse(payload["strict_csp_ready"])
+        self.assertTrue(payload["strict_csp_ready"])
 
     def test_v330_adds_no_database_migration(self):
         matches = []

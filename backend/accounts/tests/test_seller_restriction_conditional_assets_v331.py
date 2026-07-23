@@ -147,16 +147,18 @@ class SellerRestrictionConditionalAssetsV331Tests(SimpleTestCase):
             1,
         )
 
-    def test_audit_reports_only_dynamic_json_ld_inline_boundary(self):
+    def test_audit_reports_nonce_protected_dynamic_json_ld_boundary(self):
         inherited = self.report.inherited_csp_boundary
 
         self.assertEqual(inherited.style_blocks, ())
         self.assertEqual(len(inherited.script_blocks), 1)
         self.assertTrue(inherited.script_blocks[0].contains_template_syntax)
+        self.assertTrue(inherited.script_blocks[0].has_csp_nonce)
+        self.assertEqual(inherited.unprotected_script_blocks, ())
         self.assertEqual(inherited.inline_event_handlers, ())
         self.assertEqual(inherited.inline_style_attributes, ())
-        self.assertFalse(inherited.strict_csp_ready)
-        self.assertFalse(self.report.strict_csp_ready)
+        self.assertTrue(inherited.strict_csp_ready)
+        self.assertTrue(self.report.strict_csp_ready)
 
     def test_audit_inventories_both_v331_static_assets(self):
         self.assertEqual(len(self.report.static_assets), 5)
@@ -182,8 +184,10 @@ class SellerRestrictionConditionalAssetsV331Tests(SimpleTestCase):
         self.assertIn("static_assets=5", rendered)
         self.assertIn("inherited_styles=0", rendered)
         self.assertIn("inherited_scripts=1", rendered)
+        self.assertIn("inherited_nonce_scripts=1", rendered)
+        self.assertIn("inherited_unprotected_scripts=0", rendered)
         self.assertIn("inherited_inline_styles=0", rendered)
-        self.assertIn("strict_csp_ready=false", rendered)
+        self.assertIn("strict_csp_ready=true", rendered)
 
         json_output = StringIO()
         call_command(
@@ -198,7 +202,7 @@ class SellerRestrictionConditionalAssetsV331Tests(SimpleTestCase):
             len(payload["inherited_csp_boundary"]["script_blocks"]),
             1,
         )
-        self.assertFalse(payload["strict_csp_ready"])
+        self.assertTrue(payload["strict_csp_ready"])
 
     def test_v331_adds_no_database_migration(self):
         matches = []

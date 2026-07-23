@@ -2,24 +2,24 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v331 — Seller-restriction conditional asset extraction**
+- Latest product milestone: **v332 — Dynamic SEO JSON-LD CSP nonce groundwork**
 - Product checkpoint:
-  `project-checkpoint-v331-seller-restriction-conditional-assets`
+  `project-checkpoint-v332-dynamic-seo-json-ld-csp-nonce`
 - Previous milestone:
-  `project-checkpoint-v330-base-stylesheet-static-asset`
-- Validated regression baseline: **2,933 tests passing**
+  `project-checkpoint-v331-seller-restriction-conditional-assets`
+- Validated regression baseline: **2,944 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 422.206 seconds; 443.4 seconds measured wall-clock time
+  in 416.722 seconds; 437.8 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v331 migration; all existing migrations are applied
+- Migration state: no v332 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v331 moves the suspension-only seller-action CSS and JavaScript out of
-`base.html` into versioned, Django-discoverable Accounts assets while preserving
-conditional loading, cascade position, source order, and interaction behavior.
-The audit now inventories five physical assets, zero inherited inline style
-blocks, and one inherited inline script block: dynamic SEO JSON-LD is the sole
-remaining full-page strict-CSP boundary.
+v332 supplies every request with a cryptographically strong, request-local CSP
+nonce and applies it to the fail-closed dynamic SEO JSON-LD block. The audit now
+distinguishes one nonce-protected inline script from zero unprotected scripts
+and reports the template/source boundary ready for strict CSP. No CSP or
+Report-Only response header is emitted; policy rollout remains explicitly
+separate.
 
 ## Recently completed
 
@@ -120,16 +120,20 @@ remaining full-page strict-CSP boundary.
   JavaScript into versioned Accounts static assets with suspension-only loading,
   preserved cascade/source order, real suspended/unrestricted render coverage,
   and dynamic SEO JSON-LD isolated as the sole inherited inline boundary
+- v332: 256-bit request-scoped nonce middleware and context plumbing,
+  fail-closed nonce protection for dynamic SEO JSON-LD, nonce-aware text/JSON
+  asset auditing, cross-request uniqueness coverage, and explicit proof that
+  CSP enforcement and Report-Only headers remain disabled
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v332 — Dynamic SEO JSON-LD CSP nonce
-groundwork**. Its scope is to establish and test request-scoped nonce plumbing
-for the remaining dynamic JSON-LD boundary without prematurely enabling a CSP
-enforcement header or weakening the existing source policy.
+The selected next milestone is **v333 — CSP Report-Only header rollout**. Its
+scope is to add an environment-controlled report-only policy using the v332
+request nonce, lock the required source allow-list and response coverage, and
+collect deployment evidence without enabling CSP enforcement.
 
 Audit backlog after v321:
 
@@ -141,7 +145,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V331 did not run `migrate`; this statement records the observed
+`listings.0025`. V332 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

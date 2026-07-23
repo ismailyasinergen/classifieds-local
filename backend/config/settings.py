@@ -34,6 +34,7 @@ MIDDLEWARE = [
     "accounts.middleware.SensitiveMediaBlockMiddleware",
 
     "django.middleware.security.SecurityMiddleware",
+    "config.csp_nonce_v332.CspNonceMiddlewareV332",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -55,6 +56,7 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
+                "config.context_processors.csp_nonce_v332",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "accounts.context_processors.seller_restriction_status",

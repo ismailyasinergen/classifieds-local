@@ -32,8 +32,14 @@ _SCRIPT_BLOCK_PATTERN = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 _TEMPLATE_TOKEN_PATTERN = re.compile(r"\{[{%#]")
+_CSP_NONCE_ATTRIBUTE_PATTERN_V332 = re.compile(
+    r"""\bnonce\s*=\s*(?P<quote>["'])"""
+    r"""\s*\{\{\s*csp_nonce_v332\s*\}\}\s*"""
+    r"""(?P=quote)""",
+    re.IGNORECASE,
+)
 _MARKER_PATTERN = re.compile(
-    r"\b(?:BASE|LISTING|PUBLIC_LISTING|MOBILE_LISTING|SELLER_RESTRICTION)_[A-Z0-9_]+_V\d+\b"
+    r"\b(?:BASE|DYNAMIC|LISTING|PUBLIC_LISTING|MOBILE_LISTING|SELLER_RESTRICTION)_[A-Z0-9_]+_V\d+\b"
 )
 
 
@@ -46,6 +52,7 @@ class InlineAssetBlockV324:
     line_count: int
     character_count: int
     contains_template_syntax: bool
+    has_csp_nonce: bool
     markers: tuple[str, ...]
 
     def as_dict(self) -> dict[str, object]:
@@ -91,10 +98,30 @@ class InheritedCspBoundaryV328:
     inline_style_attributes: tuple[InlineStyleAttributeV324, ...]
 
     @property
+    def nonce_protected_script_blocks(
+        self,
+    ) -> tuple[InlineAssetBlockV324, ...]:
+        return tuple(
+            block
+            for block in self.script_blocks
+            if block.has_csp_nonce
+        )
+
+    @property
+    def unprotected_script_blocks(
+        self,
+    ) -> tuple[InlineAssetBlockV324, ...]:
+        return tuple(
+            block
+            for block in self.script_blocks
+            if not block.has_csp_nonce
+        )
+
+    @property
     def strict_csp_ready(self) -> bool:
         return not (
             self.style_blocks
-            or self.script_blocks
+            or self.unprotected_script_blocks
             or self.inline_event_handlers
             or self.inline_style_attributes
         )
@@ -109,6 +136,14 @@ class InheritedCspBoundaryV328:
             "script_blocks": [
                 block.as_dict()
                 for block in self.script_blocks
+            ],
+            "nonce_protected_script_blocks": [
+                block.as_dict()
+                for block in self.nonce_protected_script_blocks
+            ],
+            "unprotected_script_blocks": [
+                block.as_dict()
+                for block in self.unprotected_script_blocks
             ],
             "inline_event_handlers": [
                 handler.as_dict()
@@ -268,6 +303,7 @@ def _asset_blocks(
 
     for index, match in enumerate(pattern.finditer(source), start=1):
         body = match.group("body")
+        opening_tag = match.group(0).split(">", 1)[0]
         start_line = _line_number(source, match.start())
         end_line = _line_number(source, match.end() - 1)
         blocks.append(
@@ -280,6 +316,12 @@ def _asset_blocks(
                 character_count=len(body),
                 contains_template_syntax=bool(
                     _TEMPLATE_TOKEN_PATTERN.search(body)
+                ),
+                has_csp_nonce=bool(
+                    kind == "script"
+                    and _CSP_NONCE_ATTRIBUTE_PATTERN_V332.search(
+                        opening_tag
+                    )
                 ),
                 markers=tuple(sorted(set(_MARKER_PATTERN.findall(body)))),
             )

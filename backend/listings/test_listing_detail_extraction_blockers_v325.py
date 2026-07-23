@@ -109,7 +109,7 @@ class ListingDetailExtractionBlockersV325Tests(SimpleTestCase):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, self.source)
 
-    def test_audit_reports_cutover_ready_but_not_strict_csp_ready(self):
+    def test_audit_reports_cutover_and_nonce_based_csp_readiness(self):
         self.assertEqual(self.report.source_contract_tests, ())
         self.assertGreaterEqual(
             len(self.report.asset_aware_source_tests),
@@ -127,7 +127,7 @@ class ListingDetailExtractionBlockersV325Tests(SimpleTestCase):
         self.assertTrue(self.report.cutover_ready)
         self.assertEqual(self.report.inline_style_attributes, ())
         self.assertTrue(self.report.template_owned_strict_csp_ready)
-        self.assertFalse(self.report.strict_csp_ready)
+        self.assertTrue(self.report.strict_csp_ready)
 
     def test_fail_on_blockers_and_json_output_are_ci_compatible(self):
         text_output = StringIO()
@@ -148,7 +148,7 @@ class ListingDetailExtractionBlockersV325Tests(SimpleTestCase):
         self.assertEqual(payload["inline_event_handlers"], [])
         self.assertEqual(payload["inline_style_attributes"], [])
         self.assertTrue(payload["template_owned_strict_csp_ready"])
-        self.assertFalse(
+        self.assertTrue(
             payload["inherited_csp_boundary"]["strict_csp_ready"]
         )
         self.assertEqual(payload["source_contract_tests"], [])

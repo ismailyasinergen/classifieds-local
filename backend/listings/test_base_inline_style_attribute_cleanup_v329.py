@@ -124,15 +124,20 @@ class BaseInlineStyleAttributeCleanupV329Tests(SimpleTestCase):
         self.assertIn("Saved successfully.", rendered)
         self.assertNotRegex(rendered, r"\sstyle\s*=")
 
-    def test_inherited_csp_debt_is_limited_to_blocks_after_v329(self):
+    def test_inherited_csp_boundary_is_nonce_ready_after_v332(self):
         inherited = self.report.inherited_csp_boundary
 
         self.assertEqual(inherited.style_blocks, ())
         self.assertEqual(len(inherited.script_blocks), 1)
         self.assertEqual(inherited.inline_event_handlers, ())
         self.assertEqual(inherited.inline_style_attributes, ())
-        self.assertFalse(inherited.strict_csp_ready)
-        self.assertFalse(self.report.strict_csp_ready)
+        self.assertEqual(
+            inherited.nonce_protected_script_blocks,
+            inherited.script_blocks,
+        )
+        self.assertEqual(inherited.unprotected_script_blocks, ())
+        self.assertTrue(inherited.strict_csp_ready)
+        self.assertTrue(self.report.strict_csp_ready)
 
     def test_text_and_json_audit_report_zero_inherited_inline_styles(self):
         text_output = StringIO()
@@ -141,9 +146,11 @@ class BaseInlineStyleAttributeCleanupV329Tests(SimpleTestCase):
 
         self.assertIn("inherited_styles=0", rendered)
         self.assertIn("inherited_scripts=1", rendered)
+        self.assertIn("inherited_nonce_scripts=1", rendered)
+        self.assertIn("inherited_unprotected_scripts=0", rendered)
         self.assertIn("inherited_handlers=0", rendered)
         self.assertIn("inherited_inline_styles=0", rendered)
-        self.assertIn("strict_csp_ready=false", rendered)
+        self.assertIn("strict_csp_ready=true", rendered)
 
         json_output = StringIO()
         call_command(
@@ -155,8 +162,8 @@ class BaseInlineStyleAttributeCleanupV329Tests(SimpleTestCase):
         inherited_payload = payload["inherited_csp_boundary"]
 
         self.assertEqual(inherited_payload["inline_style_attributes"], [])
-        self.assertFalse(inherited_payload["strict_csp_ready"])
-        self.assertFalse(payload["strict_csp_ready"])
+        self.assertTrue(inherited_payload["strict_csp_ready"])
+        self.assertTrue(payload["strict_csp_ready"])
 
     def test_v329_adds_no_database_migration(self):
         matches = []

@@ -117,7 +117,7 @@ class ListingDetailJavascriptStaticAssetV327Tests(SimpleTestCase):
         self.assertTrue(self.report.mechanically_extractable)
         self.assertTrue(self.report.cutover_ready)
         self.assertTrue(self.report.template_owned_strict_csp_ready)
-        self.assertFalse(self.report.strict_csp_ready)
+        self.assertTrue(self.report.strict_csp_ready)
 
     def test_asset_contract_orders_template_css_and_javascript(self):
         paths = listing_detail_contract_paths_v325(self.backend_dir)

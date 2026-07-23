@@ -41,6 +41,7 @@ class Command(BaseCommand):
             ),
             backend_dir=backend_dir,
         )
+        inherited_boundary = report.inherited_csp_boundary
 
         if options["json_output"]:
             self.stdout.write(
@@ -70,13 +71,17 @@ class Command(BaseCommand):
                 "template_csp_ready="
                 f"{str(report.template_owned_strict_csp_ready).lower()} "
                 "inherited_styles="
-                f"{len(report.inherited_csp_boundary.style_blocks)} "
+                f"{len(inherited_boundary.style_blocks)} "
                 "inherited_scripts="
-                f"{len(report.inherited_csp_boundary.script_blocks)} "
+                f"{len(inherited_boundary.script_blocks)} "
+                "inherited_nonce_scripts="
+                f"{len(inherited_boundary.nonce_protected_script_blocks)} "
+                "inherited_unprotected_scripts="
+                f"{len(inherited_boundary.unprotected_script_blocks)} "
                 "inherited_handlers="
-                f"{len(report.inherited_csp_boundary.inline_event_handlers)} "
+                f"{len(inherited_boundary.inline_event_handlers)} "
                 "inherited_inline_styles="
-                f"{len(report.inherited_csp_boundary.inline_style_attributes)} "
+                f"{len(inherited_boundary.inline_style_attributes)} "
                 f"strict_csp_ready={str(report.strict_csp_ready).lower()} "
                 "read_only=true"
             )

@@ -220,9 +220,7 @@ class PublicDealsSeoMetadataV298Tests(TestCase):
         )
         self.assertContains(
             response,
-            (
-                '<script type="application/ld+json">'
-            ),
+            'type="application/ld+json"',
         )
 
     def test_open_graph_and_twitter_metadata_match_canonical_page(self):
@@ -556,7 +554,7 @@ class PublicDealsSeoMetadataV298Tests(TestCase):
 
         self.assertEqual(
             html.count(
-                '<script type="application/ld+json">'
+                'type="application/ld+json"'
             ),
             1,
         )

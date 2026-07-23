@@ -85,7 +85,7 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         )
         self.assertIn(V324_MARKER, self.report.template_markers)
 
-    def test_v325_clears_cutover_blockers_without_overclaiming_csp(self):
+    def test_v332_nonce_protects_the_only_inherited_inline_script(self):
         self.assertEqual(self.report.inline_event_handlers, ())
         self.assertEqual(self.report.source_contract_tests, ())
         self.assertGreaterEqual(
@@ -100,7 +100,13 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
             len(self.report.inherited_csp_boundary.style_blocks),
             0,
         )
-        self.assertFalse(self.report.strict_csp_ready)
+        inherited = self.report.inherited_csp_boundary
+        self.assertEqual(
+            inherited.nonce_protected_script_blocks,
+            inherited.script_blocks,
+        )
+        self.assertEqual(inherited.unprotected_script_blocks, ())
+        self.assertTrue(self.report.strict_csp_ready)
 
     def test_known_source_contracts_are_asset_aware(self):
         self.assertIn(
@@ -140,7 +146,7 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         self.assertEqual(payload["inline_event_handlers"], [])
         self.assertEqual(payload["inline_style_attributes"], [])
         self.assertTrue(payload["template_owned_strict_csp_ready"])
-        self.assertFalse(
+        self.assertTrue(
             payload["inherited_csp_boundary"]["strict_csp_ready"]
         )
         self.assertEqual(payload["source_contract_tests"], [])

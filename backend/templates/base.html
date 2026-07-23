@@ -51,8 +51,9 @@
         {% endif %}
     {% endif %}
 
-    {% if seo_json_ld %}
-        <script type="application/ld+json">{{ seo_json_ld|safe }}</script>
+    {% comment %}DYNAMIC_SEO_JSON_LD_CSP_NONCE_V332{% endcomment %}
+    {% if seo_json_ld and csp_nonce_v332 %}
+        <script type="application/ld+json" nonce="{{ csp_nonce_v332 }}">{{ seo_json_ld|safe }}</script>
     {% endif %}
 
     <meta name="viewport" content="width=device-width, initial-scale=1">

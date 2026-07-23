@@ -86,7 +86,7 @@ class ListingDetailInlineStyleCspBoundaryV328Tests(SimpleTestCase):
         self.assertTrue(self.report.template_owned_strict_csp_ready)
         self.assertTrue(self.report.cutover_ready)
 
-    def test_inherited_base_boundary_prevents_page_csp_overclaim(self):
+    def test_inherited_base_boundary_is_nonce_ready_after_v332(self):
         inherited = self.report.inherited_csp_boundary
 
         self.assertEqual(inherited.template_path, "templates/base.html")
@@ -94,8 +94,13 @@ class ListingDetailInlineStyleCspBoundaryV328Tests(SimpleTestCase):
         self.assertEqual(len(inherited.script_blocks), 1)
         self.assertEqual(inherited.inline_event_handlers, ())
         self.assertEqual(inherited.inline_style_attributes, ())
-        self.assertFalse(inherited.strict_csp_ready)
-        self.assertFalse(self.report.strict_csp_ready)
+        self.assertEqual(
+            inherited.nonce_protected_script_blocks,
+            inherited.script_blocks,
+        )
+        self.assertEqual(inherited.unprotected_script_blocks, ())
+        self.assertTrue(inherited.strict_csp_ready)
+        self.assertTrue(self.report.strict_csp_ready)
 
     def test_text_and_json_audit_expose_both_csp_scopes(self):
         text_output = StringIO()
@@ -106,8 +111,10 @@ class ListingDetailInlineStyleCspBoundaryV328Tests(SimpleTestCase):
         self.assertIn("template_csp_ready=true", rendered)
         self.assertIn("inherited_styles=0", rendered)
         self.assertIn("inherited_scripts=1", rendered)
+        self.assertIn("inherited_nonce_scripts=1", rendered)
+        self.assertIn("inherited_unprotected_scripts=0", rendered)
         self.assertIn("inherited_inline_styles=0", rendered)
-        self.assertIn("strict_csp_ready=false", rendered)
+        self.assertIn("strict_csp_ready=true", rendered)
 
         json_output = StringIO()
         call_command(
@@ -118,8 +125,8 @@ class ListingDetailInlineStyleCspBoundaryV328Tests(SimpleTestCase):
         payload = json.loads(json_output.getvalue())
 
         self.assertTrue(payload["template_owned_strict_csp_ready"])
-        self.assertFalse(payload["strict_csp_ready"])
-        self.assertFalse(
+        self.assertTrue(payload["strict_csp_ready"])
+        self.assertTrue(
             payload["inherited_csp_boundary"]["strict_csp_ready"]
         )
 
