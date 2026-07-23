@@ -16,6 +16,23 @@ DJANGO_SECURE_HSTS_SECONDS=31536000
 Local development can continue with the normal Docker Compose setup.
 
 
+CSP Report-Only Observation
+===========================
+
+V333 adds an environment-controlled observation policy. It is disabled by
+default and does not emit a `Content-Security-Policy` enforcement header.
+
+Enable it only after selecting where browser reports will be reviewed:
+
+DJANGO_CSP_REPORT_ONLY_ENABLED=1
+DJANGO_CSP_REPORT_ONLY_REPORT_URI=/approved-csp-report-path/
+
+The report URI may be a same-origin absolute path or a credential-free HTTPS
+collector URI. Leave it empty to use browser developer-console observation
+without server-side collection. Review violations and update source contracts
+before considering enforcement.
+
+
 Production Docker Compose
 =========================
 

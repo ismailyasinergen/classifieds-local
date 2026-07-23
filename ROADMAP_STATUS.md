@@ -2,24 +2,24 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v332 — Dynamic SEO JSON-LD CSP nonce groundwork**
+- Latest product milestone: **v333 — CSP Report-Only header rollout**
 - Product checkpoint:
-  `project-checkpoint-v332-dynamic-seo-json-ld-csp-nonce`
+  `project-checkpoint-v333-csp-report-only-header-rollout`
 - Previous milestone:
-  `project-checkpoint-v331-seller-restriction-conditional-assets`
-- Validated regression baseline: **2,944 tests passing**
+  `project-checkpoint-v332-dynamic-seo-json-ld-csp-nonce`
+- Validated regression baseline: **2,959 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 416.722 seconds; 437.8 seconds measured wall-clock time
+  in 429.959 seconds; 454.2 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v332 migration; all existing migrations are applied
+- Migration state: no v333 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v332 supplies every request with a cryptographically strong, request-local CSP
-nonce and applies it to the fail-closed dynamic SEO JSON-LD block. The audit now
-distinguishes one nonce-protected inline script from zero unprotected scripts
-and reports the template/source boundary ready for strict CSP. No CSP or
-Report-Only response header is emitted; policy rollout remains explicitly
-separate.
+v333 adds a default-off, environment-controlled CSP Report-Only policy that
+uses the V332 request nonce, preserves an upstream observation header, and
+never emits enforcement. Its source contract is backed by a full template
+inventory, retains explicit transitional inline-style compatibility, rejects
+unsafe report collector URIs, and reports nonce-free scripts and event
+handlers without changing application behavior.
 
 ## Recently completed
 
@@ -124,16 +124,20 @@ separate.
   fail-closed nonce protection for dynamic SEO JSON-LD, nonce-aware text/JSON
   asset auditing, cross-request uniqueness coverage, and explicit proof that
   CSP enforcement and Report-Only headers remain disabled
+- v333: default-off CSP Report-Only middleware with deterministic nonce-bound
+  directives, strict report-URI validation, upstream-header preservation,
+  repository-wide source/debt inventory, operations guidance, and explicit
+  proof that no enforcement header is emitted
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v333 — CSP Report-Only header rollout**. Its
-scope is to add an environment-controlled report-only policy using the v332
-request nonce, lock the required source allow-list and response coverage, and
-collect deployment evidence without enabling CSP enforcement.
+The selected next milestone is **v334 — CSP violation-report ingestion
+foundation**. Its scope is a bounded same-origin endpoint with strict media
+types and payload limits, sanitized non-persistent operator evidence, abuse
+controls, and no CSP enforcement.
 
 Audit backlog after v321:
 
@@ -145,7 +149,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V332 did not run `migrate`; this statement records the observed
+`listings.0025`. V333 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

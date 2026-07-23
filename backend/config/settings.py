@@ -29,6 +29,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "config.csp_report_only_v333.CspReportOnlyMiddlewareV333",
     "accounts.middleware.CustomMethodNotAllowedMiddleware",
 
     "accounts.middleware.SensitiveMediaBlockMiddleware",
@@ -195,6 +196,17 @@ SECURE_HSTS_PRELOAD = _env_bool("DJANGO_SECURE_HSTS_PRELOAD", False)
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 SECURE_REFERRER_POLICY = "same-origin"
+
+from config.csp_report_only_v333 import normalize_csp_report_uri_v333
+
+
+CSP_REPORT_ONLY_ENABLED = _env_bool(
+    "DJANGO_CSP_REPORT_ONLY_ENABLED",
+    False,
+)
+CSP_REPORT_ONLY_REPORT_URI = normalize_csp_report_uri_v333(
+    os.getenv("DJANGO_CSP_REPORT_ONLY_REPORT_URI", "")
+)
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = int(
     os.getenv("DJANGO_DATA_UPLOAD_MAX_MEMORY_SIZE", 230 * 1024 * 1024)
