@@ -116,6 +116,7 @@ class ListingDetailJavascriptStaticAssetV327Tests(SimpleTestCase):
         self.assertIn(V327_MARKER, javascript_asset.markers)
         self.assertTrue(self.report.mechanically_extractable)
         self.assertTrue(self.report.cutover_ready)
+        self.assertTrue(self.report.template_owned_strict_csp_ready)
         self.assertFalse(self.report.strict_csp_ready)
 
     def test_asset_contract_orders_template_css_and_javascript(self):

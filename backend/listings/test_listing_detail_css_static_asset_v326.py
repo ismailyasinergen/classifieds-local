@@ -98,6 +98,7 @@ class ListingDetailCssStaticAssetV326Tests(SimpleTestCase):
         )
         self.assertIn(V326_MARKER, css_asset.markers)
         self.assertTrue(self.report.cutover_ready)
+        self.assertTrue(self.report.template_owned_strict_csp_ready)
         self.assertFalse(self.report.strict_csp_ready)
 
     def test_asset_aware_contract_includes_template_css_then_javascript(self):

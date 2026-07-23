@@ -2,23 +2,24 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v327 — Listing-detail JavaScript static asset**
+- Latest product milestone: **v328 — Listing-detail inline-style and CSP boundary cleanup**
 - Product checkpoint:
-  `project-checkpoint-v327-listing-detail-javascript-static-asset`
+  `project-checkpoint-v328-listing-detail-inline-style-csp-boundary`
 - Previous milestone:
-  `project-checkpoint-v326-listing-detail-css-static-asset`
-- Validated regression baseline: **2,899 tests passing**
+  `project-checkpoint-v327-listing-detail-javascript-static-asset`
+- Validated regression baseline: **2,907 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 414.096 seconds; 434.9 seconds measured wall-clock time
+  in 419.216 seconds; 440.8 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v327 migration; all existing migrations are applied
+- Migration state: no v328 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v327 moves the four exact listing-detail script bodies into one
-Django-discoverable static JavaScript asset at their original bottom-of-page
-execution point. The audit now reports zero inline blocks, two static assets,
-zero legacy source contracts, and fifteen asset-aware consumers while retaining
-four inline style attributes as explicit strict-CSP debt.
+v328 replaces the four listing-detail inline `style=` attributes with two
+static CSS classes while preserving the former inline cascade precedence. The
+audit now distinguishes template-owned CSP readiness from the inherited shared
+base boundary: listing detail owns no inline assets, while the rendered page
+still inherits two style blocks, two script blocks, and three inline style
+attributes from `base.html`.
 
 ## Recently completed
 
@@ -105,16 +106,19 @@ four inline style attributes as explicit strict-CSP debt.
 - v327: exact, order-preserving extraction of all four listing-detail scripts
   into one versioned static asset with real-response, Node, collectstatic, and
   asset-aware interaction validation
+- v328: replacement of four listing-detail inline style attributes with two
+  static CSS classes, cascade-order protection, and separate template-owned
+  versus inherited full-page CSP readiness reporting
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v328 — Listing-detail inline-style and CSP
-boundary cleanup**. Its scope is to replace the four remaining inline `style=`
-attributes with static CSS classes and distinguish listing-detail-owned CSP
-readiness from inherited inline assets in the shared base template.
+The selected next milestone is **v329 — Base-template inline-style attribute
+cleanup**. Its scope is to replace the three inherited `style=` attributes in
+`base.html` with static CSS classes while keeping the two shared style blocks
+and two script blocks visible as separate later CSP extraction debt.
 
 Audit backlog after v321:
 
@@ -126,7 +130,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V327 did not run `migrate`; this statement records the observed
+`listings.0025`. V328 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

@@ -9,6 +9,7 @@
 {% comment %}LISTING_DETAIL_EXTRACTION_BLOCKER_REMOVAL_V325{% endcomment %}
 {% comment %}LISTING_DETAIL_CSS_STATIC_ASSET_V326{% endcomment %}
 {% comment %}LISTING_DETAIL_JAVASCRIPT_STATIC_ASSET_V327{% endcomment %}
+{% comment %}LISTING_DETAIL_INLINE_STYLE_CSP_BOUNDARY_V328{% endcomment %}
 
 {% block body_class %}listing-detail-page-v321{% endblock %}
 
@@ -238,8 +239,7 @@
                     {% comparison_count_v274 request as comparison_count %}
 
                     <div
-                        class="listing-comparison-detail-v274"
-                        style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:10px;"
+                        class="listing-comparison-detail-v274 listing-comparison-layout-v328"
                     >
                         <form
                             method="post"
@@ -705,7 +705,7 @@
         {{ listing.description|linebreaks }}
     </section>
 
-    <section id="details" class="classified-section-panel" style="margin-top:12px; border-top:1px solid #ddd; border-radius:4px;">
+    <section id="details" class="classified-section-panel classified-section-panel-spaced-v328">
         <h2>Listing Details</h2>
 
         {% if listing.category.slug == "homes-for-sale" or listing.category.slug == "homes-for-rent" %}
@@ -844,7 +844,7 @@
     </section>
 
     {% if seller_store %}
-    <section id="store" class="classified-section-panel" style="margin-top:12px; border-top:1px solid #ddd; border-radius:4px;">
+    <section id="store" class="classified-section-panel classified-section-panel-spaced-v328">
         <h2>Seller Store</h2>
 
         {% if seller_store.banner %}
@@ -887,7 +887,7 @@
     </section>
     {% endif %}
 
-    <section id="seller" class="classified-section-panel" style="margin-top:12px; border-top:1px solid #ddd; border-radius:4px;">
+    <section id="seller" class="classified-section-panel classified-section-panel-spaced-v328">
         <h2>Seller / Contact</h2>
         <p><strong>{{ listing.owner.username }}</strong></p>
         {% if listing.owner.profile.location %}

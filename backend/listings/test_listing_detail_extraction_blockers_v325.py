@@ -125,7 +125,8 @@ class ListingDetailExtractionBlockersV325Tests(SimpleTestCase):
         )
         self.assertEqual(self.report.blocker_codes, ())
         self.assertTrue(self.report.cutover_ready)
-        self.assertGreater(len(self.report.inline_style_attributes), 0)
+        self.assertEqual(self.report.inline_style_attributes, ())
+        self.assertTrue(self.report.template_owned_strict_csp_ready)
         self.assertFalse(self.report.strict_csp_ready)
 
     def test_fail_on_blockers_and_json_output_are_ci_compatible(self):
@@ -145,7 +146,11 @@ class ListingDetailExtractionBlockersV325Tests(SimpleTestCase):
         )
         payload = json.loads(json_output.getvalue())
         self.assertEqual(payload["inline_event_handlers"], [])
-        self.assertGreater(len(payload["inline_style_attributes"]), 0)
+        self.assertEqual(payload["inline_style_attributes"], [])
+        self.assertTrue(payload["template_owned_strict_csp_ready"])
+        self.assertFalse(
+            payload["inherited_csp_boundary"]["strict_csp_ready"]
+        )
         self.assertEqual(payload["source_contract_tests"], [])
         self.assertTrue(payload["cutover_ready"])
 

@@ -94,7 +94,12 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         )
         self.assertEqual(self.report.blocker_codes, ())
         self.assertTrue(self.report.cutover_ready)
-        self.assertGreater(len(self.report.inline_style_attributes), 0)
+        self.assertEqual(self.report.inline_style_attributes, ())
+        self.assertTrue(self.report.template_owned_strict_csp_ready)
+        self.assertEqual(
+            len(self.report.inherited_csp_boundary.style_blocks),
+            2,
+        )
         self.assertFalse(self.report.strict_csp_ready)
 
     def test_known_source_contracts_are_asset_aware(self):
@@ -117,6 +122,9 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         self.assertIn("template_dependent=0", rendered)
         self.assertIn("mechanically_extractable=true", rendered)
         self.assertIn("cutover_ready=true", rendered)
+        self.assertIn("template_csp_ready=true", rendered)
+        self.assertIn("inherited_styles=2", rendered)
+        self.assertIn("inherited_scripts=2", rendered)
         self.assertIn("read_only=true", rendered)
 
         json_output = StringIO()
@@ -130,7 +138,11 @@ class ListingDetailAssetBoundaryV324Tests(SimpleTestCase):
         self.assertEqual(payload["asset_block_count"], 0)
         self.assertEqual(len(payload["static_assets"]), 2)
         self.assertEqual(payload["inline_event_handlers"], [])
-        self.assertGreater(len(payload["inline_style_attributes"]), 0)
+        self.assertEqual(payload["inline_style_attributes"], [])
+        self.assertTrue(payload["template_owned_strict_csp_ready"])
+        self.assertFalse(
+            payload["inherited_csp_boundary"]["strict_csp_ready"]
+        )
         self.assertEqual(payload["source_contract_tests"], [])
         self.assertTrue(payload["read_only"])
 

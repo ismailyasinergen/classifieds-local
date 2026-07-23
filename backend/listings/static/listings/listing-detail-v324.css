@@ -1272,3 +1272,18 @@ body.listing-detail-page-v321 button:focus-visible,
         display: none !important;
     }
 }
+
+/* LISTING_DETAIL_INLINE_STYLE_CSP_BOUNDARY_V328 */
+.listing-comparison-layout-v328 {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.classified-section-panel-spaced-v328 {
+    margin-top: 12px;
+    border-top: 1px solid #ddd;
+    border-radius: 4px;
+}

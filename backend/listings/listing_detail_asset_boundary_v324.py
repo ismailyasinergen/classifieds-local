@@ -75,6 +75,46 @@ class StaticAssetV324:
 
 
 @dataclass(frozen=True)
+class InheritedCspBoundaryV328:
+    template_path: str
+    style_blocks: tuple[InlineAssetBlockV324, ...]
+    script_blocks: tuple[InlineAssetBlockV324, ...]
+    inline_event_handlers: tuple[InlineEventHandlerV324, ...]
+    inline_style_attributes: tuple[InlineStyleAttributeV324, ...]
+
+    @property
+    def strict_csp_ready(self) -> bool:
+        return not (
+            self.style_blocks
+            or self.script_blocks
+            or self.inline_event_handlers
+            or self.inline_style_attributes
+        )
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "template_path": self.template_path,
+            "style_blocks": [
+                block.as_dict()
+                for block in self.style_blocks
+            ],
+            "script_blocks": [
+                block.as_dict()
+                for block in self.script_blocks
+            ],
+            "inline_event_handlers": [
+                handler.as_dict()
+                for handler in self.inline_event_handlers
+            ],
+            "inline_style_attributes": [
+                attribute.as_dict()
+                for attribute in self.inline_style_attributes
+            ],
+            "strict_csp_ready": self.strict_csp_ready,
+        }
+
+
+@dataclass(frozen=True)
 class ListingDetailAssetBoundaryReportV324:
     template_path: str
     style_blocks: tuple[InlineAssetBlockV324, ...]
@@ -85,6 +125,7 @@ class ListingDetailAssetBoundaryReportV324:
     source_contract_tests: tuple[str, ...]
     asset_aware_source_tests: tuple[str, ...]
     template_markers: tuple[str, ...]
+    inherited_csp_boundary: InheritedCspBoundaryV328
 
     @property
     def asset_blocks(self) -> tuple[InlineAssetBlockV324, ...]:
@@ -120,6 +161,13 @@ class ListingDetailAssetBoundaryReportV324:
 
     @property
     def strict_csp_ready(self) -> bool:
+        return (
+            self.template_owned_strict_csp_ready
+            and self.inherited_csp_boundary.strict_csp_ready
+        )
+
+    @property
+    def template_owned_strict_csp_ready(self) -> bool:
         return not (
             self.style_blocks
             or self.script_blocks
@@ -152,6 +200,9 @@ class ListingDetailAssetBoundaryReportV324:
                 self.asset_aware_source_tests
             ),
             "template_markers": list(self.template_markers),
+            "inherited_csp_boundary": (
+                self.inherited_csp_boundary.as_dict()
+            ),
             "asset_block_count": len(self.asset_blocks),
             "template_dependent_block_count": (
                 self.template_dependent_block_count
@@ -159,6 +210,9 @@ class ListingDetailAssetBoundaryReportV324:
             "mechanically_extractable": self.mechanically_extractable,
             "blocker_codes": list(self.blocker_codes),
             "cutover_ready": self.cutover_ready,
+            "template_owned_strict_csp_ready": (
+                self.template_owned_strict_csp_ready
+            ),
             "strict_csp_ready": self.strict_csp_ready,
             "read_only": True,
         }
@@ -280,6 +334,35 @@ def _static_assets(backend_dir: Path) -> tuple[StaticAssetV324, ...]:
     return tuple(assets)
 
 
+def _inherited_csp_boundary(
+    backend_dir: Path,
+) -> InheritedCspBoundaryV328:
+    base_template_path = backend_dir / "templates" / "base.html"
+    source = base_template_path.read_text(encoding="utf-8")
+    attribute_parser = _InlineAttributeParserV324()
+    attribute_parser.feed(source)
+
+    return InheritedCspBoundaryV328(
+        template_path=base_template_path.relative_to(
+            backend_dir
+        ).as_posix(),
+        style_blocks=_asset_blocks(
+            source,
+            kind="style",
+            pattern=_STYLE_BLOCK_PATTERN,
+        ),
+        script_blocks=_asset_blocks(
+            source,
+            kind="script",
+            pattern=_SCRIPT_BLOCK_PATTERN,
+        ),
+        inline_event_handlers=tuple(attribute_parser.handlers),
+        inline_style_attributes=tuple(
+            attribute_parser.style_attributes
+        ),
+    )
+
+
 def audit_listing_detail_asset_boundary_v324(
     *,
     template_path: Path,
@@ -315,4 +398,5 @@ def audit_listing_detail_asset_boundary_v324(
         source_contract_tests=source_contract_tests,
         asset_aware_source_tests=asset_aware_source_tests,
         template_markers=tuple(sorted(set(_MARKER_PATTERN.findall(source)))),
+        inherited_csp_boundary=_inherited_csp_boundary(backend_dir),
     )

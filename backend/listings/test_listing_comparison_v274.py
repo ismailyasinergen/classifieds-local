@@ -704,7 +704,7 @@ class ListingComparisonV274Tests(TestCase):
                 / "templates"
                 / "listings"
                 / "listing_detail.html",
-                'class="listing-comparison-detail-v274"',
+                "listing-comparison-detail-v274",
             ),
         )
 
