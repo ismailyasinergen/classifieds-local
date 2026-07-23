@@ -93,7 +93,7 @@ class ListingDetailInlineStyleCspBoundaryV328Tests(SimpleTestCase):
         self.assertEqual(len(inherited.style_blocks), 2)
         self.assertEqual(len(inherited.script_blocks), 2)
         self.assertEqual(inherited.inline_event_handlers, ())
-        self.assertEqual(len(inherited.inline_style_attributes), 3)
+        self.assertEqual(inherited.inline_style_attributes, ())
         self.assertFalse(inherited.strict_csp_ready)
         self.assertFalse(self.report.strict_csp_ready)
 
@@ -106,7 +106,7 @@ class ListingDetailInlineStyleCspBoundaryV328Tests(SimpleTestCase):
         self.assertIn("template_csp_ready=true", rendered)
         self.assertIn("inherited_styles=2", rendered)
         self.assertIn("inherited_scripts=2", rendered)
-        self.assertIn("inherited_inline_styles=3", rendered)
+        self.assertIn("inherited_inline_styles=0", rendered)
         self.assertIn("strict_csp_ready=false", rendered)
 
         json_output = StringIO()

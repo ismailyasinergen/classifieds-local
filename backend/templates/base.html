@@ -1156,6 +1156,27 @@
             }
         }
 
+        /* BASE_INLINE_STYLE_ATTRIBUTE_CLEANUP_V329 */
+        .seller-restriction-banner-v329 {
+            background: #7f1d1d;
+            color: #fff;
+            padding: 14px 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .django-message-list-v329 {
+            margin-bottom: 16px;
+        }
+
+        .django-message-v329 {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+        }
+
     </style>
     {% block extra_styles %}{% endblock %}
 </head>
@@ -1168,7 +1189,7 @@
 
 <!-- SELLER_RESTRICTION_ENFORCEMENT_UI_SINGLE -->
 {% if current_user_is_seller_suspended %}
-    <div style="background:#7f1d1d; color:#fff; padding:14px 18px; text-align:center; font-weight:bold;">
+    <div class="seller-restriction-banner-v329">
         Your seller account is temporarily suspended.
         {% if current_user_seller_profile.seller_suspended_until %}
             Restriction ends: {{ current_user_seller_profile.seller_suspended_until|date:"M d, Y H:i" }}.
@@ -1400,9 +1421,9 @@
     <main class="layout">
         <section class="content" id="primary-content" tabindex="-1">
             {% if messages %}
-                <div style="margin-bottom:16px;">
+                <div class="django-message-list-v329">
                     {% for message in messages %}
-                        <div style="padding:10px; border-radius:6px; margin-bottom:8px; border:1px solid #ddd; background:#f8f9fa;">
+                        <div class="django-message-v329">
                             {{ message }}
                         </div>
                     {% endfor %}
