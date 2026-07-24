@@ -5,6 +5,12 @@
         <div>
             <h1>Promote Listing</h1>
             <p class="muted">{{ listing.title }}</p>
+            {% if price_group_label %}
+                <p class="muted">
+                    Pricing group:
+                    <strong>{{ price_group_label }}</strong>
+                </p>
+            {% endif %}
         </div>
 
         <a class="button-link" href="{% url 'accounts:my_listings' %}">
@@ -12,39 +18,86 @@
         </a>
     </div>
 
-    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
-        {% for package in packages %}
-            <article style="border:1px solid #ddd; border-radius:8px; padding:14px; background:#fff;">
-                <h2 style="margin-top:0;">{{ package.name }}</h2>
+    {% if not price_group %}
+        <section style="border:1px solid #f0c36d; background:#fff8e5; padding:14px; border-radius:8px;">
+            Promotion packages are not available for this listing category.
+        </section>
+    {% endif %}
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
+        {% for card in package_cards %}
+            <article style="border:1px solid #d7dee8; border-radius:12px; padding:16px; background:#fff;">
+                <h2 style="margin-top:0;">
+                    {{ card.definition.label }}
+                </h2>
 
                 <p>
-                    Type:
-                    <strong>{{ package.get_package_type_display }}</strong>
+                    <strong>{{ card.package.get_price_group_display }}</strong>
                 </p>
 
-                <p>
-                    Duration:
-                    <strong>{{ package.duration_days }} days</strong>
-                </p>
+                {% if card.definition.duration_mode == "fixed_weeks" %}
+                    <p class="muted">
+                        Select 1, 2, or 4 weeks. Multi-week discounts are included automatically.
+                    </p>
+                {% elif card.definition.duration_mode == "listing_lifetime" %}
+                    <p class="muted">
+                        Valid until the listing expires.
+                    </p>
+                {% else %}
+                    <p class="muted">
+                        Applied once after payment approval.
+                    </p>
+                {% endif %}
 
-                <p>
-                    Price:
-                    <strong>{{ package.price }} TL</strong>
-                </p>
-
-                <p class="muted">
-                    Priority: {{ package.priority }}
-                </p>
-
-                <form method="post" action="{% url 'promotions:listing_package_request' listing.pk package.pk %}">
+                <form method="post" action="{% url 'promotions:listing_package_request' listing.pk card.package.pk %}">
                     {% csrf_token %}
+
+                    {% if card.definition.duration_mode == "fixed_weeks" %}
+                        <fieldset style="border:0; padding:0; margin:0 0 14px;">
+                            <legend style="font-weight:700; margin-bottom:8px;">
+                                Duration and total
+                            </legend>
+
+                            {% for item in card.quotes %}
+                                <label style="display:block; border:1px solid #e5e7eb; border-radius:8px; padding:10px; margin-bottom:8px;">
+                                    <input
+                                        type="radio"
+                                        name="requested_weeks"
+                                        value="{{ item.quote.requested_weeks }}"
+                                        {% if forloop.first %}checked{% endif %}
+                                        required
+                                    >
+                                    <strong>
+                                        {{ item.quote.requested_weeks }} week{% if item.quote.requested_weeks != 1 %}s{% endif %}
+                                    </strong>
+                                    · {{ item.quote.total_price }} TL
+
+                                    {% if item.discount_percent %}
+                                        <span class="muted">
+                                            · {{ item.discount_percent }}% discount
+                                        </span>
+                                    {% endif %}
+                                </label>
+                            {% endfor %}
+                        </fieldset>
+                    {% else %}
+                        {% with item=card.quotes.0 %}
+                            <p>
+                                Price:
+                                <strong>{{ item.quote.total_price }} TL</strong>
+                            </p>
+                        {% endwith %}
+                    {% endif %}
+
                     <button class="button-primary" type="submit">
-                        Request package
+                        Continue to payment
                     </button>
                 </form>
             </article>
         {% empty %}
-            <p>No active promotion packages.</p>
+            {% if price_group %}
+                <p>No active promotion products are available for this pricing group.</p>
+            {% endif %}
         {% endfor %}
     </div>
 
@@ -56,9 +109,15 @@
             · {{ promotion.get_status_display }}
             · {{ promotion.price_snapshot }} TL
 
+            {% if promotion.requested_weeks %}
+                · {{ promotion.requested_weeks }} week{% if promotion.requested_weeks != 1 %}s{% endif %}
+            {% endif %}
+
             {% if promotion.ends_at %}
                 <br>
-                <span class="muted">Ends: {{ promotion.ends_at|date:"M d, Y H:i" }}</span>
+                <span class="muted">
+                    Ends: {{ promotion.ends_at|date:"M d, Y H:i" }}
+                </span>
             {% endif %}
         </article>
     {% empty %}

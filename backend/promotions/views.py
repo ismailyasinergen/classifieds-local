@@ -2,29 +2,109 @@ import uuid
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from listings.models import Listing
 
+from .doping_catalog_v342 import (
+    PRICE_GROUP_LABELS_V342,
+    PROMOTION_DEFINITIONS_V342,
+    DurationModeV342,
+    PromotionCodeV342,
+    quote_promotion_v342,
+    resolve_price_group_v342,
+)
 from .models import ListingPromotion, PromotionPackage
+
+
+def _catalog_package_cards_v342(packages):
+    cards = []
+
+    for package in packages:
+        try:
+            code = PromotionCodeV342(package.catalog_code)
+            definition = PROMOTION_DEFINITIONS_V342[code]
+
+            if definition.duration_mode == DurationModeV342.FIXED_WEEKS:
+                requested_week_values = definition.allowed_weeks
+            else:
+                requested_week_values = (None,)
+
+            quotes = []
+
+            for weeks in requested_week_values:
+                quote = quote_promotion_v342(
+                    code,
+                    package.price_group,
+                    requested_weeks=weeks,
+                )
+                quotes.append(
+                    {
+                        "quote": quote,
+                        "discount_percent": int(
+                            quote.discount_percent * 100
+                        ),
+                    }
+                )
+        except (KeyError, ValueError):
+            continue
+
+        cards.append(
+            {
+                "package": package,
+                "definition": definition,
+                "quotes": tuple(quotes),
+            }
+        )
+
+    return tuple(cards)
 
 
 @login_required
 def listing_promotion_packages(request, pk):
     listing = get_object_or_404(
-        Listing.objects.select_related("owner", "category"),
+        Listing.objects.select_related(
+            "owner",
+            "category",
+            "category__parent",
+        ),
         pk=pk,
         owner=request.user,
     )
 
-    packages = PromotionPackage.objects.filter(is_active=True)
+    price_group = resolve_price_group_v342(listing.category)
 
-    promotions = ListingPromotion.objects.filter(
-        listing=listing,
-        user=request.user,
-    ).select_related("package")[:10]
+    if price_group is None:
+        packages = PromotionPackage.objects.none()
+        price_group_label = ""
+    else:
+        packages = (
+            PromotionPackage.objects
+            .filter(
+                is_active=True,
+                catalog_code__gt="",
+                price_group=price_group,
+            )
+            .order_by(
+                "catalog_code",
+                "pk",
+            )
+        )
+        price_group_label = PRICE_GROUP_LABELS_V342[price_group]
+
+    package_cards = _catalog_package_cards_v342(packages)
+
+    promotions = (
+        ListingPromotion.objects
+        .filter(
+            listing=listing,
+            user=request.user,
+        )
+        .select_related("package")[:10]
+    )
 
     return render(
         request,
@@ -32,6 +112,9 @@ def listing_promotion_packages(request, pk):
         {
             "listing": listing,
             "packages": packages,
+            "package_cards": package_cards,
+            "price_group": price_group,
+            "price_group_label": price_group_label,
             "promotions": promotions,
             "page_title": "Promote Listing",
         },
@@ -41,16 +124,151 @@ def listing_promotion_packages(request, pk):
 @login_required
 @require_POST
 def listing_promotion_request(request, pk, package_id):
-    listing = get_object_or_404(Listing, pk=pk, owner=request.user)
-    package = get_object_or_404(PromotionPackage, pk=package_id, is_active=True)
-
-    promotion = ListingPromotion.objects.create(
-        listing=listing,
-        package=package,
-        user=request.user,
-        price_snapshot=package.price,
-        payment_reference=f"PROMO-{uuid.uuid4().hex[:10].upper()}",
+    listing = get_object_or_404(
+        Listing.objects.select_related(
+            "category",
+            "category__parent",
+        ),
+        pk=pk,
+        owner=request.user,
     )
+    package = get_object_or_404(
+        PromotionPackage,
+        pk=package_id,
+        is_active=True,
+    )
+
+    create_kwargs = {
+        "listing": listing,
+        "package": package,
+        "user": request.user,
+        "payment_reference": (
+            f"PROMO-{uuid.uuid4().hex[:10].upper()}"
+        ),
+    }
+
+    if package.catalog_code:
+        price_group = resolve_price_group_v342(listing.category)
+
+        if (
+            price_group is None
+            or package.price_group != price_group.value
+        ):
+            messages.warning(
+                request,
+                "This promotion is not available for the listing category.",
+            )
+            return redirect(
+                "promotions:listing_packages",
+                pk=listing.pk,
+            )
+
+        try:
+            code = PromotionCodeV342(package.catalog_code)
+            definition = PROMOTION_DEFINITIONS_V342[code]
+        except (KeyError, ValueError):
+            messages.warning(
+                request,
+                "This promotion package has an invalid catalog identity.",
+            )
+            return redirect(
+                "promotions:listing_packages",
+                pk=listing.pk,
+            )
+
+        raw_weeks = request.POST.get(
+            "requested_weeks",
+            "",
+        ).strip()
+
+        if definition.duration_mode == DurationModeV342.FIXED_WEEKS:
+            try:
+                requested_weeks = int(raw_weeks)
+            except (TypeError, ValueError):
+                requested_weeks = None
+        else:
+            requested_weeks = None
+
+            if raw_weeks:
+                messages.warning(
+                    request,
+                    "This promotion does not accept a week duration.",
+                )
+                return redirect(
+                    "promotions:listing_packages",
+                    pk=listing.pk,
+                )
+
+        try:
+            quote = quote_promotion_v342(
+                code,
+                price_group,
+                requested_weeks=requested_weeks,
+            )
+        except ValueError as exc:
+            messages.warning(
+                request,
+                str(exc),
+            )
+            return redirect(
+                "promotions:listing_packages",
+                pk=listing.pk,
+            )
+
+        if (
+            package.duration_mode
+            != definition.duration_mode.value
+            or package.price != quote.unit_price
+        ):
+            messages.warning(
+                request,
+                "Promotion pricing changed. Reload the catalog and try again.",
+            )
+            return redirect(
+                "promotions:listing_packages",
+                pk=listing.pk,
+            )
+
+        duplicate_exists = ListingPromotion.objects.filter(
+            listing=listing,
+            user=request.user,
+            promotion_code_snapshot=code,
+            status__in=(
+                ListingPromotion.Status.PENDING,
+                ListingPromotion.Status.ACTIVE,
+            ),
+        ).exists()
+
+        if duplicate_exists:
+            messages.warning(
+                request,
+                "This listing already has a pending or active request "
+                "for the selected promotion.",
+            )
+            return redirect(
+                "promotions:listing_packages",
+                pk=listing.pk,
+            )
+
+        create_kwargs.update(
+            {
+                "price_snapshot": quote.total_price,
+                "promotion_code_snapshot": code,
+                "price_group_snapshot": price_group,
+                "duration_mode_snapshot": (
+                    definition.duration_mode
+                ),
+                "requested_weeks": quote.requested_weeks,
+                "unit_price_snapshot": quote.unit_price,
+                "discount_percent_snapshot": (
+                    quote.discount_percent
+                ),
+            }
+        )
+    else:
+        create_kwargs["price_snapshot"] = package.price
+
+    promotion = ListingPromotion.objects.create(**create_kwargs)
 
     messages.success(
         request,
@@ -203,7 +421,15 @@ def promotion_approve(request, pk):
         messages.warning(request, "Promotion must be marked as paid before approval.")
         return redirect("promotions:admin_queue")
 
-    promotion.activate()
+    try:
+        promotion.activate()
+    except ValidationError as exc:
+        messages.warning(
+            request,
+            "Promotion could not be activated: "
+            f"{exc.messages[0]}",
+        )
+        return redirect("promotions:admin_queue")
 
     messages.success(request, "Promotion approved and applied.")
     return redirect("promotions:admin_queue")
