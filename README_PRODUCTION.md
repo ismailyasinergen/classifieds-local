@@ -193,6 +193,24 @@ V340 emits bounded counts and summaries only. It performs no network,
 Docker, subprocess, file-write, database, environment, CSP gate,
 enforcement, or automatic-decision operation.
 
+V341 converts one approved V340 summary into a deterministic, operator-facing
+review recommendation:
+
+python backend/scripts/review_csp_observation_window_v341.py --summary-json <v340-summary.json> --json --strict
+
+The input is limited to 128 KiB and must match the exact ready V340 result
+contract. Missing, malformed, inconsistent, oversized, or not-ready summaries
+fail closed.
+
+Review readiness requires a window of at least 86,400 seconds, at least 25
+organic observations, and zero synthetic observations. Empty, synthetic-only,
+mixed synthetic/organic, short, and low-count windows return explicit
+`continue_observation` outcomes.
+
+A `review_ready` result means only that the bounded summary is ready for human
+review. V341 always reports no automatic action, network activity, persistence,
+database access, configuration mutation, CSP gate change, or enforcement.
+
 
 Production Docker Compose
 =========================

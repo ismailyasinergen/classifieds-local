@@ -2,23 +2,24 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v340 — CSP observation-window analysis**
+- Latest product milestone: **v341 — CSP observation-window review decision**
 - Product checkpoint:
-  `project-checkpoint-v340-csp-observation-window-analysis`
+  `project-checkpoint-v341-csp-observation-window-review-decision`
 - Previous milestone:
-  `project-checkpoint-v339-csp-observation-evidence-closeout`
-- Validated regression baseline: **3,053 tests passing**
+  `project-checkpoint-v340-csp-observation-window-analysis`
+- Validated regression baseline: **3,065 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 441.063 seconds; 474 seconds measured wall-clock time
+  in 450.755 seconds; 489 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v340 migration; all existing migrations are applied
+- Migration state: no v341 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v340 adds closeout-gated analysis of one bounded UTC window of sanitized V337
-CSP evidence. It enforces fixed input, record, duration, and summary-cardinality
-bounds; separates synthetic and organic observations; reduces resources to
-privacy-safe classes; and performs no network, persistence, database,
-configuration, gate, or enforcement mutation.
+v341 adds a deterministic operator-facing review recommendation over one exact,
+ready V340 observation-window summary. It applies fixed 24-hour, 25-organic,
+and zero-synthetic thresholds; distinguishes invalid, empty, synthetic-only,
+mixed, short, low-count, and review-ready outcomes; and performs no automatic
+action, network, persistence, database, configuration, gate, or enforcement
+mutation.
 
 ## Recently completed
 
@@ -151,17 +152,18 @@ configuration, gate, or enforcement mutation.
   JSONL input, exact UTC windows, deterministic fixed-cardinality summaries,
   separate synthetic and organic counts, privacy-safe resource classes, and
   no raw report output, network activity, persistence, or enforcement
+- v341: exact fail-closed validation of one ready V340 summary, fixed review
+  thresholds, distinct insufficient-evidence outcomes, deterministic operator
+  text/JSON output, strict-shell support, and no automatic action, network,
+  persistence, configuration, gate, or enforcement mutation
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v341 — bounded CSP observation-window
-review-decision baseline**. Its scope is a deterministic operator-facing
-recommendation over one approved V340 summary, fixed review thresholds, clear
-insufficient-evidence outcomes, and no automatic enforcement, gate, network,
-persistence, or configuration mutation.
+The next numbered milestone will be selected separately after the V341
+checkpoint is released. No V342 feature scope is committed in this document.
 
 Audit backlog after v321:
 
@@ -173,7 +175,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V340 did not run `migrate`; this statement records the observed
+`listings.0025`. V341 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 
