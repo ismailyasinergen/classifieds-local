@@ -12,6 +12,9 @@ from django.views.decorators.http import require_POST
 
 from config.csv_safety_v323 import write_csv_row_v323
 
+from .listing_card_promotions_v343 import (
+    annotate_listing_card_promotions_v343,
+)
 from .listing_moderation_helpers import _create_moderation_notice
 from .models import Listing
 
@@ -65,7 +68,7 @@ def moderation_queue(request):
     if featured_filter == "1":
         listings = listings.filter(is_featured=True)
 
-    listings = listings.order_by("-top_listing_priority", "-created_at")
+    listings = annotate_listing_card_promotions_v343(listings.order_by("-top_listing_priority", "-created_at"))
 
     all_listings = Listing.objects.all()
 

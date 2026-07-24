@@ -5,8 +5,15 @@
 {% comment %}V276_LISTING_CARD_PRICE_DROP_DISCOVERY{% endcomment %}
 {% comment %}V277_LISTING_CARD_PRICE_DROP_UX_ACCESSIBILITY_POLISH{% endcomment %}
 {% comment %}ENHANCED_LISTING_CARD_DISCOUNT_V284{% endcomment %}
-<article class="listing-card listing-card-polish-v64">
-    {% if listing.owner.profile.is_verified_seller or listing.top_listing_until or listing.is_featured %}
+{% comment %}LISTING_CARD_PROMOTIONS_V343{% endcomment %}
+<article
+    class="listing-card listing-card-polish-v64 listing-card-doping-v343{% if listing.has_small_photo_promotion_v343 %} listing-card-small-photo-v343{% endif %}{% if listing.has_urgent_promotion_v343 %} listing-card-urgent-v343{% endif %}{% if listing.has_colorful_title_promotion_v343 %} listing-card-colorful-title-v343{% endif %}"
+    data-v343-card-promotions="true"
+    {% if listing.has_small_photo_promotion_v343 %}data-v343-small-photo="true"{% endif %}
+    {% if listing.has_urgent_promotion_v343 %}data-v343-urgent="true"{% endif %}
+    {% if listing.has_colorful_title_promotion_v343 %}data-v343-colorful-title="true"{% endif %}
+>
+    {% if listing.owner.profile.is_verified_seller or listing.top_listing_until or listing.is_featured or listing.has_small_photo_promotion_v343 or listing.has_urgent_promotion_v343 %}
         <div class="promotion-badges" aria-label="Listing badges">
             {% if listing.owner.profile.is_verified_seller %}
                 <span class="listing-badge listing-badge-verified">Verified seller</span>
@@ -16,6 +23,16 @@
             {% endif %}
             {% if listing.is_featured %}
                 <span class="listing-badge listing-badge-featured">Featured</span>
+            {% endif %}
+            {% if listing.has_urgent_promotion_v343 %}
+                <span class="listing-badge listing-badge-urgent-v343">
+                    Urgent
+                </span>
+            {% endif %}
+            {% if listing.has_small_photo_promotion_v343 %}
+                <span class="listing-badge listing-badge-small-photo-v343">
+                    Small Photo
+                </span>
             {% endif %}
         </div>
     {% endif %}
@@ -36,7 +53,12 @@
 
     <div class="listing-card-body">
         <h2>
-            <a href="{{ listing.get_absolute_url }}">
+            <a
+                href="{{ listing.get_absolute_url }}"
+                {% if listing.has_colorful_title_promotion_v343 %}
+                    class="listing-card-colorful-title-link-v343"
+                {% endif %}
+            >
                 {{ listing.title }}
             </a>
         </h2>

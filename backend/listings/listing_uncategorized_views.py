@@ -88,11 +88,24 @@ class ListingListView(SidebarCategoriesMixin, ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        queryset = (
+        from .listing_card_promotions_v343 import (
+            annotate_listing_card_promotions_v343,
+        )
+
+        queryset = annotate_listing_card_promotions_v343(
             Listing.objects
-            .select_related("category", "owner")
+            .select_related(
+                "category",
+                "owner",
+                "owner__profile",
+                "owner__seller_store",
+            )
             .prefetch_related("images")
-            .filter(status=Listing.Status.APPROVED).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()))
+            .filter(status=Listing.Status.APPROVED)
+            .filter(
+                Q(expires_at__isnull=True)
+                | Q(expires_at__gt=timezone.now())
+            )
         )
         return apply_listing_filters(queryset, self.request)
 

@@ -60,11 +60,20 @@ def dashboard_view(request):
 
     user_listings = Listing.objects.filter(owner=request.user)
 
-    my_listings = (
-        user_listings
-        .select_related("category")
-        .prefetch_related("images")[:6]
+    from listings.listing_card_promotions_v343 import (
+        annotate_listing_card_promotions_v343,
     )
+
+    my_listings = annotate_listing_card_promotions_v343(
+        user_listings
+        .select_related(
+            "category",
+            "owner",
+            "owner__profile",
+            "owner__seller_store",
+        )
+        .prefetch_related("images")
+    )[:6]
 
     saved_count = ListingFavorite.objects.filter(user=request.user).count()
 

@@ -11,9 +11,18 @@ class MyListingsView(LoginRequiredMixin, ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        queryset = (
+        from listings.listing_card_promotions_v343 import (
+            annotate_listing_card_promotions_v343,
+        )
+
+        queryset = annotate_listing_card_promotions_v343(
             Listing.objects
-            .select_related("category", "owner")
+            .select_related(
+                "category",
+                "owner",
+                "owner__profile",
+                "owner__seller_store",
+            )
             .prefetch_related("images")
             .filter(owner=self.request.user)
         )
@@ -57,9 +66,18 @@ class SavedListingsView(LoginRequiredMixin, ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return (
+        from listings.listing_card_promotions_v343 import (
+            annotate_listing_card_promotions_v343,
+        )
+
+        return annotate_listing_card_promotions_v343(
             Listing.objects
-            .select_related("category", "owner")
+            .select_related(
+                "category",
+                "owner",
+                "owner__profile",
+                "owner__seller_store",
+            )
             .prefetch_related("images")
             .filter(
                 favorites__user=self.request.user,

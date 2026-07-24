@@ -7,11 +7,24 @@ from listings.models import Listing
 
 
 def home_view(request):
-    approved_listings = (
+    from listings.listing_card_promotions_v343 import (
+        annotate_listing_card_promotions_v343,
+    )
+
+    approved_listings = annotate_listing_card_promotions_v343(
         Listing.objects
-        .select_related("category", "owner")
+        .select_related(
+            "category",
+            "owner",
+            "owner__profile",
+            "owner__seller_store",
+        )
         .prefetch_related("images")
-        .filter(status=Listing.Status.APPROVED).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()))
+        .filter(status=Listing.Status.APPROVED)
+        .filter(
+            Q(expires_at__isnull=True)
+            | Q(expires_at__gt=timezone.now())
+        )
     )
 
     featured_listings = (

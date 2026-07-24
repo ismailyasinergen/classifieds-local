@@ -154,6 +154,15 @@ def get_related_listings_v271(
         )
     )
 
+    from .listing_card_promotions_v343 import (
+        annotate_listing_card_promotions_v343,
+    )
+
+    queryset = annotate_listing_card_promotions_v343(
+        queryset,
+        now=active_at,
+    )
+
     return list(
         queryset[:effective_limit]
     )

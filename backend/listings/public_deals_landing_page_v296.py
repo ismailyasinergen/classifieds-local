@@ -54,7 +54,11 @@ class PublicDealsListViewV296(ListView):
     paginate_by = PUBLIC_DEALS_PAGE_SIZE_V296
 
     def get_queryset(self):
-        queryset = (
+        from .listing_card_promotions_v343 import (
+            annotate_listing_card_promotions_v343,
+        )
+
+        queryset = annotate_listing_card_promotions_v343(
             Listing.objects
             .select_related(
                 "category",

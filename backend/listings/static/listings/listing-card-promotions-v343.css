@@ -1,0 +1,71 @@
+/* LISTING_CARD_DOPING_PRESENTATION_V343 */
+.listing-card-doping-v343 {
+    isolation: isolate;
+}
+
+.listing-card-small-photo-v343 .listing-card-media {
+    box-shadow: inset 0 0 0 3px rgba(37, 99, 235, 0.24);
+}
+
+.listing-card-small-photo-v343 .listing-image,
+.listing-card-small-photo-v343 .listing-placeholder {
+    outline: 3px solid rgba(219, 234, 254, 0.9);
+    outline-offset: -3px;
+}
+
+.listing-card-urgent-v343 {
+    border-color: #ef4444;
+}
+
+.listing-card-urgent-v343:hover {
+    border-color: #dc2626;
+    box-shadow: 0 10px 24px rgba(220, 38, 38, 0.16);
+}
+
+.listing-badge-urgent-v343 {
+    background: #dc2626;
+    border: 1px solid #991b1b;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.listing-badge-small-photo-v343 {
+    background: #dbeafe;
+    border: 1px solid #60a5fa;
+    color: #1e3a8a;
+}
+
+.listing-card-colorful-title-v343 {
+    border: 3px solid transparent;
+    background:
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(
+            135deg,
+            #f59e0b,
+            #ec4899,
+            #6366f1
+        ) border-box;
+    box-shadow: 0 8px 22px rgba(99, 102, 241, 0.13);
+}
+
+.listing-card-colorful-title-v343:hover {
+    border-color: transparent;
+    box-shadow: 0 12px 28px rgba(99, 102, 241, 0.2);
+}
+
+.listing-card-colorful-title-link-v343 {
+    color: #5b21b6 !important;
+    font-weight: 900;
+    letter-spacing: 0.005em;
+}
+
+.listing-card-colorful-title-link-v343:hover {
+    color: #7e22ce !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .listing-card-doping-v343,
+    .listing-card-doping-v343 .listing-image {
+        transition: none;
+    }
+}

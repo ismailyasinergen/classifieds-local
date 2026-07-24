@@ -102,12 +102,24 @@ def _get_or_create_store_for_user(user):
 
 
 def _active_public_listings_for_user(user):
-    return (
+    from listings.listing_card_promotions_v343 import (
+        annotate_listing_card_promotions_v343,
+    )
+
+    return annotate_listing_card_promotions_v343(
         Listing.objects
-        .select_related("category", "owner")
+        .select_related(
+            "category",
+            "owner",
+            "owner__profile",
+            "owner__seller_store",
+        )
         .prefetch_related("images")
         .filter(owner=user, status=Listing.Status.APPROVED)
-        .filter(Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now()))
+        .filter(
+            Q(expires_at__isnull=True)
+            | Q(expires_at__gt=timezone.now())
+        )
         .order_by("-top_listing_priority", "-created_at")
     )
 

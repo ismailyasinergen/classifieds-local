@@ -258,6 +258,15 @@ def get_recently_viewed_listings_v272(
         )
     )
 
+    from .listing_card_promotions_v343 import (
+        annotate_listing_card_promotions_v343,
+    )
+
+    queryset = annotate_listing_card_promotions_v343(
+        queryset,
+        now=active_at,
+    )
+
     return list(
         queryset
     )

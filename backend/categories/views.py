@@ -68,16 +68,25 @@ class CategoryListingListView(ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
+        from listings.listing_card_promotions_v343 import (
+            annotate_listing_card_promotions_v343,
+        )
+
         category_ids = self.category.get_descendant_ids()
 
-        queryset = (
+        queryset = annotate_listing_card_promotions_v343(
             Listing.objects
-            .select_related("category", "owner")
+            .select_related(
+                "category",
+                "owner",
+                "owner__profile",
+                "owner__seller_store",
+            )
             .prefetch_related("images")
             .filter(
                 category_id__in=category_ids,
                 status=Listing.Status.APPROVED,
-            expires_at__gt=timezone.now(),
+                expires_at__gt=timezone.now(),
             )
         )
 
