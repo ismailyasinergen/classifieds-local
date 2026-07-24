@@ -2,25 +2,23 @@
 
 ## Current stable product state
 
-- Latest product milestone: **v339 — CSP observation evidence closeout audit**
+- Latest product milestone: **v340 — CSP observation-window analysis**
 - Product checkpoint:
-  `project-checkpoint-v339-csp-observation-evidence-closeout`
+  `project-checkpoint-v340-csp-observation-window-analysis`
 - Previous milestone:
-  `project-checkpoint-v338-csp-observation-synthetic-delivery-smoke`
-- Validated regression baseline: **3,039 tests passing**
+  `project-checkpoint-v339-csp-observation-evidence-closeout`
+- Validated regression baseline: **3,053 tests passing**
 - Full-suite mode: PostgreSQL `--parallel 4 --keepdb --noinput`, explicit `OK`
-  in 458.389 seconds; 480.6 seconds measured wall-clock time
+  in 441.063 seconds; 474 seconds measured wall-clock time
 - Django system check: zero issues
-- Migration state: no v339 migration; all existing migrations are applied
+- Migration state: no v340 migration; all existing migrations are applied
   through `accounts.0016` and `listings.0025`, with no model changes pending
 
-v339 closes the V333-V338 evidence chain with a bounded, read-only aggregator
-for the five sanitized readiness, edge, retention, delivery, and log artifacts.
-Eight fail-closed checks require exact component schemas, a safe expected
-origin, fully ready component results, linked V338 evidence, and independent
-enforcement absence. Output omits hostnames, smoke identifiers, digests, input
-paths, and content; provenance, freshness, and deployment identity remain
-explicit operator responsibilities.
+v340 adds closeout-gated analysis of one bounded UTC window of sanitized V337
+CSP evidence. It enforces fixed input, record, duration, and summary-cardinality
+bounds; separates synthetic and organic observations; reduces resources to
+privacy-safe classes; and performs no network, persistence, database,
+configuration, gate, or enforcement mutation.
 
 ## Recently completed
 
@@ -149,16 +147,21 @@ explicit operator responsibilities.
 - v339: bounded structural closeout of five sanitized V335-V338 evidence
   artifacts with exact schemas, origin binding, smoke linkage, independent
   enforcement-absence checks, fixed output, and no deployment mutation
+- v340: closeout-gated analysis of sanitized V337 CSP evidence with bounded
+  JSONL input, exact UTC windows, deterministic fixed-cardinality summaries,
+  separate synthetic and organic counts, privacy-safe resource classes, and
+  no raw report output, network activity, persistence, or enforcement
 - Repair: preserved legacy listing-detail source-shape contracts after v285
 - Repair R003: replaced a sequence-dependent bare numeric privacy assertion
   with explicit recipient-state exposure checks
 
 ## Planned sequence
 
-The selected next milestone is **v340 — bounded CSP observation-window
-analysis**. Its scope is privacy-safe aggregation of approved sanitized V337
-evidence, fixed cardinality and input bounds, deterministic summaries, and no
-raw report access, persistence, network activity, or enforcement.
+The selected next milestone is **v341 — bounded CSP observation-window
+review-decision baseline**. Its scope is a deterministic operator-facing
+recommendation over one approved V340 summary, fixed review thresholds, clear
+insufficient-evidence outcomes, and no automatic enforcement, gate, network,
+persistence, or configuration mutation.
 
 Audit backlog after v321:
 
@@ -170,7 +173,7 @@ Each numbered milestone requires focused tests, related compatibility tests,
 Django checks, migration review, and a complete regression run before release.
 
 The local development database is fully migrated through `accounts.0016` and
-`listings.0025`. V339 did not run `migrate`; this statement records the observed
+`listings.0025`. V340 did not run `migrate`; this statement records the observed
 database state only. The preserved base test database and all four parallel
 worker clones remain fully migrated.
 

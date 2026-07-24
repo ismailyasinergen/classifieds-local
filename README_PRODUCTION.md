@@ -167,6 +167,32 @@ Operators must collect all five artifacts from the same reviewed deployment
 and change window. The audit performs no network, Docker, file-write, database,
 environment, CSP gate, enforcement, or attestation mutation.
 
+V340 analyzes one explicitly bounded UTC observation window after V339
+closeout has passed. It reads an approved V339 closeout JSON file and
+newline-delimited sanitized V337 observation records from standard input:
+
+python backend/scripts/analyze_csp_observation_window_v340.py --closeout-json <v339-closeout.json> --window-start 2026-07-20T00:00:00Z --window-end 2026-07-21T00:00:00Z --json --strict < <sanitized-v337-window.jsonl>
+
+Each non-empty JSONL line must contain exactly `observed_at`, `event`,
+`schema_version`, and the exact sanitized V337 `evidence` object. The
+wrapper must come from an approved bounded export. Do not pipe raw browser
+reports, Docker prefixes, request bodies, script samples, URL paths,
+queries, fragments, cookies, credentials, or arbitrary logs into V340.
+
+The analyzer accepts at most 1 MiB and 10,000 records. The UTC window must
+be at least 60 seconds and no longer than exactly seven days; its start is
+inclusive and its end is exclusive. Each deterministic summary is capped
+at eight buckets, with overflow combined under `__other__`. HTTP and HTTPS
+blocked resources are reduced to the fixed class `origin`.
+
+Synthetic V338 `.invalid` observations are counted separately from organic
+observations. Empty and synthetic-only windows remain analyzable but carry
+explicit reason codes requiring operator review.
+
+V340 emits bounded counts and summaries only. It performs no network,
+Docker, subprocess, file-write, database, environment, CSP gate,
+enforcement, or automatic-decision operation.
+
 
 Production Docker Compose
 =========================
