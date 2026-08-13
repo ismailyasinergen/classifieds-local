@@ -18,7 +18,7 @@ from accounts.models import SellerStore
 from categories.models import Category
 
 from .listing_filter_helpers import apply_listing_filters
-from .models import Listing, ListingFavorite, ListingImage, ListingReport, SavedSearch
+from .models import SavedSearch
 
 
 # V166 extracted from listings.views.
