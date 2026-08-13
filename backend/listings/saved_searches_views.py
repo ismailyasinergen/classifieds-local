@@ -2,6 +2,7 @@ from decimal import Decimal, InvalidOperation
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
+from urllib.parse import urlencode, urlparse
 from urllib.parse import parse_qsl, urlencode
 from decimal import Decimal
 from urllib.parse import parse_qsl, urlencode, urlparse
