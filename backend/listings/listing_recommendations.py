@@ -7,9 +7,7 @@ The service is read-only, category-scoped and limited. It returns only
 currently active, approved listings and never includes the current listing.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+from datetime import datetime
 
 from django.db.models import (
     Case,
@@ -21,10 +19,6 @@ from django.db.models import (
 from django.utils import timezone
 
 from .models import Listing
-
-
-if TYPE_CHECKING:
-    from datetime import datetime
 
 
 RELATED_LISTINGS_RECOMMENDATIONS_V271 = True
