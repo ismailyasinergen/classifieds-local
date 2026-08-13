@@ -6,7 +6,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -20,6 +20,7 @@ from listings.listing_price_drop_threshold_filter_v282 import (
     MIN_PRICE_DROP_PERCENT_PARAM_V282,
     normalize_min_price_drop_amount_v282,
     normalize_min_price_drop_percent_v282,
+    get_min_price_drop_percent_value_v282,
 )
 from listings.models import Listing, ListingPriceHistory, SavedSearch
 from listings.saved_searches import (
@@ -108,6 +109,21 @@ class MinimumPriceDropFiltersV282Tests(TestCase):
             listing.title
             for listing in response.context["listings"]
         ]
+
+    def test_get_min_price_drop_percent_value_v282(self):
+        factory = RequestFactory()
+
+        # Valid percent
+        request = factory.get(f"/?{MIN_PRICE_DROP_PERCENT_PARAM_V282}=20.5")
+        self.assertEqual(get_min_price_drop_percent_value_v282(request), "20.5")
+
+        # Invalid percent
+        request = factory.get(f"/?{MIN_PRICE_DROP_PERCENT_PARAM_V282}=abc")
+        self.assertEqual(get_min_price_drop_percent_value_v282(request), "")
+
+        # Empty percent
+        request = factory.get("/")
+        self.assertEqual(get_min_price_drop_percent_value_v282(request), "")
 
     def test_amount_filter_supports_main_category_and_inclusive_decimals(self):
         exact = self.create_listing("V282 Amount Exact")
