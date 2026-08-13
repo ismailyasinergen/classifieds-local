@@ -1,6 +1,9 @@
 from decimal import Decimal, InvalidOperation
 from __future__ import annotations
 
+from decimal import Decimal, InvalidOperation
+from urllib.parse import urlencode, urlparse
+from urllib.parse import parse_qsl, urlencode
 from decimal import Decimal
 from urllib.parse import parse_qsl, urlencode, urlparse
 
@@ -12,6 +15,10 @@ from django.http import QueryDict
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_POST
+
+from .models import SavedSearch
 from django.urls import reverse, reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
@@ -73,10 +80,8 @@ def saved_search_list(request):
         None,
     )
 
-    from django.core.paginator import Paginator
-    from django.db.models import Q
-    from django.shortcuts import render
     from django.urls import reverse
+
     from .models import SavedSearch
 
     search_query = request.GET.get("q", "").strip()
@@ -424,8 +429,6 @@ def saved_search_list(request):
 @require_POST
 def saved_search_notifications_toggle(request, pk):
     # SELLER_STORE_SAVED_SEARCH_EMAIL_ALERT_GUARDRAILS_V124
-    from django.urls import reverse
-    from django.utils.http import url_has_allowed_host_and_scheme
     from .models import SavedSearch
 
     saved_search = get_object_or_404(SavedSearch, pk=pk, user=request.user)
@@ -463,7 +466,6 @@ def saved_search_notifications_toggle(request, pk):
 @login_required
 @require_POST
 def saved_search_delete(request, pk):
-    from .models import SavedSearch
 
     saved_search = get_object_or_404(SavedSearch, pk=pk, user=request.user)
     saved_search.delete()
@@ -477,7 +479,6 @@ def saved_search_bulk_action(request):
     from django.contrib import messages
     from django.http import HttpResponseNotAllowed
     from django.shortcuts import redirect
-    from django.urls import reverse
 
     from .models import SavedSearch
 
@@ -529,7 +530,6 @@ def saved_search_rename(request, pk):
     from django.contrib import messages
     from django.http import HttpResponseNotAllowed
     from django.shortcuts import get_object_or_404, redirect
-    from django.urls import reverse
 
     from .models import SavedSearch
 

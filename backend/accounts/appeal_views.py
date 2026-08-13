@@ -1983,10 +1983,67 @@ def moderation_appeal_queue(request):
     from django.db.models import Count, Sum, Q
     from .models import ModerationAppealAttachment
 
+    from django.db.models import Count, Sum, Q
+
     filtered_qs, filters = _moderation_appeals_filtered_queryset(request, include_status=True)
     count_qs, _ = _moderation_appeals_filtered_queryset(request, include_status=False)
 
     now = timezone.now()
+    reminder_window = now + _dt.timedelta(days=15)
+
+    stats = count_qs.aggregate(
+        total_appeals=Count('id', distinct=True),
+        pending_count=Count('id', filter=Q(status=ModerationAppeal.Status.PENDING), distinct=True),
+        approved_count=Count('id', filter=Q(status=ModerationAppeal.Status.APPROVED), distinct=True),
+        rejected_count=Count('id', filter=Q(status=ModerationAppeal.Status.REJECTED), distinct=True),
+
+        waiting_count=Count('id', filter=Q(
+            status=ModerationAppeal.Status.PENDING,
+            extra_evidence_requested_at__isnull=False,
+            extra_evidence_fulfilled_at__isnull=True,
+            extra_evidence_due_at__gt=reminder_window
+        ) | Q(
+            status=ModerationAppeal.Status.PENDING,
+            extra_evidence_requested_at__isnull=False,
+            extra_evidence_fulfilled_at__isnull=True,
+            extra_evidence_due_at__isnull=True
+        ), distinct=True),
+
+        due_soon_count=Count('id', filter=Q(
+            status=ModerationAppeal.Status.PENDING,
+            extra_evidence_requested_at__isnull=False,
+            extra_evidence_fulfilled_at__isnull=True,
+            extra_evidence_due_at__gt=now,
+            extra_evidence_due_at__lte=reminder_window
+        ), distinct=True),
+
+        overdue_count=Count('id', filter=Q(
+            status=ModerationAppeal.Status.PENDING,
+            extra_evidence_requested_at__isnull=False,
+            extra_evidence_fulfilled_at__isnull=True,
+            extra_evidence_due_at__lte=now
+        ), distinct=True),
+
+        fulfilled_extra_evidence_count=Count('id', filter=Q(
+            status=ModerationAppeal.Status.PENDING,
+            extra_evidence_requested_at__isnull=False,
+            extra_evidence_fulfilled_at__isnull=False
+        ), distinct=True),
+
+        total_evidence_files=Count('attachments'),
+        total_evidence_size=Sum('attachments__size')
+    )
+
+    total_appeals = stats['total_appeals'] or 0
+    pending_count = stats['pending_count'] or 0
+    approved_count = stats['approved_count'] or 0
+    rejected_count = stats['rejected_count'] or 0
+    waiting_count = stats['waiting_count'] or 0
+    due_soon_count = stats['due_soon_count'] or 0
+    overdue_count = stats['overdue_count'] or 0
+    fulfilled_extra_evidence_count = stats['fulfilled_extra_evidence_count'] or 0
+    total_evidence_files = stats['total_evidence_files'] or 0
+    total_evidence_size = stats['total_evidence_size'] or 0
 
     agg = count_qs.aggregate(
         total_appeals=Count("id"),
