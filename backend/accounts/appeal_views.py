@@ -11,7 +11,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, prefetch_related_objects
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -145,6 +145,7 @@ def moderation_appeal_queue(request):
     total_evidence_files = 0
     total_evidence_size = 0
 
+    prefetch_related_objects(all_matching_appeals, "attachments")
     for appeal in all_matching_appeals:
         attachments = list(appeal.attachments.all())
         total_evidence_files += len(attachments)
@@ -154,9 +155,11 @@ def moderation_appeal_queue(request):
     page_obj = paginator.get_page(request.GET.get("page"))
     appeals = list(page_obj.object_list)
 
+    prefetch_related_objects(appeals, "attachments")
     for appeal in appeals:
-        evidence_total_size = sum(item.size or 0 for item in appeal.attachments.all())
-        appeal.evidence_file_count = appeal.attachments.count()
+        attachments = list(appeal.attachments.all())
+        evidence_total_size = sum(item.size or 0 for item in attachments)
+        appeal.evidence_file_count = len(attachments)
         appeal.evidence_total_mb = round(evidence_total_size / 1024 / 1024, 2)
 
     query_params = request.GET.copy()
@@ -247,14 +250,15 @@ def moderation_appeal_detail(request, pk):
         messages.error(request, "That appeal does not belong to your account.")
         return redirect("accounts:my_moderation_appeals")
 
-    evidence_total_size = sum(item.size or 0 for item in appeal.attachments.all())
+    attachments = list(appeal.attachments.all())
+    evidence_total_size = sum(item.size or 0 for item in attachments)
 
     return render(
         request,
         "accounts/moderation_appeal_detail.html",
         {
             "appeal": appeal,
-            "evidence_file_count": appeal.attachments.count(),
+            "evidence_file_count": len(attachments),
             "evidence_total_mb": round(evidence_total_size / 1024 / 1024, 2),
             "page_title": "Appeal Detail",
         },
@@ -486,7 +490,8 @@ def moderation_appeal_admin_detail(request, pk):
         and appeal.listing.suspended_due_to_seller
     )
 
-    evidence_total_size = sum(item.size or 0 for item in appeal.attachments.all())
+    attachments = list(appeal.attachments.all())
+    evidence_total_size = sum(item.size or 0 for item in attachments)
 
     return render(
         request,
@@ -498,7 +503,7 @@ def moderation_appeal_admin_detail(request, pk):
             "seller_is_suspended": seller_is_suspended,
             "can_restore_listing": can_restore_listing,
             "listing_restore_blocked_by_seller_suspension": listing_restore_blocked_by_seller_suspension,
-            "evidence_file_count": appeal.attachments.count(),
+            "evidence_file_count": len(attachments),
             "evidence_total_mb": round(evidence_total_size / 1024 / 1024, 2),
             "page_title": "Appeal Admin Detail",
         },
@@ -1314,6 +1319,7 @@ def moderation_appeal_queue(request):
     total_evidence_files = 0
     total_evidence_size = 0
 
+    prefetch_related_objects(all_matching_appeals, "attachments")
     for appeal in all_matching_appeals:
         attachments = list(appeal.attachments.all())
         total_evidence_files += len(attachments)
@@ -1323,9 +1329,11 @@ def moderation_appeal_queue(request):
     page_obj = paginator.get_page(request.GET.get("page"))
     appeals = list(page_obj.object_list)
 
+    prefetch_related_objects(appeals, "attachments")
     for appeal in appeals:
-        evidence_total_size = sum(item.size or 0 for item in appeal.attachments.all())
-        appeal.evidence_file_count = appeal.attachments.count()
+        attachments = list(appeal.attachments.all())
+        evidence_total_size = sum(item.size or 0 for item in attachments)
+        appeal.evidence_file_count = len(attachments)
         appeal.evidence_total_mb = round(evidence_total_size / 1024 / 1024, 2)
         appeal.extra_evidence_state = _appeal_extra_evidence_state(appeal)
         appeal.extra_evidence_label = _appeal_extra_evidence_label(appeal.extra_evidence_state)
@@ -1989,6 +1997,7 @@ def moderation_appeal_queue(request):
     total_evidence_files = 0
     total_evidence_size = 0
 
+    prefetch_related_objects(all_matching_appeals, "attachments")
     for appeal in all_matching_appeals:
         attachments = list(appeal.attachments.all())
         total_evidence_files += len(attachments)
@@ -1998,6 +2007,7 @@ def moderation_appeal_queue(request):
     page_obj = paginator.get_page(request.GET.get("page"))
     appeals = list(page_obj.object_list)
 
+    prefetch_related_objects(appeals, "attachments")
     for appeal in appeals:
         attachments = list(appeal.attachments.all())
         evidence_total_size = sum(item.size or 0 for item in attachments)
