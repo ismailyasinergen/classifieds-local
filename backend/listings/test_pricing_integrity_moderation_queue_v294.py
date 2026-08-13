@@ -4,6 +4,7 @@ from pathlib import Path
 
 from django.contrib.auth import get_user_model
 from django.db import connection
+from django.http import QueryDict
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -157,6 +158,21 @@ class PricingIntegrityModerationQueueV294Tests(TestCase):
 
         seller_search = self.client.get(self.url, {"q": self.seller.username})
         self.assertEqual(seller_search.context["page_obj"].paginator.count, 2)
+
+    def test_parse_pricing_integrity_queue_filters_exact_values_v294(self):
+        query_dict = QueryDict(mutable=True)
+        query_dict.update({
+            "q": "  needle  ",
+            "guardrail": "  recent_price_increase  ",
+            "listing_status": f"  {Listing.Status.APPROVED}  ",
+            "state": "  current  ",
+        })
+        filters = parse_pricing_integrity_queue_filters_v294(query_dict)
+
+        self.assertEqual(filters.query, "needle")
+        self.assertEqual(filters.guardrail_status, "recent_price_increase")
+        self.assertEqual(filters.listing_status, Listing.Status.APPROVED)
+        self.assertEqual(filters.state, "current")
 
     def test_invalid_filters_are_ignored_and_search_is_bounded(self):
         listing, _ = self._guarded("Invalid filter safety v294")
