@@ -6,7 +6,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -20,6 +20,7 @@ from listings.listing_price_drop_threshold_filter_v282 import (
     MIN_PRICE_DROP_PERCENT_PARAM_V282,
     normalize_min_price_drop_amount_v282,
     normalize_min_price_drop_percent_v282,
+    get_min_price_drop_amount_value_v282,
 )
 from listings.models import Listing, ListingPriceHistory, SavedSearch
 from listings.saved_searches import (
@@ -781,6 +782,18 @@ class MinimumPriceDropFiltersV282Tests(TestCase):
             self.response_titles(v281_response),
             ["V282 Legacy Older", "V282 Legacy Newer"],
         )
+
+    def test_get_min_price_drop_amount_value_v282_extracts_and_normalizes(self):
+        factory = RequestFactory()
+
+        valid_request = factory.get("/", {MIN_PRICE_DROP_AMOUNT_PARAM_V282: " 150.50 "})
+        self.assertEqual(get_min_price_drop_amount_value_v282(valid_request), "150.50")
+
+        invalid_request = factory.get("/", {MIN_PRICE_DROP_AMOUNT_PARAM_V282: "invalid"})
+        self.assertEqual(get_min_price_drop_amount_value_v282(invalid_request), "")
+
+        empty_request = factory.get("/")
+        self.assertEqual(get_min_price_drop_amount_value_v282(empty_request), "")
 
     def test_contract_validation_saved_search_allowlist_and_no_migration(self):
         self.assertTrue(MINIMUM_PRICE_DROP_FILTERS_V282)
