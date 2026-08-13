@@ -14,6 +14,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
+from categories.models import Category
 from accounts.models import SellerStore
 
 from .listing_filter_helpers import apply_listing_filters
