@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
-from urllib.parse import parse_qsl, urlencode, urlparse
+from urllib.parse import urlencode, urlparse
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
