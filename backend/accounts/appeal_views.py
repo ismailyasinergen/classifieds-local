@@ -155,8 +155,9 @@ def moderation_appeal_queue(request):
     appeals = list(page_obj.object_list)
 
     for appeal in appeals:
-        evidence_total_size = sum(item.size or 0 for item in appeal.attachments.all())
-        appeal.evidence_file_count = appeal.attachments.count()
+        attachments = list(appeal.attachments.all())
+        evidence_total_size = sum(item.size or 0 for item in attachments)
+        appeal.evidence_file_count = len(attachments)
         appeal.evidence_total_mb = round(evidence_total_size / 1024 / 1024, 2)
 
     query_params = request.GET.copy()
@@ -1324,8 +1325,9 @@ def moderation_appeal_queue(request):
     appeals = list(page_obj.object_list)
 
     for appeal in appeals:
-        evidence_total_size = sum(item.size or 0 for item in appeal.attachments.all())
-        appeal.evidence_file_count = appeal.attachments.count()
+        attachments = list(appeal.attachments.all())
+        evidence_total_size = sum(item.size or 0 for item in attachments)
+        appeal.evidence_file_count = len(attachments)
         appeal.evidence_total_mb = round(evidence_total_size / 1024 / 1024, 2)
         appeal.extra_evidence_state = _appeal_extra_evidence_state(appeal)
         appeal.extra_evidence_label = _appeal_extra_evidence_label(appeal.extra_evidence_state)
