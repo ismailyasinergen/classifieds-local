@@ -11,8 +11,6 @@ The goal is to keep project audits useful without treating copied reference HTML
 minified JavaScript, or old backups as active application-code blockers.
 """
 
-from __future__ import annotations
-
 import argparse
 import sys
 from dataclasses import dataclass, field
