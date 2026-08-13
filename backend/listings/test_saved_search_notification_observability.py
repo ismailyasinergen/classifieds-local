@@ -148,3 +148,122 @@ class SavedSearchNotificationObservabilityTests(TestCase):
         self.assertIsNone(failed_search.last_notification_sent_at)
         self.assertGreater(successful_search.last_notification_checked_at, successful_original_checked_at)
         self.assertIsNotNone(successful_search.last_notification_sent_at)
+
+from django.test import SimpleTestCase
+from listings.saved_search_notification_observability import (
+    format_saved_search_notification_observability_lines,
+    V223_SAVED_SEARCH_NOTIFICATION_ADMIN_OPERATOR_OBSERVABILITY,
+)
+
+class FormatSavedSearchNotificationObservabilityLinesTests(SimpleTestCase):
+    def test_format_without_samples(self):
+        snapshot = {
+            "owner_scoped": True,
+            "total_count": 10,
+            "enabled_count": 5,
+            "disabled_count": 5,
+            "enabled_with_email_count": 3,
+            "missing_recipient_email_count": 2,
+            "checked_timestamp_count": 8,
+            "sent_timestamp_count": 4,
+            "sample_count": 0,
+            "samples": []
+        }
+        lines = format_saved_search_notification_observability_lines(snapshot)
+        self.assertEqual(len(lines), 1)
+        expected_header = (
+            f"{V223_SAVED_SEARCH_NOTIFICATION_ADMIN_OPERATOR_OBSERVABILITY} "
+            f"mode=observability read_only=True delivery_enabled=False "
+            f"mutation_allowed=False owner_scoped=True "
+            f"total=10 enabled=5 "
+            f"disabled=5 "
+            f"enabled_with_email=3 "
+            f"missing_recipient_email=2 "
+            f"checked_timestamps=8 "
+            f"sent_timestamps=4 "
+            f"samples=0"
+        )
+        self.assertEqual(lines[0], expected_header)
+
+    def test_format_with_samples_and_fallbacks(self):
+        snapshot = {
+            "owner_scoped": False,
+            "total_count": 1,
+            "enabled_count": 1,
+            "disabled_count": 0,
+            "enabled_with_email_count": 1,
+            "missing_recipient_email_count": 0,
+            "checked_timestamp_count": 0,
+            "sent_timestamp_count": 0,
+            "sample_count": 1,
+            "samples": [
+                {
+                    "saved_search_id": 42,
+                    "owner_id": 101,
+                    "email_notifications_enabled": True,
+                    "recipient_email": "test@example.com",
+                    "last_notification_checked_at": None,
+                    "last_notification_sent_at": None,
+                    "label": "test_label"
+                }
+            ]
+        }
+        lines = format_saved_search_notification_observability_lines(snapshot)
+        self.assertEqual(len(lines), 2)
+        # Verify redact_notification_recipient_for_operator_v305 is applied by checking for the redacted form
+        # We don't know the exact redaction logic, but it should contain part of the email or a redacted version.
+        # It's better to just mock it or check that it's processed correctly. Actually, let's just assert the line is formatted.
+        from listings.notification_recipient_output_redaction_v305 import redact_notification_recipient_for_operator_v305
+        recipient_output = redact_notification_recipient_for_operator_v305("test@example.com")
+
+        expected_sample_line = (
+            "OBSERVABILITY saved_search "
+            f"id=42 "
+            f"owner_id=101 "
+            f"enabled=True "
+            f"recipient={recipient_output} "
+            f"checked_at=<none> "
+            f"sent_at=<none> "
+            f"label=test_label"
+        )
+        self.assertEqual(lines[1], expected_sample_line)
+
+    def test_format_with_samples_and_timestamps(self):
+        snapshot = {
+            "owner_scoped": False,
+            "total_count": 1,
+            "enabled_count": 1,
+            "disabled_count": 0,
+            "enabled_with_email_count": 1,
+            "missing_recipient_email_count": 0,
+            "checked_timestamp_count": 1,
+            "sent_timestamp_count": 1,
+            "sample_count": 1,
+            "samples": [
+                {
+                    "saved_search_id": 43,
+                    "owner_id": 102,
+                    "email_notifications_enabled": False,
+                    "recipient_email": "hello@world.com",
+                    "last_notification_checked_at": "2023-10-01T12:00:00Z",
+                    "last_notification_sent_at": "2023-10-02T12:00:00Z",
+                    "label": "another_label"
+                }
+            ]
+        }
+        lines = format_saved_search_notification_observability_lines(snapshot)
+        self.assertEqual(len(lines), 2)
+        from listings.notification_recipient_output_redaction_v305 import redact_notification_recipient_for_operator_v305
+        recipient_output = redact_notification_recipient_for_operator_v305("hello@world.com")
+
+        expected_sample_line = (
+            "OBSERVABILITY saved_search "
+            f"id=43 "
+            f"owner_id=102 "
+            f"enabled=False "
+            f"recipient={recipient_output} "
+            f"checked_at=2023-10-01T12:00:00Z "
+            f"sent_at=2023-10-02T12:00:00Z "
+            f"label=another_label"
+        )
+        self.assertEqual(lines[1], expected_sample_line)
