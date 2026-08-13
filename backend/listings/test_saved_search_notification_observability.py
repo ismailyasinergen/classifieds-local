@@ -12,6 +12,7 @@ from django.utils import timezone
 
 from categories.models import Category
 from listings.models import Listing, SavedSearch
+from listings.saved_search_notification_observability import build_saved_search_notification_observability_snapshot
 
 
 class SavedSearchNotificationObservabilityTests(TestCase):
@@ -267,3 +268,62 @@ class FormatSavedSearchNotificationObservabilityLinesTests(SimpleTestCase):
             f"label=another_label"
         )
         self.assertEqual(lines[1], expected_sample_line)
+
+class BuildSavedSearchNotificationObservabilitySnapshotTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.user1 = User.objects.create_user(username="user1", email="user1@example.com", password="password")
+        self.user2 = User.objects.create_user(username="user2", email="", password="password")
+
+    def _saved_search(self, user, enabled, name, checked_at=None, sent_at=None):
+        return SavedSearch.objects.create(
+            user=user,
+            name=name,
+            path="/",
+            email_notifications_enabled=enabled,
+            last_notification_checked_at=checked_at,
+            last_notification_sent_at=sent_at,
+        )
+
+    def test_build_saved_search_notification_observability_snapshot(self):
+        now = timezone.now()
+
+        ss1 = self._saved_search(self.user1, True, "ss1", checked_at=now, sent_at=now)
+        ss2 = self._saved_search(self.user1, False, "ss2", checked_at=now)
+        ss3 = self._saved_search(self.user2, True, "ss3")
+        ss4 = self._saved_search(self.user2, True, "ss4")
+
+        with patch("listings.saved_search_notification_observability.redact_notification_recipient_for_operator_v305") as mock_redact:
+            mock_redact.side_effect = lambda email: f"[REDACTED {email}]" if email else "[NO EMAIL]"
+
+            snapshot = build_saved_search_notification_observability_snapshot(limit=10)
+
+            self.assertEqual(snapshot["marker"], V223_SAVED_SEARCH_NOTIFICATION_ADMIN_OPERATOR_OBSERVABILITY)
+            self.assertEqual(snapshot["mode"], "observability")
+            self.assertTrue(snapshot["read_only"])
+            self.assertFalse(snapshot["delivery_enabled"])
+            self.assertFalse(snapshot["mutation_allowed"])
+            self.assertFalse(snapshot["owner_scoped"])
+            self.assertEqual(snapshot["limit"], 10)
+
+            self.assertEqual(snapshot["total_count"], 4)
+            self.assertEqual(snapshot["enabled_count"], 3)
+            self.assertEqual(snapshot["disabled_count"], 1)
+
+            # user1 has email, user2 does not.
+            # ss1 (user1, enabled), ss2 (user1, disabled)
+            # ss3 (user2, enabled), ss4 (user2, enabled)
+            # enabled with email = ss1
+            self.assertEqual(snapshot["enabled_with_email_count"], 1)
+            # missing recipient email = ss3, ss4
+            self.assertEqual(snapshot["missing_recipient_email_count"], 2)
+
+            # checked_timestamp_count = ss1, ss2
+            self.assertEqual(snapshot["checked_timestamp_count"], 2)
+            # sent_timestamp_count = ss1
+            self.assertEqual(snapshot["sent_timestamp_count"], 1)
+
+            self.assertEqual(snapshot["sample_count"], 4)
+            self.assertEqual(len(snapshot["samples"]), 4)
+
+            self.assertEqual(mock_redact.call_count, 4)

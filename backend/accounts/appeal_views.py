@@ -1970,29 +1970,74 @@ def _moderation_appeals_filtered_queryset(request, include_status=True):
 @staff_member_required
 def moderation_appeal_queue(request):
     import datetime as _dt
+    from django.db.models import Count, Sum, Q
+    from .models import ModerationAppealAttachment
 
     filtered_qs, filters = _moderation_appeals_filtered_queryset(request, include_status=True)
     count_qs, _ = _moderation_appeals_filtered_queryset(request, include_status=False)
 
-    all_matching_appeals = list(count_qs)
+    now = timezone.now()
 
-    total_appeals = len(all_matching_appeals)
-    pending_count = sum(1 for appeal in all_matching_appeals if appeal.status == ModerationAppeal.Status.PENDING)
-    approved_count = sum(1 for appeal in all_matching_appeals if appeal.status == ModerationAppeal.Status.APPROVED)
-    rejected_count = sum(1 for appeal in all_matching_appeals if appeal.status == ModerationAppeal.Status.REJECTED)
+    agg = count_qs.aggregate(
+        total_appeals=Count("id"),
+        pending_count=Count("id", filter=Q(status=ModerationAppeal.Status.PENDING)),
+        approved_count=Count("id", filter=Q(status=ModerationAppeal.Status.APPROVED)),
+        rejected_count=Count("id", filter=Q(status=ModerationAppeal.Status.REJECTED)),
+        overdue_count=Count(
+            "id",
+            filter=Q(
+                status=ModerationAppeal.Status.PENDING,
+                extra_evidence_requested_at__isnull=False,
+                extra_evidence_fulfilled_at__isnull=True,
+                extra_evidence_due_at__isnull=False,
+                extra_evidence_due_at__lte=now,
+            ),
+        ),
+        due_soon_count=Count(
+            "id",
+            filter=Q(
+                status=ModerationAppeal.Status.PENDING,
+                extra_evidence_requested_at__isnull=False,
+                extra_evidence_fulfilled_at__isnull=True,
+                extra_evidence_due_at__isnull=False,
+                extra_evidence_due_at__gt=now,
+                extra_evidence_due_at__lte=now + _dt.timedelta(days=15),
+            ),
+        ),
+        waiting_count=Count(
+            "id",
+            filter=Q(
+                status=ModerationAppeal.Status.PENDING,
+                extra_evidence_requested_at__isnull=False,
+                extra_evidence_fulfilled_at__isnull=True,
+            )
+            & (Q(extra_evidence_due_at__isnull=True) | Q(extra_evidence_due_at__gt=now + _dt.timedelta(days=15))),
+        ),
+        fulfilled_extra_evidence_count=Count(
+            "id",
+            filter=Q(
+                status=ModerationAppeal.Status.PENDING,
+                extra_evidence_requested_at__isnull=False,
+                extra_evidence_fulfilled_at__isnull=False,
+            ),
+        ),
+    )
 
-    waiting_count = sum(1 for appeal in all_matching_appeals if _appeal_deadline_queue_state(appeal) == "waiting")
-    due_soon_count = sum(1 for appeal in all_matching_appeals if _appeal_deadline_queue_state(appeal) == "due_soon")
-    overdue_count = sum(1 for appeal in all_matching_appeals if _appeal_deadline_queue_state(appeal) == "overdue")
-    fulfilled_extra_evidence_count = sum(1 for appeal in all_matching_appeals if _appeal_deadline_queue_state(appeal) == "fulfilled")
+    total_appeals = agg["total_appeals"] or 0
+    pending_count = agg["pending_count"] or 0
+    approved_count = agg["approved_count"] or 0
+    rejected_count = agg["rejected_count"] or 0
+    overdue_count = agg["overdue_count"] or 0
+    due_soon_count = agg["due_soon_count"] or 0
+    waiting_count = agg["waiting_count"] or 0
+    fulfilled_extra_evidence_count = agg["fulfilled_extra_evidence_count"] or 0
 
-    total_evidence_files = 0
-    total_evidence_size = 0
-
-    for appeal in all_matching_appeals:
-        attachments = list(appeal.attachments.all())
-        total_evidence_files += len(attachments)
-        total_evidence_size += sum(item.size or 0 for item in attachments)
+    attachment_agg = ModerationAppealAttachment.objects.filter(appeal__in=count_qs).aggregate(
+        total_files=Count("id"),
+        total_size=Sum("size")
+    )
+    total_evidence_files = attachment_agg["total_files"] or 0
+    total_evidence_size = attachment_agg["total_size"] or 0
 
     paginator = Paginator(filtered_qs.order_by("-created_at"), 25)
     page_obj = paginator.get_page(request.GET.get("page"))

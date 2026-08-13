@@ -828,6 +828,64 @@ class MinimumPriceDropFiltersV282Tests(TestCase):
             normalize_min_price_drop_percent_v282("1000000000000000"), ""
         )
 
+
+    def test_apply_minimum_price_drop_filters_v282_integration(self):
+        from listings.listing_price_drop_threshold_filter_v282 import apply_minimum_price_drop_filters_v282
+        from listings.models import Listing
+        from django.test import RequestFactory
+
+        factory = RequestFactory()
+
+        # 1. No reduction
+        no_drop = self.create_listing("V282 Integ No Drop", price="1000.00")
+
+        # 2. Amount exact (50 TL drop = 5%)
+        amount_exact = self.create_listing("V282 Integ Amount Exact", price="1000.00")
+        self.change_price(amount_exact, "950.00")
+
+        # 3. Percent exact (20% drop = 200 TL)
+        percent_exact = self.create_listing("V282 Integ Percent Exact", price="1000.00")
+        self.change_price(percent_exact, "800.00")
+
+        # 4. Old drop (should be excluded by default period filter if requested)
+        old_drop = self.create_listing("V282 Integ Old Drop", price="1000.00")
+        self.change_price(old_drop, "800.00", changed_at=self.now - timedelta(days=60))
+
+        # Base Queryset
+        base_qs = Listing.objects.filter(title__startswith="V282 Integ")
+
+        with patch("listings.listing_price_drop_period_filter_v280.timezone.now", return_value=self.now):
+            # Case A: no thresholds, require_metrics=False (no annotation)
+            request = factory.get("/")
+            qs = apply_minimum_price_drop_filters_v282(base_qs, request)
+            self.assertEqual(qs.count(), 4)
+
+            # Case B: no thresholds, require_metrics=True (annotates and requires current reduction)
+            request = factory.get("/")
+            qs = apply_minimum_price_drop_filters_v282(base_qs, request, require_metrics=True)
+            titles = list(qs.values_list("title", flat=True))
+            self.assertCountEqual(titles, ["V282 Integ Amount Exact", "V282 Integ Percent Exact", "V282 Integ Old Drop"])
+            # Should be annotated
+            self.assertTrue(hasattr(qs.first(), "price_drop_discount_amount_v281"))
+
+            # Case C: amount threshold only (requires metrics and reduction implicitly)
+            request = factory.get("/", {"min_price_drop_amount": "100.00"})
+            qs = apply_minimum_price_drop_filters_v282(base_qs, request)
+            titles = list(qs.values_list("title", flat=True))
+            self.assertCountEqual(titles, ["V282 Integ Percent Exact", "V282 Integ Old Drop"])
+
+            # Case D: percent threshold only
+            request = factory.get("/", {"min_price_drop_percent": "10.0"})
+            qs = apply_minimum_price_drop_filters_v282(base_qs, request)
+            titles = list(qs.values_list("title", flat=True))
+            self.assertCountEqual(titles, ["V282 Integ Percent Exact", "V282 Integ Old Drop"])
+
+            # Case E: both thresholds
+            request = factory.get("/", {"min_price_drop_amount": "40.00", "min_price_drop_percent": "4.0"})
+            qs = apply_minimum_price_drop_filters_v282(base_qs, request)
+            titles = list(qs.values_list("title", flat=True))
+            self.assertCountEqual(titles, ["V282 Integ Amount Exact", "V282 Integ Percent Exact", "V282 Integ Old Drop"])
+
     def test_contract_validation_saved_search_allowlist_and_no_migration(self):
         self.assertTrue(MINIMUM_PRICE_DROP_FILTERS_V282)
         self.assertEqual(
