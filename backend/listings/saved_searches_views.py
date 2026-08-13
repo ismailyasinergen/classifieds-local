@@ -17,7 +17,6 @@ from django.views.decorators.http import require_POST
 from accounts.models import SellerStore
 from categories.models import Category
 
-from .listing_filter_helpers import apply_listing_filters
 from .models import Listing, ListingFavorite, ListingImage, ListingReport, SavedSearch
 
 
