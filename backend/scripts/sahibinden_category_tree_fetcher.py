@@ -21,7 +21,8 @@ import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET
+from defusedxml.common import DefusedXmlException
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -198,7 +199,7 @@ def extract_urls_from_sitemap_xml(xml_text: str, base_url: str = BASE_URL) -> Li
 
     try:
         root = ET.fromstring(xml_text)
-    except ET.ParseError:
+    except (ET.ParseError, DefusedXmlException):
         for match in re.findall(r"<loc>(.*?)</loc>", xml_text, flags=re.IGNORECASE | re.DOTALL):
             normalized = normalize_sahibinden_url(match.strip(), base_url=base_url)
             if normalized:
