@@ -293,6 +293,9 @@ def parse_site_haritasi_html(html_text: str, base_url: str = BASE_URL) -> Tuple[
 
 
 def fetch_public_url(url: str, timeout: int = 20) -> Tuple[int, str, str]:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError(f"Invalid URL scheme: {parsed.scheme}")
     scheme = urllib.parse.urlparse(url).scheme.lower()
     if scheme not in ("http", "https"):
         raise ValueError(f"Invalid scheme: {scheme}")
