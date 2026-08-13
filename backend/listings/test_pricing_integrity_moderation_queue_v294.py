@@ -140,6 +140,32 @@ class PricingIntegrityModerationQueueV294Tests(TestCase):
         self.assertNotIn(current_event.pk, historical_ids)
         self.assertEqual(current_listing.price, Decimal("150.00"))
 
+    def test_build_pricing_integrity_queue_queryset_applies_filters_properly(self):
+        _active_current_listing, active_current_event = self._guarded(
+            "Active Current Restriction", status=Listing.Status.APPROVED
+        )
+        _inactive_listing, _inactive_event = self._guarded(
+            "Inactive Restriction", status=Listing.Status.REJECTED
+        )
+        historical_listing, _historical_event = self._guarded(
+            "Historical Active Restriction", status=Listing.Status.APPROVED
+        )
+        self._change(historical_listing, "120.00")
+
+        filters = parse_pricing_integrity_queue_filters_v294(
+            {
+                "guardrail": "recent_price_increase",
+                "listing_status": Listing.Status.APPROVED,
+                "state": "current",
+                "q": "Active Current",
+            }
+        )
+        queryset = build_pricing_integrity_queue_queryset_v294(filters)
+
+        events = list(queryset)
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0].pk, active_current_event.pk)
+
     def test_search_and_listing_status_filters_are_safe_and_combined(self):
         approved, _ = self._guarded("Needle approved v294")
         rejected, _ = self._guarded(
