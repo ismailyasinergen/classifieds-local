@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from urllib.parse import parse_qsl, urlencode, urlparse
 
 from django.contrib import messages
