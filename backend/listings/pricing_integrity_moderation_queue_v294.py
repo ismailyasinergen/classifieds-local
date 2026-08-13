@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import BooleanField, Case, F, OuterRef, Q, Subquery, Value, When
 
 from .listing_price_integrity_v293 import (
@@ -15,7 +15,7 @@ from .models import Listing, ListingPriceHistory
 
 
 PRICING_INTEGRITY_MODERATION_QUEUE_V294 = True
-PRICING_INTEGRITY_QUEUE_PAGE_SIZE_V294 = 25
+PRICING_INTEGRITY_QUEUE_PAGE_SIZE_V294 = 50
 PRICING_INTEGRITY_SEARCH_MAX_LENGTH_V294 = 100
 
 STATE_CURRENT_V294 = "current"
@@ -137,10 +137,13 @@ def build_pricing_integrity_queue_queryset_v294(filters):
 
 
 def paginate_pricing_integrity_queue_v294(queryset, page_number):
-    return Paginator(
-        queryset,
-        PRICING_INTEGRITY_QUEUE_PAGE_SIZE_V294,
-    ).get_page(page_number)
+    paginator = Paginator(queryset, PRICING_INTEGRITY_QUEUE_PAGE_SIZE_V294)
+    try:
+        return paginator.page(page_number)
+    except PageNotAnInteger:
+        return paginator.page(1)
+    except EmptyPage:
+        return paginator.page(paginator.num_pages)
 
 
 __all__ = [

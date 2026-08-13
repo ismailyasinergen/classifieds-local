@@ -208,7 +208,7 @@ class PricingIntegrityModerationQueueV294Tests(TestCase):
             self.url,
             {"state": "current", "q": "Paged", "page": 1},
         )
-        self.assertEqual(len(response.context["events"]), 25)
+        self.assertEqual(len(response.context["events"]), PRICING_INTEGRITY_QUEUE_PAGE_SIZE_V294)
         self.assertContains(response, "state=current")
         self.assertContains(response, "q=Paged")
         self.assertContains(response, "page=2")
@@ -269,6 +269,18 @@ class PricingIntegrityModerationQueueV294Tests(TestCase):
             event.discount_guardrail_status,
             DISCOUNT_GUARDRAIL_RAISE_THEN_DROP_V293,
         )
+
+    def test_paginate_pricing_integrity_queue_v294_handles_invalid_pages(self):
+        mock_queryset = list(range(100))
+
+        valid_page = paginate_pricing_integrity_queue_v294(mock_queryset, 2)
+        self.assertEqual(valid_page.number, 2)
+
+        invalid_page = paginate_pricing_integrity_queue_v294(mock_queryset, "not-an-integer")
+        self.assertEqual(invalid_page.number, 1)
+
+        empty_page = paginate_pricing_integrity_queue_v294(mock_queryset, 9999)
+        self.assertEqual(empty_page.number, 2)
 
     def test_v294_requires_no_schema_migration(self):
         migration_dir = Path(__file__).resolve().parent / "migrations"
