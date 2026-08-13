@@ -11,8 +11,6 @@ Only imports required by apply_listing_filters should live here. View-only
 classes, mixins, decorators, forms, and template helpers belong in views.py.
 """
 
-from __future__ import annotations
-
 from decimal import Decimal, InvalidOperation
 from django.db.models import Q
 from categories.models import Category
