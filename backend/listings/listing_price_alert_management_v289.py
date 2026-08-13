@@ -1,7 +1,5 @@
 """Authenticated listing-specific price-alert management for v289."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 
 from django.contrib import messages
