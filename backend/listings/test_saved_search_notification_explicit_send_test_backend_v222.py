@@ -16,6 +16,7 @@ from listings.saved_search_notification_email_sender import (
     V222_LOC_MEM_TEST_EMAIL_BACKEND,
     V222_SAVED_SEARCH_NOTIFICATION_EXPLICIT_SEND_TEST_BACKEND,
     SavedSearchNotificationEmailDeliveryBlocked,
+    require_saved_search_notification_test_email_backend,
     saved_search_notification_email_backend_is_test_safe,
     send_saved_search_notification_email,
     send_saved_search_notification_email_batch,
@@ -81,6 +82,14 @@ class SavedSearchNotificationExplicitSendTestBackendV222Tests(TestCase):
         self.assertIn("last_notification_sent_at", fields)
         self.assertIsInstance(fields["last_notification_sent_at"], models.DateTimeField)
         self.assertTrue(fields["last_notification_sent_at"].null)
+
+    @override_settings(EMAIL_BACKEND="invalid_backend")
+    def test_v222_require_saved_search_notification_test_email_backend_raises_error_on_invalid_backend(self):
+        with self.assertRaisesMessage(
+            SavedSearchNotificationEmailDeliveryBlocked,
+            "Explicit saved-search notification delivery requires the Django locmem test email backend.",
+        ):
+            require_saved_search_notification_test_email_backend()
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_v222_detects_locmem_test_email_backend_as_safe(self):
