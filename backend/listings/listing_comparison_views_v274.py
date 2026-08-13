@@ -4,8 +4,6 @@ LISTING_COMPARISON_V274
 Public GET comparison page and CSRF-protected POST selection controls.
 """
 
-from __future__ import annotations
-
 from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import (
