@@ -6,7 +6,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -20,6 +20,7 @@ from listings.listing_price_drop_threshold_filter_v282 import (
     MIN_PRICE_DROP_PERCENT_PARAM_V282,
     normalize_min_price_drop_amount_v282,
     normalize_min_price_drop_percent_v282,
+    get_min_price_drop_percent_value_v282,
 )
 from listings.models import Listing, ListingPriceHistory, SavedSearch
 from listings.saved_searches import (
@@ -108,6 +109,21 @@ class MinimumPriceDropFiltersV282Tests(TestCase):
             listing.title
             for listing in response.context["listings"]
         ]
+
+    def test_get_min_price_drop_percent_value_v282(self):
+        factory = RequestFactory()
+
+        # Valid percent
+        request = factory.get(f"/?{MIN_PRICE_DROP_PERCENT_PARAM_V282}=20.5")
+        self.assertEqual(get_min_price_drop_percent_value_v282(request), "20.5")
+
+        # Invalid percent
+        request = factory.get(f"/?{MIN_PRICE_DROP_PERCENT_PARAM_V282}=abc")
+        self.assertEqual(get_min_price_drop_percent_value_v282(request), "")
+
+        # Empty percent
+        request = factory.get("/")
+        self.assertEqual(get_min_price_drop_percent_value_v282(request), "")
 
     def test_amount_filter_supports_main_category_and_inclusive_decimals(self):
         exact = self.create_listing("V282 Amount Exact")
@@ -780,6 +796,36 @@ class MinimumPriceDropFiltersV282Tests(TestCase):
         self.assertEqual(
             self.response_titles(v281_response),
             ["V282 Legacy Older", "V282 Legacy Newer"],
+        )
+
+    def test_format_price_drop_threshold_graceful_failure_v282(self):
+        from listings.listing_price_drop_threshold_filter_v282 import format_price_drop_threshold_v282
+        self.assertEqual(format_price_drop_threshold_v282("invalid"), "")
+        self.assertEqual(format_price_drop_threshold_v282(None), "")
+        self.assertEqual(format_price_drop_threshold_v282([]), "")
+        self.assertEqual(format_price_drop_threshold_v282({}), "")
+    def test_normalize_min_price_drop_percent_v282(self):
+        self.assertEqual(normalize_min_price_drop_percent_v282("10"), "10")
+        self.assertEqual(normalize_min_price_drop_percent_v282("10.5"), "10.5")
+        self.assertEqual(normalize_min_price_drop_percent_v282(" 10.5 "), "10.5")
+
+        self.assertEqual(
+            normalize_min_price_drop_percent_v282("99999999999999"), "99999999999999"
+        )
+        self.assertEqual(
+            normalize_min_price_drop_percent_v282("99999999999999.9999999999"),
+            "99999999999999.9999999999",
+        )
+
+        self.assertEqual(normalize_min_price_drop_percent_v282(""), "")
+        self.assertEqual(normalize_min_price_drop_percent_v282("abc"), "")
+        self.assertEqual(normalize_min_price_drop_percent_v282("-10"), "")
+        self.assertEqual(normalize_min_price_drop_percent_v282("0"), "")
+        self.assertEqual(
+            normalize_min_price_drop_percent_v282("10.12345678901"), ""
+        )
+        self.assertEqual(
+            normalize_min_price_drop_percent_v282("1000000000000000"), ""
         )
 
     def test_contract_validation_saved_search_allowlist_and_no_migration(self):

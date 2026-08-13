@@ -13,6 +13,15 @@ SPEC.loader.exec_module(fetcher)
 
 
 class SahibindenCategoryTreeFetcherTests(unittest.TestCase):
+    def test_fetch_public_url_rejects_non_http_schemes(self):
+        with self.assertRaises(ValueError) as context:
+            fetcher.fetch_public_url("file:///etc/passwd")
+        self.assertIn("Invalid scheme: file", str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            fetcher.fetch_public_url("ftp://example.com/file")
+        self.assertIn("Invalid scheme: ftp", str(context.exception))
+
     def test_sitemap_xml_parsing(self):
         xml = """<?xml version="1.0" encoding="UTF-8"?>
         <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

@@ -17,6 +17,7 @@ from listings.listing_price_drop_period_filter_v280 import (
     PRICE_DROP_PERIOD_LABELS_V280,
     PRICE_DROP_PERIOD_PARAM_V280,
     PRICE_DROP_PERIODS_V280,
+    normalize_price_drop_period_value_v280,
 )
 from listings.models import Listing, ListingPriceHistory, SavedSearch
 from listings.saved_searches import (
@@ -583,3 +584,19 @@ class PriceDropPeriodFilterV280Tests(TestCase):
             list(migration_dir.glob("*v280*")),
             [],
         )
+
+    def test_normalize_price_drop_period_value_v280(self):
+        # Valid periods
+        self.assertEqual(normalize_price_drop_period_value_v280("24h"), "24h")
+        self.assertEqual(normalize_price_drop_period_value_v280("7d"), "7d")
+        self.assertEqual(normalize_price_drop_period_value_v280("30d"), "30d")
+
+        # Whitespace handling
+        self.assertEqual(normalize_price_drop_period_value_v280(" 7d "), "7d")
+
+        # Invalid and empty values
+        self.assertEqual(normalize_price_drop_period_value_v280(None), "")
+        self.assertEqual(normalize_price_drop_period_value_v280(""), "")
+        self.assertEqual(normalize_price_drop_period_value_v280("1h"), "")
+        self.assertEqual(normalize_price_drop_period_value_v280("10d"), "")
+        self.assertEqual(normalize_price_drop_period_value_v280("invalid"), "")

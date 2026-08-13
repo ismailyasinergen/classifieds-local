@@ -4,23 +4,37 @@ from io import StringIO
 from pathlib import Path
 from typing import Any
 
+from unittest.mock import patch
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.management import call_command
 from django.db import models
-from django.test import TestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 
 from listings.models import SavedSearch
 from listings.saved_search_notification_email_sender import (
     V222_LOC_MEM_TEST_EMAIL_BACKEND,
     V222_SAVED_SEARCH_NOTIFICATION_EXPLICIT_SEND_TEST_BACKEND,
     SavedSearchNotificationEmailDeliveryBlocked,
+    require_saved_search_notification_test_email_backend,
     saved_search_notification_email_backend_is_test_safe,
     send_saved_search_notification_email,
     send_saved_search_notification_email_batch,
 )
 
+
+class SavedSearchNotificationExplicitSendTestBackendV222SimpleTests(SimpleTestCase):
+    @patch("listings.saved_search_notification_email_sender.get_saved_search_notification_email_backend_path")
+    def test_v222_detects_locmem_test_email_backend_as_safe_with_mock(self, mock_get_path):
+        mock_get_path.return_value = V222_LOC_MEM_TEST_EMAIL_BACKEND
+        self.assertTrue(saved_search_notification_email_backend_is_test_safe())
+
+    @patch("listings.saved_search_notification_email_sender.get_saved_search_notification_email_backend_path")
+    def test_v222_rejects_non_locmem_backend_as_unsafe_with_mock(self, mock_get_path):
+        mock_get_path.return_value = "django.core.mail.backends.console.EmailBackend"
+        self.assertFalse(saved_search_notification_email_backend_is_test_safe())
 
 class SavedSearchNotificationExplicitSendTestBackendV222Tests(TestCase):
     def _backend_root(self) -> Path:
@@ -82,6 +96,32 @@ class SavedSearchNotificationExplicitSendTestBackendV222Tests(TestCase):
         self.assertIsInstance(fields["last_notification_sent_at"], models.DateTimeField)
         self.assertTrue(fields["last_notification_sent_at"].null)
 
+    @override_settings(EMAIL_BACKEND="invalid_backend")
+    def test_v222_require_saved_search_notification_test_email_backend_raises_error_on_invalid_backend(self):
+        with self.assertRaisesMessage(
+            SavedSearchNotificationEmailDeliveryBlocked,
+            "Explicit saved-search notification delivery requires the Django locmem test email backend.",
+        ):
+            require_saved_search_notification_test_email_backend()
+
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend")
+    def test_get_saved_search_notification_email_backend_path_returns_setting(self):
+        from listings.saved_search_notification_email_sender import get_saved_search_notification_email_backend_path
+        self.assertEqual(
+            get_saved_search_notification_email_backend_path(),
+            "django.core.mail.backends.smtp.EmailBackend"
+        )
+
+    @override_settings()
+    def test_get_saved_search_notification_email_backend_path_returns_empty_fallback(self):
+        from listings.saved_search_notification_email_sender import get_saved_search_notification_email_backend_path
+        if hasattr(settings, 'EMAIL_BACKEND'):
+            del settings.EMAIL_BACKEND
+        self.assertEqual(
+            get_saved_search_notification_email_backend_path(),
+            ""
+        )
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_v222_detects_locmem_test_email_backend_as_safe(self):
         self.assertEqual(settings.EMAIL_BACKEND, V222_LOC_MEM_TEST_EMAIL_BACKEND)
