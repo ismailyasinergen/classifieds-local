@@ -782,6 +782,13 @@ class MinimumPriceDropFiltersV282Tests(TestCase):
             ["V282 Legacy Older", "V282 Legacy Newer"],
         )
 
+    def test_format_price_drop_threshold_graceful_failure_v282(self):
+        from listings.listing_price_drop_threshold_filter_v282 import format_price_drop_threshold_v282
+        self.assertEqual(format_price_drop_threshold_v282("invalid"), "")
+        self.assertEqual(format_price_drop_threshold_v282(None), "")
+        self.assertEqual(format_price_drop_threshold_v282([]), "")
+        self.assertEqual(format_price_drop_threshold_v282({}), "")
+
     def test_contract_validation_saved_search_allowlist_and_no_migration(self):
         self.assertTrue(MINIMUM_PRICE_DROP_FILTERS_V282)
         self.assertEqual(
