@@ -782,6 +782,30 @@ class MinimumPriceDropFiltersV282Tests(TestCase):
             ["V282 Legacy Older", "V282 Legacy Newer"],
         )
 
+    def test_normalize_min_price_drop_percent_v282(self):
+        self.assertEqual(normalize_min_price_drop_percent_v282("10"), "10")
+        self.assertEqual(normalize_min_price_drop_percent_v282("10.5"), "10.5")
+        self.assertEqual(normalize_min_price_drop_percent_v282(" 10.5 "), "10.5")
+
+        self.assertEqual(
+            normalize_min_price_drop_percent_v282("99999999999999"), "99999999999999"
+        )
+        self.assertEqual(
+            normalize_min_price_drop_percent_v282("99999999999999.9999999999"),
+            "99999999999999.9999999999",
+        )
+
+        self.assertEqual(normalize_min_price_drop_percent_v282(""), "")
+        self.assertEqual(normalize_min_price_drop_percent_v282("abc"), "")
+        self.assertEqual(normalize_min_price_drop_percent_v282("-10"), "")
+        self.assertEqual(normalize_min_price_drop_percent_v282("0"), "")
+        self.assertEqual(
+            normalize_min_price_drop_percent_v282("10.12345678901"), ""
+        )
+        self.assertEqual(
+            normalize_min_price_drop_percent_v282("1000000000000000"), ""
+        )
+
     def test_contract_validation_saved_search_allowlist_and_no_migration(self):
         self.assertTrue(MINIMUM_PRICE_DROP_FILTERS_V282)
         self.assertEqual(
