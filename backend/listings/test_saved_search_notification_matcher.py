@@ -13,6 +13,7 @@ from listings.models import Listing, SavedSearch
 from listings.saved_search_notifications import (
     build_saved_search_match_preview,
     get_saved_search_matching_queryset,
+    _listing_url_for_email,
 )
 
 
@@ -441,3 +442,12 @@ class SavedSearchNotificationOperationalHardeningTests(SavedSearchNotificationMa
 
         with self.assertRaisesMessage(ValueError, "no email address"):
             build_saved_search_email_message(preview)
+
+    def test_listing_url_for_email_handles_get_absolute_url_exception(self):
+        from unittest.mock import patch
+
+        listing = self._listing("V83 Toyota error handling test")
+
+        with patch.object(Listing, 'get_absolute_url', side_effect=Exception("Simulated error")):
+            url = _listing_url_for_email(listing, site_base_url="https://classifieds.local")
+            self.assertEqual(url, f"https://classifieds.local/listings/{listing.pk}/")
