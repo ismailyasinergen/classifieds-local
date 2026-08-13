@@ -11,7 +11,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, prefetch_related_objects
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -153,10 +153,12 @@ def moderation_appeal_queue(request):
     paginator = Paginator(filtered_qs.order_by("-created_at"), 25)
     page_obj = paginator.get_page(request.GET.get("page"))
     appeals = list(page_obj.object_list)
+    prefetch_related_objects(appeals, "attachments")
 
     for appeal in appeals:
-        evidence_total_size = sum(item.size or 0 for item in appeal.attachments.all())
-        appeal.evidence_file_count = appeal.attachments.count()
+        attachments = list(appeal.attachments.all())
+        evidence_total_size = sum(item.size or 0 for item in attachments)
+        appeal.evidence_file_count = len(attachments)
         appeal.evidence_total_mb = round(evidence_total_size / 1024 / 1024, 2)
 
     query_params = request.GET.copy()
@@ -1322,10 +1324,12 @@ def moderation_appeal_queue(request):
     paginator = Paginator(filtered_qs.order_by("-created_at"), 25)
     page_obj = paginator.get_page(request.GET.get("page"))
     appeals = list(page_obj.object_list)
+    prefetch_related_objects(appeals, "attachments")
 
     for appeal in appeals:
-        evidence_total_size = sum(item.size or 0 for item in appeal.attachments.all())
-        appeal.evidence_file_count = appeal.attachments.count()
+        attachments = list(appeal.attachments.all())
+        evidence_total_size = sum(item.size or 0 for item in attachments)
+        appeal.evidence_file_count = len(attachments)
         appeal.evidence_total_mb = round(evidence_total_size / 1024 / 1024, 2)
         appeal.extra_evidence_state = _appeal_extra_evidence_state(appeal)
         appeal.extra_evidence_label = _appeal_extra_evidence_label(appeal.extra_evidence_state)
@@ -1997,6 +2001,7 @@ def moderation_appeal_queue(request):
     paginator = Paginator(filtered_qs.order_by("-created_at"), 25)
     page_obj = paginator.get_page(request.GET.get("page"))
     appeals = list(page_obj.object_list)
+    prefetch_related_objects(appeals, "attachments")
 
     for appeal in appeals:
         attachments = list(appeal.attachments.all())
