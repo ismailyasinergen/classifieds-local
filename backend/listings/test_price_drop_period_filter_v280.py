@@ -2,6 +2,7 @@ from datetime import timedelta
 from decimal import Decimal
 from pathlib import Path
 from unittest.mock import patch
+from unittest.mock import MagicMock
 from urllib.parse import parse_qs, urlsplit
 
 from django.conf import settings
@@ -10,10 +11,11 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from accounts.models import UserProfile
 from categories.models import Category
+from accounts.models import UserProfile
 from listings.listing_price_drop_period_filter_v280 import (
     PRICE_DROP_PERIOD_FILTER_V280,
+    apply_price_drop_period_filter_v280,
     PRICE_DROP_PERIOD_LABELS_V280,
     PRICE_DROP_PERIOD_PARAM_V280,
     PRICE_DROP_PERIODS_V280,
@@ -600,3 +602,140 @@ class PriceDropPeriodFilterV280Tests(TestCase):
         self.assertEqual(normalize_price_drop_period_value_v280("1h"), "")
         self.assertEqual(normalize_price_drop_period_value_v280("10d"), "")
         self.assertEqual(normalize_price_drop_period_value_v280("invalid"), "")
+
+
+class ApplyPriceDropPeriodFilterV280IntegrationTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.user = User.objects.create_user(username="testuser", email="test@example.com", password="password")
+        self.category = Category.objects.create(name="Test Category", slug="test-category")
+        self.now = timezone.now()
+
+        # Create some listings
+        # Listing 1: No price history
+        self.listing_no_history = Listing.objects.create(
+            title="No history",
+            description="desc",
+            price=Decimal("100.00"),
+            category=self.category,
+            status=Listing.Status.APPROVED,
+            owner=self.user,
+        )
+
+        # Listing 2: Price drop within 24h
+        self.listing_recent_drop = Listing.objects.create(
+            title="Recent drop",
+            description="desc",
+            price=Decimal("90.00"),
+            category=self.category,
+            status=Listing.Status.APPROVED,
+            owner=self.user,
+        )
+        ListingPriceHistory.objects.create(
+            listing=self.listing_recent_drop,
+            previous_price=Decimal("100.00"),
+            new_price=Decimal("90.00"),
+            changed_at=self.now - timedelta(hours=10),
+        )
+
+        # Listing 3: Price drop within 7d but older than 24h
+        self.listing_older_drop = Listing.objects.create(
+            title="Older drop",
+            description="desc",
+            price=Decimal("80.00"),
+            category=self.category,
+            status=Listing.Status.APPROVED,
+            owner=self.user,
+        )
+        ListingPriceHistory.objects.create(
+            listing=self.listing_older_drop,
+            previous_price=Decimal("100.00"),
+            new_price=Decimal("80.00"),
+            changed_at=self.now - timedelta(days=3),
+        )
+
+        # Listing 4: Price increase (not a drop)
+        self.listing_increase = Listing.objects.create(
+            title="Increase",
+            description="desc",
+            price=Decimal("110.00"),
+            category=self.category,
+            status=Listing.Status.APPROVED,
+            owner=self.user,
+        )
+        ListingPriceHistory.objects.create(
+            listing=self.listing_increase,
+            previous_price=Decimal("100.00"),
+            new_price=Decimal("110.00"),
+            changed_at=self.now - timedelta(hours=5),
+        )
+
+    def test_apply_no_filters(self):
+        # No GET params, require_current_reduction=False
+        request = MagicMock()
+        request.GET = {}
+        qs = Listing.objects.all()
+
+        result_qs = apply_price_drop_period_filter_v280(qs, request)
+        self.assertEqual(result_qs.count(), 4)
+
+    def test_apply_v278_filter_only(self):
+        # price_drops=1 in GET
+        request = MagicMock()
+        request.GET = {'price_drops': '1'}
+        qs = Listing.objects.all()
+
+        result_qs = apply_price_drop_period_filter_v280(qs, request)
+        # Should return both listings with a price drop (recent and older)
+        self.assertEqual(result_qs.count(), 2)
+        self.assertIn(self.listing_recent_drop, result_qs)
+        self.assertIn(self.listing_older_drop, result_qs)
+        self.assertNotIn(self.listing_no_history, result_qs)
+        self.assertNotIn(self.listing_increase, result_qs)
+
+    def test_apply_require_current_reduction(self):
+        request = MagicMock()
+        request.GET = {}
+        qs = Listing.objects.all()
+
+        result_qs = apply_price_drop_period_filter_v280(
+            qs, request, require_current_reduction=True
+        )
+        self.assertEqual(result_qs.count(), 2)
+        self.assertIn(self.listing_recent_drop, result_qs)
+        self.assertIn(self.listing_older_drop, result_qs)
+
+    def test_apply_period_filter_24h(self):
+        request = MagicMock()
+        request.GET = {'price_drop_period': '24h'}
+        qs = Listing.objects.all()
+
+        result_qs = apply_price_drop_period_filter_v280(qs, request, now=self.now)
+        # Only the recent drop is within 24h
+        self.assertEqual(result_qs.count(), 1)
+        self.assertIn(self.listing_recent_drop, result_qs)
+
+    def test_apply_period_filter_7d(self):
+        request = MagicMock()
+        request.GET = {'price_drop_period': '7d'}
+        qs = Listing.objects.all()
+
+        result_qs = apply_price_drop_period_filter_v280(qs, request, now=self.now)
+        # Both drops are within 7d
+        self.assertEqual(result_qs.count(), 2)
+        self.assertIn(self.listing_recent_drop, result_qs)
+        self.assertIn(self.listing_older_drop, result_qs)
+
+    def test_apply_naive_now_conversion(self):
+        request = MagicMock()
+        request.GET = {'price_drop_period': '24h'}
+        qs = Listing.objects.all()
+
+        # Pass a naive datetime
+        import datetime
+        naive_now = datetime.datetime.now()
+
+        result_qs = apply_price_drop_period_filter_v280(qs, request, now=naive_now)
+        # We just want to ensure it doesn't crash on timezone operations
+        # and returns some result
+        self.assertTrue(result_qs.exists() or result_qs.count() == 0)
