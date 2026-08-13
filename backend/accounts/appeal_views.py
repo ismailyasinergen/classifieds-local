@@ -1292,32 +1292,38 @@ def _moderation_appeals_filtered_queryset(request, include_status=True):
 
 @staff_member_required
 def moderation_appeal_queue(request):
+    from django.db.models import Count, Sum, Q
+
     filtered_qs, filters = _moderation_appeals_filtered_queryset(request, include_status=True)
     count_qs, _ = _moderation_appeals_filtered_queryset(request, include_status=False)
 
-    all_matching_appeals = list(count_qs)
-
-    total_appeals = len(all_matching_appeals)
-    pending_count = sum(1 for appeal in all_matching_appeals if appeal.status == ModerationAppeal.Status.PENDING)
-    approved_count = sum(1 for appeal in all_matching_appeals if appeal.status == ModerationAppeal.Status.APPROVED)
-    rejected_count = sum(1 for appeal in all_matching_appeals if appeal.status == ModerationAppeal.Status.REJECTED)
-
-    waiting_extra_evidence_count = sum(
-        1 for appeal in all_matching_appeals
-        if _appeal_extra_evidence_state(appeal) == "waiting"
+    aggregate_data = count_qs.aggregate(
+        total_appeals=Count("id", distinct=True),
+        pending_count=Count("id", filter=Q(status=ModerationAppeal.Status.PENDING), distinct=True),
+        approved_count=Count("id", filter=Q(status=ModerationAppeal.Status.APPROVED), distinct=True),
+        rejected_count=Count("id", filter=Q(status=ModerationAppeal.Status.REJECTED), distinct=True),
+        waiting_extra_evidence_count=Count("id", filter=Q(
+            status=ModerationAppeal.Status.PENDING,
+            extra_evidence_requested_at__isnull=False,
+            extra_evidence_fulfilled_at__isnull=True
+        ), distinct=True),
+        fulfilled_extra_evidence_count=Count("id", filter=Q(
+            status=ModerationAppeal.Status.PENDING,
+            extra_evidence_requested_at__isnull=False,
+            extra_evidence_fulfilled_at__isnull=False
+        ), distinct=True),
+        total_evidence_files=Count("attachments"),
+        total_evidence_size=Sum("attachments__size")
     )
-    fulfilled_extra_evidence_count = sum(
-        1 for appeal in all_matching_appeals
-        if _appeal_extra_evidence_state(appeal) == "fulfilled"
-    )
 
-    total_evidence_files = 0
-    total_evidence_size = 0
-
-    for appeal in all_matching_appeals:
-        attachments = list(appeal.attachments.all())
-        total_evidence_files += len(attachments)
-        total_evidence_size += sum(item.size or 0 for item in attachments)
+    total_appeals = aggregate_data["total_appeals"]
+    pending_count = aggregate_data["pending_count"]
+    approved_count = aggregate_data["approved_count"]
+    rejected_count = aggregate_data["rejected_count"]
+    waiting_extra_evidence_count = aggregate_data["waiting_extra_evidence_count"]
+    fulfilled_extra_evidence_count = aggregate_data["fulfilled_extra_evidence_count"]
+    total_evidence_files = aggregate_data["total_evidence_files"] or 0
+    total_evidence_size = aggregate_data["total_evidence_size"] or 0
 
     paginator = Paginator(filtered_qs.order_by("-created_at"), 25)
     page_obj = paginator.get_page(request.GET.get("page"))
