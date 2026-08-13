@@ -82,6 +82,24 @@ class SavedSearchNotificationExplicitSendTestBackendV222Tests(TestCase):
         self.assertIsInstance(fields["last_notification_sent_at"], models.DateTimeField)
         self.assertTrue(fields["last_notification_sent_at"].null)
 
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend")
+    def test_get_saved_search_notification_email_backend_path_returns_setting(self):
+        from listings.saved_search_notification_email_sender import get_saved_search_notification_email_backend_path
+        self.assertEqual(
+            get_saved_search_notification_email_backend_path(),
+            "django.core.mail.backends.smtp.EmailBackend"
+        )
+
+    @override_settings()
+    def test_get_saved_search_notification_email_backend_path_returns_empty_fallback(self):
+        from listings.saved_search_notification_email_sender import get_saved_search_notification_email_backend_path
+        if hasattr(settings, 'EMAIL_BACKEND'):
+            del settings.EMAIL_BACKEND
+        self.assertEqual(
+            get_saved_search_notification_email_backend_path(),
+            ""
+        )
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_v222_detects_locmem_test_email_backend_as_safe(self):
         self.assertEqual(settings.EMAIL_BACKEND, V222_LOC_MEM_TEST_EMAIL_BACKEND)
