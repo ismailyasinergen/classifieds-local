@@ -145,6 +145,7 @@ def moderation_appeal_queue(request):
     total_evidence_files = 0
     total_evidence_size = 0
 
+    prefetch_related_objects(all_matching_appeals, "attachments")
     for appeal in all_matching_appeals:
         attachments = list(appeal.attachments.all())
         total_evidence_files += len(attachments)
@@ -155,6 +156,7 @@ def moderation_appeal_queue(request):
     appeals = list(page_obj.object_list)
     prefetch_related_objects(appeals, "attachments")
 
+    prefetch_related_objects(appeals, "attachments")
     for appeal in appeals:
         attachments = list(appeal.attachments.all())
         evidence_total_size = sum(item.size or 0 for item in attachments)
@@ -1320,6 +1322,14 @@ def moderation_appeal_queue(request):
         total_evidence_size=Sum("attachments__size")
     )
 
+    total_evidence_files = 0
+    total_evidence_size = 0
+
+    prefetch_related_objects(all_matching_appeals, "attachments")
+    for appeal in all_matching_appeals:
+        attachments = list(appeal.attachments.all())
+        total_evidence_files += len(attachments)
+        total_evidence_size += sum(item.size or 0 for item in attachments)
     total_appeals = aggregate_data["total_appeals"]
     pending_count = aggregate_data["pending_count"]
     approved_count = aggregate_data["approved_count"]
@@ -1334,6 +1344,7 @@ def moderation_appeal_queue(request):
     appeals = list(page_obj.object_list)
     prefetch_related_objects(appeals, "attachments")
 
+    prefetch_related_objects(appeals, "attachments")
     for appeal in appeals:
         attachments = list(appeal.attachments.all())
         evidence_total_size = sum(item.size or 0 for item in attachments)
@@ -2019,6 +2030,11 @@ def moderation_appeal_queue(request):
             extra_evidence_due_at__lte=reminder_window
         ), distinct=True),
 
+    prefetch_related_objects(all_matching_appeals, "attachments")
+    for appeal in all_matching_appeals:
+        attachments = list(appeal.attachments.all())
+        total_evidence_files += len(attachments)
+        total_evidence_size += sum(item.size or 0 for item in attachments)
         overdue_count=Count('id', filter=Q(
             status=ModerationAppeal.Status.PENDING,
             extra_evidence_requested_at__isnull=False,
@@ -2113,6 +2129,7 @@ def moderation_appeal_queue(request):
     appeals = list(page_obj.object_list)
     prefetch_related_objects(appeals, "attachments")
 
+    prefetch_related_objects(appeals, "attachments")
     for appeal in appeals:
         attachments = list(appeal.attachments.all())
         evidence_total_size = sum(item.size or 0 for item in attachments)
