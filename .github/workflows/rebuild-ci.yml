@@ -2,10 +2,6 @@ name: Rebuild verification
 
 on:
   pull_request:
-    paths:
-      - "rebuild/**"
-      - ".github/workflows/rebuild-ci.yml"
-      - "AGENTS.md"
   push:
     paths:
       - "rebuild/**"
