@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}İtirazım · Classifieds Local{% endblock %}{% block content %}
+<section class="panel case-page"><h1>İtirazım</h1>
+<h2>{{ item.title }}</h2><p class="case-text">{{ item.explanation }}</p><p>{% if item.outcome == "revoke" %}Yaptırım geri alındı.{% elif item.outcome == "uphold" %}Karar korundu.{% else %}İnceleme bekleniyor.{% endif %}</p>{% if item.reason %}<p class="case-text">{{ item.reason }}</p>{% endif %}<a href="{% url 'moderation:decision_detail' item.decision_id %}">Karara dön</a>
+</section>{% endblock %}

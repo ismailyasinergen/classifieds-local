@@ -1,0 +1,26 @@
+{
+  "events_outboxevent/events_valid_publication_type": [
+    "CHECK (((event_type)::text = ANY ((ARRAY['listing.revision_published'::character varying, 'listing.price_changed'::character varying])::text[])))",
+    "CHECK (((event_type)::text = ANY (ARRAY[('listing.revision_published'::character varying)::text, ('listing.price_changed'::character varying)::text])))"
+  ],
+  "listings_listing/listings_valid_lifecycle": [
+    "CHECK (((lifecycle)::text = ANY ((ARRAY['draft'::character varying, 'live'::character varying, 'paused'::character varying, 'closed'::character varying])::text[])))",
+    "CHECK (((lifecycle)::text = ANY (ARRAY[('draft'::character varying)::text, ('live'::character varying)::text, ('paused'::character varying)::text, ('closed'::character varying)::text])))"
+  ],
+  "listings_listingrevision/listings_valid_revision_status": [
+    "CHECK (((status)::text = ANY ((ARRAY['draft'::character varying, 'submitted'::character varying, 'approved'::character varying, 'rejected'::character varying, 'withdrawn'::character varying])::text[])))",
+    "CHECK (((status)::text = ANY (ARRAY[('draft'::character varying)::text, ('submitted'::character varying)::text, ('approved'::character varying)::text, ('rejected'::character varying)::text, ('withdrawn'::character varying)::text])))"
+  ],
+  "media_mediaasset/media_valid_asset_state": [
+    "CHECK (((state)::text = ANY ((ARRAY['pending'::character varying, 'ready'::character varying, 'failed'::character varying])::text[])))",
+    "CHECK (((state)::text = ANY (ARRAY[('pending'::character varying)::text, ('ready'::character varying)::text, ('failed'::character varying)::text])))"
+  ],
+  "moderation_appealdecision/case_appeal_valid_outcome": [
+    "CHECK (((outcome)::text = ANY ((ARRAY['uphold'::character varying, 'revoke'::character varying])::text[])))",
+    "CHECK (((outcome)::text = ANY (ARRAY[('uphold'::character varying)::text, ('revoke'::character varying)::text])))"
+  ],
+  "moderation_moderationdecision/moderation_valid_decision": [
+    "CHECK (((outcome)::text = ANY ((ARRAY['approved'::character varying, 'rejected'::character varying])::text[])))",
+    "CHECK (((outcome)::text = ANY (ARRAY[('approved'::character varying)::text, ('rejected'::character varying)::text])))"
+  ]
+}

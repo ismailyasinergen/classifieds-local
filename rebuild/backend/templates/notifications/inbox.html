@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block title %}Bildirimlerim{% endblock %}{% block content %}
+<h1>Bildirimlerim</h1><p>Yalnız uygulama içi bildirimlerdir; e-posta veya push gönderilmez.</p>
+{% for notice in page_obj %}<article class="panel">
+{% if notice.visible_listing %}<h2><a href="{% url 'listings:detail' notice.listing_id %}">{{ notice.visible_listing.public_revision.title }}</a></h2><p>{{ notice.visible_listing.public_revision.price }} {{ notice.visible_listing.public_revision.currency }}</p>{% else %}<p>İlan şu anda kullanılamıyor</p>{% endif %}
+<p>{% if notice.read_at %}Okundu{% else %}Okunmadı{% endif %}</p>
+<form method="post" action="{% url 'notifications:read' notice.pk %}">{% csrf_token %}<button type="submit">Okundu işaretle</button></form>
+<form method="post" action="{% url 'notifications:archive' notice.pk %}">{% csrf_token %}<button type="submit" class="secondary">Arşivle</button></form>
+</article>{% empty %}<p>Henüz bildiriminiz yok.</p>{% endfor %}{% include "listings/pagination.html" %}{% endblock %}

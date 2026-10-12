@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block title %}Kayıtlı Aramalarım{% endblock %}{% block content %}
+<h1>Kayıtlı Aramalarım</h1><p>En fazla 20 arama saklayabilirsiniz. Bildirimler varsayılan kapalıdır; açarsanız yalnız uygulama içindeki yeni ilan bildirimlerini alırsınız. E-posta veya push gönderilmez.</p>
+{% for search in page_obj %}<article class="panel"><h2>{{ search.name }}</h2>
+<a class="button" href="{% url 'notifications:open' search.pk %}">Aramayı aç</a>
+<a href="{% url 'notifications:rename' search.pk %}">Adını değiştir</a>
+{% if search.notifications_enabled %}<p>Uygulama içi bildirimler açık.</p><form method="post" action="{% url 'notifications:disable' search.pk %}">{% csrf_token %}<button type="submit">Bildirimleri durdur</button></form>{% else %}<form method="post" action="{% url 'notifications:enable' search.pk %}">{% csrf_token %}<button type="submit">Uygulama içi bildirimleri aç</button></form>{% endif %}
+{% if search.notification_error %}<p>Bu aramanın bildirim ölçütleri doğrulanamadı. Yeni bir arama kaydedin.</p>{% endif %}
+<form method="post" action="{% url 'notifications:delete' search.pk %}">{% csrf_token %}<button type="submit" class="secondary">Aramayı sil</button></form>
+</article>{% empty %}<p class="empty-state">Henüz kayıtlı aramanız yok. Arama sonuçlarından arama kaydedebilirsiniz.</p>{% endfor %}
+{% include "listings/pagination.html" %}{% endblock %}

@@ -1,0 +1,13 @@
+{
+  "version": "0.19.1",
+  "artifactUrl": "https://github.com/restic/restic/releases/download/v0.19.1/restic_0.19.1_windows_amd64.zip",
+  "checksumUrl": "https://github.com/restic/restic/releases/download/v0.19.1/SHA256SUMS",
+  "artifactSha256": "da948ad707ed690426473aaba2046cd61f8f90f6f0e7dab6be0d5796531de67d",
+  "checksumListSha256": "fb520966ee01d2a3d4219c66762c66efa56300833b6f639f36082b7462f91cb8",
+  "executableSha256": "b0dd1fd21eea5d8fe1325f55f7118213c21f36de8a261e04c0624a5ab9fd7830",
+  "executable": "C:/Users/ismai/AppData/Local/ClassifiedsRecovery/phase7/tools/restic-0.19.1/restic_0.19.1_windows_amd64.exe",
+  "verification": "official-release-api-digest-and-publisher-SHA256SUMS",
+  "signatureVerified": false,
+  "versionOutput": "restic 0.19.1 compiled with go1.26.4 on windows/amd64",
+  "versionExit": 0
+}

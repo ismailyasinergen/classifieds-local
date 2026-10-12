@@ -1,0 +1,75 @@
+x-ownership: &ownership
+  phase15.run: ${RECOVERY_RUN:?required}
+  phase15.role: ${RECOVERY_ROLE:?required}
+  phase15.attempt: ${RECOVERY_ATTEMPT:?required}
+services:
+  db:
+    labels: *ownership
+    image: postgres:17.11-bookworm@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
+    user: "999:999"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      POSTGRES_DB: recovery
+      POSTGRES_USER: recovery
+      POSTGRES_PASSWORD: ${RECOVERY_DB_PASSWORD:?required}
+    tmpfs:
+      - /var/lib/postgresql/data:rw,nosuid,noexec,size=2g,uid=999,gid=999,mode=0700
+      - /var/run/postgresql:rw,nosuid,noexec,size=8m,uid=999,gid=999
+      - /tmp:rw,nosuid,noexec,size=600m,uid=999,gid=999,mode=0700
+    healthcheck:
+      test: [CMD, pg_isready, -U, recovery, -d, recovery]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  redis:
+    labels: *ownership
+    image: redis:7.4.11-bookworm@sha256:4fa24486b8bcca8eec45ee0eb166edc674795e53a2b53d1a9ef263eecebaac85
+    user: "999:999"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    command: [redis-server, --save, "", --appendonly, "no"]
+    tmpfs:
+      - /data:rw,nosuid,noexec,size=64m,uid=999,gid=999,mode=0700
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  web:
+    labels: *ownership
+    image: sha256:23e5fe716cd2f2e73c189f035eb3df345ca155c1cd31c78bfdbd0c06839a1839
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    command: [python, -B, /ops/idle.py]
+    environment:
+      DJANGO_SECRET_KEY: ${RECOVERY_BOOT_KEY:?required}
+      DJANGO_SETTINGS_MODULE: recovery_settings
+      IN_APP_NOTIFICATIONS_ENABLED: "0"
+      PYTHONPATH: /ops:/app
+      POSTGRES_DB: recovery
+      POSTGRES_USER: recovery
+      POSTGRES_PASSWORD: ${RECOVERY_DB_PASSWORD:?required}
+      POSTGRES_HOST: db
+      RECOVERY_RUN: ${RECOVERY_RUN:?required}
+      RECOVERY_ROLE: ${RECOVERY_ROLE:?required}
+    volumes:
+      - type: bind
+        source: ${RECOVERY_OPS_ROOT:?required}
+        target: /ops
+        read_only: true
+    tmpfs:
+      - /var/lib/classifieds/media:rw,nosuid,noexec,size=512m,uid=1000,gid=1000,mode=0700
+      - /run:rw,nosuid,noexec,size=64m,uid=1000,gid=1000,mode=0700
+      - /tmp:rw,nosuid,noexec,size=64m,uid=1000,gid=1000,mode=0700
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_healthy}
+networks:
+  default:
+    internal: true
+    labels: *ownership

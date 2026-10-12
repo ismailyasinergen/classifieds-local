@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}İçerik bildir · Classifieds Local{% endblock %}{% block content %}
+<section class="panel case-page"><h1>İçerik bildir</h1>
+<p>Bu bildirim içeriği otomatik olarak kaldırmaz. İnceleme için nedeninizi açıklayın.</p><form method="post">{% csrf_token %}{% include "moderation/cases/_fields.html" %}<button type="submit">Bildirim gönder</button></form>
+</section>{% endblock %}

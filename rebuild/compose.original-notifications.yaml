@@ -1,0 +1,10 @@
+services:
+  web:
+    environment:
+      IN_APP_NOTIFICATIONS_ENABLED: "1"
+  worker:
+    environment:
+      IN_APP_NOTIFICATIONS_ENABLED: "1"
+  scheduler:
+    environment:
+      IN_APP_NOTIFICATIONS_ENABLED: "1"

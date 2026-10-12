@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ storefront_name }} · Satıcı vitrini{% endblock %}
+{% block content %}<div class="search-page"><section class="panel storefront-copy">
+{% if preview %}<p class="eyebrow">ÖZEL TASLAK ÖNİZLEMESİ</p><p>Bu tanıtım henüz public yayın olmayabilir. <a href="{% url 'storefronts:manage' %}">Vitrinime dön</a></p>{% else %}<p class="eyebrow">SATICI VİTRİNİ</p>{% endif %}
+<h1>{{ storefront_name }}</h1><div>{{ storefront_intro|linebreaksbr }}</div>
+</section>
+{% include "listings/search_filters.html" %}
+{% include "listings/search_results.html" %}
+</div>{% endblock %}

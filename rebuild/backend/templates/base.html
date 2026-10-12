@@ -1,0 +1,14 @@
+{% load static %}<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Classifieds Local{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'app.css' %}">
+{% block extra_head %}{% endblock %}
+<script src="{% static 'vendor/htmx-2.0.11.min.js' %}" integrity="sha384-2OatzQy1H+Zd/IIrjr1TcuDGqLXeHhbooAyJY1KdQMKnr4LZ22k31GBLdYKHmVjg" crossorigin="anonymous" defer></script>
+</head><body><a class="skip-link" href="#main">İçeriğe geç</a>
+<header class="site-header"><div class="header-inner">
+<a class="brand" href="{% url 'listings:index' %}" aria-label="Classifieds Local ana sayfa"><span class="brand-mark" aria-hidden="true">c<span>l</span></span><span>Classifieds <b>Local</b></span></a>
+<nav aria-label="Ana menü"><a href="{% url 'listings:index' %}">İlanlar</a>{% if user.is_authenticated %}<a href="{% url 'listings:dashboard' %}">İlanlarım</a><a href="{% url 'conversations:inbox' %}">Mesajlar</a>{% if perms.listings.review_listingrevision %}<a href="{% url 'moderation:queue' %}">İnceleme</a>{% endif %}<a href="{% url 'moderation:my_reports' %}">Şikâyetlerim</a><a href="{% url 'moderation:my_decisions' %}">Kararlarım</a>{% if perms.moderation.review_reports %}<a href="{% url 'moderation:report_queue' %}">Bildirim kuyruğu</a>{% endif %}{% if perms.moderation.review_appeals %}<a href="{% url 'moderation:appeal_queue' %}">İtiraz kuyruğu</a>{% endif %}<a href="{% url 'listings:favorites' %}">Favorilerim</a><a href="{% url 'notifications:index' %}">Kayıtlı Aramalarım</a><a href="{% url 'notification_inbox' %}">Bildirimlerim{% if unread_notification_count %} ({{ unread_notification_count }} okunmamış){% endif %}</a><a href="{% url 'storefronts:manage' %}">Vitrinim</a><a href="{% url 'accounts:security' %}">Güvenlik</a><a href="{% url 'account_logout' %}">Çıkış</a>{% else %}<a href="{% url 'account_login' %}">Giriş yap</a>{% endif %}<a class="button small" href="{% url 'listings:create' %}"><span aria-hidden="true">+</span> İlan ver</a></nav>
+</div></header>
+<main id="main" class="container" tabindex="-1">{% if messages %}<div class="messages" role="status">{% for message in messages %}<p>{{ message }}</p>{% endfor %}</div>{% endif %}{% if "/accounts/" in request.path %}<div class="account-shell panel">{% endif %}{% block content %}{% endblock %}{% if "/accounts/" in request.path %}</div>{% endif %}</main>
+<footer class="site-footer"><div class="container"><span class="footer-brand">Classifieds Local</span><p>Yerel ilanlar. Açık bilgiler. Kontrollü yayın.</p><span>Hazırla. İncele. Yayımla.</span></div></footer>
+{% block extra_body %}{% endblock %}</body></html>

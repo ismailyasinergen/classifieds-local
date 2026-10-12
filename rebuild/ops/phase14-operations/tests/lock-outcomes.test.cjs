@@ -1,0 +1,16 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const root=path.resolve(__dirname,'..');
+function load(file,mocks){const module={exports:{}};vm.runInNewContext(fs.readFileSync(path.join(root,file),'utf8'),{require:n=>Object.hasOwn(mocks,n)?mocks[n]:require(n.startsWith('.')?path.resolve(root,n):n),module,__dirname:root,process:{pid:123,env:{},exitCode:0},Buffer,JSON,console:{log(){}}});return module.exports;}
+test('actual inner lock constructor retention survives capture finally and CLI',async()=>{
+ let unlink=0,closed=0;
+ const lock=load('lock.cjs',{'node:fs':{openSync:()=>1,fstatSync:()=>({ino:1,dev:2}),writeFileSync(){throw Error('synthetic_write');},closeSync(){},lstatSync:()=>({ino:1,dev:2,isFile:()=>true,isSymbolicLink:()=>false}),unlinkSync(){unlink++;throw Error('synthetic_unlink');}}});
+ const capture=load('original-capture.cjs',{'./gate.cjs':{verifyReview(){}},'./inspect.cjs':{verifySources:()=>[],developer:root},'node:fs':{writeFileSync(){}},'./original-source.cjs':{bindOriginal:()=>({run:'a'.repeat(16),inspect:()=>({})}),createOriginalMediaReader:()=>({close(){closed++;}})},'./lock.cjs':lock});
+ let error;try{await capture.captureOriginal(()=>({path:'synthetic'}),{});}catch(e){error=e;}
+ assert.equal(unlink,1);assert.equal(closed,1);assert.equal(error.message,'receipt_write_failed');assert.equal(error.receipt.lockCleanup,'cleanup_blocked');assert.equal(require('../lifecycle.cjs').failureOutput(error).lockCleanup,'cleanup_blocked');
+});
+test('actual outer capture entry preserves failed bundle lock after successful outer release',async()=>{
+ let released=0;const baseline={runtime:Array.from({length:10},(_,i)=>({environment:'synthetic',service:String(i),id:String(i),image:'fixed',configHash:'fixed',flag:true,mounts:[],networks:{},ports:{}}))};const entry=load('capture-entry.cjs',{'./gate.cjs':{verifyReview:()=>''},'./inspect.cjs':{developer:root,compareRuntime:require('../inspect.cjs').compareRuntime,inspectBaseline:()=>baseline},'node:fs':{readFileSync:()=>Buffer.from(JSON.stringify(baseline)),writeFileSync(){}},'./lock.cjs':{acquireLock:()=>()=>{released++;}},'../recovery/health-observer.cjs':{startHealthObservation:()=>({ready:Promise.resolve([{http:200,category:null},{http:200,category:null}]),stop:async()=>({status:'complete',records:[]})})},'./original-capture.cjs':{captureOriginal:async()=>{throw Object.assign(Error('pipeline_failed'),{receipt:{status:'failed',lockCleanup:'cleanup_blocked'}});}}});
+ let error;try{await entry.main();}catch(e){error=e;}assert.equal(released,1);assert.equal(error.message,'pipeline_failed');assert.equal(error.receipt.lockCleanup,'cleanup_blocked');assert.equal(require('../lifecycle.cjs').failureOutput(error).lockCleanup,'cleanup_blocked');
+});
+test('outer lock acquisition failure reaches safe CLI without a returned handle',async()=>{const entry=load('capture-entry.cjs',{'./gate.cjs':{verifyReview:()=>''},'./inspect.cjs':{developer:root},'./lock.cjs':{acquireLock(){throw Object.assign(Error('receipt_write_failed'),{lockCleanup:'cleanup_blocked'});}}});let error;try{await entry.main();}catch(e){error=e;}assert.equal(error.message,'receipt_write_failed');assert.equal(require('../lifecycle.cjs').failureOutput(error).lockCleanup,'cleanup_blocked');});

@@ -1,1 +1,4 @@
 *.sh text eol=lf
+
+# Preserve accepted CRLF bytes while retaining ordinary whitespace checks.
+rebuild/** whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

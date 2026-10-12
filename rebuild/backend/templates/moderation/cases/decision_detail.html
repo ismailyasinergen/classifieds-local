@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}Kararım · Classifieds Local{% endblock %}{% block content %}
+<section class="panel case-page"><h1>Kararım</h1>
+<h2>{{ item.title }}</h2><p>{% if item.action == "hide_listing" %}İlan gizlendi.{% else %}Mesajlaşma kısıtlandı.{% endif %}</p><p class="case-text">{{ item.reason }}</p><p>{% if item.state == "revoked" %}Yaptırım geri alındı.{% elif item.state == "expired" %}Yaptırımın süresi doldu.{% elif item.state == "active" %}Yaptırım etkin.{% elif item.state == "scheduled" %}Yaptırım planlandı.{% endif %}</p>{% if item.ends_at %}<p>Bitiş: {{ item.ends_at|date:"j F Y H:i" }}</p>{% endif %}{% if item.appeal_id %}<a href="{% url 'moderation:appeal_detail' item.appeal_id %}">İtirazımı görüntüle</a>{% else %}<a href="{% url 'moderation:submit_appeal' item.id %}">Karara itiraz et</a>{% endif %}
+</section>{% endblock %}

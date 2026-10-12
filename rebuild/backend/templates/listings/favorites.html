@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block title %}Favorilerim{% endblock %}{% block content %}
+<h1>Favorilerim</h1><p>En fazla 200 ilan saklayabilirsiniz. Bu liste yalnız size özeldir.</p>
+<div class="listing-grid">{% for favorite in page_obj %}<article class="panel">
+{% with listing=favorite.visible_listing %}{% if listing %}{% with revision=listing.public_revision %}
+<h2><a href="{% url 'listings:detail' listing.pk %}">{{ revision.title }}</a></h2>
+{% with image=revision.images.all|first %}{% if image %}<img class="card-image" src="{% url 'listings:public_image' listing.pk revision.pk image.asset_id %}" alt="{{ revision.title }} – ilan fotoğrafı" loading="lazy">{% endif %}{% endwith %}
+<p>{{ revision.price }} {{ revision.currency }}</p>{% endwith %}{% else %}<h2>İlan şu anda kullanılamıyor</h2>{% endif %}{% endwith %}
+<form method="post" action="{% url 'listings:favorite_remove' favorite.listing_id %}">{% csrf_token %}<button type="submit" class="secondary">Favorilerden kaldır</button></form>
+</article>{% empty %}<p class="empty-state">Henüz favoriniz yok. İlan detayından favori ekleyebilirsiniz.</p>{% endfor %}</div>
+{% include "listings/pagination.html" %}{% endblock %}

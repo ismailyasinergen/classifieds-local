@@ -1,0 +1,4 @@
+{% if form.errors %}<div class="error-panel" role="alert" aria-labelledby="mfa-errors"><h2 id="mfa-errors">Doğrulama tamamlanamadı</h2>{{ form.non_field_errors }}{% for field in form %}{% if field.errors %}<p><a href="#{{ field.id_for_label }}">{% if field.name == "code" %}Doğrulama kodu{% else %}{{ field.label }}{% endif %}</a>: {{ field.errors|striptags }}</p>{% endif %}{% endfor %}</div>{% endif %}
+<form method="post">{% csrf_token %}{% for field in form %}{% if field.is_hidden %}{{ field }}{% else %}<p><label for="{{ field.id_for_label }}">{% if field.name == "code" %}Doğrulama kodu{% else %}{{ field.label }}{% endif %}</label>{{ field }}{% if field.help_text %}<span class="help-text">{{ field.help_text }}</span>{% endif %}</p>{% endif %}{% endfor %}
+{% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+<button type="submit">{{ submit_label|default:"Doğrula" }}</button></form>
