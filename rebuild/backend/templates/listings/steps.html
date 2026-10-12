@@ -1,0 +1,6 @@
+<nav class="steps" aria-label="İlan oluşturma adımları">
+{% if revision %}<span class="step done"><b>1</b> Kategori</span>
+<a class="step {% if step == 'photos' %}active{% endif %}" {% if step == 'photos' %}aria-current="step"{% endif %} href="{% url 'listings:edit' revision.pk %}"><b>2</b> Fotoğraflar</a>
+<a class="step {% if step == 'details' %}active{% endif %}" {% if step == 'details' %}aria-current="step"{% endif %} href="{% url 'listings:edit' revision.pk %}?step=details"><b>3</b> Detaylar</a>
+<a class="step {% if step == 'preview' %}active{% endif %}" {% if step == 'preview' %}aria-current="step"{% endif %} href="{% url 'listings:preview' revision.pk %}"><b>4</b> Önizleme</a>
+{% else %}<span class="step active" aria-current="step"><b>1</b> Kategori</span><span class="step"><b>2</b> Fotoğraflar</span><span class="step"><b>3</b> Detaylar</span><span class="step"><b>4</b> Önizleme</span>{% endif %}</nav>

@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}Bildirimlerim · Classifieds Local{% endblock %}{% block content %}
+<section class="panel case-page"><h1>Bildirimlerim</h1>
+<ul class="case-list">{% for item in items %}<li><a href="{% url 'moderation:report_detail' item.id %}">{{ item.title }}</a> <time>{% if item.created_at %}{{ item.created_at|date:"j F Y H:i" }}{% else %}{{ item.decided_at|date:"j F Y H:i" }}{% endif %}</time></li>{% empty %}<li>Gösterilecek dosya yok.</li>{% endfor %}</ul>{% include "moderation/cases/_pagination.html" %}
+</section>{% endblock %}

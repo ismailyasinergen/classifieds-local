@@ -1,0 +1,78 @@
+name: classifieds-rebuild
+x-app: &app
+  build:
+    context: .
+  image: classifieds-rebuild-web:local
+  platform: linux/amd64
+  environment: &app-env
+    DJANGO_SECRET_KEY: ${REBUILD_SECRET_KEY:-local-development-change-before-sharing}
+    DJANGO_DEBUG: ${REBUILD_DEBUG:-1}
+    DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,web,testserver
+    POSTGRES_DB: ${REBUILD_DB_NAME:-classifieds_rebuild}
+    POSTGRES_USER: ${REBUILD_DB_USER:-classifieds_rebuild}
+    POSTGRES_PASSWORD: ${REBUILD_DB_PASSWORD:-local-rebuild-development}
+    POSTGRES_HOST: db
+    POSTGRES_PORT: "5432"
+    CELERY_BROKER_URL: redis://redis:6379/0
+    PILOT_NEW_CONTACTS_PER_HOUR: ${PILOT_NEW_CONTACTS_PER_HOUR:-10}
+    PILOT_MESSAGES_PER_HOUR: ${PILOT_MESSAGES_PER_HOUR:-120}
+    PILOT_NEW_LISTINGS_PER_DAY: ${PILOT_NEW_LISTINGS_PER_DAY:-10}
+    PILOT_REPORTS_PER_DAY: ${PILOT_REPORTS_PER_DAY:-20}
+    PILOT_APPEALS_PER_DAY: ${PILOT_APPEALS_PER_DAY:-10}
+  volumes:
+    - ./backend:/app:ro
+    - rebuild_media:/var/lib/classifieds/media
+    - rebuild_static:/var/lib/classifieds/static
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+services:
+  db:
+    image: postgres:17.11-bookworm@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
+    environment:
+      POSTGRES_DB: ${REBUILD_DB_NAME:-classifieds_rebuild}
+      POSTGRES_USER: ${REBUILD_DB_USER:-classifieds_rebuild}
+      POSTGRES_PASSWORD: ${REBUILD_DB_PASSWORD:-local-rebuild-development}
+    volumes:
+      - rebuild_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+  redis:
+    image: redis:7.4.11-bookworm@sha256:4fa24486b8bcca8eec45ee0eb166edc674795e53a2b53d1a9ef263eecebaac85
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - rebuild_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+  web:
+    <<: *app
+    ports:
+      - "127.0.0.1:8088:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/').read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  worker:
+    <<: *app
+    command: ["celery", "-A", "config", "worker", "--loglevel=info", "--concurrency=2"]
+  scheduler:
+    <<: *app
+    command: ["celery", "-A", "config", "beat", "--loglevel=info", "--schedule=/var/lib/classifieds/celery/celerybeat-schedule"]
+    volumes:
+      - ./backend:/app:ro
+      - rebuild_scheduler:/var/lib/classifieds/celery
+volumes:
+  rebuild_postgres:
+  rebuild_redis:
+  rebuild_media:
+  rebuild_static:
+  rebuild_scheduler:

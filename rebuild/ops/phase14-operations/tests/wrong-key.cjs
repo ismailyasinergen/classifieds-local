@@ -1,0 +1,11 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),cp=require('node:child_process'),assert=require('node:assert/strict');
+const {docs,hash}=require('../inspect.cjs');
+const repoId=process.argv[2];assert(/^[a-f0-9]{32}$/.test(repoId));
+const receipt=fs.readdirSync(docs).filter(n=>/^synthetic-[a-f0-9]{16}\.json$/.test(n)).map(n=>JSON.parse(fs.readFileSync(path.join(docs,n)))).find(r=>r.repoId===repoId&&r.sourceKind==='synthetic'&&r.bundleId);
+assert(receipt,'synthetic_repository_required');
+const lock=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../../recovery/tool-lock.json')));assert.equal(hash(fs.readFileSync(lock.executable)),lock.executableSha256);
+const env={};for(const k of ['SystemRoot','TEMP','TMP','PATH','USERPROFILE','LOCALAPPDATA'])if(process.env[k])env[k]=process.env[k];env.RESTIC_PASSWORD=crypto.randomBytes(32).toString('base64');
+const r=cp.spawnSync(lock.executable,['--no-cache','--repo','C:/Users/ismai/AppData/Local/ClassifiedsRecovery/phase7/repositories/'+repoId,'snapshots','--json'],{env,windowsHide:true,encoding:'utf8',timeout:20000,maxBuffer:32768});delete env.RESTIC_PASSWORD;
+assert.equal(r.error,undefined);assert(Number.isInteger(r.status)&&r.status!==0);assert(/wrong password|no key found/i.test(r.stderr));
+const result={pass:true,tests:1,wrongKeyRejected:true,resticNativeExit:r.status,runnerNativeExit:0,originalEnvelopeUnmodified:true,syntheticOnly:true};fs.writeFileSync(path.join(docs,'wrong-key-'+repoId+'.json'),JSON.stringify(result,null,2)+'\n',{flag:'wx'});console.log(JSON.stringify(result));

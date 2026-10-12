@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block title %}Doğrulama gerekiyor{% endblock %}{% block content %}
+<div class="narrow panel"><h1>Doğrulama gerekiyor</h1><p>Bu işlem kaydedilmedi. Önce hesap güvenliği adımını tamamlayın, sonra ilgili sayfadan işlemi yeniden başlatın.</p><p>Gönderdiğiniz bilgiler saklanmadı ve işlem otomatik olarak tekrarlanmayacak.</p><a class="button" href="{{ remediation_url }}">Doğrulamaya geç</a> <a href="{% url 'accounts:security' %}">Güvenlik durumu</a></div>{% endblock %}

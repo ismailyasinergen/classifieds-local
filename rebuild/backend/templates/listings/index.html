@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}Yerel ilanları keşfet · Classifieds Local{% endblock %}
+{% block content %}<div class="search-page">
+<section class="hero"><div><p class="eyebrow">YAKININDAKİ YENİ İHTİMALLER</p><h1>Aradığın şey,<br><span>burada olabilir.</span></h1><p>Vasıta, emlak ve daha fazlası. İncelenerek onaylanmış ilanları keşfet.</p><a class="button" href="{% url 'listings:create' %}">İlk adımı at · İlan ver <span aria-hidden="true">↗</span></a></div><div class="hero-note"><span class="note-symbol" aria-hidden="true">↗</span><p>Bir ilanın hikâyesi<br><strong>seninle başlar.</strong></p><span>Kategorini seç, bilgilerini ekle.<br>İnceleme sonrası burada yerini alsın.</span></div></section>
+{% include "listings/search_filters.html" %}
+{% if search_valid %}{% if user.is_authenticated %}<section class="panel" aria-labelledby="save-search-heading"><h2 id="save-search-heading">Aramayı kaydet</h2><p>Bu işlem otomatik bildirim veya e-posta göndermez.</p><form method="post" action="{% url 'notifications:save' %}">{% csrf_token %}{{ save_search_form.as_p }}<button type="submit">Aramayı kaydet</button></form></section>{% else %}<p>Favori eklemek ve arama kaydetmek için <a href="{% url 'account_login' %}">giriş yapın</a>.</p>{% endif %}{% endif %}
+{% include "listings/search_results.html" %}
+</div>{% endblock %}

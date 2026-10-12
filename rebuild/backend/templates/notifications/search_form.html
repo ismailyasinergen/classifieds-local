@@ -1,0 +1,3 @@
+{% extends "base.html" %}{% block content %}<h1>{{ title }}</h1>
+<form method="post" class="panel">{% csrf_token %}{{ form.as_p }}<button type="submit">Kaydet</button></form>
+<p><a href="{% url 'notifications:index' %}">Kayıtlı Aramalarım</a></p>{% endblock %}

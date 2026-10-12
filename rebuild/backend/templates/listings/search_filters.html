@@ -1,0 +1,15 @@
+{% url 'listings:index' as default_search_url %}
+<section class="search-panel" aria-labelledby="search-heading">
+<div class="search-intro"><div><p class="eyebrow">SANA UYGUN İLANLARI BUL</p><h2 id="search-heading">{{ search_heading|default:"İlanlarda ara" }}</h2></div><a href="{{ search_url|default:default_search_url }}" class="search-reset">Filtreleri temizle</a></div>
+<p class="helptext">Yalnız güncel, onaylı ilanlar aranır. Fiyat karşılaştırmak için para birimi seçin.</p>
+{% if search_form.errors %}<div class="error-panel" role="alert" id="search-errors"><h3>Arama ölçütlerini kontrol edin</h3><p>İşaretli alanları düzeltip yeniden arayın. Bu ölçütlerle arama yapılmadı.</p>
+<ul>{% for field in search_form %}{% if not field.is_hidden %}{% for error in field.errors %}<li><a href="#{{ field.id_for_label }}">{{ field.label }}: {{ error }}</a></li>{% endfor %}{% endif %}{% endfor %}{% for error in search_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+{% if search_form.previous_attributes %}<h4>Önceki kategori filtreleri</h4><p>Kategoriyi uygula düğmesi bu değerleri temizler.</p><dl>{% for label, value in search_form.previous_attributes %}<dt>{{ label }}</dt><dd>{{ value }}</dd>{% endfor %}</dl>{% endif %}
+</div>{% endif %}
+<form method="get" action="{{ search_url|default:default_search_url }}" class="search-form" novalidate>
+{% for field in search_form.hidden_fields %}{{ field }}{% endfor %}
+<div class="search-common-grid">{% for field in search_form.common_fields %}{% include "listings/search_field.html" %}{% endfor %}</div>
+<datalist id="search-currencies"><option value="TRY"><option value="EUR"><option value="USD"></datalist>
+{% if search_form.attribute_fields %}<fieldset class="search-attributes"><legend>Kategoriye özel filtreler</legend><p class="helptext">Kategori değiştirirken “Kategoriyi uygula” düğmesini kullanın; önceki kategori filtreleri temizlenir.</p><div class="search-attribute-grid">{% for field in search_form.attribute_fields %}{% include "listings/search_field.html" %}{% endfor %}</div></fieldset>{% else %}<p class="search-category-note helptext">Kategoriye özel filtreler için bir kategori seçip “Kategoriyi uygula” düğmesine basın. Alt kategoriler dahil seçeneğinde ortak ölçütlerle arama yapabilirsiniz.</p>{% endif %}
+<div class="search-actions"><button type="submit" class="button">Ara <span aria-hidden="true">↗</span></button><button type="submit" class="button secondary" name="category_apply" value="1" formnovalidate>Kategoriyi uygula</button></div>
+</form></section>

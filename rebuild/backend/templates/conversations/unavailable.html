@@ -1,0 +1,3 @@
+{% extends "base.html" %}{% block title %}Görüşme · Classifieds Local{% endblock %}{% block content %}
+<section class="panel conversation-shell"><h1>{% if status == 404 %}Görüşme bulunamadı.{% elif status == 403 %}Bu işlem şu anda yapılamıyor.{% else %}Geçerli bilgileri kontrol edin.{% endif %}</h1>
+<p>Mesajlarınıza dönerek devam edebilirsiniz.</p><a href="{% url 'conversations:inbox' %}">Gelen kutusu</a></section>{% endblock %}

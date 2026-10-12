@@ -1,0 +1,132 @@
+name: Rebuild verification
+
+on:
+  pull_request:
+    paths:
+      - "rebuild/**"
+      - ".github/workflows/rebuild-ci.yml"
+      - "AGENTS.md"
+  push:
+    paths:
+      - "rebuild/**"
+      - ".github/workflows/rebuild-ci.yml"
+      - "AGENTS.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          clean: false
+          fetch-depth: 1
+
+      - name: Inspect source packaging
+        run: |
+          set -euo pipefail
+          docker version --format '{{.Client.Version}} / {{.Server.Version}}'
+          docker compose version
+          test ! -e .env
+          test ! -e rebuild/.env
+          if find rebuild/backend -type f \( -name '.env' -o -name '.env.*' -o -name '*.sqlite3' -o -name '*.db' -o -name '.coverage' -o -name '*.pyc' -o -name '*.log' \) -print -quit | grep -q .; then
+            echo "Unexpected generated or private backend artifact."
+            exit 1
+          fi
+          while IFS= read -r -d '' source; do
+            git ls-files --error-unmatch -- "$source"
+          done < <(find rebuild/backend/media -type f -name '*.py' -print0)
+          # Check complete committed source too; a fresh checkout has no working-tree diff.
+          source_manifest=(
+            "rebuild/.gitignore"
+            "rebuild/.dockerignore"
+            "rebuild/.env.example"
+            "rebuild/compose.yaml"
+            "rebuild/compose.dev.yaml"
+            "rebuild/Dockerfile"
+            "rebuild/requirements.in"
+            "rebuild/requirements.lock"
+            "rebuild/browser-tests/journey.cjs"
+            "rebuild/browser-tests/search.cjs"
+            "rebuild/browser-tests/conversations.cjs"
+            "rebuild/README.md"
+            "rebuild/docs/VERIFICATION.md"
+            "rebuild/docs/LOCAL_SETUP.md"
+            "rebuild/docs/implementation/INTERFACES.md"
+            "rebuild/docs/SEARCH_VERIFICATION.md"
+            "rebuild/docs/CONVERSATIONS_VERIFICATION.md"
+            ".github/workflows/rebuild-ci.yml"
+          )
+          while IFS= read -r -d '' source; do
+            source_manifest+=("$source")
+          done < <(find rebuild/backend -type f -print0)
+          for source in "${source_manifest[@]}"; do
+            test -f "$source"
+            status=0
+            diagnostic=$(git --no-optional-locks --no-pager -c core.autocrlf=false diff --no-index --check -- /dev/null "$source") || status=$?
+            # Exit 1 can mean nonempty content differs from /dev/null; diagnostics are failures.
+            if (( status > 1 )) || [[ -n "$diagnostic" ]]; then
+              echo "Source whitespace check failed: $source (exit $status)"
+              printf '%s\n' "$diagnostic"
+              exit 1
+            fi
+          done
+
+      - name: Build locked new image
+        run: docker compose -f rebuild/compose.yaml -p classifieds-rebuild build web
+
+      - name: Start new database and Redis
+        run: docker compose -f rebuild/compose.yaml -p classifieds-rebuild up -d --no-build --wait --wait-timeout 120 db redis
+
+      - name: Start new web
+        run: docker compose -f rebuild/compose.yaml -p classifieds-rebuild up -d --no-build --wait --wait-timeout 120 web
+
+      - name: Migrate and prepare local catalog
+        run: |
+          set -euo pipefail
+          docker compose -f rebuild/compose.yaml -p classifieds-rebuild exec -T web python manage.py migrate --noinput
+          docker compose -f rebuild/compose.yaml -p classifieds-rebuild exec -T web python manage.py setup_local --domain 127.0.0.1:8088
+
+      - name: Start new worker and scheduler
+        run: docker compose -f rebuild/compose.yaml -p classifieds-rebuild up -d --no-build --wait --wait-timeout 120 worker scheduler
+
+      - name: Package and Django checks
+        run: |
+          set -euo pipefail
+          docker compose -f rebuild/compose.yaml -p classifieds-rebuild exec -T web python -m pip check
+          docker compose -f rebuild/compose.yaml -p classifieds-rebuild exec -T web python manage.py check
+          docker compose -f rebuild/compose.yaml -p classifieds-rebuild exec -T web python manage.py makemigrations --check --dry-run
+          docker compose -f rebuild/compose.yaml -p classifieds-rebuild exec -T web python manage.py migrate --check
+
+      - name: Planned targeted new suite
+        run: docker compose -f rebuild/compose.yaml -p classifieds-rebuild exec -T web python manage.py test catalog listings media moderation --verbosity 1
+
+      - name: Full new suite
+        run: docker compose -f rebuild/compose.yaml -p classifieds-rebuild exec -T web python manage.py test --verbosity 1
+
+      - name: New service signals
+        run: |
+          set -euo pipefail
+          docker compose -f rebuild/compose.yaml -p classifieds-rebuild ps
+          docker compose -f rebuild/compose.yaml -p classifieds-rebuild exec -T web celery -A config inspect ping --timeout 5
+          curl --fail --silent --show-error http://127.0.0.1:8088/health/
+          curl --fail --silent --show-error --output /dev/null http://127.0.0.1:8088/
+
+      - name: Clean this ephemeral runner project
+        if: always()
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_ACTIONS:-}" == "true" && "${RUNNER_ENVIRONMENT:-}" == "github-hosted" ]]; then
+            docker compose -f rebuild/compose.yaml -p classifieds-rebuild down --volumes --remove-orphans
+          else
+            echo "Cleanup skipped outside a GitHub-hosted Actions runner."
+          fi

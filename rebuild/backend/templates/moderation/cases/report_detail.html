@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}Bildirimim · Classifieds Local{% endblock %}{% block content %}
+<section class="panel case-page"><h1>Bildirimim</h1>
+<h2>{{ item.title }}</h2><p class="case-text">{{ item.explanation }}</p><p>{% if item.status == "resolved" %}İnceleme tamamlandı.{% else %}İnceleme bekleniyor.{% endif %}</p><a href="{% url 'moderation:my_reports' %}">Bildirimlerime dön</a>
+</section>{% endblock %}

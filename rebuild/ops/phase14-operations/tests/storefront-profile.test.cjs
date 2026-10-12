@@ -1,0 +1,11 @@
+const test=require('node:test'),assert=require('node:assert/strict');
+const p=require('../inspect.cjs');
+const state=require('../../../docs/phase14/adoption-state.json');
+test('actual Phase14 acceptance and 319 explicit paths',()=>{assert(p.validateRelease(state));assert.equal(p.verifySources().length,319);});
+test('every private env example except exact product example is refused',()=>{for(const s of ['.env','rebuild/.env.local','rebuild/private/.env.example','rebuild/.ENV.prod'])assert(p.isPrivateEnv(s));assert(!p.isPrivateEnv('rebuild/.env.example'));});
+const mounts=[{Type:'bind',Source:'C:/Users/ismai/Desktop/classifieds_local/rebuild/backend',Destination:'/app',RW:false,Mode:'ro',Propagation:'rprivate'},{Type:'volume',Source:'/var/lib/docker/volumes/exact/_data',Name:'exact',Destination:'/media',RW:true,Mode:'z',Propagation:''}];
+test('mount order and demonstrated Desktop alias preserve exact semantics',()=>assert(p.compareMounts([...mounts].reverse().map(m=>({...m,Source:m.Type==='bind'?'/run/desktop/mnt/host/c/Users/ismai/Desktop/classifieds_local/rebuild/backend':m.Source})),mounts)));
+test('native Windows path separators match only exact pinned path',()=>{assert(p.sourceAlias('C:\\Users\\ismai\\Desktop\\classifieds_local\\rebuild\\backend','C:/Users/ismai/Desktop/classifieds_local/rebuild/backend'));assert(!p.sourceAlias('C:/Users/another/Desktop/classifieds_local/rebuild/backend','C:/Users/ismai/Desktop/classifieds_local/rebuild/backend'));});
+for(const [key,value] of [['Source','C:/different'],['RW',true],['Mode','rw'],['Propagation','shared'],['Type','volume']])test('mount difference refused '+key,()=>assert.throws(()=>p.compareMounts([{...mounts[0],[key]:value},mounts[1]],mounts)));
+test('duplicate mount and missing mount refused',()=>{assert.throws(()=>p.compareMounts([mounts[0],mounts[0]],mounts));assert.throws(()=>p.compareMounts([mounts[0]],mounts));});
+test('runtime port drift cannot pass accepted identity',()=>{const rows=Array.from({length:10},(_,i)=>({environment:i<5?'developer':'original',service:['web','worker','scheduler','db','redis'][i%5],id:String(i),image:'same',configHash:'same',flag:'enabled',mounts:[],networks:{n:{NetworkID:'same'}},ports:[{host:'127.0.0.1',port:'8088'}]}));const now=structuredClone(rows);now[0].ports[0].port='8090';assert.throws(()=>p.compareRuntime(now,rows));});

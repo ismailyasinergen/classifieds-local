@@ -1,0 +1,5 @@
+<div class="search-field{% if field.errors %} invalid{% endif %}">
+{{ field.label_tag }}{{ field }}
+{% if field.help_text %}<div class="helptext" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</div>{% endif %}
+{% if field.errors %}<ul class="errorlist" id="{{ field.auto_id }}_error">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+</div>

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Vitrinim · Classifieds Local{% endblock %}
+{% block content %}<section class="panel"><h1>Vitrinim</h1>
+<p>Vitrin isteğe bağlıdır. İlan vermek veya mesajlaşmak için vitrin açmanız gerekmez. Yalnız yayımlamayı seçtiğiniz tanıtım görünür.</p>
+{% if error %}<div class="error-panel" role="alert">{{ error }} <a href="{% url 'storefronts:manage' %}">Güncel ekranı aç</a></div>{% endif %}
+{% if storefront %}
+{% if storefront.is_published %}<p>Durum: Yayında. Taslak değişiklikleri “Yayını güncelle” işlemine kadar görünmez.</p>{% if not public_available %}<p>Vitrin şu anda public erişime uygun değil.</p>{% endif %}
+{% elif storefront.published_at %}<p>Durum: Yayından kaldırılmış. İlanlarınızın yayını değişmedi.</p>{% else %}<p>Durum: Taslak. Henüz yayımlanmadı.</p>{% endif %}
+{% else %}<p>Henüz vitrininiz yok. Hesap e-postanız ve özel bilgileriniz otomatik yayımlanmaz.</p>{% endif %}
+<form method="post" action="{% if storefront %}{% url 'storefronts:save' storefront.pk %}{% else %}{% url 'storefronts:create' %}{% endif %}">{% csrf_token %}{{ form.as_p }}<button class="button" type="submit">{% if storefront %}Taslağı kaydet{% else %}Vitrin oluştur{% endif %}</button></form>
+{% if storefront %}<p><a href="{% url 'storefronts:preview' storefront.pk %}">Özel önizleme</a>{% if public_available %} · <a href="{% url 'storefronts:public' storefront.pk %}">Public vitrini aç</a>{% endif %}</p>
+<p>Önizlemede de yalnız güncel public ilanlarınız gösterilir. Vitrin yayımlamak ilanları onaylamaz.</p>
+<form method="post" action="{% url 'storefronts:publish' storefront.pk %}">{% csrf_token %}<input type="hidden" name="edit_version" value="{{ storefront.edit_version }}"><button class="button" type="submit">{% if storefront.is_published %}Yayını güncelle{% else %}Vitrini yayımla{% endif %}</button></form>
+{% if storefront.is_published %}<form method="post" action="{% url 'storefronts:unpublish' storefront.pk %}">{% csrf_token %}<input type="hidden" name="edit_version" value="{{ storefront.edit_version }}"><button class="button secondary" type="submit">Yayından kaldır</button></form>{% endif %}{% endif %}
+</section>{% endblock %}

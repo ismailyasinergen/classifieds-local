@@ -1,0 +1,2691 @@
+{
+  "format": "publication-file-list-v1",
+  "counts": {
+    "product": 319,
+    "operations": 203,
+    "documentationAndPackaging": 13,
+    "total": 535
+  },
+  "acceptedProductManifest": "f69c9d336c5baec787e2b0113d3ec77fd536c97e1ed0e3769ebb46bfda4bac58",
+  "localOperationsAcceptance": "fa2f6f4017c3f97f941d48cc8d6422df478b702300fc3bd8fc70d75fe45d679c",
+  "localEvidenceIncluded": false,
+  "publicationIsNewOperationsAcceptance": false,
+  "self": {
+    "path": "rebuild/docs/PUBLICATION_FILES.json",
+    "hash": "not_self_hashed"
+  },
+  "files": [
+    {
+      "path": ".github/workflows/rebuild-ci.yml",
+      "group": "product",
+      "sha256": "5628a22540ee2408b8c51ae157e5914cbaec9a585e1a0cc590ec241da6eec67c"
+    },
+    {
+      "path": "rebuild/.dockerignore",
+      "group": "product",
+      "sha256": "e67b0593bd01b70ce81ba2da3e89f3bebf688a258cbcef7e9fff7fd893a35d38"
+    },
+    {
+      "path": "rebuild/.env.example",
+      "group": "product",
+      "sha256": "0bff7e905cb82e6b50bc2d412380f208bbadbf683dfc6e957564636b46cbf817"
+    },
+    {
+      "path": "rebuild/.gitignore",
+      "group": "product",
+      "sha256": "0c76b61c020974b8a933738e6c05f91a16ed6af16c05f63f9b00ebaa42de67be"
+    },
+    {
+      "path": "rebuild/Dockerfile",
+      "group": "product",
+      "sha256": "942b6b25ad9434a6208ac4a7869602e09f771fdec1473c0ffeb216ccfb93dac7"
+    },
+    {
+      "path": "rebuild/README.md",
+      "group": "product",
+      "sha256": "1b2bed6bfb4c1601be5009c22887154ef2e48ef90925e3f4424a09a6952d2b46"
+    },
+    {
+      "path": "rebuild/backend/accounts/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/accounts/admin.py",
+      "group": "product",
+      "sha256": "3e24d55fb8ec27fcc0250318d7c1b28f34dbf6e8e1d07640d08f62c42b3dbc53"
+    },
+    {
+      "path": "rebuild/backend/accounts/apps.py",
+      "group": "product",
+      "sha256": "fa9a5bc41aa58f06dba0fdab8390b31c605966127714368b8ec4c84ee45b6847"
+    },
+    {
+      "path": "rebuild/backend/accounts/locking.py",
+      "group": "product",
+      "sha256": "edecf303810956186f0d22e9f7cefe8ab0b91483289d07ba77b5d2672b33e80f"
+    },
+    {
+      "path": "rebuild/backend/accounts/management/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/accounts/management/commands/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/accounts/management/commands/browser_fixture.py",
+      "group": "product",
+      "sha256": "43bf2d97a41755088455150293841490ce2c6522bec810205aacdc745f76ea43"
+    },
+    {
+      "path": "rebuild/backend/accounts/management/commands/conversations_browser_fixture.py",
+      "group": "product",
+      "sha256": "7eba08f2af9bf677f854a805acf1eed6644028caddbfef2c68c2cf6897eec2a3"
+    },
+    {
+      "path": "rebuild/backend/accounts/management/commands/favorites_browser_fixture.py",
+      "group": "product",
+      "sha256": "ad16ab4f80b4981e74ddbebae99fcc644fed6f2329fdc8de10a5f96fa2a955e4"
+    },
+    {
+      "path": "rebuild/backend/accounts/management/commands/mfa_browser_fixture.py",
+      "group": "product",
+      "sha256": "23c128464e095655eacf1543c5d6f5cea886ab7d1fca0a8f7e390041d9f267ab"
+    },
+    {
+      "path": "rebuild/backend/accounts/management/commands/notifications_browser_fixture.py",
+      "group": "product",
+      "sha256": "bf550497b98a9a068aa806871c95b1a1d4d40f4f897752a1b4f39f0ec191304d"
+    },
+    {
+      "path": "rebuild/backend/accounts/management/commands/pilot_limits_browser_fixture.py",
+      "group": "product",
+      "sha256": "a0b5515d281d0fa9cc098e900662de9661a62ce5283c47bef4b7d59d7d3b4a51"
+    },
+    {
+      "path": "rebuild/backend/accounts/management/commands/reports_appeals_browser_fixture.py",
+      "group": "product",
+      "sha256": "00f8004eea1e56d0d02f255b0f1083cd71ace02dba1caa88ad489c068bdf2b44"
+    },
+    {
+      "path": "rebuild/backend/accounts/management/commands/search_browser_fixture.py",
+      "group": "product",
+      "sha256": "669ee9c4681ce071495341e441863100da80b72bcbdb5464b2f7bc411eaa4682"
+    },
+    {
+      "path": "rebuild/backend/accounts/management/commands/setup_local.py",
+      "group": "product",
+      "sha256": "c700711f0d0e1c2817cf3d577fca83edb2384c0a5ba2b33752971878d6ad732b"
+    },
+    {
+      "path": "rebuild/backend/accounts/management/commands/storefront_browser_fixture.py",
+      "group": "product",
+      "sha256": "013d19d170daf24c98da77750ad213bad146094c78077acd2fab3cdb4a4c57cc"
+    },
+    {
+      "path": "rebuild/backend/accounts/mfa_adapter.py",
+      "group": "product",
+      "sha256": "7f8a0b6c5397c272996a9ed60cfe15d2b0fe85a7aed224c5f1d7065d0d8d3388"
+    },
+    {
+      "path": "rebuild/backend/accounts/mfa_middleware.py",
+      "group": "product",
+      "sha256": "6e157e5b10eff20167fc5ab6e3f79abeb5d98b200c411e98e459afbd6eb62bd7"
+    },
+    {
+      "path": "rebuild/backend/accounts/mfa_policy.py",
+      "group": "product",
+      "sha256": "ad0041b8ca6d66de29a04b1d2587e90073fd6ecf3010ebb5f8b92da0cdc8fec2"
+    },
+    {
+      "path": "rebuild/backend/accounts/mfa_recovery.py",
+      "group": "product",
+      "sha256": "dee43adc200f07ba97e61fb9059368fdaf7f47e39d40dba57a2d02c5538bdba7"
+    },
+    {
+      "path": "rebuild/backend/accounts/mfa_signals.py",
+      "group": "product",
+      "sha256": "06220c78c9fd87dd48f672fb589506ce583a4cef0d2a3920c982822d23a358f1"
+    },
+    {
+      "path": "rebuild/backend/accounts/migrations/0001_initial.py",
+      "group": "product",
+      "sha256": "a974eb8770eaf7b4c6898280e85c83a8d7992d0e349508356f4c283cb5c712e4"
+    },
+    {
+      "path": "rebuild/backend/accounts/migrations/0002_alter_user_email_user_accounts_user_email_ci_unique_and_more.py",
+      "group": "product",
+      "sha256": "6d0784546873f0870081f83e207dd07ba1d001090d5dbb875997462a2191c0f8"
+    },
+    {
+      "path": "rebuild/backend/accounts/migrations/0003_securityevent.py",
+      "group": "product",
+      "sha256": "a7ef27385fee59a3739a35fbdc244eefcb63bf00560342a515578f69212b888e"
+    },
+    {
+      "path": "rebuild/backend/accounts/migrations/0004_storefront.py",
+      "group": "product",
+      "sha256": "8c52adc7ef158aec6358d235e5c4febe4d4a4923be23b0fa2ae1c6f7806bbda2"
+    },
+    {
+      "path": "rebuild/backend/accounts/migrations/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/accounts/models.py",
+      "group": "product",
+      "sha256": "8c9eaeae69eaf302234151450404e25fb090875be2455567062f8228db1b0607"
+    },
+    {
+      "path": "rebuild/backend/accounts/rate_limits.py",
+      "group": "product",
+      "sha256": "bd1181fa7861aec40d773699a896ae95ff7836981bd14a7b4a4ae70fdc399b71"
+    },
+    {
+      "path": "rebuild/backend/accounts/storefront_forms.py",
+      "group": "product",
+      "sha256": "2708bfc2023b36e6843e3d7e51905b7c58052e7de74906a03e6688ed52fcbe8e"
+    },
+    {
+      "path": "rebuild/backend/accounts/storefront_urls.py",
+      "group": "product",
+      "sha256": "7aaafa3ac0fea137ad0fe8e9b2b7ee1a935fbaf765c4cd33c3d6bdf710badd35"
+    },
+    {
+      "path": "rebuild/backend/accounts/storefront_views.py",
+      "group": "product",
+      "sha256": "6b1aa2eaec6140f5d765dcfed905ebc5e6f8c8605c3d733d020405fc301d2df2"
+    },
+    {
+      "path": "rebuild/backend/accounts/storefronts.py",
+      "group": "product",
+      "sha256": "743325e70e4023ca067df5cbf388a471f417870d7cdd089bc587839cfe0ce4a2"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/mfa_support.py",
+      "group": "product",
+      "sha256": "1d730eb9e4813724b8f412352236f158415068f8f5e1b7fc2257eab7b56f9c22"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_favorites_browser_fixture.py",
+      "group": "product",
+      "sha256": "55d2dd54df7c5aba2a906ac86ba7fbeeaa81544aef058c87fde51bb6691f4d1a"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_local_setup.py",
+      "group": "product",
+      "sha256": "e8dfad267342dd2ef0e413281377b11c7822bea5717123904f239d5f21ab3eee"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_mfa.py",
+      "group": "product",
+      "sha256": "9d05b61d222abdaaa0511a879b0d59c458b94c0ac2652546ec1462650202e13e"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_mfa_browser_csrf.py",
+      "group": "product",
+      "sha256": "8a299acdbfb99d8e25aa02e34c5ae931491cc2c63cc0805e6ba3f7deac13b7a7"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_mfa_browser_fixture.py",
+      "group": "product",
+      "sha256": "d81981ed04fd200f062f9c86bde19263f2a6dbfc1d2677e2cbd6a85c2b43a1cb"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_mfa_concurrency.py",
+      "group": "product",
+      "sha256": "bb443a081f43f01a3e74ee539afe5fe58fac7524739706d81923443a2f5f22b9"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_mfa_moderation_roles.py",
+      "group": "product",
+      "sha256": "4224a2ac651072e80b0b50d42f0ccdc9217db498cf698bc0929a7e48d89a04c4"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_mfa_review_regressions.py",
+      "group": "product",
+      "sha256": "b7db8409e5affa21014143554fdad0b10c52e1aa63529ab270d6f9045b458f46"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_notifications_browser_fixture.py",
+      "group": "product",
+      "sha256": "b41c688999be022056f19d7ce3bddbe5c5a1faba804fa3986780d69509215d06"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_pilot_browser_fixture.py",
+      "group": "product",
+      "sha256": "df70a6b3afe7a06aaec7818f0e1d35e636e8c4f85f2656be4a2b7d2384c08946"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_rate_limits.py",
+      "group": "product",
+      "sha256": "d068c873c70acdc3a22776d2fcbad6cec52d9b3ddde270baa5034644082727f0"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_reports_appeals_browser_fixture.py",
+      "group": "product",
+      "sha256": "424d8784a78868b7bdaa36e3b3f8cdbe284653b5d884c62eaa9be1fca1c73da7"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_storefront.py",
+      "group": "product",
+      "sha256": "70f47738f9ec530cc9e584af4cafd4dbc871d8d4f94dc07df92d547343208b4b"
+    },
+    {
+      "path": "rebuild/backend/accounts/tests/test_users.py",
+      "group": "product",
+      "sha256": "229b9ae08b0a14493849e4525033760e1ccb434d3d7b99c071e8e4dd206c6192"
+    },
+    {
+      "path": "rebuild/backend/accounts/urls.py",
+      "group": "product",
+      "sha256": "b56487a75060a0d1c3a96209ab49cd287622071685565e9850a54c1f3716606f"
+    },
+    {
+      "path": "rebuild/backend/accounts/views.py",
+      "group": "product",
+      "sha256": "6c6aa8ef994db68fc763601909e08a19c81d2a9bd68e20ca88e972a319932cb4"
+    },
+    {
+      "path": "rebuild/backend/catalog/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/catalog/admin.py",
+      "group": "product",
+      "sha256": "285d8a47593678a1d268deaa3dc4ba6338e3a3b74cd03f6d72105ff2366323b0"
+    },
+    {
+      "path": "rebuild/backend/catalog/apps.py",
+      "group": "product",
+      "sha256": "a891a8d75a51044cb80e68603cc8fb4a01296ebc20fa2ab4df1a32623babcd10"
+    },
+    {
+      "path": "rebuild/backend/catalog/management/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/catalog/management/commands/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/catalog/management/commands/seed_catalog.py",
+      "group": "product",
+      "sha256": "9e9589695455c742e1fa244c58fa4685f8fec727b4238b350b514062db664186"
+    },
+    {
+      "path": "rebuild/backend/catalog/migrations/0001_initial.py",
+      "group": "product",
+      "sha256": "26154c0a6cb975b8453b88f1c096a9b11998e12afe5cbf53bbdf87b084db71ec"
+    },
+    {
+      "path": "rebuild/backend/catalog/migrations/0002_alter_attributeschema_options_and_more.py",
+      "group": "product",
+      "sha256": "ea9d91a6193f3079b775f4417a651e2413002c83e1c8b52261ba158981435b41"
+    },
+    {
+      "path": "rebuild/backend/catalog/migrations/0003_enforce_schema_immutability.py",
+      "group": "product",
+      "sha256": "9f20ab8bbe83d356521e22317be0f71f2aa9f3359ee3999579cc6c1a1e776f57"
+    },
+    {
+      "path": "rebuild/backend/catalog/migrations/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/catalog/models.py",
+      "group": "product",
+      "sha256": "e0747cc03598e22589642045cd5e41a9993f35c3b803e2631d887fa6cf0c8796"
+    },
+    {
+      "path": "rebuild/backend/catalog/search.py",
+      "group": "product",
+      "sha256": "f0ee8adae9027d0ea2f4063a2b041b945580d106cd8c6f58b24d173c7dfed8c4"
+    },
+    {
+      "path": "rebuild/backend/catalog/tests/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/catalog/tests/test_search.py",
+      "group": "product",
+      "sha256": "66114b61176c9b513385dcd347ec6a3efdb501f985c560026ab3ce8141e01fa5"
+    },
+    {
+      "path": "rebuild/backend/catalog/tests/test_seed.py",
+      "group": "product",
+      "sha256": "5cfc0b9bf025efa9813d2735795a1418ba77ddd10a968ce59176add69fbe901e"
+    },
+    {
+      "path": "rebuild/backend/catalog/tests/test_validation.py",
+      "group": "product",
+      "sha256": "a9ac99af84ef1329115ec60b0dadd76eab6a2a1aef08637ab73b1744693a426e"
+    },
+    {
+      "path": "rebuild/backend/catalog/validation.py",
+      "group": "product",
+      "sha256": "5431fd33343c7d1d38c633effe142a089fb1ef70c798dddef7361c3b242c28f9"
+    },
+    {
+      "path": "rebuild/backend/config/__init__.py",
+      "group": "product",
+      "sha256": "8974a9c493587f508e73f358876ade4f3ab0369012b29ffb14280dbe30f721ce"
+    },
+    {
+      "path": "rebuild/backend/config/celery.py",
+      "group": "product",
+      "sha256": "78f1a46fe45889e523f61aae36748e7312c38ff65b30d58ab588ea15c74cce39"
+    },
+    {
+      "path": "rebuild/backend/config/settings.py",
+      "group": "product",
+      "sha256": "ef03fc0af9ee01c27e1d2d2111acacfec57a605a77c65b360098ee2ec04c5566"
+    },
+    {
+      "path": "rebuild/backend/config/test_runner.py",
+      "group": "product",
+      "sha256": "7bed8d36bb3e5c23236f2b8c16ba149e64ddec4aacbfc05f0f3e15c161a87f6f"
+    },
+    {
+      "path": "rebuild/backend/config/urls.py",
+      "group": "product",
+      "sha256": "e5bd67b04ccae17aca3d24eaac9280936fb441c0ec2d09df22e4bde07cb3f3e1"
+    },
+    {
+      "path": "rebuild/backend/config/wsgi.py",
+      "group": "product",
+      "sha256": "eae3ca58dd999ba3acca85130f6c2fbae3b7a511850b0bb692c9073c0d8a21d0"
+    },
+    {
+      "path": "rebuild/backend/conversations/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/conversations/apps.py",
+      "group": "product",
+      "sha256": "d74b208fbd1fef19cc93fd84eca17a204c276b26143073690b75944516a21731"
+    },
+    {
+      "path": "rebuild/backend/conversations/forms.py",
+      "group": "product",
+      "sha256": "b096485655e643a199a013928955c43a19d2f6866ee418ededb5eeb88bbe83ce"
+    },
+    {
+      "path": "rebuild/backend/conversations/migrations/0001_initial.py",
+      "group": "product",
+      "sha256": "c6d55465db919e2f2f53c162535836458dd94f75708e5d761e313113d21cb1c5"
+    },
+    {
+      "path": "rebuild/backend/conversations/migrations/0002_activity_indexes.py",
+      "group": "product",
+      "sha256": "12f55b1c42e0ac8419111f05e9a370982e225405f4593989e2ed2e5404e834cd"
+    },
+    {
+      "path": "rebuild/backend/conversations/migrations/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/conversations/models.py",
+      "group": "product",
+      "sha256": "ed61c4751847eb4e53cf81b4a502d0ac1db347da312509ec3b5d25ca3d37e160"
+    },
+    {
+      "path": "rebuild/backend/conversations/policies.py",
+      "group": "product",
+      "sha256": "b1e92405fd654b783dec9ea6b3016cec087ee0cfe23b27ec45d341947527932f"
+    },
+    {
+      "path": "rebuild/backend/conversations/queries.py",
+      "group": "product",
+      "sha256": "feea8b57f3853d0f28b1f2947c11fed42540e4a3fa8b138007beb2c34827feca"
+    },
+    {
+      "path": "rebuild/backend/conversations/services.py",
+      "group": "product",
+      "sha256": "5129e1ea20403e73ee8af37b7684689ea60c2c251a7d6ac4208e22daefe433e2"
+    },
+    {
+      "path": "rebuild/backend/conversations/tests/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/conversations/tests/helpers.py",
+      "group": "product",
+      "sha256": "149c899d42087c6091a09b33fc719f9d961c5666fde830ce64678ddb366d87c2"
+    },
+    {
+      "path": "rebuild/backend/conversations/tests/test_concurrency.py",
+      "group": "product",
+      "sha256": "21f8d8271bf07bcb7540e4568a00fbf6bc6264c9df0ac15406cc2ead85b62fd2"
+    },
+    {
+      "path": "rebuild/backend/conversations/tests/test_http.py",
+      "group": "product",
+      "sha256": "1f12a58c170a6326bd161977ca6e0d87104a5bace21f0eb3a4db10e7033b3e6d"
+    },
+    {
+      "path": "rebuild/backend/conversations/tests/test_queries.py",
+      "group": "product",
+      "sha256": "4f3be97d96a995964c7aa41a43afa32f51892b3526fa99a673a9dfde268f9fdf"
+    },
+    {
+      "path": "rebuild/backend/conversations/tests/test_rate_limit_concurrency.py",
+      "group": "product",
+      "sha256": "a5bd19f4b37dfe6e6b1c999bb587e42798dc1ea127a842bb339587f37ed60999"
+    },
+    {
+      "path": "rebuild/backend/conversations/tests/test_rate_limit_http.py",
+      "group": "product",
+      "sha256": "1aad7a33646ddf9ee6007c8579c19665f13925609afe73f303561bb2941a08f1"
+    },
+    {
+      "path": "rebuild/backend/conversations/tests/test_rate_limits.py",
+      "group": "product",
+      "sha256": "b97d89c381f396a98ff107b483dc1ed3d368cc6681ac3d1f03f71c49d2d4b8ef"
+    },
+    {
+      "path": "rebuild/backend/conversations/tests/test_services.py",
+      "group": "product",
+      "sha256": "2c0a8be92207a157c7d2f3de3218ef6b3ae0c58a0a803c445322eca46314758a"
+    },
+    {
+      "path": "rebuild/backend/conversations/urls.py",
+      "group": "product",
+      "sha256": "7bbf6fe885903136073b24b17efa8dcf67e0f485edb35b8fd1176101604a5584"
+    },
+    {
+      "path": "rebuild/backend/conversations/views.py",
+      "group": "product",
+      "sha256": "a7a14be470393030c59b9c4139bb448c155295a0830c6406219d0a774872944d"
+    },
+    {
+      "path": "rebuild/backend/events/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/events/apps.py",
+      "group": "product",
+      "sha256": "d0b7d0cc06edcbbf20f8823daff19736aeff20bd2062004b4d46498ef82878cd"
+    },
+    {
+      "path": "rebuild/backend/events/boundaries.py",
+      "group": "product",
+      "sha256": "430d5b43cd367a3c4d4d6e4cde9950dcb1d3b9cbc3eb9c9517b7de5dc7f25502"
+    },
+    {
+      "path": "rebuild/backend/events/migrations/0001_initial.py",
+      "group": "product",
+      "sha256": "b46c96045c415498df72ee4e9048361e0ca8aa75abd24c909f5b97dc228f6ebe"
+    },
+    {
+      "path": "rebuild/backend/events/migrations/0002_publicationboundary_eventconsumption.py",
+      "group": "product",
+      "sha256": "3005ffe3aaa01ec1ebab2f41018e21a5a07a1c328b494293a004c3271d2b729d"
+    },
+    {
+      "path": "rebuild/backend/events/migrations/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/events/models.py",
+      "group": "product",
+      "sha256": "7be2d971af016844a99ca1981257f3937779daeee7b15116d09876749b27813f"
+    },
+    {
+      "path": "rebuild/backend/listings/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/listings/apps.py",
+      "group": "product",
+      "sha256": "89c2fefe0a21a14813b19d5ab6674553ecbad3f1136fd7108b1af6b27084de82"
+    },
+    {
+      "path": "rebuild/backend/listings/favorite_views.py",
+      "group": "product",
+      "sha256": "f4f96136c80244900521464c4e6f30ef817e772674917be958eb6af29ae7be1a"
+    },
+    {
+      "path": "rebuild/backend/listings/favorites.py",
+      "group": "product",
+      "sha256": "8a6607f65dbd42631e3cfb27aca3a3353ab50847a077c1137f787ee11cc69031"
+    },
+    {
+      "path": "rebuild/backend/listings/forms.py",
+      "group": "product",
+      "sha256": "cc63f31280f19632c61f128a447dbee1e2cf9502ea63f3c0ff57d30420cbf424"
+    },
+    {
+      "path": "rebuild/backend/listings/migrations/0001_initial.py",
+      "group": "product",
+      "sha256": "97a803101cab4296d8fc41f3f856422726a26027bd0c6fa9e37e0e557f97c498"
+    },
+    {
+      "path": "rebuild/backend/listings/migrations/0002_alter_listing_options_alter_listingrevision_options_and_more.py",
+      "group": "product",
+      "sha256": "7559981b6299f48ed82a808ecf9d108821b2b87f66c299f4ca53e55b528625da"
+    },
+    {
+      "path": "rebuild/backend/listings/migrations/0003_public_search_indexes.py",
+      "group": "product",
+      "sha256": "fb6ff83bd7d4134f83a591b733dde90a74addc412c49fd5c5c16c93cda5c91ad"
+    },
+    {
+      "path": "rebuild/backend/listings/migrations/0004_listing_contact_enabled.py",
+      "group": "product",
+      "sha256": "67ff331089a7a0a1ffbc79114ddef453456836225fa9a3c1a8c10a87a7792879"
+    },
+    {
+      "path": "rebuild/backend/listings/migrations/0005_creation_limit_index.py",
+      "group": "product",
+      "sha256": "2c9c2aad18feb28232852431ada586d775fd1b9cf8031cc2e175523bc4a28408"
+    },
+    {
+      "path": "rebuild/backend/listings/migrations/0006_favorite.py",
+      "group": "product",
+      "sha256": "1c443f41f51105f7745ca50f8b613207e76f9ea019943df606b1283524fe5976"
+    },
+    {
+      "path": "rebuild/backend/listings/migrations/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/listings/models.py",
+      "group": "product",
+      "sha256": "f00472bede3e07ca84afaf619ad2e7bd6bb308fdd2768b057cc623747c4fcfca"
+    },
+    {
+      "path": "rebuild/backend/listings/policies.py",
+      "group": "product",
+      "sha256": "4b78374cdc78c0405e61222911523165388bf4399352a2fddb96641c5f7401d4"
+    },
+    {
+      "path": "rebuild/backend/listings/publication.py",
+      "group": "product",
+      "sha256": "34bdcf9795b5e8fa0b952928bd15decd8cf8558fa4361e9f9d11420da9e558d4"
+    },
+    {
+      "path": "rebuild/backend/listings/queries.py",
+      "group": "product",
+      "sha256": "868025e2f43667d15a6db8dfd1a21cb878f6cfa1b07163c79f3f5d37032b9ca7"
+    },
+    {
+      "path": "rebuild/backend/listings/search/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/listings/search/expressions.py",
+      "group": "product",
+      "sha256": "770f1f7798601da3c239771ee26e2b84ab353d32c5a93cb069b2e75b8c4feb11"
+    },
+    {
+      "path": "rebuild/backend/listings/search/forms.py",
+      "group": "product",
+      "sha256": "8694373346ba845743d1ec0095c0bb97006ae733a3cec714ad0e66bfd3ed350c"
+    },
+    {
+      "path": "rebuild/backend/listings/search/parsing.py",
+      "group": "product",
+      "sha256": "9c32d29be7f94859731f442687d360982ccd78e8031cdf338094533cfc6e0465"
+    },
+    {
+      "path": "rebuild/backend/listings/search/queries.py",
+      "group": "product",
+      "sha256": "6169cb3dad80f5f92ee40f22db22f00ae0dadf27c2782ea0d6d8de58a708ad42"
+    },
+    {
+      "path": "rebuild/backend/listings/search/specs.py",
+      "group": "product",
+      "sha256": "a65b3f2ea98b9c349ec3718afc9d4a9c42ee032fa827efbfdbca97771209b138"
+    },
+    {
+      "path": "rebuild/backend/listings/services.py",
+      "group": "product",
+      "sha256": "6c9403a6c2fa12775f61fb7d65d7373ef7d814099e4cf55e5c8d39f35a859fb5"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/test_creation_limit_concurrency.py",
+      "group": "product",
+      "sha256": "650a93e3e7855ca7ba6411a88ff2d5d176d00008a19adf28f581ab73342855dc"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/test_creation_limits.py",
+      "group": "product",
+      "sha256": "72814ca59053c45add2f5429a42404add9b26d4f5c5d3e2dacd43f306ad6bda0"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/test_drafts.py",
+      "group": "product",
+      "sha256": "c7964d79490a0f3175ab22e72db2c5b7e76c4f3318350341c8ec9f8c14d7fd52"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/test_favorites.py",
+      "group": "product",
+      "sha256": "81c15bcc8ffff873c0d10bd7f58d502522eb465dfe1041645d7a3d69c920f874"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/test_public_visibility.py",
+      "group": "product",
+      "sha256": "10c37d22def05fe6620a008903ebe4347fef0194066db51ee64960c207ed58c7"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/test_publication.py",
+      "group": "product",
+      "sha256": "ebd2037c97e331416bf9b6ad8bde3490f32fdb7709e359cc8a701a8cf8c687aa"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/test_publication_concurrency.py",
+      "group": "product",
+      "sha256": "0ab9fac3bb370a8d3ea3efd08a770146b55fef404c2cc913df71054ec73e5faf"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/test_search_browse.py",
+      "group": "product",
+      "sha256": "4e08d7ad793932596e9b1cf09544fbc6098e0ae2fdadcf36049297da12f8371a"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/test_search_queries.py",
+      "group": "product",
+      "sha256": "4979ec591acdaca7dabb98755ced8f8439ae7cbb715dbad2d7f814ba0dbb3c9f"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/test_search_spec.py",
+      "group": "product",
+      "sha256": "02837cd2151f5954c1b12858b361fcc7c8a7514e982020f167f2f15bd7247cc0"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/test_ui_contracts.py",
+      "group": "product",
+      "sha256": "9030adcd7890785c9f8bcd3dfce811ccd40a14a4fa359740b9f5fdd567c4c250"
+    },
+    {
+      "path": "rebuild/backend/listings/tests/test_user_journey.py",
+      "group": "product",
+      "sha256": "8ebbf186eeba34de09bc7af26395867466413ad1cce911e83c4ff5fd6e31892f"
+    },
+    {
+      "path": "rebuild/backend/listings/urls.py",
+      "group": "product",
+      "sha256": "254daee4e31caf5c66aaa70f115a53a26bd27a1e542c444176eec1007b741f1c"
+    },
+    {
+      "path": "rebuild/backend/listings/validation.py",
+      "group": "product",
+      "sha256": "696fcb87a54f27eb4132be4ae386a11ee0e7457eecbd53827bf01b1a0397e054"
+    },
+    {
+      "path": "rebuild/backend/listings/views.py",
+      "group": "product",
+      "sha256": "8b99d27defb9c691a6213ef60a7ba3891ec6eaca47997bbfb1b0f06010139969"
+    },
+    {
+      "path": "rebuild/backend/manage.py",
+      "group": "product",
+      "sha256": "fc8cf9e71ebd7be737d4492b1e9d8de470492e321050cbf48746829cc13e1816"
+    },
+    {
+      "path": "rebuild/backend/media/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/media/apps.py",
+      "group": "product",
+      "sha256": "1feda6287311d7022a87924740cc60480f85674fef7d8d0dd8a2ccf6c246cd61"
+    },
+    {
+      "path": "rebuild/backend/media/management/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/media/management/commands/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/media/management/commands/smoke_media_worker.py",
+      "group": "product",
+      "sha256": "2fbf59b5cc72c1acfe8919dcabd75cb353c2a3c1affc48f56b4ad64e21e4ba89"
+    },
+    {
+      "path": "rebuild/backend/media/migrations/0001_initial.py",
+      "group": "product",
+      "sha256": "b3592802512f46e34bbe8720efecf798090b13c5087ed0e36a4a5dd69ee5772c"
+    },
+    {
+      "path": "rebuild/backend/media/migrations/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/media/models.py",
+      "group": "product",
+      "sha256": "d8b81328217e8bfc73dbfc7ec1762bd8a436cc801d9b728ab302fc0f3c646fab"
+    },
+    {
+      "path": "rebuild/backend/media/services.py",
+      "group": "product",
+      "sha256": "dca7ebe9dae95d5ac08ea344088fd61ebf27817187587cbda25522da767542f2"
+    },
+    {
+      "path": "rebuild/backend/media/storage.py",
+      "group": "product",
+      "sha256": "b44613d5affe296ba10554ef4e06f816602d92c04de6f30a45223e8e547a2efd"
+    },
+    {
+      "path": "rebuild/backend/media/tasks.py",
+      "group": "product",
+      "sha256": "12597e0fc05f529a4e0af79c46ce93057be73f2c1e0201ae7ca175ca305458d4"
+    },
+    {
+      "path": "rebuild/backend/media/tests/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/media/tests/helpers.py",
+      "group": "product",
+      "sha256": "88948626b89faba7030716e33992267babc6efe178ddaf212fe4e187d08a5dcd"
+    },
+    {
+      "path": "rebuild/backend/media/tests/test_access.py",
+      "group": "product",
+      "sha256": "c79c52f6a739d43856a0a8c5ad9f913d7349852c1e0b88f796362e7659c2cef4"
+    },
+    {
+      "path": "rebuild/backend/media/tests/test_processing.py",
+      "group": "product",
+      "sha256": "a33c0b221fe38ff18798e93fc0603b3965d84e561b741bebdc40b74ea6c6778c"
+    },
+    {
+      "path": "rebuild/backend/media/urls.py",
+      "group": "product",
+      "sha256": "65e16f555f7406550585bc05d2a0fc08476a1f57a8d41b0441d362723d5aa2e1"
+    },
+    {
+      "path": "rebuild/backend/media/validation.py",
+      "group": "product",
+      "sha256": "51e33b741a2edfc02f242cc947dc9d53d0b145a341a31e147bb1509d56ac90c8"
+    },
+    {
+      "path": "rebuild/backend/media/views.py",
+      "group": "product",
+      "sha256": "8b1457f226eac634d5912e71142e009bc9fbe54e4949d92aefa1bbe6bdfb6ecd"
+    },
+    {
+      "path": "rebuild/backend/moderation/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/moderation/appeal_views.py",
+      "group": "product",
+      "sha256": "35a08849b44c10cc879b16324469f45d79e048a5b23ec43db7450a009bbd89c5"
+    },
+    {
+      "path": "rebuild/backend/moderation/appeals.py",
+      "group": "product",
+      "sha256": "fd7cf5f95377730d4681e281d92f8c75e4a8203a608b836e906cbb4992e806fa"
+    },
+    {
+      "path": "rebuild/backend/moderation/apps.py",
+      "group": "product",
+      "sha256": "97d795416d5e44b58d526db4268640b58b5120e5f4df207043eda89e35afc941"
+    },
+    {
+      "path": "rebuild/backend/moderation/case_audit.py",
+      "group": "product",
+      "sha256": "06edd116553544b4a420da45b597befc99cb14d57acd723f631643219ebe8167"
+    },
+    {
+      "path": "rebuild/backend/moderation/case_evidence.py",
+      "group": "product",
+      "sha256": "73011a25d3791431de43fed243fa2c2f41c5d49162a73df73277676be7c4ece6"
+    },
+    {
+      "path": "rebuild/backend/moderation/case_forms.py",
+      "group": "product",
+      "sha256": "5d5f2bf7ccf930db168f63f7de53c61ed43344678424a95b22caaa4421692973"
+    },
+    {
+      "path": "rebuild/backend/moderation/case_http.py",
+      "group": "product",
+      "sha256": "8ffa225a5be9030e15e6a473e39748ea9ac678fa31a88118bfc7423ebe42ea26"
+    },
+    {
+      "path": "rebuild/backend/moderation/case_inputs.py",
+      "group": "product",
+      "sha256": "7483d5c366717bbbe716425163aa0b173ab75a01b2675942529da7d293cada25"
+    },
+    {
+      "path": "rebuild/backend/moderation/case_locking.py",
+      "group": "product",
+      "sha256": "cdd5d7339307cc373938241b3e8cdb8f8d516131f63b90942fccb6635669dc3d"
+    },
+    {
+      "path": "rebuild/backend/moderation/case_media.py",
+      "group": "product",
+      "sha256": "e8a479856cdd91d12a08210130b6ba82b804f6d1a2a6ae4e687bdcd97c262de4"
+    },
+    {
+      "path": "rebuild/backend/moderation/case_policies.py",
+      "group": "product",
+      "sha256": "c6656bc821b771516e19f706b830a466a52de34a273cd2882426cca24ed226cc"
+    },
+    {
+      "path": "rebuild/backend/moderation/case_queries.py",
+      "group": "product",
+      "sha256": "e808bd7d54a0244cb262d1d90c15c09d6438b73dcabcacc3d342b5cf07a51881"
+    },
+    {
+      "path": "rebuild/backend/moderation/forms.py",
+      "group": "product",
+      "sha256": "6cead0f9b9d99c0c07a64a98c2a47e34ca3c0a9b8eb648fc8dbd4775c2bf93d9"
+    },
+    {
+      "path": "rebuild/backend/moderation/messaging.py",
+      "group": "product",
+      "sha256": "867b7df20e6cb00124e966572f6d7c564027223908a96a46bfbf884cf96fd387"
+    },
+    {
+      "path": "rebuild/backend/moderation/migrations/0001_initial.py",
+      "group": "product",
+      "sha256": "a1e0470eaa7a91612490569e8783e2cfc08e5889aaa03329020170e1a5ed15da"
+    },
+    {
+      "path": "rebuild/backend/moderation/migrations/0002_messagingrestriction.py",
+      "group": "product",
+      "sha256": "0a8a8b55f79a3996788d5e408d7acfb624e6d89302cf200947451754c1b97398"
+    },
+    {
+      "path": "rebuild/backend/moderation/migrations/0003_reports_appeals.py",
+      "group": "product",
+      "sha256": "c37764317f998ee02627c75addca0f8553d21bed61a257579f766d408d785b8e"
+    },
+    {
+      "path": "rebuild/backend/moderation/migrations/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/moderation/models.py",
+      "group": "product",
+      "sha256": "b0aee167cce8958e6c8641175c2ea7b1be4349d2ae88d3da1bb20d89aada4613"
+    },
+    {
+      "path": "rebuild/backend/moderation/policies.py",
+      "group": "product",
+      "sha256": "3b7827cb2da429a5b0c7a3dfc52ff1759d1cfb7b77808b6b97809658eb438efb"
+    },
+    {
+      "path": "rebuild/backend/moderation/report_decisions.py",
+      "group": "product",
+      "sha256": "e7082ee63136296ce5edff4e50f7f5258cfd402c09fd9a8e9d09089bf1ced2ce"
+    },
+    {
+      "path": "rebuild/backend/moderation/report_views.py",
+      "group": "product",
+      "sha256": "004587d49b04ad2a386fca43bd1de7097a8aa0d910ee2c80531069ddefdcc787"
+    },
+    {
+      "path": "rebuild/backend/moderation/reports.py",
+      "group": "product",
+      "sha256": "6799240d8e125988782004951ffb753ac4bd1e4581adf423694be5dc8a442135"
+    },
+    {
+      "path": "rebuild/backend/moderation/services.py",
+      "group": "product",
+      "sha256": "197a31c74a673003e5229ac3fd1ce38d7bda96e71dfd0962fb6ff71969ad9f85"
+    },
+    {
+      "path": "rebuild/backend/moderation/submission_receipts.py",
+      "group": "product",
+      "sha256": "60895928c55b7a073542edb1fb648820f12ea8e622553cd402d4cd7747240398"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/case_helpers.py",
+      "group": "product",
+      "sha256": "b48908e51af6e81917a5c55fe789482fa8b1581d04ed138c962c8972503b7304"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_appeal_http.py",
+      "group": "product",
+      "sha256": "bb55a7e10c05f1ebb78586d87b14f7dcaac786948e359c5e15c38cd382351b67"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_appeals.py",
+      "group": "product",
+      "sha256": "cdf5f88908a3fe0437489847c315a9191567c7d26d0619e061bbc12a55f9c3d8"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_case_access.py",
+      "group": "product",
+      "sha256": "08f409e44b933a4d372a692e9bc6ae33cf61ce9bf882c666403405ca7c8c5b98"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_case_concurrency.py",
+      "group": "product",
+      "sha256": "2692533b947a24898c48578278e8d2536e12f479c118fb48b1a04901f651ae39"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_case_media.py",
+      "group": "product",
+      "sha256": "84f7bed5f03863f9c9ea70176fecf6011cb12915ccbd617170caaa17cdbcdfa1"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_case_models.py",
+      "group": "product",
+      "sha256": "7f8e97cc51efc77a3c1d0fd413c34b0d7bb6f80c1297c0e5071df4bf34e4202d"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_case_policy_inputs.py",
+      "group": "product",
+      "sha256": "99ba13a7f034d313b8b5b73f8d09d79215ac5ca9154bdea89fa39518acde3de9"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_case_ui.py",
+      "group": "product",
+      "sha256": "9493d9afb2b716ebefff4c88a841ffecccb8e9b95d1b44f84b74c03de4487119"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_messaging.py",
+      "group": "product",
+      "sha256": "0e2ca957a310b272836f0ccc008598ea87cc0f4616a7d1175d0583592c89cf05"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_report_decisions.py",
+      "group": "product",
+      "sha256": "6af1ad33c7f1dc8b534d624b2733196f17c1b4340797d3e065783b8c877af51a"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_report_http.py",
+      "group": "product",
+      "sha256": "d54c071aca4e36753abb2e14ab28944e1fb88b1acf36aa0dd26b4e356310a68f"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_reports.py",
+      "group": "product",
+      "sha256": "b8ac5491d0f3cc4417431fb7724fc457c85649230aef1806956ff75e053a939a"
+    },
+    {
+      "path": "rebuild/backend/moderation/tests/test_review_regressions.py",
+      "group": "product",
+      "sha256": "6ce55dbfc233a66a93c31a66cb3c85a141d855a10a5e327525cd31f1ea3a01c2"
+    },
+    {
+      "path": "rebuild/backend/moderation/urls.py",
+      "group": "product",
+      "sha256": "f839dfc376de872ed96d234352e259a6c8b6d31d1d11ad2a455deabd51fd8e98"
+    },
+    {
+      "path": "rebuild/backend/moderation/views.py",
+      "group": "product",
+      "sha256": "0c6f9b546d26fe9cb19de82a36ce2332e04a21eeda4ca2d94725c9a51c76fc6a"
+    },
+    {
+      "path": "rebuild/backend/notifications/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/notifications/consumer.py",
+      "group": "product",
+      "sha256": "1904733310f3956fe7a88b3b81785dc4e241d9e5c6e12035be8f9913937ed6f0"
+    },
+    {
+      "path": "rebuild/backend/notifications/context_processors.py",
+      "group": "product",
+      "sha256": "45d6bd17ffec19a239a3ba43d958447dd0b833bf1f378ca7ff5ead0d8110683e"
+    },
+    {
+      "path": "rebuild/backend/notifications/forms.py",
+      "group": "product",
+      "sha256": "32f339c454d8aea0ac9dabf026e930191dcf9043e311c6cc2a4b61f387fd6ab6"
+    },
+    {
+      "path": "rebuild/backend/notifications/management/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/notifications/management/commands/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/notifications/management/commands/notification_status.py",
+      "group": "product",
+      "sha256": "50891e391994c33c4004ce0a9a5ed1998ca7d9822a6f4603db724f97e327f77f"
+    },
+    {
+      "path": "rebuild/backend/notifications/migrations/0001_initial.py",
+      "group": "product",
+      "sha256": "22393486539b6c760018498c6d17774d33743cf63510fd6debfbf8fdb9998d1c"
+    },
+    {
+      "path": "rebuild/backend/notifications/migrations/0002_in_app_notifications.py",
+      "group": "product",
+      "sha256": "0666fe757e474c309612771aa08046f570fab95cabf8a1730eda707af9ea917f"
+    },
+    {
+      "path": "rebuild/backend/notifications/migrations/__init__.py",
+      "group": "product",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rebuild/backend/notifications/models.py",
+      "group": "product",
+      "sha256": "9fae28deded498b8517f8d22eca86b605b7b832027694c44adcbd743e714008a"
+    },
+    {
+      "path": "rebuild/backend/notifications/services.py",
+      "group": "product",
+      "sha256": "27e99949e5e38b699dc9730f4555d1567cab4e250aab3667aba50e6e4a36e102"
+    },
+    {
+      "path": "rebuild/backend/notifications/tasks.py",
+      "group": "product",
+      "sha256": "b0d1a9f0269b610e96a0d2f83a9b5efa9d7d8d174151243b37aef69d47a2f6e1"
+    },
+    {
+      "path": "rebuild/backend/notifications/test_consumer.py",
+      "group": "product",
+      "sha256": "a004b544b1d51ecca83993c8fa1bc5193d9da2f6ef8c3b1be3c1c1f84d0de5c6"
+    },
+    {
+      "path": "rebuild/backend/notifications/test_in_app.py",
+      "group": "product",
+      "sha256": "2d3bc2a08d1685dc3af8da06fbed9c8b8de108b3a437dd95ca5af690db2f418f"
+    },
+    {
+      "path": "rebuild/backend/notifications/tests.py",
+      "group": "product",
+      "sha256": "465dcb77b71f66d3ad54a7d43b363baa7d4e0595ee2dfd636afa611d55ad0901"
+    },
+    {
+      "path": "rebuild/backend/notifications/urls.py",
+      "group": "product",
+      "sha256": "7bfa56ca5322f61638f911353cb6ad8438e0a30b4648672bee2d68784c51264c"
+    },
+    {
+      "path": "rebuild/backend/notifications/views.py",
+      "group": "product",
+      "sha256": "5f056bc4013f6995ef04c0f73621f67feabf28073ce8c21101b81ee2b8f0dbaf"
+    },
+    {
+      "path": "rebuild/backend/static/app.css",
+      "group": "product",
+      "sha256": "0facc05f46fd3ab047e63a5d17a2184020abd500e587177c297ad8fc4c562fe1"
+    },
+    {
+      "path": "rebuild/backend/static/vendor/HTMX-LICENSE",
+      "group": "product",
+      "sha256": "d3d2456f76414f2456104660ebd65aff1c04cd7966b942bdabd63f3cdb316a38"
+    },
+    {
+      "path": "rebuild/backend/static/vendor/htmx-2.0.11.min.js",
+      "group": "product",
+      "sha256": "d6fdc75f204e6bdefa99b69bf1e6d4ac69b8a364f77929f45c13476b4000f717"
+    },
+    {
+      "path": "rebuild/backend/templates/429.html",
+      "group": "product",
+      "sha256": "72c46f43f7168d7675077af767f77d41c39a687317b32fb1191eb8e9dd4b71ab"
+    },
+    {
+      "path": "rebuild/backend/templates/accounts/mfa_form.html",
+      "group": "product",
+      "sha256": "2051b2cecfe6dcc72be5daf02f45f86121b844ef25db2eb35303d0521abc31bb"
+    },
+    {
+      "path": "rebuild/backend/templates/accounts/mfa_required.html",
+      "group": "product",
+      "sha256": "44d012aa6a7e24018aaa14de342699a0fe0069ca84ccefc9979426770bbeff1b"
+    },
+    {
+      "path": "rebuild/backend/templates/accounts/security.html",
+      "group": "product",
+      "sha256": "0e0961477ea9f452828150d21f32df9ae78dadc9fb1befcc3b63ebc82dc91b65"
+    },
+    {
+      "path": "rebuild/backend/templates/accounts/security_unavailable.html",
+      "group": "product",
+      "sha256": "ba0b5e344fde4d1737e18a25e6a3ad45e98d4b7a407d844f78a72d648aafdef8"
+    },
+    {
+      "path": "rebuild/backend/templates/accounts/storefront_manage.html",
+      "group": "product",
+      "sha256": "966b6175cf76ff6928070f6b0d0d5753b26341c2fdd8d7de5a62f2cda116e66d"
+    },
+    {
+      "path": "rebuild/backend/templates/accounts/storefront_page.html",
+      "group": "product",
+      "sha256": "e10e4c699a661a299f68c489c7b1e3b8783751ed3a229085eed5e98b0d8c88cb"
+    },
+    {
+      "path": "rebuild/backend/templates/accounts/verify_email.html",
+      "group": "product",
+      "sha256": "99dff19bf7cd403ffffedb39c972ac788e693714dce25f2847bc49ee484154f9"
+    },
+    {
+      "path": "rebuild/backend/templates/allauth/layouts/base.html",
+      "group": "product",
+      "sha256": "3b1d32aa316cf4d31aa45a580606f06e8517514e1ef2ca479ac4b09c39ead7a9"
+    },
+    {
+      "path": "rebuild/backend/templates/base.html",
+      "group": "product",
+      "sha256": "8e9c0194b609e2f2a45ad68bd2958bb72321d3d0dae1526c2468739ea8e05dd7"
+    },
+    {
+      "path": "rebuild/backend/templates/conversations/detail.html",
+      "group": "product",
+      "sha256": "1a02d58a6dabe4929758ad1f62eeebeafb94b7439ad72b25260357e4059348a5"
+    },
+    {
+      "path": "rebuild/backend/templates/conversations/field.html",
+      "group": "product",
+      "sha256": "5cf9272308db3fb20d76f30585d8e9951d55d42a0df1924e0930e07d92f384ab"
+    },
+    {
+      "path": "rebuild/backend/templates/conversations/history.html",
+      "group": "product",
+      "sha256": "810b780227c0173326b0a8b7e0c700fd79f91d79bec47289cbf3b38bf6719ee5"
+    },
+    {
+      "path": "rebuild/backend/templates/conversations/inbox.html",
+      "group": "product",
+      "sha256": "1ab576d8cc550d682b315a0f60a8e88f1bea7cb0316fe617f6cbff7278d2f91e"
+    },
+    {
+      "path": "rebuild/backend/templates/conversations/start.html",
+      "group": "product",
+      "sha256": "594ee89b71793d348187d4e36060a98a7244d5dccebe442873a7be8c1981e670"
+    },
+    {
+      "path": "rebuild/backend/templates/conversations/unavailable.html",
+      "group": "product",
+      "sha256": "702873fe448b91131b0cbcf66924cee1b622a5fcf0feb0d3bcb4c0af466e404b"
+    },
+    {
+      "path": "rebuild/backend/templates/home.html",
+      "group": "product",
+      "sha256": "6f9bd7fb0e9702942dd916093e0f843552333ed2c7a792a0d1458f1e0ca965e7"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/conflict.html",
+      "group": "product",
+      "sha256": "755a1169257f327deae7c86658d8034462ebe30d69cb85410d9800bf4a49d730"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/content.html",
+      "group": "product",
+      "sha256": "acd9ecc9295d0d487f02fef8d14dd7c4c3faf8c4b43ee97b150ef9f6cc7b6df5"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/create.html",
+      "group": "product",
+      "sha256": "58e17953a0cae07e8ccc0b3faf74dd073108fddbbfa6d3f1655c5e4a42c3ef24"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/dashboard.html",
+      "group": "product",
+      "sha256": "b53b6352eff1b1a2c090bcc3f2c82fd15b896c071a71f0b4a390d23239af719a"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/detail.html",
+      "group": "product",
+      "sha256": "702d459d4eab2a9689907faa73b0a0b7b86c453446fc3f54b655999a2934356c"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/edit.html",
+      "group": "product",
+      "sha256": "2cb4a275b0e930a7c3f9a562db2697b49861626d0b607947986ef9557d16128e"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/favorite_error.html",
+      "group": "product",
+      "sha256": "275af2722946d9e4be0c70e17b9e09698df1b77623502f5f50e4404b0d5e28d7"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/favorites.html",
+      "group": "product",
+      "sha256": "ed449733f11c60d8d32f9da082cec868da438ac48528cec13c20b671e1f427d8"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/fields.html",
+      "group": "product",
+      "sha256": "4f39ed24b67ab9f7c1d6353ee5cd99f11960101678f88434bf01c8d339123a7d"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/index.html",
+      "group": "product",
+      "sha256": "4fc2a91b4eb05bf53f3edeff0440019ec3222b0ab68fae46081990bb0fb5d36a"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/pagination.html",
+      "group": "product",
+      "sha256": "631f407228301def42e9b158d0e4beb4612fb42cb5bef8bd3d10d4dfbdf7b5b3"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/photos.html",
+      "group": "product",
+      "sha256": "5598c54ef03fabea252f0ccbcd5db02383ace7c9f7f913d9f3d01810d1e0f22b"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/preview.html",
+      "group": "product",
+      "sha256": "717c996c101df80d5d9008739fd4f41fcddcd57cb3d9b6fe4c367b832d3d9d13"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/search_field.html",
+      "group": "product",
+      "sha256": "2875e8702fdd79054e7efbb05907c686e8415bd3dec5c9b6f6835a3bf88f3bd2"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/search_filters.html",
+      "group": "product",
+      "sha256": "8e292a83fdb15eefc9c7cdbf49a51829f1bca72ee7fe4a45aba7123a81ee3634"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/search_pagination.html",
+      "group": "product",
+      "sha256": "a8881d919bae63445dc3e5d69890d2e71a697f48766fa89cbfe01e4534389b6a"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/search_results.html",
+      "group": "product",
+      "sha256": "1643eb657169758f39c577201106537cda4e80bf91bf52b9e771bd2f38ff5cd3"
+    },
+    {
+      "path": "rebuild/backend/templates/listings/steps.html",
+      "group": "product",
+      "sha256": "e3fa3f9bb5d2d5035f26b9ba56605353adb57653f9c567b9614f1548cf21efea"
+    },
+    {
+      "path": "rebuild/backend/templates/mfa/authenticate.html",
+      "group": "product",
+      "sha256": "4c1c88b01b672e7bd9939dff1ab8e72e728044fe878bf0b17723e678cd3d2449"
+    },
+    {
+      "path": "rebuild/backend/templates/mfa/index.html",
+      "group": "product",
+      "sha256": "bd3ed0119ede1eff7c755f1470eb4720977e60bfbfb703e7b53b784f5bf4d16c"
+    },
+    {
+      "path": "rebuild/backend/templates/mfa/messages/recovery_codes_generated.txt",
+      "group": "product",
+      "sha256": "0fc560cc3684f49c5f6d56cb1d8e11f784911f33fe9a1b35d0fe86b2e2b7d71c"
+    },
+    {
+      "path": "rebuild/backend/templates/mfa/messages/totp_activated.txt",
+      "group": "product",
+      "sha256": "5563d7db7c14961c3d488d4b5ca658994437c88bc286bb51e8bf8f557b29b6ab"
+    },
+    {
+      "path": "rebuild/backend/templates/mfa/messages/totp_deactivated.txt",
+      "group": "product",
+      "sha256": "237e64cbb7fff342e56a4794b191c3e2756536c1006cdc66458b30950a57cb63"
+    },
+    {
+      "path": "rebuild/backend/templates/mfa/reauthenticate.html",
+      "group": "product",
+      "sha256": "4b037d871ff270ac186deef2880c2ed19d9059cd0ed54adb4e0fde9ddbd4ae58"
+    },
+    {
+      "path": "rebuild/backend/templates/mfa/recovery_codes/generate.html",
+      "group": "product",
+      "sha256": "2e48d8117e945d3eaaab0942b62296d55db7c97ffd702046e4a9997aeb2f8620"
+    },
+    {
+      "path": "rebuild/backend/templates/mfa/recovery_codes/index.html",
+      "group": "product",
+      "sha256": "0d6de37e6aec93853f6f78e6508e8550481164ab7a2a83696147b29d01875746"
+    },
+    {
+      "path": "rebuild/backend/templates/mfa/totp/activate_form.html",
+      "group": "product",
+      "sha256": "6511d2e1a606581ba4e8a4f6e78c3fe5d8b2758a05dd1574bd72fce7007280c6"
+    },
+    {
+      "path": "rebuild/backend/templates/mfa/totp/deactivate_form.html",
+      "group": "product",
+      "sha256": "819de607f1b1b90da6813e0707c0190014f34cd3693580fa068e540a48c923a8"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/_current_target.html",
+      "group": "product",
+      "sha256": "06f8c7f1ef641c00dbf206f493109d7fa4f88700f576b88490e5470dc0d59dcd"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/_fields.html",
+      "group": "product",
+      "sha256": "5423cd2844c8ad79b408fcb73da2c8eba06bde73986df0c01c4003bb73916687"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/_pagination.html",
+      "group": "product",
+      "sha256": "7ffecbbe25cbae6073fb9260c2aad7b6cd3014eb25798e45eedfef168dd73b41"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/appeal_detail.html",
+      "group": "product",
+      "sha256": "36c7c0edd5ebada3abd0b680d561001982757fa2f39f2f43d7af847723f4bbf6"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/appeal_form.html",
+      "group": "product",
+      "sha256": "e2007900c07c8360e9d6c43514fb05d809044ecaf0ce6b9a9a0a061d12bfd5e0"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/appeal_queue.html",
+      "group": "product",
+      "sha256": "2ecaa77791de5a01729ed5c0924509fa6034ff03d7c8b2a309c8ac5502b81b49"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/decision_detail.html",
+      "group": "product",
+      "sha256": "8e44015e9e1a3d2ba15e4f415e7bf8430eba776a267d111a29e68d911559a45f"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/my_decisions.html",
+      "group": "product",
+      "sha256": "073a9a1875754f5e5f3b958eed7f69b6e5894a44017082c4c266fb2ebfd5cf2d"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/my_reports.html",
+      "group": "product",
+      "sha256": "3495a5f634325679b675b328d3df4543afdc330e15e57b4004acf9fbd57a9596"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/report_detail.html",
+      "group": "product",
+      "sha256": "29ad265b6fbf2434f248ae99717f4deec56fb484e0d60df8791c46be54e4ac5a"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/report_form.html",
+      "group": "product",
+      "sha256": "4c5e62d0333b1d5a99569948bce93f793f94f0ca3e1040f72dead437833e4828"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/report_queue.html",
+      "group": "product",
+      "sha256": "9c1aaca437d2771c19985f33f55c2f11b1735c30329a98483ea69818115b7b69"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/review_appeal.html",
+      "group": "product",
+      "sha256": "71d9c022119976020fd691fbbe18e15d2897be9f407625626ff333851479439a"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/cases/review_report.html",
+      "group": "product",
+      "sha256": "0389be83b994c1489d06abc4d7f8dd2d42746a79441613282a9cb864f780cb96"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/queue.html",
+      "group": "product",
+      "sha256": "647edb72f586b6f0e5b0dc6f796884e80c8e7565c15000ec22da0686bf6507fa"
+    },
+    {
+      "path": "rebuild/backend/templates/moderation/review.html",
+      "group": "product",
+      "sha256": "ebe2b0ab6cfac45a3e742f9c437996a0e7bdc9bc2387880ea27b46f4f6484db1"
+    },
+    {
+      "path": "rebuild/backend/templates/notifications/inbox.html",
+      "group": "product",
+      "sha256": "17805ada5786a5ac298b24b7157c3ffecf5fb05f3f4107e17b7af2b57c494478"
+    },
+    {
+      "path": "rebuild/backend/templates/notifications/invalid_search.html",
+      "group": "product",
+      "sha256": "b1f3df173e20d93ddf5959797912a2381bfc3a938584ea60783c7a2912f3bb29"
+    },
+    {
+      "path": "rebuild/backend/templates/notifications/search_form.html",
+      "group": "product",
+      "sha256": "4e203491dc674b2bf01cffa8c2a3c5d173c7ec45beb84731490bce55a1f2d6b2"
+    },
+    {
+      "path": "rebuild/backend/templates/notifications/searches.html",
+      "group": "product",
+      "sha256": "c2b765a0e81b04abf3aa58fee940e8b94edc23298eb8ad80ceca31754909b42f"
+    },
+    {
+      "path": "rebuild/browser-tests/conversations.cjs",
+      "group": "product",
+      "sha256": "41ebca9daf049d02970a8bab6b5c012f9172fdc20f131c5ca3c3d23fe907e065"
+    },
+    {
+      "path": "rebuild/browser-tests/favorites-saved-searches.cjs",
+      "group": "product",
+      "sha256": "10c0bfc41e5b0ee24cfbc805385c55e79ac9b64e00369206a5da1533155a8107"
+    },
+    {
+      "path": "rebuild/browser-tests/in-app-notifications.cjs",
+      "group": "product",
+      "sha256": "8c39cc24df96c5686dc173e788df032cd385969748c62f4fdbca7e9fff857623"
+    },
+    {
+      "path": "rebuild/browser-tests/journey.cjs",
+      "group": "product",
+      "sha256": "2f9f089ee2122d935dea4c20e0e2f7c9c45a5d57ff559c30062f9da35c175092"
+    },
+    {
+      "path": "rebuild/browser-tests/mfa.cjs",
+      "group": "product",
+      "sha256": "1fb60fbf3aa755b721e0d496050479a746b22f3abf55e49e4b5b12cd7261d684"
+    },
+    {
+      "path": "rebuild/browser-tests/mfa.test.cjs",
+      "group": "product",
+      "sha256": "dad2037d5684d590847d3d430f1e9fec6cef945c5e4f673c2edaf3a7490c8465"
+    },
+    {
+      "path": "rebuild/browser-tests/pilot-limits.cjs",
+      "group": "product",
+      "sha256": "3c52790b361268a82188521ea0fb72d8ebdf5060cea3336526d16d7e18d209c7"
+    },
+    {
+      "path": "rebuild/browser-tests/reports-appeals.cjs",
+      "group": "product",
+      "sha256": "1e448647a8258c92314842b6667db9c670bdf95f61f3b3c24e74bf3bdea34734"
+    },
+    {
+      "path": "rebuild/browser-tests/reports-appeals.test.cjs",
+      "group": "product",
+      "sha256": "1a0149bff5d642e9725941bb25622cb1bfb461f7678f49ea6461d1cb459bfe7d"
+    },
+    {
+      "path": "rebuild/browser-tests/search.cjs",
+      "group": "product",
+      "sha256": "66d2bb0c543d173768a5849823c7a86c132bdc0b3c3762b593afb11ec9d02a1b"
+    },
+    {
+      "path": "rebuild/browser-tests/storefront.cjs",
+      "group": "product",
+      "sha256": "3e05bab8133f21214388483e29aafa1baa5f1f6dcb63164c23374cd0d1116a8c"
+    },
+    {
+      "path": "rebuild/compose.dev.yaml",
+      "group": "product",
+      "sha256": "890e3fbc756b0c38725a85ddf67feb1d77bdcbbed208c99e84c7e35225152e90"
+    },
+    {
+      "path": "rebuild/compose.yaml",
+      "group": "product",
+      "sha256": "71d08b01cbbab07aa9763e10ed412a3a56001a63a41f030d053da4eb974cdb90"
+    },
+    {
+      "path": "rebuild/docs/CONVERSATIONS_VERIFICATION.md",
+      "group": "product",
+      "sha256": "370fa99f4656c0080189d4b44c2b7a903b60fa853097a9667e1d4750b827510b"
+    },
+    {
+      "path": "rebuild/docs/LOCAL_SETUP.md",
+      "group": "product",
+      "sha256": "f8920f541f17dc36cc4cefb3d8d049996a4a151dd46d5b9291d7849f8b2ac0e7"
+    },
+    {
+      "path": "rebuild/docs/MFA_VERIFICATION.md",
+      "group": "product",
+      "sha256": "9675f3e5f7949d4663f0928b59b0067cf0f40a151ebb403c3978b98a710d4878"
+    },
+    {
+      "path": "rebuild/docs/REPORTS_APPEALS_VERIFICATION.md",
+      "group": "product",
+      "sha256": "7684f756902cb4b32211f6a1fb623f82fa9a89a484498f913b481414685e37cb"
+    },
+    {
+      "path": "rebuild/docs/SEARCH_VERIFICATION.md",
+      "group": "product",
+      "sha256": "521df99a64a104b8248072be9529d8af2e6dda0afeaa89cc6b12dae25a71c37e"
+    },
+    {
+      "path": "rebuild/docs/VERIFICATION.md",
+      "group": "product",
+      "sha256": "58a713b85571296e276f77dca9d8704e6a781a5ef21b824848c3720c86f3534b"
+    },
+    {
+      "path": "rebuild/docs/implementation/INTERFACES.md",
+      "group": "product",
+      "sha256": "0e36065ea3e7a1dae0ece0e78f6b2973952eab1a1ee15cb483d5ba3d2a17557f"
+    },
+    {
+      "path": "rebuild/docs/phase6/freeze.cjs",
+      "group": "product",
+      "sha256": "1bae6793f2a067445ce4882d06ccd493091eb56e78c3dc729faec6bea75d9a30"
+    },
+    {
+      "path": "rebuild/docs/phase6/protection-check.cjs",
+      "group": "product",
+      "sha256": "3c4e32ecb0e096bc46b02aa21970853d828aed9a84451bd6eeb00e5d50b6b732"
+    },
+    {
+      "path": "rebuild/docs/phase6/verify-candidate.cjs",
+      "group": "product",
+      "sha256": "44e45b0e6655d02f516ca8444f25a7419c89cdffb85ea984936eb6b4d655c777"
+    },
+    {
+      "path": "rebuild/requirements.in",
+      "group": "product",
+      "sha256": "fd9ab6aee53e43cea04da319bb0f1e065caa8dd7839686fb45e8786d13bd60dd"
+    },
+    {
+      "path": "rebuild/requirements.lock",
+      "group": "product",
+      "sha256": "daab3ab79f4bfdaeb196a5c66c9ce70859b6638be7eba436b4faf4fdcb544265"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/archive_io.py",
+      "group": "operations",
+      "sha256": "c46370596699087357e36c8127f9efc44cb612fe1b3f3f082cb8143116ae3a65"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/capture-entry.cjs",
+      "group": "operations",
+      "sha256": "b23b78877e7cbb73fcac18e2a5b9f08076a1daa030f2893829bb2f90bfb4d61f"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/capture.cjs",
+      "group": "operations",
+      "sha256": "b7c0f0d7402e3856fb04f9472d632374d60b7f1dce6c69f5d018de722db056ad"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/compose.recovery.yaml",
+      "group": "operations",
+      "sha256": "cc30036c8171d8177b2c205fa8a4d3d09a0737d7a8063f01b47717f7da2a1946"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/dependencies.json",
+      "group": "operations",
+      "sha256": "fe987fd319dbfde57ad079e28f0535bc9ea11b98e1e9fcbb41044f81dd58b3f5"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/deployment.cjs",
+      "group": "operations",
+      "sha256": "27d42f0c734d75264a542fc9554e160195f6a5422b26f808d8973cc74c617642"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/deployment.py",
+      "group": "operations",
+      "sha256": "ec6766c5be00ec20b27b7f874035d65fb479cba3a82ec99fe7196c9340bf70ca"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/feature_fixture.py",
+      "group": "operations",
+      "sha256": "f697ffbc1359d3fba381fa8c0ec3d651b3244ec3ffb95060a082fa802d389480"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/gate.cjs",
+      "group": "operations",
+      "sha256": "6df820ea7a7ec5314701dffd209128da64c51fdcbe45969f1c60a1f99bd0fd38"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/graceful.cjs",
+      "group": "operations",
+      "sha256": "4f69ab67bb613a59a6c07a5770df1b759c87c380793f887aeb4bfa40c6a78f5e"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/idle.py",
+      "group": "operations",
+      "sha256": "a160a6251148a58d65ae17414ae08b210ae5991feaea7317d2a0c356550839d3"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/inspect.cjs",
+      "group": "operations",
+      "sha256": "339121fe637c853ab950d7ff15756996da821098b0211da8dbb41c2c3d256c42"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/isolation.cjs",
+      "group": "operations",
+      "sha256": "3ca6acdb549fb512f20cf6f73c1bc40149c18e26a65be0fada52787492245a4d"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/lifecycle.cjs",
+      "group": "operations",
+      "sha256": "3d8e0e3f9b4e04317ac709b3c823abfb56d9620c97c7011f44c1398ab09a3bb8"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/lock.cjs",
+      "group": "operations",
+      "sha256": "c210e656ceb37331ead8055dbfc069fac4ed5bddc4ca323cde80a52a8eba8330"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/audit.py",
+      "group": "operations",
+      "sha256": "803b3d1726fe9b02979e9ed260375659cf7eedba1666a653a6361ca397627b96"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/contract.cjs",
+      "group": "operations",
+      "sha256": "fd68570db4b8176f1b18b29425462dc775ca63facdbb7e3036b6edf18d0e8747"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/helper.py",
+      "group": "operations",
+      "sha256": "0eedfaa965ac3fe64069838b4d0f166fbc7b2a34184b70887034ae7be3de1636"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/observe.cjs",
+      "group": "operations",
+      "sha256": "96473bff3204d71d489c59d7e1a4db997c94225d2b408ba4c68819acbe628821"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/preflight.py",
+      "group": "operations",
+      "sha256": "95863313cd1766e0f9a9e82c1b8891be8677aa5ec3416901c8e567760c44a5c2"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/run.cjs",
+      "group": "operations",
+      "sha256": "4c9ef4a1f64ea30d77842f4021c5e7557c5c256be6ec3f618879a9c85160af0c"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/scanner.py",
+      "group": "operations",
+      "sha256": "1001c32b5569cf48b79add1c2b2f8b1cc052ddccafc01dc5fb6d1108abcc60d9"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/snapshot.py",
+      "group": "operations",
+      "sha256": "5dd647dc315d4a057d90530ab36fa79b8e690c57c4ac92d8da1b41d71d38414b"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/tests/absence_test.py",
+      "group": "operations",
+      "sha256": "8b75c14d391b1f17062c839809c2981289192c75a1a3313e93bc423f7538ff21"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/tests/audit_test.py",
+      "group": "operations",
+      "sha256": "6584e1247bd1f4494a4f039f2a0cc609af326eca37114a46d18bdd3372ef0f13"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/tests/contract.test.cjs",
+      "group": "operations",
+      "sha256": "86c7e38a1176b6d3222106c56e78931afda2ca39523907ae34d9da8d024d854a"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/tests/entry-pipeline.cjs",
+      "group": "operations",
+      "sha256": "eaa09bd5a212f1da0077556fdea4590004a9f6bfcb3b6706558f9afa53b2dcc2"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/tests/integration.cjs",
+      "group": "operations",
+      "sha256": "78154edef2f74e5a3d1fef56db4c1032ef8518b2565390804a9abc194bd07fad"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/tests/integration.py",
+      "group": "operations",
+      "sha256": "6cf4b797f4a4eb5ecf0fe8a898dbea3c38e05c5f3e08f68a657ce06721b342dd"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/tests/layout_test.py",
+      "group": "operations",
+      "sha256": "8bee5a846e69b672c214e83957f9bcbbf49fe64b4ab7986f54540e818b7cbb72"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/tests/observe.test.cjs",
+      "group": "operations",
+      "sha256": "1f127bf53012aa8e447c88949efbdba50195aec01a0fb94a775fbec3a418b3a3"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/tests/owner-os.cjs",
+      "group": "operations",
+      "sha256": "560d302d08ba5ff54f8996cbbdf09737410192220f7ebf3e88d0da877495d725"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/tests/scanner_linux.py",
+      "group": "operations",
+      "sha256": "0e8c676f5ad3a58840f5616d909a32bd140caf2e8780db0f355c85fa067222ce"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media-audit/transport.cjs",
+      "group": "operations",
+      "sha256": "01b01e46f986597003a087287735ca97b726a48682e05fa1dbfbbb2fed183e8e"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/media_stream.py",
+      "group": "operations",
+      "sha256": "878436f155e62b57e34e271589a5d5632e4f60d91790cbf3e07855c51cf54702"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/network_probe.py",
+      "group": "operations",
+      "sha256": "8b9db976eb2d418e56177d576b1f0abbbb35448e06674cd5ebd55f364f2b8b6f"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/notification_coverage.py",
+      "group": "operations",
+      "sha256": "e5255a4438a384c1729657b4deb5edbf3d7cb3cdac1da0c1c7081f14c6156c63"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/notification_fixture.py",
+      "group": "operations",
+      "sha256": "32677fb7b240e5f48f93fa220cde322c6296a45261d7eef712bea0e23406a6bf"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/observability/core.cjs",
+      "group": "operations",
+      "sha256": "315d8dbba27a9099dd4ad43dfafa5e9bf78e23c7c8c532da34e6ce3f98544bcb"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/observability/probe.py",
+      "group": "operations",
+      "sha256": "7d0c6e39cb8e6d9b2828c80a1d78d8812f23f1f969bdb495ed44ee0065947eb5"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/observability/run.cjs",
+      "group": "operations",
+      "sha256": "e83487d8b1cfea04cd05425013c36d2eb35ab5a5925b18dafa08d0387b82e2fc"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/observability/tests/core.test.cjs",
+      "group": "operations",
+      "sha256": "bec1c332b9ca9f98a31b837ca0aac44fec462c9fb62d0d2461518b6ef0c0ad93"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/observability/tests/db-integration.cjs",
+      "group": "operations",
+      "sha256": "6237e8854a63d06bf6e0850233665c89cd92d8d9abef77d80f33eba0c16e3a1e"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/observability/tests/db_integration.py",
+      "group": "operations",
+      "sha256": "f1e272f3561c1181fad44b7b42e61f476368a9f42f5dcac7d240dce20e52bbfa"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/observability/tests/probe_test.py",
+      "group": "operations",
+      "sha256": "0454326c43a31fa83853c141130eec281f0fec192f79ee9792157d8767c56d12"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/original-capture.cjs",
+      "group": "operations",
+      "sha256": "071e265c43a01759646eb00c37e3c1e54377f05425a3cc03f6a0a026f240a03f"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/original-source.cjs",
+      "group": "operations",
+      "sha256": "ac7ad950b5f32f03ba8be9adcc0d0196f16fa90837d997c9d89a60a8693a393e"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/original_export.py",
+      "group": "operations",
+      "sha256": "7e28ea80d5eb9b992bc8a672cc1d09d8473c5dc24c011b3280c90f6e8ae1de2f"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/original_media.py",
+      "group": "operations",
+      "sha256": "7020949fe1e8bdf3210ee295064dac34463e31639e7e225a1a65c8a5c4f4a330"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/owned-helper.cjs",
+      "group": "operations",
+      "sha256": "6e16ed737695caafbdd6568fdd1a2cdc4e2873404b8f5bcfa18b7b4a52877ee8"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/reader_preflight.py",
+      "group": "operations",
+      "sha256": "71a48cae9d2ab5823fde709f402d6ab4ccf82e9d6f8890bf0ba110f2ea83aeb5"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/recovery_settings.py",
+      "group": "operations",
+      "sha256": "5cfcd35abd0660c92e8aadb572f3c6715234fb1aef1f7b6189c0973505beb74b"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/restore-entry.cjs",
+      "group": "operations",
+      "sha256": "bd017dacfe928e81f2ac0b0a0af984b733804d1ca3f618fd3aab0d1e3a11d21e"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/restore.cjs",
+      "group": "operations",
+      "sha256": "9f9a9bc438cdfb1b3da4495297acfd49acdbc040c7a23bac2e84908dcac0e337"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/restore_runtime.py",
+      "group": "operations",
+      "sha256": "9fdc4e6e230ae7500973efd4eae4a277eaff452ab9d0695468e5fe5c754fc9ba"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/run.cjs",
+      "group": "operations",
+      "sha256": "e51bd5db56949a39d716740b75b88c06b401ff365c462ccfcaa5e5b83821cb76"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/runtime.cjs",
+      "group": "operations",
+      "sha256": "8a570d79d0802a834bff972d8b8858f370127c431404dedda18a6b32143d3402"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/snapshot.cjs",
+      "group": "operations",
+      "sha256": "affb69aaafecdb7d536d7f07d593f5c20f2322ac3f7ac7e729e0d3b4522e8175"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/snapshot_catalog.py",
+      "group": "operations",
+      "sha256": "c3d89c372df27f39d14ef13920caaa7a0214a1ab6892bac124b8e5693480e45b"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/source_export.py",
+      "group": "operations",
+      "sha256": "1bfeedf29d12b67f519f18d8f1ae3e6275facc29ec39b954376a383a9e2a453c"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/storefront_coverage.py",
+      "group": "operations",
+      "sha256": "dafa38ded2d7e53af2ed12236df817ccc4e8c27215a651880c6db5c7a5e977b6"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/storefront_fixture.py",
+      "group": "operations",
+      "sha256": "49c9e65b97e407b649d3d76c2e7352b6aa7479d8f20ce4f80f14fb829181a9dd"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/synthetic_fixture.py",
+      "group": "operations",
+      "sha256": "ecf2abccbacd67d380ed4b430936b9b56c5646e222c085c8009c9ea3bb35b365"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/boundary-sequence.cjs",
+      "group": "operations",
+      "sha256": "167b35039d33c79b77171dde3506d4d7b7f6b777d4021a9a152d1d67fbf05a10"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/capture-deployment.test.cjs",
+      "group": "operations",
+      "sha256": "6ce1c4a70d3eb7784540fb58ca9797df9011b234569db223916384c22ba4ba7e"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/capture-preflight.test.cjs",
+      "group": "operations",
+      "sha256": "ada5452d5c595fa12b31ceeb648b074dbb50373cd2a18324f21c5fffd7b317e7"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/capture.test.cjs",
+      "group": "operations",
+      "sha256": "85629bf4c452c169b31811738989eae48d9e6bca35e205f1eed4b47b24e77ad0"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/gate.test.cjs",
+      "group": "operations",
+      "sha256": "2e0adbcbc0b770d24b2adbb83934007e17c0f797b1436b3646c644b1c2fb70f6"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/helper-fixture.cjs",
+      "group": "operations",
+      "sha256": "ae37c15baea90165ab360c05467eb814a6a7ab89fff756862ff05de2801be42f"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/lifecycle-integration.cjs",
+      "group": "operations",
+      "sha256": "44fd0c0d7a5369e500abd43f5c717910813befd35d27d9666506df9bc04e6d5b"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/lifecycle.test.cjs",
+      "group": "operations",
+      "sha256": "27577ce14e8db1922d588c6f1cd714b2a93ab93711ab30bb087ebcd261ed846c"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/lock-outcomes.test.cjs",
+      "group": "operations",
+      "sha256": "ada491844fd4776514eb2bc11f3d7e63317ff37e6298a79cae8b582c5b989016"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/notification-version.test.cjs",
+      "group": "operations",
+      "sha256": "10666667bfbd6f8c461d2ef20872a60cb14f803911d9a6a9e77e13e44e3c28d0"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/original-capture.test.cjs",
+      "group": "operations",
+      "sha256": "6c91c5ae4bb46f00021cf175058eb677e9938c8d8008cf106688432bbb64fdf3"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/original.test.cjs",
+      "group": "operations",
+      "sha256": "f0d4ae51222de4ba59a0921c44e1dc64aa3d6dae206534b73a2bd9e5e65e5737"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/owned-helper.test.cjs",
+      "group": "operations",
+      "sha256": "5692e7e5f304601c1a4741bbd7111decf1c670721765deb355f528817f75671d"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/owner-reader.test.cjs",
+      "group": "operations",
+      "sha256": "ee9d3ed1b3c64a6b70df76ab30fb0007ef8e23b60ca15784b719543e3c201e05"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/p13-cleanup.test.cjs",
+      "group": "operations",
+      "sha256": "745bf9771109ee5e27f26d141508ff882b4def3f0ba632590528de67e0278ef6"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/p13-coverage.test.cjs",
+      "group": "operations",
+      "sha256": "fd2fa41eff49ce8d7aa718f3eff495307c6424884b9063688727f7989bc44666"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/p13-media-output.test.cjs",
+      "group": "operations",
+      "sha256": "6a8fd6a66e911527c329195117f68eb4b0db469fb419d2a98987e6b40353dc84"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/p13-restore-lifecycle.test.cjs",
+      "group": "operations",
+      "sha256": "fe4925c0058f10696a5e9b49c893ae802fd7d366555b616af9a4d8952b71588a"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/p13-roundtrip-output.test.cjs",
+      "group": "operations",
+      "sha256": "11cc636a4c7177bb83027eff534565bd84667e311e9825a09255d40f9eb42745"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/p13-summary.test.cjs",
+      "group": "operations",
+      "sha256": "f4104266cb4bdb5bfab43661074aa6636a5d163e3193de77eb5d4aa3b9fa8d32"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/p13-transport.test.cjs",
+      "group": "operations",
+      "sha256": "a2f6c194f25280303c1dcc295357ecd86a80e270f04b0fefd18017c834857c46"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/profile.test.cjs",
+      "group": "operations",
+      "sha256": "9f637f6eedaf68e76de55de2bef79246f7406ba7fca2b383f48535b85a469960"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/python-linux.cjs",
+      "group": "operations",
+      "sha256": "400f8f87e6e72c2b774655cbc0ffdd435765bd9028a3888662b432b37ff4903d"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/restore.test.cjs",
+      "group": "operations",
+      "sha256": "7ba6512e400514ecd04bea049841bcb56c32320bbdcc4d8fcdd0e8af0e7b77a7"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/runtime-lifecycle.test.cjs",
+      "group": "operations",
+      "sha256": "1ae214964233a8df6d60bbbb3cbdddb8b5635eed4df3477c0cf7d13a6f0fa263"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/schema-roundtrip.cjs",
+      "group": "operations",
+      "sha256": "3fa34e935595213ecfa82b6158fc856e42f63aafa221df4c7e70d75df1018deb"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/schema_semantics.py",
+      "group": "operations",
+      "sha256": "7847a84f164c2ab9fb45c2c20c4e85f6f3f262b5e3c04a9c371f0ce8eddc8e1d",
+      "acceptedSourceSha256": "51ee7f87a7e9cc788b066ed265c66962912caf8fa8476b28daefd3c4a459972f",
+      "publicationTransformation": "Removed spaces from three otherwise empty lines only; original accepted source remains unchanged."
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/snapshot-close.test.cjs",
+      "group": "operations",
+      "sha256": "c7bbddd4918892ca0f61027c0b306e0781f057c83ddd33e9b49c2f1046e1dac1"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/snapshot-fixture.cjs",
+      "group": "operations",
+      "sha256": "7888efcf48519f3ce78a9aa6764a5c7ecf9999ba8a9536c0ae4b88562e9c1195"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/snapshot-v2.test.cjs",
+      "group": "operations",
+      "sha256": "eed8ab9075918c1372c8c39c92affd8fe47c24372d386378f6706b354b30a704"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/storefront-profile.test.cjs",
+      "group": "operations",
+      "sha256": "b9e3b6c812408a83888fa427f682ac041819489d21371fa8e267c4d9876e7eb5"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/synthetic-restore.cjs",
+      "group": "operations",
+      "sha256": "d3c23e12b30695f7043e83f78ba7ec40fb209d938038f50f3d68f73af2f04617"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/synthetic-roundtrip.cjs",
+      "group": "operations",
+      "sha256": "7a413c314fbd95ea7b9340d196c8f6bdcf956dc198d7920a9defecd482318484"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/test_archive.py",
+      "group": "operations",
+      "sha256": "7d533d24c3177d7a87ff25c12089f79cd93569d97e4d563d3e9b70aab3174656"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/test_boundary_sequence.py",
+      "group": "operations",
+      "sha256": "bc3470edfc7173928d465c16f4fc7081455c5d2b6f804825f3f9ab43ef241255"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/test_catalog.py",
+      "group": "operations",
+      "sha256": "b66c1305e2f1097edbd115bd855f74c984dbeae1baef1bffe9918c7ea0e92975"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/test_constraint_v2.py",
+      "group": "operations",
+      "sha256": "c04bafbee80d14f6a7227148fa971d07b720a0b96fb149643edffb9d12a84554"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/test_coverage.py",
+      "group": "operations",
+      "sha256": "6c5fcc74197a9d638de159dc4d548b945d4681c8fa9a78e43358c8e77c3afe72"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/test_image_archive.py",
+      "group": "operations",
+      "sha256": "7b34162b7fe8095a4589117fcd323de63827d15cbfa9568da0321f89804bf4ff"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/test_new_tables.py",
+      "group": "operations",
+      "sha256": "665a88b25c14d49e87cc422aca4eadfe551732fad85f69d04b35450467ad91af"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/test_notifications_catalog.py",
+      "group": "operations",
+      "sha256": "83b2855a2b9951514a6f6c2ab2936dcf34419dddef0a31d30602bd4ae46bd66b"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/test_restore.py",
+      "group": "operations",
+      "sha256": "49a1888c333c37c630aae52fff121e0a6dec314c7b80acc0b38f9313fa041c63"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/test_snapshot_protocol.py",
+      "group": "operations",
+      "sha256": "608d778d20333e77aa874453b941c3406553d980c13c88954c86651bc15baea5"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/test_storefront_catalog.py",
+      "group": "operations",
+      "sha256": "bc5dcf873c2fadce442cac688246a035dda5c15fccbf322e1d1927d1b424b0c3"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/v2-discovery-integration.cjs",
+      "group": "operations",
+      "sha256": "d2715ccee449ede0907e37ea8e25e5eba74cc1cdb1afe5193ab7d5a69b58f964"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/v2-lifecycle-integration.cjs",
+      "group": "operations",
+      "sha256": "e7e4de97e50e5ea5f53d99b9e70ad0b1ff4e359f65c454b633c6f9d94e4bc88d"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/v2-output.test.cjs",
+      "group": "operations",
+      "sha256": "10642d765e7df19baed1469a432713704d5376fc03ee1242c61499412f488a7b"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/v2-red.test.cjs",
+      "group": "operations",
+      "sha256": "3c8655b7be94f4bb4f8e59064ff9d5c629be5e3c2d2c518317f10ad8ee630113"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/tests/wrong-key.cjs",
+      "group": "operations",
+      "sha256": "ef3d00cafcf01b198209e57a0ef46ca79b4be0d5afc5b9b0cf40038cb647fce0"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/unresolved.cjs",
+      "group": "operations",
+      "sha256": "c917b7a2cdc12aa9aa352d24ad6bb3b1fd3b310d5e90f4814f4ae65f751ea7bf"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/verify_features.py",
+      "group": "operations",
+      "sha256": "02dd6bcfbd3d6be7e029a0bb34cdd1ffddb985c2ddf4cd0a8dbd10c318bd1099"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/verify_notifications.py",
+      "group": "operations",
+      "sha256": "a01867f8c02e35a1bf243e70cedf660c47647834abcb9f4a349dfab7bbd3eafc"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/verify_original.py",
+      "group": "operations",
+      "sha256": "d6a510d107b1650ca60c9c4d04d1be2557e3123cf03affdf80b6353303e68f7d"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/verify_restore.py",
+      "group": "operations",
+      "sha256": "d460e7456ed235c081a3c83620609b6d2fed2d6cf9e8309df3c8a3013ea74df7"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/verify_storefronts.py",
+      "group": "operations",
+      "sha256": "867f01bc3a432c20d19b058e02550a4aaeb90156373419f2f431102ae6914ce4"
+    },
+    {
+      "path": "rebuild/compose.original-notifications.yaml",
+      "group": "operations",
+      "sha256": "35afc2f08edc21d370d4000486c47b2e1607a9082d1a76cace940dd74aeb30d6"
+    },
+    {
+      "path": "rebuild/docs/phase14/adoption/files.cjs",
+      "group": "operations",
+      "sha256": "625bce8098ee094e1332a15782278e86aa870b2cc39986217f625069326d7466"
+    },
+    {
+      "path": "rebuild/docs/phase14/adoption/preflight.cjs",
+      "group": "operations",
+      "sha256": "7304e8b2648880f34f3d5ea47bd2d512022953853d96a642cf6e6acd31b20cd7"
+    },
+    {
+      "path": "rebuild/docs/phase14/adoption/resume.cjs",
+      "group": "operations",
+      "sha256": "e2d6ae96ef123b0a72bfa8f3dfde4f0beebb62706ad9862b09f27378002f8388"
+    },
+    {
+      "path": "rebuild/docs/phase14/adoption/runtime.cjs",
+      "group": "operations",
+      "sha256": "c3d473314232e8f91b0a0a953e359ce1911326f3e01597624dbd5110a224ed3b"
+    },
+    {
+      "path": "rebuild/docs/phase15/baseline.cjs",
+      "group": "operations",
+      "sha256": "65df8b177b2db391bd180717362a1a116e17b65a1cf9d52c37f5fd2cc2106456"
+    },
+    {
+      "path": "rebuild/docs/phase15/freeze-v2-r2.cjs",
+      "group": "operations",
+      "sha256": "717435ebaf0aa501ad4f60f15d47ca67d084c42396a765e02916e45eb464bd96"
+    },
+    {
+      "path": "rebuild/docs/phase15/freeze-v2.cjs",
+      "group": "operations",
+      "sha256": "fabd6424071de0ec772a6594effbfd48ebaf73422a6a3f1e5c03aaaa692fc897"
+    },
+    {
+      "path": "rebuild/docs/phase15/freeze.cjs",
+      "group": "operations",
+      "sha256": "8a93ce438cc49f7c591d564229f9b7c0d60fbc10c71c8a73839b92a75504c33e"
+    },
+    {
+      "path": "rebuild/docs/phase15/image-check.cjs",
+      "group": "operations",
+      "sha256": "a47e13ae0e0c16c2005d6973cfe38c9f47cf2320f129eab0124be50fe507daa8"
+    },
+    {
+      "path": "rebuild/docs/phase15/node-tests.cjs",
+      "group": "operations",
+      "sha256": "1ad12f0693af3d88dfd5fc344324afbf453e01d7d6d8b8e5c38d88e7e25e27df"
+    },
+    {
+      "path": "rebuild/docs/phase15/protection-v2-r2.cjs",
+      "group": "operations",
+      "sha256": "e623f176046c710b663a83975986c5bbbd231238fc13ae0276891f0dcbddcaf3"
+    },
+    {
+      "path": "rebuild/docs/phase15/protection-v2.cjs",
+      "group": "operations",
+      "sha256": "d3cbf26acd1333cfa6e8d62f354e9c9e67ab5a522e24df1e77bd07616d6a22b6"
+    },
+    {
+      "path": "rebuild/docs/phase15/protection.cjs",
+      "group": "operations",
+      "sha256": "0a047d833bdd7024c7b546bb259d74a37302ea5cddec7797aeda48689552c69d"
+    },
+    {
+      "path": "rebuild/docs/phase5/adoption-checks.cjs",
+      "group": "operations",
+      "sha256": "52e4d0a7ca71be2b76c0115fb37e4ec2b9f7316f213c4c086d82001bec888481"
+    },
+    {
+      "path": "rebuild/ops/recovery/archive_io.py",
+      "group": "operations",
+      "sha256": "93780deeff9430ad8ff9f109d82f0d638db072efc25da98a29943eba3a41cd05"
+    },
+    {
+      "path": "rebuild/ops/recovery/capture.cjs",
+      "group": "operations",
+      "sha256": "6a309f888eba7fa37155299f04c3878cf5948f14b0cb2ebc7c365c9ff80a001a"
+    },
+    {
+      "path": "rebuild/ops/recovery/compose.recovery.yaml",
+      "group": "operations",
+      "sha256": "e319a692a88a7329dd300504545783101f531c7083024f0551949d24ea4e24a4"
+    },
+    {
+      "path": "rebuild/ops/recovery/guards.cjs",
+      "group": "operations",
+      "sha256": "e6e9ad95cbd178c5fad151a24c7259f46220044129ad8f92371642df8e9e3382"
+    },
+    {
+      "path": "rebuild/ops/recovery/health-observer.cjs",
+      "group": "operations",
+      "sha256": "bacfb91a2ed9cec590861b7b5ceefb60569e8e23ea8e2d0135681802a3098567"
+    },
+    {
+      "path": "rebuild/ops/recovery/inspect.cjs",
+      "group": "operations",
+      "sha256": "ba0f45fcf031a6bc83bcd9d2e099e4a302c91de041cfc001e8218bd9cf74e224"
+    },
+    {
+      "path": "rebuild/ops/recovery/isolation.cjs",
+      "group": "operations",
+      "sha256": "f7fc69054708172b70f8d1e9d4a0dea1e404777f9a72563f5a7a0fe554331156"
+    },
+    {
+      "path": "rebuild/ops/recovery/key-store.ps1",
+      "group": "operations",
+      "sha256": "ba9d497a30e5c096673d85c608692bc26b92711e67a4715ff3f1f8d977ab0a2f"
+    },
+    {
+      "path": "rebuild/ops/recovery/media_stream.py",
+      "group": "operations",
+      "sha256": "878436f155e62b57e34e271589a5d5632e4f60d91790cbf3e07855c51cf54702"
+    },
+    {
+      "path": "rebuild/ops/recovery/network_probe.py",
+      "group": "operations",
+      "sha256": "8b9db976eb2d418e56177d576b1f0abbbb35448e06674cd5ebd55f364f2b8b6f"
+    },
+    {
+      "path": "rebuild/ops/recovery/original-capture.cjs",
+      "group": "operations",
+      "sha256": "3635f2c95978b1da15b575c4a3571f9718afd847361d5230cc907ea31bfb5c2e"
+    },
+    {
+      "path": "rebuild/ops/recovery/original-source.cjs",
+      "group": "operations",
+      "sha256": "2d3935cb6055f770a624e608cd73bd6e2f510a9593de6af9d48b54bc263a83b2"
+    },
+    {
+      "path": "rebuild/ops/recovery/original_export.py",
+      "group": "operations",
+      "sha256": "1321e80ea5184747166844743b350a3f1189e3ab79a695b89892637f9ccaac15"
+    },
+    {
+      "path": "rebuild/ops/recovery/original_media.py",
+      "group": "operations",
+      "sha256": "7020949fe1e8bdf3210ee295064dac34463e31639e7e225a1a65c8a5c4f4a330"
+    },
+    {
+      "path": "rebuild/ops/recovery/reader_preflight.py",
+      "group": "operations",
+      "sha256": "71a48cae9d2ab5823fde709f402d6ab4ccf82e9d6f8890bf0ba110f2ea83aeb5"
+    },
+    {
+      "path": "rebuild/ops/recovery/recovery_settings.py",
+      "group": "operations",
+      "sha256": "4ae9a61b71d75f4a9391e75af122e1c137facbd02d414b37510e0155486c0cb0"
+    },
+    {
+      "path": "rebuild/ops/recovery/repository.cjs",
+      "group": "operations",
+      "sha256": "4a79b881eceab9fb7cffa78cdf16abadb7ba7aa24157f19db8c4ef0ad07d8783"
+    },
+    {
+      "path": "rebuild/ops/recovery/restore.cjs",
+      "group": "operations",
+      "sha256": "d02e66fbf7b013ab3e2f3bd3612a0e58717bf4299f317bb84d935c2b2011e99e"
+    },
+    {
+      "path": "rebuild/ops/recovery/restore_runtime.py",
+      "group": "operations",
+      "sha256": "e16096103960f499cd49c8d6560d668d15aacfd89ec3f52b247627545672b029"
+    },
+    {
+      "path": "rebuild/ops/recovery/run.cjs",
+      "group": "operations",
+      "sha256": "a9f200c6618bbeed43534e60f3ebdff1d8b580186765a3c71b848606c6c628be"
+    },
+    {
+      "path": "rebuild/ops/recovery/runtime.cjs",
+      "group": "operations",
+      "sha256": "490374e7408f0abe70ba2049a0b9fba4127e4b27a3e4fb106cbc5da30d468a01"
+    },
+    {
+      "path": "rebuild/ops/recovery/safe-process.cjs",
+      "group": "operations",
+      "sha256": "1c84d9e7ec3999c5b7e5d5cdb0c40a5846804755295aaef4e9b647641dfb5477"
+    },
+    {
+      "path": "rebuild/ops/recovery/snapshot_catalog.py",
+      "group": "operations",
+      "sha256": "97d7f09fbb599de33dd89aee2bf68a9b7ad3f3885268d0b6e91f3aece4780377"
+    },
+    {
+      "path": "rebuild/ops/recovery/source_export.py",
+      "group": "operations",
+      "sha256": "49b4adf3e35a3e15b9c5c58e9c7babb69f6b043b57e925dbc396ef4e0e922305"
+    },
+    {
+      "path": "rebuild/ops/recovery/synthetic_fixture.py",
+      "group": "operations",
+      "sha256": "3018ceb34176c036b9f399cb8badaecab5c8225ceeaaee6ba0f5c1424e2d27c9"
+    },
+    {
+      "path": "rebuild/ops/recovery/task6-gate.cjs",
+      "group": "operations",
+      "sha256": "a6597d586bfc37ac069c82d7894be950f201cbcc2befb21dd98550850dfdf83e"
+    },
+    {
+      "path": "rebuild/ops/recovery/task6-original.cjs",
+      "group": "operations",
+      "sha256": "664328172d438909a81bcb214122301dbe89539ad9b643587dd0507b307ccb31"
+    },
+    {
+      "path": "rebuild/ops/recovery/task6-restore.cjs",
+      "group": "operations",
+      "sha256": "76db96d6e9901cc793ad3e86d1e3410a7af0e3a55345fdefead18acc006fdf37"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/acl-fixture.ps1",
+      "group": "operations",
+      "sha256": "218af931db52f43c3d79565d4b39be792ba9113a620666d433ce91d0f768bcee"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/archive-check.cjs",
+      "group": "operations",
+      "sha256": "881dc7034700fd1eca2131d711b4d8b5fca7ab9a83dde6595eb1d77295801c70"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/capture-source.cjs",
+      "group": "operations",
+      "sha256": "0e079eac6f8668aaf26d4db55b6d5d614425e1b8f2d6e009af09eb272ed80c53"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/capture.test.cjs",
+      "group": "operations",
+      "sha256": "85629bf4c452c169b31811738989eae48d9e6bca35e205f1eed4b47b24e77ad0"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/check-target.cjs",
+      "group": "operations",
+      "sha256": "ff24285f5f07e4c007f3f2223a604aa446036838806bc5c6a90006b64bba5a44"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/final-protection.cjs",
+      "group": "operations",
+      "sha256": "25103e3e547bd9785ed095bdf0d3e24fc1daf463cb06516d7816cf6581785efe"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/finalize-records.cjs",
+      "group": "operations",
+      "sha256": "00445d0cc4e14d9a8a7388f8457fc0daecdf0c778eb438c3b560445b0b5e6656"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/guards.test.cjs",
+      "group": "operations",
+      "sha256": "aaea6620e262caf3742600b30be8f80df6c79ea762ab5e769d9da603a1aa5c70"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/health-delay-preload.cjs",
+      "group": "operations",
+      "sha256": "383fa3b115591f7d4030c985eec3736c389a1bbc2ab5fa12e5b9391d394c018c"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/health-observer.test.cjs",
+      "group": "operations",
+      "sha256": "8f354cae0927e2e8c1076816107318cf1255525930e2261c5a21c7a6cba3734b"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/health-protocol-worker.cjs",
+      "group": "operations",
+      "sha256": "35b1265723b12059bd3c15d67b6a8c1b55fa086f70cd3573451de324a40b8f16"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/health-server.cjs",
+      "group": "operations",
+      "sha256": "01ba04b3033ce47f6cd74a2fe4606b94fbc11c53d97e30b4f7b0646a3a345428"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/inspect.test.cjs",
+      "group": "operations",
+      "sha256": "f38e5caf53cff9386c1442a1e0bcbb6e5679e3308c50e00d3a319830adf587fa"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/integrated-gate.test.cjs",
+      "group": "operations",
+      "sha256": "63cd6d4d1994fdd631fb2ae6b7a6e95f79978711c0eb5c10830bb9006abe194b"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/isolation-probe.cjs",
+      "group": "operations",
+      "sha256": "7d8d3560bce32eda92fdab4817b5a54f8ab1310dfc91138308be705c290c6ef9"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/isolation.test.cjs",
+      "group": "operations",
+      "sha256": "903126e0ad2d4743b8cd49b64d5e0177379cb0099df3b58811c0fcd6261cd2fa"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/key-store.tests.ps1",
+      "group": "operations",
+      "sha256": "0c4bd9e1922bb867a096536886be980963a31f3dfb7545be18ded07f4226a06f"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/missing-media.cjs",
+      "group": "operations",
+      "sha256": "9c8959bdafde67d15fde61c9e9ba7a41a7aaa539a9ca1a394fdb5d4f32f5d083"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/original-capture.test.cjs",
+      "group": "operations",
+      "sha256": "da3a80c4e09cb5d5e7b7eda3cbd01665755c7c35419f1be7cafad27b9b869bf3"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/original.test.cjs",
+      "group": "operations",
+      "sha256": "f0d4ae51222de4ba59a0921c44e1dc64aa3d6dae206534b73a2bd9e5e65e5737"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/owner-media-os.cjs",
+      "group": "operations",
+      "sha256": "299c5ebb284d82a406aa072b5dc87c75049b37023ff7b86cfcf2d0fb7b628d0a"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/owner-reader.test.cjs",
+      "group": "operations",
+      "sha256": "ee9d3ed1b3c64a6b70df76ab30fb0007ef8e23b60ca15784b719543e3c201e05"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/process.test.cjs",
+      "group": "operations",
+      "sha256": "118cfcbf18f82dc882e65dff5b18391a775a92df9f9aafa872c59d43ed58dca2"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/repository.test.cjs",
+      "group": "operations",
+      "sha256": "45bef273ca475cc8650e1e6883bac09fb7c9d8711003b8b4ebda9f32d2b3a1ab"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/restic-roundtrip.cjs",
+      "group": "operations",
+      "sha256": "f0805a3b061520360016edc5a631e0aa35464f31dda4644d7340a7811d2ac046"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/restore-backup.cjs",
+      "group": "operations",
+      "sha256": "f8e8d1d37971a43b941d66e829136423b1a061037ebca83b987c3c0750c97b26"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/restore.test.cjs",
+      "group": "operations",
+      "sha256": "6e952f8a16f9687ddffeb36780f5217ad5ef3c5149514c5672b23eaeeb24d9b5"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/seed-source.cjs",
+      "group": "operations",
+      "sha256": "f6d736387fe4e957428a53061b10373ae582f8ecb012e397d6e8a0e8388b240f"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/task6-entry.test.cjs",
+      "group": "operations",
+      "sha256": "5378c7fe048aae221876fef81b8871947a33bd7b7ad893c24df02de232ddf8bc"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/task6-gate.test.cjs",
+      "group": "operations",
+      "sha256": "a821c62de858e2af8ef0a6b1a2076c4be212f83232c7e2f6908774b7a7dd3ad0"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/task6-media-probe.cjs",
+      "group": "operations",
+      "sha256": "b188e6bbfd399b8c3d622fa19206b50bf73f91f0049c0780ed2bb8996122410b"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/task6-synthetic.cjs",
+      "group": "operations",
+      "sha256": "7a7aceb821904fcd81afb10ab564da5ed0030463369bc2b9ef20f31584ad630b"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/test_archive.py",
+      "group": "operations",
+      "sha256": "c8ebacf13d4bbe60ec854cc4a33d1b6b8b23ad2cc62223cd3eead55e84c1b4b9"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/test_catalog.py",
+      "group": "operations",
+      "sha256": "b66c1305e2f1097edbd115bd855f74c984dbeae1baef1bffe9918c7ea0e92975"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/test_image_archive.py",
+      "group": "operations",
+      "sha256": "7b34162b7fe8095a4589117fcd323de63827d15cbfa9568da0321f89804bf4ff"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/test_original.py",
+      "group": "operations",
+      "sha256": "b9a35c1b5c0ca3798fb6a118b91171588afd99e098040baf43ca2e33f48baceb"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/test_restore.py",
+      "group": "operations",
+      "sha256": "49a1888c333c37c630aae52fff121e0a6dec314c7b80acc0b38f9313fa041c63"
+    },
+    {
+      "path": "rebuild/ops/recovery/tests/verify-target.cjs",
+      "group": "operations",
+      "sha256": "3ba4b1205afc447f1df9b805a4b9471dd86779154e267cacab3a5ca58cbf0a73"
+    },
+    {
+      "path": "rebuild/ops/recovery/tool-lock.json",
+      "group": "operations",
+      "sha256": "701ffd08f99280736ea09239867acb41cf4f4c82654990d6b47b2a2d1166fb38"
+    },
+    {
+      "path": "rebuild/ops/recovery/verify_original.py",
+      "group": "operations",
+      "sha256": "ca8383693864e5f77dd4154b92524fb25cb9a8e0a316cbb78b65caf3e0e23ec5"
+    },
+    {
+      "path": "rebuild/ops/recovery/verify_restore.py",
+      "group": "operations",
+      "sha256": "04ad37943aca1fe139469399e411f4cee8967c00dba9fdad90a0c724c11ca1c2"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-08-classifieds-rebuild-design.md",
+      "group": "documentation",
+      "sha256": "bb346376dd14bd6ee6bcc990420835cce9bd6e53fcc3e1947739e96f15c054f3"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-09-classifieds-search.md",
+      "group": "documentation",
+      "sha256": "c1632f9cada2e8e30cfe0bfd78892015dd2136e217b420cbfb4dcfac02f4f853"
+    },
+    {
+      "path": "README.md",
+      "group": "documentation",
+      "sha256": "af812c9fc13a6461d2e2998a54a32c77ae9768dcab4523f8ac2ad62c43f080a3"
+    },
+    {
+      "path": "rebuild/docs/CURRENT_STATUS.md",
+      "group": "documentation",
+      "sha256": "02a3787b0823e809e693aff0aa8ce4611971657742131411e5b107f3d83ad2be"
+    },
+    {
+      "path": "rebuild/docs/PUBLICATION_SUMMARY.md",
+      "group": "documentation",
+      "sha256": "0504d09d0212fa9d4d9920e20ea815147511aa3aff01eb766aa816faf8b68810"
+    },
+    {
+      "path": "rebuild/docs/implementation/final-fix-review.md",
+      "group": "documentation",
+      "sha256": "48b8d7363d822cf6399f13b0181e79bf070e2ec86fe07c2d8287619f3b537c6a"
+    },
+    {
+      "path": "rebuild/docs/phase2/search-release-report.md",
+      "group": "documentation",
+      "sha256": "48b8d7363d822cf6399f13b0181e79bf070e2ec86fe07c2d8287619f3b537c6a"
+    },
+    {
+      "path": "rebuild/docs/phase2/adoption-report.md",
+      "group": "documentation",
+      "sha256": "48b8d7363d822cf6399f13b0181e79bf070e2ec86fe07c2d8287619f3b537c6a"
+    },
+    {
+      "path": "rebuild/docs/phase4/task-B-report.md",
+      "group": "documentation",
+      "sha256": "48b8d7363d822cf6399f13b0181e79bf070e2ec86fe07c2d8287619f3b537c6a"
+    },
+    {
+      "path": "rebuild/docs/phase6/cli-implementation-report.md",
+      "group": "documentation",
+      "sha256": "48b8d7363d822cf6399f13b0181e79bf070e2ec86fe07c2d8287619f3b537c6a"
+    },
+    {
+      "path": "rebuild/docs/phase3/task-B-report.md",
+      "group": "documentation",
+      "sha256": "48b8d7363d822cf6399f13b0181e79bf070e2ec86fe07c2d8287619f3b537c6a"
+    },
+    {
+      "path": ".gitattributes",
+      "group": "documentation",
+      "sha256": "645fccfa87ffd3eb85c1c8fa1fd51b94a4655d7be5c46b272eb505ffd47b7a99"
+    },
+    {
+      "path": "rebuild/ops/phase14-operations/constraint-variants-v2.json",
+      "sha256": "906b02f0b2b1e103b3afe3bc4f57661cdd8a71125d82a5549caca655ddf3697d",
+      "group": "operations"
+    }
+  ]
+}

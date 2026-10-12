@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="tr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Classifieds Local</title></head>
+<body>
+<main>
+<h1>Classifieds Local</h1>
+<p>Yerel ilan topluluğuna hoş geldiniz.</p>
+{% if user.is_authenticated %}
+<p>Oturumunuz açık.</p><a href="{% url 'account_logout' %}">Çıkış yap</a>
+{% else %}
+<a href="{% url 'account_login' %}">Giriş yap</a>
+<a href="{% url 'account_signup' %}">Hesap oluştur</a>
+{% endif %}
+</main>
+</body>
+</html>

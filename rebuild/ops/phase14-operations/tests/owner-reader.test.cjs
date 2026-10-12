@@ -1,0 +1,13 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const {guardOwnerMetadata,guardReader}=require('../original-source.cjs');
+const {image}=require('../inspect.cjs');
+const ownership=()=>({uid:0,gid:0,uidMap:['0','0','4294967295'],gidMap:['0','0','4294967295'],directories:[{uid:0,gid:0,mode:493,directory:true},{uid:0,gid:0,mode:448,directory:true},{uid:0,gid:0,mode:448,directory:true}]});
+test('owner profile requires exact source ownership and namespace',()=>assert.equal(guardOwnerMetadata(ownership()),true));
+for(const field of ['uid','gid','uidMap','gidMap','directories'])test('owner metadata refuses '+field,()=>{const x=ownership();x[field]=null;assert.throws(()=>guardOwnerMetadata(x),/^Error: media_owner_refused$/);});
+const receipt={id:'a'.repeat(64),run:'b'.repeat(16),volume:'classifieds-rebuild_rebuild_media',profile:'original-owner'};
+const metadata=()=>({id:receipt.id,image,labels:{'phase7.run':receipt.run},user:'0:0',network:'none',readonly:true,privileged:false,capAdd:[],capDrop:['ALL'],security:['no-new-privileges'],ports:{},pid:'',userns:'',ipc:'private',mounts:[{Type:'volume',Name:receipt.volume,Destination:'/media',RW:false},{Type:'bind',Source:require('node:path').resolve(__dirname,'..'),Destination:'/ops',RW:false}]});
+test('separate owner profile accepts confined exact reader',()=>assert.equal(guardReader(metadata(),receipt),true));
+for(const [field,value] of [['user','1000:1000'],['image','wrong'],['pid','host'],['userns','host'],['network','host'],['readonly',false],['privileged',true],['capAdd',['DAC_OVERRIDE']],['security',[]]])test('owner reader refuses '+field,()=>{const m=metadata();m[field]=value;assert.throws(()=>guardReader(m,receipt),/^Error: media_reader_refused$/);});
+test('owner reader refuses writable or foreign media',()=>{for(const field of ['RW','Name']){const m=metadata();m.mounts[0][field]=field==='RW'?true:'foreign';assert.throws(()=>guardReader(m,receipt),/^Error: media_reader_refused$/);}});
+test('nonroot profile still rejects UID0',()=>assert.throws(()=>guardReader(metadata(),{...receipt,profile:'nonroot'}),/^Error: media_reader_refused$/));

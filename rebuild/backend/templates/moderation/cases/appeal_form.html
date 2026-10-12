@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}Karara itiraz et · Classifieds Local{% endblock %}{% block content %}
+<section class="panel case-page"><h1>Karara itiraz et</h1>
+<h2>{{ item.title }}</h2><p>{{ item.reason }}</p><form method="post">{% csrf_token %}{% include "moderation/cases/_fields.html" %}<button type="submit">İtiraz gönder</button></form>
+</section>{% endblock %}

@@ -1,0 +1,10 @@
+# The Django app is source; override the inherited legacy media/ ignore.
+!backend/media/
+!backend/media/**
+.env
+__pycache__/
+*.py[cod]
+/media/
+staticfiles/
+.browser-test-tools/
+test-artifacts/

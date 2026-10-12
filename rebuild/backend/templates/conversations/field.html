@@ -1,0 +1,6 @@
+<div class="message-field">
+<label for="{{ form.body.id_for_label }}">Mesajın</label>
+<p id="message-help" class="muted">En çok 4000 karakter. Mesajlar düz metin olarak gösterilir.</p>
+{% if form.errors %}<div class="form-errors" role="alert"><p>Mesaj gönderilemedi. Bilgileri kontrol edin.</p>{{ form.non_field_errors }}{{ form.body.errors }}{{ form.client_token.errors }}</div>{% endif %}
+{{ form.body }}{{ form.client_token }}
+</div>

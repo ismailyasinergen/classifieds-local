@@ -1,0 +1,1 @@
+{% extends "base.html" %}{% block title %}İki adımlı doğrulama{% endblock %}{% block content %}<h1>İki adımlı doğrulama</h1><p>Girişinizi tamamlamak için doğrulama uygulamanızdaki altı haneli kodu veya kullanılmamış sekiz haneli kurtarma kodunu girin.</p>{% include "accounts/mfa_form.html" %}<p><a href="{% url 'account_login' %}">Giriş ekranına dön</a></p>{% endblock %}

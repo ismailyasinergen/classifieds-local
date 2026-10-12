@@ -1,0 +1,3 @@
+{% if case.current_target %}<h2>İlanın güncel durumu</h2>
+<p>{% if case.current_target.reported_revision_is_current %}Bildirilen sürüm güncel.{% else %}Bildirilen sürüm artık güncel değil; aşağıdaki kanıt bildirim anına aittir.{% endif %}</p>
+<p>{% if case.current_target.lifecycle == "live" %}Yayında{% elif case.current_target.lifecycle == "paused" %}Duraklatılmış{% elif case.current_target.lifecycle == "closed" %}Kapatılmış{% else %}Taslak{% endif %} · {% if case.current_target.visible %}Herkese açık{% else %}Herkese açık değil{% endif %}</p>{% endif %}
