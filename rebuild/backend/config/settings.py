@@ -9,7 +9,7 @@ INSTALLED_APPS = [
     "django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes",
     "django.contrib.sessions", "django.contrib.messages", "django.contrib.staticfiles",
     "django.contrib.sites", "django.contrib.postgres", "allauth", "allauth.account",
-    "allauth.mfa", "accounts", "catalog", "listings", "media", "moderation", "events", "conversations", "notifications",
+    "allauth.mfa", "accounts", "catalog", "listings", "media", "moderation", "events", "conversations", "notifications", "promotions",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -129,3 +129,6 @@ MFA_TOTP_PERIOD = 30
 MFA_TOTP_DIGITS = 6
 MFA_TOTP_TOLERANCE = 0
 MFA_TOTP_ISSUER = "Classifieds Local"
+
+PROMOTIONS_DEMO_ENABLED = os.environ.get('PROMOTIONS_DEMO_ENABLED', '0') == '1'
+DEPLOYMENT_ENVIRONMENT = os.environ.get('DEPLOYMENT_ENVIRONMENT', '')

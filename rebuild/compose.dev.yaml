@@ -3,13 +3,19 @@ services:
     image: classifieds-rebuild-dev-web:local
     environment:
       IN_APP_NOTIFICATIONS_ENABLED: "1"
+      PROMOTIONS_DEMO_ENABLED: "1"
+      DEPLOYMENT_ENVIRONMENT: developer
     ports: !override
       - "127.0.0.1:8089:8000"
   worker:
     image: classifieds-rebuild-dev-web:local
     environment:
       IN_APP_NOTIFICATIONS_ENABLED: "1"
+      PROMOTIONS_DEMO_ENABLED: "1"
+      DEPLOYMENT_ENVIRONMENT: developer
   scheduler:
     image: classifieds-rebuild-dev-web:local
     environment:
       IN_APP_NOTIFICATIONS_ENABLED: "1"
+      PROMOTIONS_DEMO_ENABLED: "1"
+      DEPLOYMENT_ENVIRONMENT: developer

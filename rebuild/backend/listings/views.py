@@ -75,6 +75,7 @@ def edit_page(request, revision, *, form=None, upload_form=None, status=200, ste
 def index(request):
     form = SearchForm(request.GET)
     page, previous_url, next_url = None, None, None
+    sponsored = []
     valid = form.is_valid()
     if valid:
         spec = form.spec
@@ -92,11 +93,16 @@ def index(request):
         except ValidationError as error:
             form.add_search_error(error)
             valid, page = False, None
+    if valid and page is not None and page.number == 1:
+        from django.conf import settings
+        if settings.PROMOTIONS_DEMO_ENABLED and settings.DEPLOYMENT_ENVIRONMENT == 'developer':
+            from promotions.services import sponsored_listings
+            sponsored = sponsored_listings(spec=form.spec)
     form.prepare_accessibility()
     from notifications.forms import SaveSearchForm
     save_form = SaveSearchForm(initial={"spec": json.dumps(search_spec_to_dict(form.spec), ensure_ascii=False)}) if valid else None
     return render(request, "listings/index.html", {
-        "save_search_form": save_form,
+        "save_search_form": save_form, "sponsored": sponsored,
         "search_form": form, "search_valid": valid, "search_spec": form.spec if valid else None,
         "page_obj": page, "selected_category": str(form.spec.category_id)
         if form.spec is not None and form.spec.category_id is not None else "",
@@ -130,7 +136,9 @@ def dashboard(request):
     for listing in page:
         latest = next(iter(listing.revisions.all()), None)
         rows.append({"listing": listing, "latest": latest, "visible": listing.pk in visible_ids})
-    return render(request, "listings/dashboard.html", {"rows": rows, "page_obj": page})
+    from django.conf import settings
+    return render(request, "listings/dashboard.html", {"rows": rows, "page_obj": page,
+        "promotions_demo": settings.PROMOTIONS_DEMO_ENABLED and settings.DEPLOYMENT_ENVIRONMENT == 'developer'})
 
 
 @login_required

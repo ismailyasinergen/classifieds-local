@@ -32,6 +32,7 @@ admin.site.login = secure_admin_login(admin.site.login)
 
 
 urlpatterns = [
+    path("one-cikar/", include("promotions.urls")),
     path("", include("accounts.storefront_urls")),
     path("", include("listings.urls")),
     path("kayitli-aramalarim/", include("notifications.urls")),

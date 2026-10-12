@@ -1,11 +1,11 @@
-# Güncel durum — yayın özeti
+# Güncel durum — Faz 16 kaynak yayını
 
-Bu belge yerel kabul kayıtlarının yayıma uygun özetidir; özgün makbuz veya yeni bağımsız PASS değildir.
+Faz 16 demo öne çıkarma developer'da kabul edildi. Satın alma tutarı/para birimi/süre/yerleşim/koşulları sunucuda sabitlenir; ayrı demo kanıtı gerçek ödeme kanıtı değildir. Tekrar istek ikinci hak üretmez. Sponsorlu alan ortak arama/görünürlük kurallarını kullanır; organik sayfalama değişmez.
 
-Faz 14 V4 Satıcı Vitrini iki yerel ortamda etkin. Faz 15 V3 yerel şifreli yedek ve ayrı süreç izole restore kabulü tamamlandı. Faz 16 henüz başlamadı.
+Genel flag kapalı; yalnız doğrulanmış developer bağlamında etkinleştirilir. ORIGINAL Faz 14 V4 ürününde kalır. Bu PR dağıtım değildir. promotions.0001_initial ve 0002_immutable_demo_records kaynakları yayımlanır; bu yayın görevi mevcut DB'lere migration uygulamaz.
 
-Ürün: 319 yol; manifest `f69c9d336c5baec787e2b0113d3ec77fd536c97e1ed0e3769ebb46bfda4bac58`. Image: `sha256:23e5fe716cd2f2e73c189f035eb3df345ca155c1cd31c78bfdbd0c06839a1839`. Operasyon kabul kimliği: `fa2f6f4017c3f97f941d48cc8d6422df478b702300fc3bd8fc70d75fe45d679c`. Bu kimlikler yayımlanmayan yerel kabul paketlerine aittir.
+Kayıtlı developer kanıtı: 23 hedefli, 679 tam Django, 22 başlangıç testi; gerçek masaüstü/mobil/JavaScript kapalı browser kabulü ve bağımsız dondurulmuş kaynak incelemesi. Bunlar yeni yayın testleri veya uzak CI sonucu değildir. Yeni sonuçlar [Faz 16 yayın özetinde](PHASE16_PUBLICATION.md) ayrıdır. Yerel makbuzlar ve ekran görüntüleri yayımlanmaz.
 
-Gerçek snapshot'taki Storefront/Favorite/SavedSearch/teslimat tabloları boştur; dolu davranış kabulü sentetiktir. Gerçek MFA işlev kapsamı unavailable'dır. Tarihsel 657 Django, 143 browser kontrolü/21 POST ve 366 Node sonucu yeni GitHub CI sonucu değildir. Taze yayın testleri [yayın özetinde](PUBLICATION_SUMMARY.md) ayrı yazılır.
+Faz 15 V3 yedek/restore kabulü önceki ürüne aittir; promotions verisi yeniden kabul edilmedi. P14-R1/R2/R3, H5, tarihsel erişim/browser/sağlık belirsizlikleri ve önceki .env okuma olayı açık kalır. Offsite, bağımsız anahtar saklama, fiziksel eksik-image kurtarma, zamanlanmış yedekleme, takeover ve elektrik kesintisi güvenceleri doğrulanmamıştır. Gerçek MFA işlev kapsamına ait önceki unavailable notu korunur.
 
-P14-R1/R2/R3, H5, tarihsel browser/sağlık belirsizlikleri ve önceki .env okuma olayı açık kalır. Offsite, bağımsız anahtar saklama, fiziksel eksik-image kurtarma, zamanlanmış yedekleme, takeover ve elektrik kesintisi güvenceleri doğrulanmamıştır.
+Gerçek ödeme/harici sağlayıcı, ORIGINAL aktarımı, yeni yedek/restore, auto-merge veya dal koruması değişikliği yok.
