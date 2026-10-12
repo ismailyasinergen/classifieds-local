@@ -2,7 +2,9 @@ from datetime import timedelta
 from decimal import Decimal
 from importlib import import_module
 from uuid import uuid4
-from unittest.mock import patch
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import Mock, patch
 
 from allauth.account.models import EmailAddress
 from django.contrib.sites.models import Site
@@ -16,8 +18,27 @@ from listings.search.parsing import parse_search_spec
 from listings.tests.test_drafts import DraftFixtures
 
 
+class DeveloperMountFixture:
+    def setUp(self):
+        super().setUp()
+        self.mountinfo = Mock(spec=Path)
+        self.mountinfo.read_text.return_value = (
+            "42 31 0:40 /volumes/classifieds-rebuild-dev_rebuild_media/_data "
+            "/var/lib/classifieds/media rw,relatime - ext4 /dev/test rw\n"
+        )
+
+        def service_path(*args, **kwargs):
+            path = Path(*args, **kwargs)
+            return self.mountinfo if path == Path('/proc/self/mountinfo') else path
+
+        # Patch only this module's boundary; worker threads finish before cleanup.
+        self.mount_patch = patch('promotions.services.Path', side_effect=service_path)
+        self.addCleanup(self.mount_patch.stop)
+        self.mount_patch.start()
+
+
 @override_settings(PROMOTIONS_DEMO_ENABLED=True, DEPLOYMENT_ENVIRONMENT='developer')
-class PromotionTests(DraftFixtures, TestCase):
+class PromotionTests(DeveloperMountFixture, DraftFixtures, TestCase):
     def setUp(self):
         super().setUp()
         try:
@@ -63,20 +84,28 @@ class PromotionTests(DraftFixtures, TestCase):
             self.purchase(listing_id=second.pk)
 
     def test_owner_and_staff_have_no_bypass(self):
+        self.service.require_demo()
         for staff in (False,True):
             self.other.is_staff=staff
             self.other.save()
-            with self.assertRaises(PermissionDenied):
+            with self.assertRaisesMessage(PermissionDenied, 'Bu ilanı düzenleme yetkiniz yok.'):
                 self.purchase(actor=self.other)
+            self.assert_no_promotion_records()
+
+    def assert_no_promotion_records(self):
+        for model in (self.models.Purchase, self.models.Activation, self.models.DemoEvidence):
+            self.assertEqual(model.objects.count(), 0)
 
     def test_closed_flag_wrong_environment_and_site(self):
+        self.service.require_demo()
         for settings in ({'PROMOTIONS_DEMO_ENABLED':False},{'DEPLOYMENT_ENVIRONMENT':'original'}):
             with override_settings(**settings),self.assertRaises(PermissionDenied):
                 self.purchase()
+            self.assert_no_promotion_records()
         Site.objects.filter(pk=1).update(domain='127.0.0.1:8088')
         with self.assertRaises(PermissionDenied):
             self.purchase()
-        self.assertEqual(self.models.Purchase.objects.count(),0)
+        self.assert_no_promotion_records()
 
     def test_email_and_active_account_are_current(self):
         EmailAddress.objects.filter(user=self.owner).update(verified=False)
@@ -150,10 +179,12 @@ class PromotionTests(DraftFixtures, TestCase):
                 operation()
 
     def test_role_mfa_required_for_direct_service_and_http(self):
+        self.service.require_demo()
         self.owner.is_staff=True
         self.owner.save()
-        with self.assertRaises(PermissionDenied):
+        with self.assertRaisesMessage(PermissionDenied, 'İki aşamalı doğrulama gerekli.'):
             self.purchase()
+        self.assert_no_promotion_records()
         self.client.force_login(self.owner)
         response=self.client.post(f'/one-cikar/{self.listing.pk}/',{'product':self.product.pk,'key':str(self.key)})
         self.assertEqual(response.status_code,403)
@@ -203,8 +234,34 @@ class PromotionTests(DraftFixtures, TestCase):
 
 
     def test_test_named_database_without_developer_mount_is_refused(self):
-        with patch('promotions.services.Path.read_text',return_value=''),self.assertRaises(PermissionDenied):
+        self.mountinfo.read_text.return_value = ''
+        with self.assertRaises(PermissionDenied):
             self.purchase()
+        self.assert_no_promotion_records()
+
+    def test_original_mount_is_refused_without_writes(self):
+        self.mountinfo.read_text.return_value = (
+            "42 31 0:40 /volumes/classifieds-rebuild_rebuild_media/_data "
+            "/var/lib/classifieds/media rw,relatime - ext4 /dev/test rw\n"
+        )
+        with self.assertRaises(PermissionDenied):
+            self.purchase()
+        self.assert_no_promotion_records()
+
+    def test_mount_read_error_is_refused_without_writes(self):
+        self.mountinfo.read_text.side_effect = OSError('Synthetic mount read failure')
+        with self.assertRaises(PermissionDenied):
+            self.purchase()
+        self.assert_no_promotion_records()
+
+    def test_mount_fixture_preserves_other_reads_and_restores_service_path(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / 'unrelated.txt'
+            path.write_text('unrelated content', encoding='utf-8')
+            self.assertEqual(self.service.Path(path).read_text(encoding='utf-8'), 'unrelated content')
+            self.assertEqual(path.read_text(encoding='utf-8'), 'unrelated content')
+        self.mount_patch.stop()
+        self.assertIs(self.service.Path, Path)
 
     def test_same_http_purchase_retries_after_product_disabled(self):
         self.client.force_login(self.owner)
@@ -255,7 +312,7 @@ from conversations.tests.test_rate_limit_concurrency import PostgresLimitWorkers
 
 
 @override_settings(PROMOTIONS_DEMO_ENABLED=True, DEPLOYMENT_ENVIRONMENT='developer')
-class PromotionConcurrencyTests(PostgresLimitWorkers, DraftFixtures, TransactionTestCase):
+class PromotionConcurrencyTests(DeveloperMountFixture, PostgresLimitWorkers, DraftFixtures, TransactionTestCase):
     def setUp(self):
         super().setUp()
         self.service=import_module('promotions.services')

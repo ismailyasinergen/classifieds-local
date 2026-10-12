@@ -14,13 +14,13 @@ ORIGINAL hâlâ Faz 14 ürünündedir; PR yerel 8088'e dağıtım değildir. pro
 
 Kayıtlı developer teslimi: 23 hedefli / 679 tam Django / 22 başlangıç regresyon testi; gerçek desktop/mobile/JS kapalı browser kabulü; bağımsız dondurulmuş kaynak incelemesi PASS. Bağımsız inceleyici test/runtime/browser koşularını yeniden çalıştırmadı. Bunlar tarihsel kanıtlardır; özel makbuzlar pakette yoktur. Yayın görevi browser fixture veya başlangıç/operasyon suite'ini tekrarlamaz.
 
-12 Ekim 2026 taze yayın testleri, değişmemiş developer kaynağında demo açık: promotions modülü 22/22 (13.450 s); tam Django 679/679 (194.619 s, --parallel 2 --noinput). Pip check, Django check, migration drift ve pending kontrolü geçti. Bu görev mevcut DB'ye migration uygulamadı. Test DB/cache/mail mevcut izole runner düzenini kullandı. Tarihsel 23 hedefli sayısı bu yeni 22 testlik modül koşusuna taşınmadı.
+İlk 32e37c8 yayını için 12 Ekim 2026 testleri, değişmemiş developer kaynağında demo açık: promotions modülü 22/22 (13.450 s); tam Django 679/679 (194.619 s, --parallel 2 --noinput). Pip check, Django check, migration drift ve pending kontrolü geçti. Bu görev mevcut DB'ye migration uygulamadı. Test DB/cache/mail mevcut izole runner düzenini kullandı. Tarihsel 23 hedefli sayısı bu yeni 22 testlik modül koşusuna taşınmadı.
 
-25 staged dosyanın tamamında kaynak/byte/hash, dar gizli-değer taraması, public bağlantılar ve whitespace kontrolü geçti; ürün byte dönüşümü yok. Genel CRLF ayarı değiştirilmedi. GitHub CI gerçek yayın ağacının ayrı kanıtıdır; yerel PASS uzak CI PASS'i değildir. Uzak sonucu PR checks gösterir.
+İlk yayındaki 25 staged dosyanın tamamında kaynak/byte/hash, dar gizli-değer taraması, public bağlantılar ve whitespace kontrolü geçti; ürün byte dönüşümü yok. Genel CRLF ayarı değiştirilmedi. GitHub CI gerçek yayın ağacının ayrı kanıtıdır; yerel PASS uzak CI PASS'i değildir. Uzak sonucu PR checks gösterir.
 
 ## Dosya kökeni ve SHA-256
 
-Aşağıdaki 22 yol kabul edilmiş Faz 16 adayından gelir. README.md, CURRENT_STATUS.md ve bu özet yalnız yayın için hazırlanmış public belgelerdir. Diğer yollar doğrulanmış uzak tabandan korunur.
+Aşağıdaki tablo ilk yayın commitinin (32e37c8) 22 kabul edilmiş aday yolunu ve tarihsel hashlerini gösterir. CI izolasyonu düzeltmesinden sonra test_phase16_promotions.py bu eski aday hashinden ayrılır; güncel fark aşağıdaki bölümde açıklanır. README.md, CURRENT_STATUS.md ve bu özet yalnız yayın için hazırlanmış public belgelerdir. Diğer yollar doğrulanmış uzak tabandan korunur.
 
 | Yol | Fark | Aday SHA-256 |
 | --- | --- | --- |
@@ -49,3 +49,13 @@ Aşağıdaki 22 yol kabul edilmiş Faz 16 adayından gelir. README.md, CURRENT_S
 ## Dışarıda bırakılanlar
 
 Özel .env/credential, cookie/session/token, DB dump ve sentetik DB içeriği, yüklenmiş medya, ekran görüntüsü, log, before kopyası, runtime/baseline envanteri ve yerel kabul makbuzları yayımlanmaz. Fixture dosyası yalnız kaynak kodudur; fixture verisi/parolası içermez. Makine yolları <DEVELOPER_ROOT>/<PROJECT_ROOT> olarak anlatılır. Main'e merge, auto-merge, dal koruması değişikliği, gerçek tahsilat, ORIGINAL aktarımı ve yeni yedek/restore yok.
+
+## PR #55 — CI test izolasyonu düzeltmesi
+
+İlk push ve PR koşuları (38311735217 / 38311780143) başarısız oldu. PR hedefli paketi 385 testte 2 failure ve 13 error verdi: olumlu promotions testleri GitHub base Compose ortamında fiziksel developer mount bulamadığından gerçek require_demo() tarafından reddediliyordu. Önceki yerel developer PASS, bu CI koşullarını kapsamıyordu.
+
+Yalnız test_phase16_promotions.py değişti. Test başına fixture yalnız promotions.services.Path('/proc/self/mountinfo') okumasına kontrollü bir örnek verir; diğer yollar gerçek Path üzerinden okunur. require_demo(), PostgreSQL/ayar/Site, sahiplik, güncel e-posta ve MFA kontrolleri gerçek çalışır. Cleanup her testte kayıtlıdır; concurrency worker'ları fixture kaldırılmadan tamamlanır. Eksik/ORIGINAL mount, OSError, kapalı flag, yanlış deployment/Site retleri Purchase/Activation/DemoEvidence yazmamalıdır. Sahiplik/MFA retleri doğru kontrol noktasını ayrıca doğrular.
+
+Üretim services.py, migrations, genel demo varsayılanı ve workflow değişmedi. CI ortamına developer volume/ismi eklenmedi. İlk yerel aday ve bağımsız kabul kayıtları değiştirilmedi; eski test hash eşitliği artık bu yayın test dosyası için geçerli değildir. Yeni test SHA-256: 7b7b36b7bec78351758a1f5c4575879534c30559f6252a8825c932562531bd8c. Ayrı salt-okunur inceleme bu test diffi için PASS verdi; inceleyici testleri kendisi çalıştırmadı.
+
+RED: yayın commitinin normal satın alma ve concurrency testleri, gerçek developer mount bulunmayan ayrı PostgreSQL ortamında aynı PermissionDenied ile 2/2 error verdi (exit 1). GREEN: aynı izole ortamda promotions 25/25 geçti (15.427 s, exit 0). Aynı izole PostgreSQL ortamında CI hedefli catalog/listings/media/moderation paketi 388/388 (222.645 s), tam Django paketi 682/682 (333.970 s), her ikisi exit 0. Pip check, Django check, migration drift ve pending kontrolleri geçti. Yalnız yeni izole veritabanının şeması hazırlandı; mevcut 8088/8089 servisleri/veritabanları değiştirilmedi. Yerel izole sonuçlar ve yeni commitin GitHub push/PR koşuları ayrı kanıtlardır.
