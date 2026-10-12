@@ -117,6 +117,6 @@ class MFABoundaryMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
         if (getattr(request, "private_notification_context", False)
                 or request.path.startswith(("/accounts/", "/admin/", "/private-media/", "/inceleme/",
-                                            "/favorilerim/", "/kayitli-aramalarim/", "/vitrinim/", "/vitrin/"))):
+                                            "/favorilerim/", "/kayitli-aramalarim/", "/vitrinim/", "/vitrin/", "/one-cikar/"))):
             private_headers(response)
         return response

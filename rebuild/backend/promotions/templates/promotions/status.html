@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}Demo öne çıkarma durumu{% endblock %}{% block content %}
+<section class="panel"><h1>Demo öne çıkarma durumu</h1><p><strong>Demo — gerçek ödeme alınmaz</strong></p>
+<p>{{ purchase.product_name }} · {{ purchase.amount }} {{ purchase.currency }} (sentetik) · {{ purchase.duration_seconds }} saniye · Koşul: {{ purchase.terms_version }}</p>
+{% if activation %}<p>{% if active %}Hak etkin.{% if not visible %} İlan görünür olmadığı için sponsorlu gösterim durduruldu.{% endif %}{% else %}Hak süresi doldu.{% endif %}</p>
+<p>Başlangıç: {{ activation.starts_at|date:"c" }}<br>Bitiş: {{ activation.ends_at|date:"c" }}</p><p>İşlem tekrar edilse de ikinci hak oluşturulmaz. Ücret tahsil edilmedi.</p>
+{% else %}<p>Paket seçildi; henüz hak etkinleşmedi.</p><form method="post" action="{% url 'promotions:complete' purchase.pk %}">{% csrf_token %}<button type="submit">Demo işlemini tamamla</button></form>{% endif %}
+<a href="{% url 'listings:index' %}">Sponsorlu ilanları gör</a> · <a href="{% url 'listings:dashboard' %}">İlanlarıma dön</a></section>{% endblock %}

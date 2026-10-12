@@ -1,7 +1,9 @@
 # Classifieds Local
 
-Yayın özeti — Faz 14 V4 ürünü ve Faz 15 V3 operasyon kaynakları. Yeni uygulama [rebuild/backend](rebuild/backend); eski kök backend ayrı tarihsel uygulamadır.
+Faz 16 demo öne çıkarma geliştirici tesliminin kaynak yayını. Yeni uygulama [rebuild/backend](rebuild/backend); eski kök backend ayrı tarihsel uygulamadır.
 
-Satıcı vitrini, ilan/revizyonlar, ortak arama, görüşmeler, hesap güvenliği/moderasyon, favoriler, kayıtlı aramalar ve isteğe bağlı uygulama içi bildirimler dahildir. Faz 14 iki yerel ortama aktarılmış, Faz 15 yerel şifreli yedek/izole restore kabulü tamamlanmıştır. Bu GitHub yayını dağıtım değildir. Faz 16 başlamadı.
+Demo paket seçimi, değişmez satın alma snapshot'ı, süreli Activation ve ayrı Sponsorlu bölümü developer'da kabul edildi. **Demo — gerçek ödeme alınmaz.** Genel flag kapalıdır; developer etkinleştirmesi üretim veya gerçek ödeme hazır olma anlamına gelmez.
 
-[Güncel durum](rebuild/docs/CURRENT_STATUS.md) · [Yayın kapsamı ve sınırlar](rebuild/docs/PUBLICATION_SUMMARY.md) · [Yerel kurulum](rebuild/docs/LOCAL_SETUP.md) · [Ürün şartnamesi](docs/superpowers/specs/2026-10-08-classifieds-rebuild-design.md)
+ORIGINAL hâlâ Faz 14 ürünündedir. Bu yayın yerel 8088'e dağıtım değildir. Faz 15 yedek/restore kabulü önceki ürüne aittir; promotions verisine otomatik taşınmaz.
+
+[Güncel durum](rebuild/docs/CURRENT_STATUS.md) · [Faz 16 yayın kapsamı](rebuild/docs/PHASE16_PUBLICATION.md) · [Önceki yayın kapsamı](rebuild/docs/PUBLICATION_SUMMARY.md) · [Yerel kurulum](rebuild/docs/LOCAL_SETUP.md) · [Ürün şartnamesi](docs/superpowers/specs/2026-10-08-classifieds-rebuild-design.md)

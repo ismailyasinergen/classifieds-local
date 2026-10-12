@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block title %}Öne çıkar — demo{% endblock %}{% block content %}
+<section class="panel"><h1>Öne çıkar — demo</h1><p><strong>Demo — gerçek ödeme alınmaz</strong></p><p>{{ listing.public_revision.title }}</p>
+<p>Sentetik tutar ve süreler yalnız geliştirici denemesidir. Sponsorlu bölüm en fazla üç ilan gösterir; gösterim garantisi yoktur. İlan kapanır veya gizlenirse gösterim durur, hak süresi uzamaz.</p>
+{% if eligible %}<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Demo paketini seç</button></form>{% else %}<p>Bu ilan şu anda herkese açık değil; öne çıkarılamaz.</p>{% endif %}
+<a href="{% url 'listings:dashboard' %}">İlanlarıma dön</a></section>{% endblock %}
